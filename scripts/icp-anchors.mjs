@@ -9,6 +9,11 @@
  *          every accredited AC (roots + intermediates); use it when CMS signatures arrive without
  *          their intermediate certificates.
  *
+ * The ITI site serves its own ICP-Brasil TLS certificate, which Node does not trust, so a download
+ * from a runner usually fails. The reliable path is a reviewed PEM bundle committed at
+ * anchors/icp-brasil.pem (download the roots from the ITI page in a browser, or from a machine that
+ * trusts ICP-Brasil), which the CD uploads with --file.
+ *
  * usage: icp-anchors.mjs [--all] [--file bundle.pem] [--dry-run]
  * env:   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, KV_NAMESPACE_ID
  */
@@ -41,12 +46,16 @@ if (file) {
   const buf = readFileSync(file);
   pems = isPem(buf) ? [...buf.toString().matchAll(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g)].map((m) => m[0] + "\n") : [toPem(buf)];
 } else if (all) {
-  const dir = mkdtempSync(join(tmpdir(), "icp-"));
-  writeFileSync(join(dir, "ac.zip"), await fetchBytes(ALL_ZIP));
-  execFileSync("unzip", ["-o", "-q", join(dir, "ac.zip"), "-d", join(dir, "out")]);
-  for (const name of readdirSync(join(dir, "out")).filter((n) => /\.(crt|cer|pem)$/i.test(n)).sort()) {
-    const buf = readFileSync(join(dir, "out", name));
-    pems.push(isPem(buf) ? buf.toString() : toPem(buf));
+  try {
+    const dir = mkdtempSync(join(tmpdir(), "icp-"));
+    writeFileSync(join(dir, "ac.zip"), await fetchBytes(ALL_ZIP));
+    execFileSync("unzip", ["-o", "-q", join(dir, "ac.zip"), "-d", join(dir, "out")]);
+    for (const name of readdirSync(join(dir, "out")).filter((n) => /\.(crt|cer|pem)$/i.test(n)).sort()) {
+      const buf = readFileSync(join(dir, "out", name));
+      pems.push(isPem(buf) ? buf.toString() : toPem(buf));
+    }
+  } catch (e) {
+    console.warn("skip ACcompactado.zip", e.cause?.code ?? e.message);
   }
 } else {
   for (const name of ROOTS) {
@@ -55,7 +64,7 @@ if (file) {
       pems.push(isPem(buf) ? buf.toString() : toPem(buf));
       console.log("ok  ", name);
     } catch (e) {
-      console.warn("skip", name, e.message);
+      console.warn("skip", name, e.cause?.code ?? e.message);
     }
   }
 }

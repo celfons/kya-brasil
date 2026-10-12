@@ -5,13 +5,21 @@ if (!base) {
   console.error("usage: smoke.mjs <base url>");
   process.exit(2);
 }
-const check = async (name, fn) => {
-  try {
-    await fn();
-    console.log("ok  ", name);
-  } catch (e) {
-    console.error("FAIL", name, e.message);
-    process.exitCode = 1;
+// A freshly created Worker takes a few seconds to reach every edge location; retry before failing.
+const check = async (name, fn, attempts = 4) => {
+  for (let i = 1; ; i++) {
+    try {
+      await fn();
+      console.log("ok  ", name + (i > 1 ? ` (attempt ${i})` : ""));
+      return;
+    } catch (e) {
+      if (i >= attempts) {
+        console.error("FAIL", name, e.message);
+        process.exitCode = 1;
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 5000));
+    }
   }
 };
 const expect = (cond, msg) => { if (!cond) throw new Error(msg); };

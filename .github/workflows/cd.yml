@@ -116,7 +116,9 @@ jobs:
         if: steps.cfg.outputs.ready == 'true'
         env:
           KV_NAMESPACE_ID: ${{ steps.url.outputs.kv }}
-        run: node scripts/icp-anchors.mjs --all || node scripts/icp-anchors.mjs || echo "::warning::ITI repository unreachable; anchors in KV left as they were (no anchors = no issuance)"
+        run: |
+          if [ -f anchors/icp-brasil.pem ]; then node scripts/icp-anchors.mjs --file anchors/icp-brasil.pem
+          else node scripts/icp-anchors.mjs --all || node scripts/icp-anchors.mjs || echo "::warning::no anchors/icp-brasil.pem in the repo and the ITI site is unreachable from the runner; KV left as it was (no anchors = no issuance)"; fi
       - name: Smoke test
         if: steps.cfg.outputs.ready == 'true'
         id: smoke
@@ -125,5 +127,8 @@ jobs:
         if: failure() && steps.smoke.outcome == 'failure'
         working-directory: apps/worker
         run: |
-          npx wrangler rollback --name "$WORKER_NAME" --yes --message "CD smoke failed on ${{ github.sha }}"
-          echo "::error::Smoke test failed on ${{ matrix.stack }}; rolled back $WORKER_NAME to the previous version"
+          if npx wrangler rollback --name "$WORKER_NAME" --yes --message "CD smoke failed on ${{ github.sha }}"; then
+            echo "::error::Smoke test failed on ${{ matrix.stack }}; rolled back $WORKER_NAME to the previous version"
+          else
+            echo "::error::Smoke test failed on ${{ matrix.stack }} and no previous version exists to roll back to; $WORKER_NAME stays on ${{ github.sha }}"
+          fi

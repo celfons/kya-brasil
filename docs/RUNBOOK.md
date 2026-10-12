@@ -7,9 +7,13 @@
 `FACILITATOR_URL`, `ISSUER_URL`.
 
 ## Âncoras ICP-Brasil
-O CD roda `scripts/icp-anchors.mjs --all` (todas as ACs credenciadas) e cai para só as raízes se o zip
-falhar. Se o repositório do ITI estiver fora do ar, o KV mantém o valor anterior. Para carregar à mão a
-partir de um arquivo: `KV_NAMESPACE_ID=... node scripts/icp-anchors.mjs --file bundle.pem`.
+Fonte principal: `anchors/icp-brasil.pem`, um pacote PEM versionado no repositório com as raízes da
+AC Raiz (v2, v5, v10, v11, v12) e, de preferência, as ACs intermediárias credenciadas (ACcompactado.zip).
+Baixe de https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz num navegador (o site
+usa certificado ICP-Brasil, que o Node do runner não reconhece), converta com
+`openssl x509 -inform der -in arquivo.crt` quando vier em DER, concatene e faça commit. O CD envia
+esse arquivo ao KV em cada deploy. Sem o arquivo, ele tenta baixar do ITI e só avisa se falhar; o KV
+mantém o valor anterior. À mão: `KV_NAMESPACE_ID=... node scripts/icp-anchors.mjs --file anchors/icp-brasil.pem`.
 `GET /status` não mostra as âncoras; uma prova com âncoras ausentes responde 422 `CERTIFICATE_INVALID`
 com a mensagem de que não há âncoras.
 
