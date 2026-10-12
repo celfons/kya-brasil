@@ -19,6 +19,10 @@ Service Binding (Worker to Worker, never public HTTP, never x402).
    `GET /v1/agents/{id}/allowed?action=pay&amount=80&currency=USDC&counterparty=<cnpj>` ($0.01) answers with a signed verdict.
 5. `POST /v1/agents/{id}/renew` ($0.10) re-runs the proof for 90 more days; `POST /v1/agents/{id}/revoke` (free, e-CNPJ-signed) revokes at once.
 
+MCP (streamable HTTP) at `/mcp`, same tools with x402 payments inside the protocol: `kya_about`, `kya_register`,
+`kya_prove`, `kya_verify`, `kya_verify_paid`, `kya_check_action`, `kya_renew`, `kya_renew_prove`, `kya_revoke`,
+`kya_revocations`. Registry entry at `/server.json` (`io.github.celfons/kya-brasil`).
+
 Discovery for agents: `/llms.txt`, `/openapi.json`, `/.well-known/kya.json` (signing keys),
 `/.well-known/kya-mandate.schema.json`, `/v1/revocations`, `/status`.
 

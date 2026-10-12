@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0
+
+- MCP server (streamable HTTP at `/mcp`, one Durable Object per session) with the same tools as the HTTP API and x402 inside the protocol; `/server.json` and `/icon.svg`; automatic publication to the MCP Registry from the prod CD; optional Glama claim at `/.well-known/glama.json`.
+
 ## 0.1.0 (phase 1, unreleased)
 
 - Core: mandate schema and action checks, challenge text and agent signature verification (EIP-191, Ed25519), e-CNPJ CMS verification with chain validation against ICP-Brasil anchors, credential build and Ed25519 signing, attestation helpers.

@@ -65,6 +65,18 @@ await check("mandate schema, keys, revocations, openapi, llms.txt", async () => 
   const t = await (await fetch(`${base}/llms.txt`)).text();
   expect(t.includes("kya_register"), "llms.txt without tools");
 });
+await check("MCP endpoint lists the tools", async () => {
+  const r = await fetch(`${base}/mcp`, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "smoke", version: "0" } } }) });
+  expect(r.status === 200, `initialize status ${r.status}`);
+  const sid = r.headers.get("mcp-session-id");
+  expect(sid, "no mcp-session-id");
+  await r.text();
+  const l = await fetch(`${base}/mcp`, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", "mcp-session-id": sid }, body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/list" }) });
+  const text = await l.text();
+  expect(text.includes("kya_register") && text.includes("kya_check_action"), "tools/list without the KYA tools");
+  const s = await (await fetch(`${base}/server.json`)).json();
+  expect(s.remotes?.[0]?.url === `${base}/mcp`, "server.json remote mismatch");
+});
 await check("verifier rejects garbage", async () => {
   const v = await (await fetch(`${base}/v1/verify`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ attestation: { key_id: "x", signature: "x", sha256: "x", signed_at: "x" } }) })).json();
   expect(v.valid === false, "garbage verified as valid");

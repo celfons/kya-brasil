@@ -39,6 +39,8 @@ const cdpApiKeySecret = cfg.getSecret("cdpApiKeySecret");
 const attestPrivateKey = cfg.getSecret("attestPrivateKey");
 // Retired public keys (JSON array of { jwk, retired_at }), kept so old credentials still verify.
 const attestPreviousKeys = cfg.get("attestPreviousKeys");
+// Glama connector claim token for this domain (served at /.well-known/glama.json).
+const glamaClaim = cfg.get("glamaClaim");
 const cfToken = new pulumi.Config("cloudflare").requireSecret("apiToken");
 
 const repoRoot = path.resolve(__dirname, "..");
@@ -49,6 +51,7 @@ const migrationsDir = path.join(workerDir, "migrations");
 const COMPATIBILITY_DATE = "2026-06-11";
 const COMPATIBILITY_FLAGS = ["nodejs_compat"];
 const DAILY_REVIEW_CRON = "17 3 * * *"; // 03:17 UTC, after KYB's own nightly dataset loads
+const MCP_OBJECT_CLASS = "KyaMcp"; // one Durable Object per MCP session (apps/worker/src/mcp.ts)
 
 // --- Storage -----------------------------------------------------------------
 
@@ -106,11 +109,38 @@ if (!upToDate) {
 }
 const bundle = fs.readFileSync(bundlePath, "utf8");
 
+// --- Durable Object migrations -----------------------------------------------
+// Cloudflare applies DO migrations once per tag; re-sending an applied tag fails (code 10079).
+// Like wrangler, read the script's current tag and send only what is pending.
+
+const DO_MIGRATIONS: { tag: string; newSqliteClasses?: string[] }[] = [
+  { tag: "v1", newSqliteClasses: [MCP_OBJECT_CLASS] }
+  // Append new steps here (never edit an applied one).
+];
+
+function pendingMigrations(currentTag: string | null) {
+  const applied = currentTag ? DO_MIGRATIONS.findIndex((m) => m.tag === currentTag) : -1;
+  if (currentTag && applied === -1) throw new Error(`Worker is at unknown DO migration tag "${currentTag}"`);
+  const pending = DO_MIGRATIONS.slice(applied + 1);
+  if (pending.length === 0) return undefined;
+  return { oldTag: currentTag ?? undefined, newTag: pending[pending.length - 1]!.tag, steps: pending.map(({ tag: _t, ...step }) => step) };
+}
+
+async function currentMigrationTag(token: string): Promise<string | null> {
+  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts`, { headers: { authorization: `Bearer ${token}` } });
+  const body = (await res.json()) as { success?: boolean; errors?: unknown; result?: { id: string; migration_tag?: string }[] };
+  if (!res.ok || !body.success) throw new Error(`Cloudflare list scripts failed (${res.status}): ${JSON.stringify(body.errors)}`);
+  return body.result?.find((s) => s.id === workerName)?.migration_tag || null;
+}
+
+const migrations = cfToken.apply(async (t) => pendingMigrations(await currentMigrationTag(t)));
+
 // --- Worker script -----------------------------------------------------------
 
 const bindings: pulumi.Input<cloudflare.types.input.WorkersScriptBinding>[] = [
   { type: "kv_namespace", name: "CACHE", namespaceId: cache.id },
   { type: "d1", name: "DB", id: db.id },
+  { type: "durable_object_namespace", name: "MCP_OBJECT", className: MCP_OBJECT_CLASS },
   // Direct Worker-to-Worker call into KYB Brasil (no public HTTP hop, no x402; see apps/worker/src/kyb.ts).
   { type: "service", name: "KYB", service: kybWorkerName },
   { type: "plain_text", name: "X402_NETWORK", text: x402Network },
@@ -123,6 +153,7 @@ if (issuerUrl) bindings.push({ type: "plain_text", name: "ISSUER_URL", text: iss
 if (internalApiKey) bindings.push({ type: "secret_text", name: "INTERNAL_API_KEY", text: internalApiKey });
 if (attestPrivateKey) bindings.push({ type: "secret_text", name: "ATTEST_PRIVATE_KEY", text: attestPrivateKey });
 if (attestPreviousKeys) bindings.push({ type: "plain_text", name: "ATTEST_PREVIOUS_KEYS", text: attestPreviousKeys });
+if (glamaClaim) bindings.push({ type: "plain_text", name: "GLAMA_CLAIM", text: glamaClaim });
 if (cdpApiKeyId && cdpApiKeySecret) {
   bindings.push({ type: "secret_text", name: "CDP_API_KEY_ID", text: cdpApiKeyId });
   bindings.push({ type: "secret_text", name: "CDP_API_KEY_SECRET", text: cdpApiKeySecret });
@@ -138,6 +169,7 @@ const worker = new cloudflare.WorkersScript(
     compatibilityDate: COMPATIBILITY_DATE,
     compatibilityFlags: COMPATIBILITY_FLAGS,
     bindings,
+    migrations, // only the DO migrations not yet applied to this script
     observability: { enabled: true, headSamplingRate: 1 }
   },
   { dependsOn: [migrate] }

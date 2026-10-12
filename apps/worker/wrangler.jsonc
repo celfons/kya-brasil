@@ -16,6 +16,8 @@
   },
   // KYB Brasil Worker, called directly (Service Binding), never over public HTTP. Locally: run the KYB worker
   // with `wrangler dev` on another port and point KYB_URL at it (see src/kyb.ts); the binding is cloud-only.
+  "durable_objects": { "bindings": [{ "name": "MCP_OBJECT", "class_name": "KyaMcp" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["KyaMcp"] }],
   "kv_namespaces": [{ "binding": "CACHE", "id": "local-cache" }],
   "d1_databases": [{ "binding": "DB", "database_name": "kya-br", "database_id": "local-db", "migrations_dir": "migrations" }]
 }

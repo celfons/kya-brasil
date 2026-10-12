@@ -12,7 +12,7 @@ import { facilitatorConfig } from "../facilitator";
 import { SERVICE_DESCRIPTION, SERVICE_NAME, SERVICE_TAGS, TOOLS, VERSION, type ToolName } from "../pricing";
 import * as service from "../service";
 import { Store } from "../store";
-import { llmsTxt, mandateSchema, openapiJson, termsText } from "./static";
+import { ICON_SVG, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
 
 type Vars = { callLogId: number | null };
 type Ctx = Context<{ Bindings: AppEnv; Variables: Vars }>;
@@ -241,6 +241,10 @@ export function buildHttpApp(env: AppEnv) {
   app.get("/llms.txt", (c) => c.text(llmsTxt(originOf(c), c.env.X402_NETWORK)));
   app.get("/openapi.json", (c) => c.json(openapiJson(originOf(c), c.env.X402_NETWORK, c.env.PAY_TO)));
   app.get("/health", (c) => c.json({ ok: true }));
+  app.get("/server.json", (c) => c.json(serverJson(originOf(c))));
+  app.get("/icon.svg", (c) => c.body(ICON_SVG, 200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }));
+  // Glama connector ownership proof (claim token issued by Glama for this hosting domain; public by design).
+  app.get("/.well-known/glama.json", (c) => (c.env.GLAMA_CLAIM ? c.json({ $schema: "https://glama.ai/mcp/schemas/connector.json", claim: c.env.GLAMA_CLAIM }, 200, { "cache-control": "public, max-age=3600" }) : c.notFound()));
   app.get("/status", async (c) => {
     const counts = await new Store(c.env.DB).counts().catch(() => ({}));
     const keys = await publishedKeys(c.env);
@@ -248,7 +252,7 @@ export function buildHttpApp(env: AppEnv) {
   });
   app.get("/", (c) => {
     const origin = originOf(c);
-    return c.json({ service: SERVICE_NAME, version: VERSION, description: SERVICE_DESCRIPTION, llms: `${origin}/llms.txt`, openapi: `${origin}/openapi.json`, keys: `${origin}/.well-known/kya.json`, mandate_schema: `${origin}/.well-known/kya-mandate.schema.json`, tools: Object.fromEntries(Object.entries(TOOLS).map(([k, t]) => [k, { method: t.method, path: t.path, price_usd: t.priceUsd }])) });
+    return c.json({ service: SERVICE_NAME, version: VERSION, description: SERVICE_DESCRIPTION, mcp: `${origin}/mcp`, mcp_registry: `${origin}/server.json`, llms: `${origin}/llms.txt`, openapi: `${origin}/openapi.json`, keys: `${origin}/.well-known/kya.json`, mandate_schema: `${origin}/.well-known/kya-mandate.schema.json`, tools: Object.fromEntries(Object.entries(TOOLS).map(([k, t]) => [k, { method: t.method, path: t.path, price_usd: t.priceUsd }])) });
   });
 
   app.notFound((c) => c.json({ error: "NOT_FOUND", message: `no route ${c.req.method} ${new URL(c.req.url).pathname}; see /llms.txt` }, 404));

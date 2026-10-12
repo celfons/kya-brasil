@@ -46,3 +46,4 @@ config:
 #   kya-br-agents:cdpApiKeySecret      Coinbase Developer Platform key secret (mainnet facilitator)
 #   kya-br-agents:attestPrivateKey     Ed25519 signing key (generated once by the CD)
 #   kya-br-agents:attestPreviousKeys   retired public keys, JSON
+#   kya-br-agents:glamaClaim           Glama connector claim token (/.well-known/glama.json)

@@ -1,6 +1,9 @@
 export const SERVICE_NAME = "KYA Brasil";
 export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "kyb", "attestation"];
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
+export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
+/** MCP Registry entry (≤100 chars). */
+export const REGISTRY_DESCRIPTION = "Know-your-agent for Brazil: e-CNPJ-signed credentials binding AI agents to companies, KYB-checked";
 export const HOMEPAGE = "https://kya-br-agents.marcelfons.workers.dev";
 export const CONTACT_EMAIL = "matheuscoreggio@gmail.com";
 export const SERVICE_DESCRIPTION =

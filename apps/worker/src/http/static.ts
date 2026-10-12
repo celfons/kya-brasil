@@ -1,5 +1,5 @@
 import { MANDATE_SCHEMA } from "@kya-br/core";
-import { CONTACT_EMAIL, SERVICE_DESCRIPTION, SERVICE_NAME, TOOLS, VERSION, type ToolName } from "../pricing";
+import { CONTACT_EMAIL, REGISTRY_DESCRIPTION, REGISTRY_NAME, SERVICE_DESCRIPTION, SERVICE_NAME, TOOLS, VERSION, type ToolName } from "../pricing";
 
 export function mandateSchema(origin: string) {
   return { ...MANDATE_SCHEMA, $id: `${origin}/.well-known/kya-mandate.schema.json` };
@@ -91,3 +91,25 @@ export function termsText(): string {
 5. Errors are never charged. Best effort, no SLA.
 6. Contact: ${CONTACT_EMAIL}`;
 }
+
+/** MCP Registry entry (published by the CD on prod; see .github/workflows/cd.yml). */
+export function serverJson(origin: string): unknown {
+  return {
+    $schema: "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+    name: REGISTRY_NAME,
+    description: REGISTRY_DESCRIPTION,
+    version: VERSION,
+    websiteUrl: origin,
+    icons: [{ src: `${origin}/icon.svg`, mimeType: "image/svg+xml", sizes: ["any"] }],
+    remotes: [{ type: "streamable-http", url: `${origin}/mcp` }]
+  };
+}
+
+/** Square icon for MCP clients and directories: a shield in Brazil's colors with a key, "KYA". */
+export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <rect width="128" height="128" rx="24" fill="#0B2E4F"/>
+  <path d="M64 14 L104 28 V62 C104 88 86 106 64 114 C42 106 24 88 24 62 V28 Z" fill="#002776"/>
+  <path d="M64 30 L94 62 L64 94 L34 62 Z" fill="#FFDF00"/>
+  <circle cx="64" cy="62" r="17" fill="#009C3B"/>
+  <text x="64" y="68" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle">KYA</text>
+</svg>`;

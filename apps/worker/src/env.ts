@@ -19,6 +19,8 @@ export type AppEnv = Env & {
   INTERNAL_API_KEY?: string;
   /** Dev only: PEM bundle of ICP-Brasil roots; in the cloud the bundle lives in KV under icp:anchors. */
   ICP_ANCHORS_PEM?: string;
+  /** Optional: Glama connector claim token, served at /.well-known/glama.json. */
+  GLAMA_CLAIM?: string;
   CDP_API_KEY_ID?: string;
   CDP_API_KEY_SECRET?: string;
 };
