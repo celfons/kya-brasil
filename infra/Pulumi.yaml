@@ -1,0 +1,48 @@
+name: kya-br-agents
+description: KYA Brasil, know-your-agent credentials for Brazilian companies on Cloudflare Workers, paid per call via x402.
+runtime:
+  name: nodejs
+  options:
+    packagemanager: pnpm
+main: index.ts
+# Keys are referenced as kya-br-agents:<key> in `pulumi config`. Provider config (cloudflare:apiToken)
+# is set per stack as a secret by the CD workflow.
+config:
+  accountId:
+    type: string
+    description: Cloudflare account id.
+  workerName:
+    type: string
+    description: Worker script name. Becomes <workerName>.<account>.workers.dev.
+    default: kya-br-agents
+  kybWorkerName:
+    type: string
+    description: Script name of the KYB Brasil Worker in the same account, bound as the KYB service binding.
+    default: kyb-br-agents
+  x402Network:
+    type: string
+    description: CAIP-2 network for x402. eip155:84532 = Base Sepolia (testnet), eip155:8453 = Base mainnet.
+    default: eip155:84532
+  facilitatorUrl:
+    type: string
+    description: x402 facilitator URL.
+    default: https://x402.org/facilitator
+  freeTierDailyLimit:
+    type: string
+    description: Free verifications per IP per day.
+    default: "50"
+  payTo:
+    type: string
+    description: Receiving wallet address (0x...). Secret.
+    secret: true
+  kybInternalKey:
+    type: string
+    description: Shared key accepted by KYB Brasil's /internal/v1/* channel (its INTERNAL_API_KEY). Secret.
+    secret: true
+# Optional, read with cfg.get/getSecret() (a declared key without default is required by Pulumi):
+#   kya-br-agents:issuerUrl            public base URL written into credentials (defaults to the request origin)
+#   kya-br-agents:internalApiKey       shared key for the fiat channel (/internal/v1/*)
+#   kya-br-agents:cdpApiKeyId          Coinbase Developer Platform key id (mainnet facilitator)
+#   kya-br-agents:cdpApiKeySecret      Coinbase Developer Platform key secret (mainnet facilitator)
+#   kya-br-agents:attestPrivateKey     Ed25519 signing key (generated once by the CD)
+#   kya-br-agents:attestPreviousKeys   retired public keys, JSON

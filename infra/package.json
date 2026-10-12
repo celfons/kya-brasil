@@ -1,0 +1,23 @@
+{
+  "name": "@kya-br/infra",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Pulumi program (TypeScript): Cloudflare KV, D1 + migrations, Worker script with the KYB service binding, cron trigger, secrets.",
+  "main": "index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "preview": "pulumi preview",
+    "up": "pulumi up",
+    "destroy": "pulumi destroy",
+    "migrate": "node scripts/d1-migrate.mjs"
+  },
+  "dependencies": {
+    "@pulumi/cloudflare": "^6.22.0",
+    "@pulumi/command": "^1.2.1",
+    "@pulumi/pulumi": "^3.268.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  }
+}

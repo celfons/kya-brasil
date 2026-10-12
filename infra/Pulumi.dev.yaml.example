@@ -1,0 +1,13 @@
+# Copy to Pulumi.dev.yaml, then set the secrets with the CLI so they are encrypted:
+#   pulumi stack init dev
+#   pulumi config set cloudflare:apiToken --secret
+#   pulumi config set kya-br-agents:accountId <account id>
+#   pulumi config set kya-br-agents:payTo --secret 0x...
+#   pulumi config set kya-br-agents:kybInternalKey --secret <KYB's INTERNAL_API_KEY>
+config:
+  kya-br-agents:accountId: REPLACE_WITH_ACCOUNT_ID
+  kya-br-agents:workerName: kya-br-agents-dev
+  kya-br-agents:kybWorkerName: kyb-br-agents-dev
+  kya-br-agents:x402Network: eip155:84532
+  kya-br-agents:facilitatorUrl: https://x402.org/facilitator
+  kya-br-agents:freeTierDailyLimit: "50"

@@ -1,0 +1,129 @@
+# Everything automatic. On every merge to main (or manual run), for each stack (dev, prod):
+#   create the Pulumi stack if missing → write its config from the GitHub environment's secrets/vars →
+#   pulumi up → upload the ICP-Brasil anchors to KV → smoke test → rollback on failure.
+# A stack is skipped when its environment has no PAY_TO secret. Nothing is ever run from a laptop.
+#
+# Required secrets per environment: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
+# PAY_TO, KYB_INTERNAL_KEY (the INTERNAL_API_KEY of the KYB Brasil Worker in the same account).
+# Optional: INTERNAL_API_KEY (fiat channel), CDP_API_KEY_ID / CDP_API_KEY_SECRET (mainnet facilitator).
+# Optional vars: WORKER_NAME, KYB_WORKER_NAME, X402_NETWORK, FACILITATOR_URL, ISSUER_URL.
+name: CD
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency: { group: deploy, cancel-in-progress: false }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        stack: [dev, prod]
+    environment: ${{ matrix.stack }}
+    env:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      PAY_TO: ${{ secrets.PAY_TO }}
+      KYB_INTERNAL_KEY: ${{ secrets.KYB_INTERNAL_KEY }}
+      INTERNAL_API_KEY: ${{ secrets.INTERNAL_API_KEY }}
+      CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
+      CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
+      WORKER_NAME: ${{ vars.WORKER_NAME || (matrix.stack == 'prod' && 'kya-br-agents' || 'kya-br-agents-dev') }}
+      KYB_WORKER_NAME: ${{ vars.KYB_WORKER_NAME || (matrix.stack == 'prod' && 'kyb-br-agents' || 'kyb-br-agents-dev') }}
+      X402_NETWORK: ${{ vars.X402_NETWORK || (matrix.stack == 'prod' && 'eip155:8453' || 'eip155:84532') }}
+      FACILITATOR_URL: ${{ vars.FACILITATOR_URL || (matrix.stack == 'prod' && 'https://api.cdp.coinbase.com/platform/v2/x402' || 'https://x402.org/facilitator') }}
+      ISSUER_URL: ${{ vars.ISSUER_URL }}
+    steps:
+      - name: Environment configured?
+        id: cfg
+        run: |
+          if [ -z "$PAY_TO" ] || [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$PULUMI_ACCESS_TOKEN" ] || [ -z "$KYB_INTERNAL_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"; echo "::notice::environment '${{ matrix.stack }}' lacks PAY_TO/CLOUDFLARE_API_TOKEN/PULUMI_ACCESS_TOKEN/KYB_INTERNAL_KEY; skipping"
+          else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v5
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: pnpm/action-setup@v4
+        if: steps.cfg.outputs.ready == 'true'
+      - uses: actions/setup-node@v5
+        if: steps.cfg.outputs.ready == 'true'
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+        if: steps.cfg.outputs.ready == 'true'
+      - name: Install Pulumi CLI
+        if: steps.cfg.outputs.ready == 'true'
+        run: curl -fsSL https://get.pulumi.com | sh -s && echo "$HOME/.pulumi/bin" >> "$GITHUB_PATH"
+      - name: Stack config from GitHub secrets
+        if: steps.cfg.outputs.ready == 'true'
+        working-directory: infra
+        run: |
+          pulumi login
+          pulumi stack select --create ${{ matrix.stack }}
+          # Restore Pulumi.<stack>.yaml from the last deployment first, so the signing key below is kept.
+          pulumi config refresh --force 2>/dev/null || echo "no previous deployment to restore the config from"
+          pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
+          pulumi config set kya-br-agents:accountId "$CLOUDFLARE_ACCOUNT_ID"
+          pulumi config set kya-br-agents:workerName "$WORKER_NAME"
+          pulumi config set kya-br-agents:kybWorkerName "$KYB_WORKER_NAME"
+          pulumi config set kya-br-agents:x402Network "$X402_NETWORK"
+          pulumi config set kya-br-agents:facilitatorUrl "$FACILITATOR_URL"
+          pulumi config set --secret kya-br-agents:payTo "$PAY_TO"
+          pulumi config set --secret kya-br-agents:kybInternalKey "$KYB_INTERNAL_KEY"
+          if [ -n "$ISSUER_URL" ]; then pulumi config set kya-br-agents:issuerUrl "$ISSUER_URL"; else pulumi config rm kya-br-agents:issuerUrl 2>/dev/null || true; fi
+          if [ -n "$INTERNAL_API_KEY" ]; then pulumi config set --secret kya-br-agents:internalApiKey "$INTERNAL_API_KEY"; else pulumi config rm kya-br-agents:internalApiKey 2>/dev/null || true; fi
+          if [ -n "$CDP_API_KEY_ID" ] && [ -n "$CDP_API_KEY_SECRET" ]; then
+            pulumi config set --secret kya-br-agents:cdpApiKeyId "$CDP_API_KEY_ID"
+            pulumi config set --secret kya-br-agents:cdpApiKeySecret "$CDP_API_KEY_SECRET"
+          else pulumi config rm kya-br-agents:cdpApiKeyId 2>/dev/null || true; pulumi config rm kya-br-agents:cdpApiKeySecret 2>/dev/null || true; fi
+          # Credential signing key: generated once per stack and kept in the (encrypted) stack config.
+          if pulumi config get kya-br-agents:attestPrivateKey >/dev/null 2>&1; then
+            echo "signing key for ${{ matrix.stack }} restored from the last deployment"
+          else
+            node ../scripts/gen-attest-key.mjs | pulumi config set --secret kya-br-agents:attestPrivateKey
+            echo "::warning::generated a NEW signing key for ${{ matrix.stack }}: credentials signed before this deploy no longer verify"
+          fi
+          if [ "${{ matrix.stack }}" = "prod" ] && [ "$X402_NETWORK" = "eip155:8453" ] && [ -z "$CDP_API_KEY_ID" ]; then
+            echo "::error::prod on mainnet needs CDP_API_KEY_ID/CDP_API_KEY_SECRET"; exit 1; fi
+      - name: Pulumi up
+        if: steps.cfg.outputs.ready == 'true'
+        working-directory: infra
+        run: pulumi up --yes --stack ${{ matrix.stack }}
+      - name: Resolve public URL
+        if: steps.cfg.outputs.ready == 'true'
+        id: url
+        working-directory: infra
+        run: |
+          SCRIPT=$(pulumi stack output scriptName --stack ${{ matrix.stack }})
+          KV=$(pulumi stack output kvNamespaceId --stack ${{ matrix.stack }})
+          SUB=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -pe 'JSON.parse(require("fs").readFileSync(0)).result.subdomain')
+          echo "base=https://$SCRIPT.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
+          echo "kv=$KV" >> "$GITHUB_OUTPUT"
+          echo "::notice::${{ matrix.stack }} → https://$SCRIPT.$SUB.workers.dev"
+      - name: ICP-Brasil trust anchors (ITI → KV icp:anchors)
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          KV_NAMESPACE_ID: ${{ steps.url.outputs.kv }}
+        run: node scripts/icp-anchors.mjs --all || node scripts/icp-anchors.mjs || echo "::warning::ITI repository unreachable; anchors in KV left as they were (no anchors = no issuance)"
+      - name: Smoke test
+        if: steps.cfg.outputs.ready == 'true'
+        id: smoke
+        run: node scripts/smoke.mjs "${{ steps.url.outputs.base }}"
+      - name: Rollback on smoke failure
+        if: failure() && steps.smoke.outcome == 'failure'
+        working-directory: apps/worker
+        run: |
+          npx wrangler rollback --name "$WORKER_NAME" --yes --message "CD smoke failed on ${{ github.sha }}"
+          echo "::error::Smoke test failed on ${{ matrix.stack }}; rolled back $WORKER_NAME to the previous version"

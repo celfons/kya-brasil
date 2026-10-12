@@ -1,0 +1,15 @@
+{
+  "name": "kya-brasil",
+  "private": true,
+  "version": "0.1.0",
+  "description": "KYA Brasil: know-your-agent credentials binding AI agents to Brazilian companies (e-CNPJ), verified with KYB Brasil, signed and paid per call via x402 (Cloudflare Workers)",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @kya-br/worker dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

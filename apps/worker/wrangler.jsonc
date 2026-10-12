@@ -1,0 +1,21 @@
+// LOCAL DEVELOPMENT ONLY (`wrangler dev`). Cloud resources and deploys are managed by Pulumi in
+// ../../infra/index.ts; keep bindings, compatibility date/flags in sync between the two files.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "kya-br-agents-local",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-06-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "vars": {
+    "X402_NETWORK": "eip155:84532",
+    "X402_FACILITATOR_URL": "https://x402.org/facilitator",
+    "FREE_TIER_DAILY_LIMIT": "50",
+    "ISSUER_URL": "http://localhost:8787"
+    // PAY_TO, ATTEST_PRIVATE_KEY, KYB_INTERNAL_KEY are secrets: .dev.vars locally; Pulumi config in the cloud
+  },
+  // KYB Brasil Worker, called directly (Service Binding), never over public HTTP. Locally: run the KYB worker
+  // with `wrangler dev` on another port and point KYB_URL at it (see src/kyb.ts); the binding is cloud-only.
+  "kv_namespaces": [{ "binding": "CACHE", "id": "local-cache" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "kya-br", "database_id": "local-db", "migrations_dir": "migrations" }]
+}
