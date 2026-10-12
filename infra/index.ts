@@ -107,7 +107,9 @@ if (!upToDate) {
   execFileSync("pnpm", ["exec", "wrangler", "deploy", "--dry-run", "--outdir", "dist"], { cwd: workerDir, stdio: "inherit" });
   fs.writeFileSync(hashPath, sourcesHash);
 }
-const bundle = fs.readFileSync(bundlePath, "utf8");
+// Passed by file + hash, not inline: Pulumi Cloud caps a resource checkpoint at 10 MB and the inline
+// content would be stored twice (inputs and outputs); the bundle is already over 5 MB.
+const bundleSha256 = crypto.createHash("sha256").update(fs.readFileSync(bundlePath)).digest("hex");
 
 // --- Durable Object migrations -----------------------------------------------
 // Cloudflare applies DO migrations once per tag; re-sending an applied tag fails (code 10079).
@@ -165,7 +167,8 @@ const worker = new cloudflare.WorkersScript(
     accountId,
     scriptName: workerName,
     mainModule: "server.js",
-    content: bundle,
+    contentFile: bundlePath,
+    contentSha256: bundleSha256,
     compatibilityDate: COMPATIBILITY_DATE,
     compatibilityFlags: COMPATIBILITY_FLAGS,
     bindings,
@@ -188,6 +191,7 @@ export const d1DatabaseName = db.name;
 export const scriptName = worker.scriptName;
 export const kybServiceBinding = pulumi.output(kybWorkerName);
 export const network = x402Network;
-export const bundleSha256 = pulumi.output(sourcesHash);
+export const sourcesSha256 = pulumi.output(sourcesHash);
+export const bundleContentSha256 = pulumi.output(bundleSha256);
 export const workersDevEnabled = subdomain.enabled;
 export const dailyReviewCron = cron.schedules.apply((s) => s[0]?.cron ?? "");
