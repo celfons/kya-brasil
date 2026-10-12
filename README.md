@@ -31,6 +31,7 @@ Discovery for agents: `/llms.txt`, `/openapi.json`, `/.well-known/kya.json` (sig
 | Path | What |
 | --- | --- |
 | `packages/core` | Pure logic, no Cloudflare types: CNPJ, mandate schema and checks, challenges, agent signatures, e-CNPJ (CMS + ICP-Brasil chain), credential build/sign, attestation. |
+| `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, challenge signing (EVM, Ed25519, e-CNPJ CMS), local attestation check, framework adapters. |
 | `apps/worker` | Cloudflare Worker: Hono routes, x402 middleware, D1 store, KV cache and limits, KYB client over the service binding, daily cron review. |
 | `infra` | Pulumi: KV, D1 + migrations, Worker with bindings and secrets, cron trigger. |
 | `scripts` | Signing key generation and rotation, ICP-Brasil anchors upload, smoke test. |

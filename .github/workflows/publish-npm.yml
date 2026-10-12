@@ -1,0 +1,27 @@
+# Publish @kya-brasil/agent-tools to npm. Manual: needs the NPM_TOKEN secret (npm "automation" token)
+# in the prod environment. Version comes from packages/agent-tools/package.json; bump it first.
+name: Publish npm package
+on:
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: pnpm, registry-url: "https://registry.npmjs.org" }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @kya-brasil/agent-tools typecheck && pnpm --filter @kya-brasil/agent-tools test && pnpm --filter @kya-brasil/agent-tools build
+      - name: Publish
+        working-directory: packages/agent-tools
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
+          # No --provenance: npm only accepts it from public source repositories.
+          npm publish --access public

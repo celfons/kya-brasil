@@ -1,0 +1,69 @@
+{
+  "name": "@kya-brasil/agent-tools",
+  "version": "0.1.0",
+  "description": "KYA Brasil for AI agents: verify that an agent acts for a Brazilian company (e-CNPJ-signed, KYB-checked credential), check an action against its mandate, or give your own agent a credential. x402 payments (USDC on Base) handled for you. Adapters for Vercel AI SDK, LangChain, OpenAI and Anthropic.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celfons/kya-brasil.git",
+    "directory": "packages/agent-tools"
+  },
+  "homepage": "https://kya-br-agents.marcelfons.workers.dev",
+  "bugs": {
+    "url": "https://github.com/celfons/kya-brasil/issues"
+  },
+  "author": "Marcel Oliveira",
+  "keywords": [
+    "kya",
+    "know-your-agent",
+    "agent-identity",
+    "brazil",
+    "cnpj",
+    "e-cnpj",
+    "icp-brasil",
+    "x402",
+    "mcp",
+    "ai-agents",
+    "vercel-ai",
+    "langchain",
+    "openai",
+    "anthropic"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@x402/core": "^2.28.0",
+    "@x402/evm": "^2.28.0",
+    "@x402/fetch": "^2.28.0",
+    "pkijs": "^3.4.1",
+    "viem": "^2.57.5"
+  },
+  "devDependencies": {
+    "@peculiar/asn1-schema": "^2.3.15",
+    "@peculiar/asn1-x509": "^2.3.15",
+    "@peculiar/x509": "^2.1.0",
+    "reflect-metadata": "^0.2.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4",
+    "@kya-br/core": "workspace:*"
+  }
+}

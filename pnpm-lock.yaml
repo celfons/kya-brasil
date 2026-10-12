@@ -77,6 +77,46 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/agent-tools:
+    dependencies:
+      '@x402/core':
+        specifier: ^2.28.0
+        version: 2.28.0
+      '@x402/evm':
+        specifier: ^2.28.0
+        version: 2.28.0(typescript@5.9.3)
+      '@x402/fetch':
+        specifier: ^2.28.0
+        version: 2.28.0
+      pkijs:
+        specifier: ^3.4.1
+        version: 3.4.1
+      viem:
+        specifier: ^2.57.5
+        version: 2.57.5(typescript@5.9.3)(zod@4.6.7)
+    devDependencies:
+      '@kya-br/core':
+        specifier: workspace:*
+        version: link:../core
+      '@peculiar/asn1-schema':
+        specifier: ^2.3.15
+        version: 2.11.0
+      '@peculiar/asn1-x509':
+        specifier: ^2.3.15
+        version: 2.11.0
+      '@peculiar/x509':
+        specifier: ^2.1.0
+        version: 2.1.0
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.5)(yaml@2.9.1)
+
   packages/core:
     dependencies:
       '@peculiar/asn1-schema':
@@ -1705,6 +1745,9 @@ packages:
 
   '@x402/extensions@2.28.0':
     resolution: {integrity: sha512-M3SVxO8DJnx7gpok/ODQp803jr21s1XrCMholNw0hSgOVvSPRksfTZ+CUNfJwteNaHmaAxGjPelXWBhTCMD9oQ==}
+
+  '@x402/fetch@2.28.0':
+    resolution: {integrity: sha512-kF5IjZIz/izg2TD/Zav+SVj0jtC0zBDfE7WcKCnMZWIsZcLCyL2GgvwXCn7CCSsNjpQ/z3Rz4OqTCA4AaeKySQ==}
 
   '@x402/hono@2.28.0':
     resolution: {integrity: sha512-tR/AegvCpluj4AX1uYpqt0Ak7e3RcA2QE9GYrPCzwZTxv2z7gYUl7xE/olaxxDEiEb/yRmlsNAxmL81cARjeKw==}
@@ -4292,7 +4335,7 @@ snapshots:
 
   '@scure/bip32@1.7.0':
     dependencies:
-      '@noble/curves': 1.9.1
+      '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
 
@@ -4880,6 +4923,10 @@ snapshots:
       - ethers
       - typescript
       - utf-8-validate
+
+  '@x402/fetch@2.28.0':
+    dependencies:
+      '@x402/core': 2.28.0
 
   '@x402/hono@2.28.0(hono@4.13.13)(typescript@5.9.3)':
     dependencies:
