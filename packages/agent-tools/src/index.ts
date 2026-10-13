@@ -166,7 +166,7 @@ export interface KyaClient {
   allowed(credentialId: string, q: ActionQuery): Promise<Verdict>;
   /** $0.50: register an agent for a company; returns the challenge both parties sign. */
   register(input: { agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<Registration>;
-  /** Free: send both signatures; the credential is issued if the e-CNPJ, the CNPJ and KYB Brasil all clear. */
+  /** Free: send both signatures; the credential is issued if the e-CNPJ is valid and not revoked, the CNPJ matches and the company is ATIVA. */
   prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
   /** $0.10: renewal challenge (then renewProve). */
   renew(credentialId: string): Promise<{ credential_id: string; challenge: { id: string; text: string; expires_at: string } }>;

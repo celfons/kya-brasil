@@ -6,7 +6,8 @@
  *   3. extract the CNPJ from the ICP-Brasil otherName extension (OID 2.16.76.1.3.3) and compare;
  *   4. build and verify the chain up to a trusted ICP-Brasil root (anchors supplied by the caller:
  *      the Worker loads the ITI bundle; tests use a throwaway CA).
- * Revocation (LCR/OCSP) is phase 2: the credential is short-lived and re-evaluated daily.
+ * Revocation (LCR) is checked by the caller with ./revocation.ts: the proof carries the serial number,
+ * the CRL distribution points and the issuing AC's certificate it needs (all public, no CPF).
  * Only the certificate hash, subject (company) and issuer are kept: never the signer's CPF.
  */
 import "reflect-metadata"; // @peculiar/x509 (tsyringe) needs it before import
@@ -14,6 +15,7 @@ import * as asn1js from "asn1js";
 import * as pkijs from "pkijs";
 import { X509Certificate } from "@peculiar/x509";
 import { normalizeCnpj } from "./cnpj";
+import { crlUrlsOf, normalizeSerial } from "./revocation";
 import { KyaError } from "./types";
 
 /** ICP-Brasil otherName: CNPJ of the legal entity (DOC-ICP-04, item 7.1.2). */
@@ -28,6 +30,7 @@ function ensureEngine() {
 }
 
 const unb64 = (s: string) => Uint8Array.from(atob(s.replace(/\s+/g, "")), (c) => c.charCodeAt(0));
+const b64 = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)));
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
 export interface IcpProof {
@@ -38,6 +41,12 @@ export interface IcpProof {
   not_before: string;
   not_after: string;
   signed_at: string;
+  /** Hex serial number of the e-CNPJ certificate, the key of its CRL entry. */
+  serial_number: string;
+  /** CRL distribution points named by the certificate. */
+  crl_urls: string[];
+  /** Base64 DER of the AC certificate that issued it (verifies the CRL), or null when not found. */
+  issuer_certificate: string | null;
 }
 
 /** CNPJ carried by the certificate's ICP-Brasil otherName, or null when it is not a PJ certificate. */
@@ -118,6 +127,9 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
     if (!chain.result) throw new KyaError("CERTIFICATE_INVALID", `certificate chain not trusted: ${chain.resultMessage}`);
   }
 
+  // The issuing AC: carried in the CMS or among the anchors (the bundle includes the intermediate ACs).
+  const issuerCert = [...certs, ...trusted].map((c) => new X509Certificate(c.toSchema().toBER(false))).find((c) => c.subject === x.issuer) ?? null;
+
   return {
     cnpj,
     certificate_sha256: await sha256Hex(new Uint8Array(der)),
@@ -125,6 +137,9 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
     issuer: x.issuer,
     not_before: x.notBefore.toISOString(),
     not_after: x.notAfter.toISOString(),
-    signed_at: now.toISOString()
+    signed_at: now.toISOString(),
+    serial_number: normalizeSerial(x.serialNumber),
+    crl_urls: crlUrlsOf(x),
+    issuer_certificate: issuerCert ? b64(issuerCert.rawData) : null
   };
 }

@@ -1,7 +1,7 @@
 # @kya-brasil/agent-tools
 
 **Know-your-agent for Brazil, as code.** Verify that an AI agent really acts for a Brazilian company
-(credential signed by the company's e-CNPJ, company cleared by [KYB Brasil](https://kyb-br-agents.marcelfons.workers.dev)),
+(credential signed by the company's e-CNPJ, checked against its AC's revocation list, company active at the Receita Federal),
 check an action against the agent's mandate, or give your own agent a credential.
 
 Paid per call with [x402](https://x402.org) (USDC on Base, no signup). Free verification works without a wallet

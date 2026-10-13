@@ -26,7 +26,7 @@ export function openapiJson(origin: string, network: string, payTo: string) {
         ...(paid ? { "402": { description: "Payment required: PAYMENT-REQUIRED header (x402); retry with PAYMENT-SIGNATURE." } } : { "429": { description: "Free tier limit (per IP, per day)" } }),
         "404": { description: "Unknown credential" },
         "409": { description: "State conflict (already active, revoked)" },
-        "422": { description: "Proof rejected: challenge, e-CNPJ, CNPJ mismatch or KYB blocked (never charged twice)" }
+        "422": { description: "Proof rejected: challenge, e-CNPJ invalid or revoked, CNPJ mismatch or company not ATIVA (never charged twice)" }
       }
     };
     paths[t.path] = { ...(paths[t.path] as object), [t.method.toLowerCase()]: op };
@@ -71,7 +71,7 @@ export function llmsTxt(origin: string, network: string): string {
 ${tools}
 
 ## Credential
-JSON signed with Ed25519 (attestation.key_id, public keys at ${origin}/.well-known/kya.json). Fields: credential_id, agent {kind, id}, principal {cnpj, legal_name, registration_status}, authorized_by {method, certificate_sha256, certificate_subject, issuer, signed_at}, mandate (JSON validated by ${origin}/.well-known/kya-mandate.schema.json; reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until), kyb_snapshot, status, issued_at, expires_at (90 days or the mandate's end), verify_url, revocation_url. Status changes after issuance (suspended by the daily KYB review, revoked by the company) are reported live at verify_url and in ${origin}/v1/revocations; the signature covers the credential as issued.
+JSON signed with Ed25519 (attestation.key_id, public keys at ${origin}/.well-known/kya.json). Fields: credential_id, agent {kind, id}, principal {cnpj, legal_name, registration_status}, authorized_by {method, certificate_sha256, certificate_subject, issuer, signed_at}, mandate (JSON validated by ${origin}/.well-known/kya-mandate.schema.json; reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until), kyb_snapshot (informative: the KYB Brasil screen at issuance, no effect on status), status, issued_at, expires_at (90 days or the mandate's end), verify_url, revocation_url. Status changes after issuance (daily review: revoked when the e-CNPJ is revoked at its AC, suspended while the company is not ATIVA or the certificate is on hold; revoked by the company) are reported live at verify_url and in ${origin}/v1/revocations; the signature covers the credential as issued.
 
 ## Rules
 - Legal entities only: no CPF is stored or returned; the signer of the e-CNPJ is identified by the certificate hash.
@@ -85,9 +85,9 @@ OpenAPI: ${origin}/openapi.json. Status: ${origin}/status. Terms: ${origin}/term
 
 export function termsText(): string {
   return `${SERVICE_NAME} terms (summary)
-1. The service attests that a company, identified by its e-CNPJ certificate, declared that an agent key acts for it within a mandate, and that KYB Brasil cleared the company on the dates shown. It does not observe or guarantee what the agent does.
+1. The service attests that a company, identified by its e-CNPJ certificate, declared that an agent key acts for it within a mandate, that the certificate was not revoked and that the company was ATIVA at the Receita Federal on the dates shown. It does not assess the company's risk (sanctions, debt, litigation: see KYB Brasil) and does not observe or guarantee what the agent does.
 2. The company that signs the mandate answers for the agent's actions inside it. The issuer answers only for the verification it performed.
-3. Credentials expire in 90 days, are suspended when the company no longer clears KYB, and are revoked at once on the company's signed request.
+3. Credentials expire in 90 days, are suspended while the company is not ATIVA, are revoked when the e-CNPJ that authorized them is revoked at its AC, and are revoked at once on the company's signed request.
 4. Personal data: only legal-entity data and the certificate hash are stored. No CPF, no signer identity.
 5. Errors are never charged. Best effort, no SLA.
 6. Contact: ${CONTACT_EMAIL}`;

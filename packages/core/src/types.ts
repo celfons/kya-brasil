@@ -41,6 +41,7 @@ export interface MandateCore {
 
 export type Mandate = MandateCore & Record<string, unknown>;
 
+/** KYB Brasil risk screen at issuance. Informative only since D-15 (no effect on status); kept in /v1 for compatibility. */
 export interface KybSnapshot {
   risk_level: "low" | "medium" | "high" | "critical";
   risk_score: number;
@@ -62,6 +63,7 @@ export interface Credential {
   /** How the company authorized it: hash of the e-CNPJ certificate that signed the challenge (never the CPF of the signer). */
   authorized_by: { method: "icp-brasil-e-cnpj"; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
+  /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. */
   kyb_snapshot: KybSnapshot;
   status: CredentialStatus;
   status_reason: string | null;
@@ -75,7 +77,7 @@ export interface Credential {
 
 export class KyaError extends Error {
   constructor(
-    public code: "INVALID_INPUT" | "INVALID_CNPJ" | "NOT_FOUND" | "CHALLENGE_FAILED" | "CERTIFICATE_INVALID" | "CNPJ_MISMATCH" | "KYB_BLOCKED" | "KYB_UNAVAILABLE" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFLICT",
+    public code: "INVALID_INPUT" | "INVALID_CNPJ" | "NOT_FOUND" | "CHALLENGE_FAILED" | "CERTIFICATE_INVALID" | "CNPJ_MISMATCH" | "KYB_BLOCKED" | "KYB_UNAVAILABLE" | "CERTIFICATE_REVOKED" | "REVOCATION_UNAVAILABLE" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFLICT",
     message: string
   ) {
     super(message);
