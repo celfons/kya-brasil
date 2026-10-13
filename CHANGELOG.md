@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Security hardening from SonarCloud: GitHub Actions pinned by commit SHA; Pulumi CLI and mcp-publisher installed at pinned versions with SHA-256 verification (no more `curl | sh`, HTTPS enforced with `--proto '=https' --tlsv1.2`); `smoke.mjs` accepts only https `*.workers.dev`, localhost or `SMOKE_ALLOWED_HOSTS` and builds URLs with `new URL()`; `demo-gif.py` and `registry-version.mjs` accept only relative paths inside the working directory.
+- `.github/dependabot.yml`: weekly grouped updates for the SHA-pinned GitHub Actions.
 - npm client: counterparty matching in `checkMandate` no longer uses a backtracking regex (a crafted counterparty took ~22 s; now linear). Base64url padding trimmed without regex in core and client. Canonical JSON keeps its exact key order through an explicit code-unit comparator.
 
 ## 0.4.1
