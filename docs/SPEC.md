@@ -234,6 +234,26 @@ cache the credential for a short time (60 s in the reference client) and SHOULD 
 This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
 is planned and will carry the same `KYA-Credential` header.
 
+### 14.1 Mutual authentication (agent to agent)
+
+When the callee is also an agent, it proves itself by signing the response, bound to the request it answers.
+Response headers: the same `KYA-*` names plus `KYA-In-Reply-To` = hex SHA-256 of the request's
+`KYA-Signature`. Response text:
+
+```
+KYA Brasil: response
+credential: <callee credential_id>
+in-reply-to: <KYA-In-Reply-To>
+created: <KYA-Created>
+expires: <KYA-Expires>
+content-sha256: <hex of the response body | ->
+```
+
+The caller MUST check `in-reply-to` against the signature it sent, the validity window, the body hash, and
+verify the signature with the callee credential's agent key, accepting only `status == "active"`. A verifier
+MUST NOT accept a response text as a request (the first line differs), so a signed response cannot be replayed
+as a request from the callee.
+
 ## 15. Test vectors
 
 `docs/vectors/credential-v1.json` contains an issuer key, a challenge with its text, a signed credential,

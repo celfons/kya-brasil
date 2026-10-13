@@ -163,6 +163,8 @@ export interface KyaAuth {
   authenticate(request: Request, opts?: { body?: string | ArrayBuffer | Uint8Array | null }): Promise<KyaAuthResult>;
   /** Same, from the parts (for frameworks that already parsed the request). */
   authenticateParts(p: { method: string; url: string; headers: Headers | Record<string, string | string[] | undefined>; body?: string | ArrayBuffer | Uint8Array | null }): Promise<KyaAuthResult>;
+  /** Low level: verify a signature by a credential's agent key over a text you built (signed responses use it). */
+  verifySigned(p: { credentialId: string; text: string; signature: string; body?: KyaContext["body"] }): Promise<KyaAuthResult>;
   /** Hono middleware: sets c.set("kya", ctx) or answers 401/403 JSON. */
   hono(): (c: HonoLikeContext, next: () => Promise<void>) => Promise<Response | void>;
   /** Express middleware: sets req.kya or answers 401/403 JSON. Verifies the body when req.body is a string or Buffer. */
@@ -245,8 +247,12 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       return status === 404 ? fail(401, "KYA_CREDENTIAL_UNKNOWN", "unknown credential_id") : fail(502, "KYA_ISSUER_UNAVAILABLE", (e as Error).message);
     }
     const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader });
+    return finish(credentialId, v, text, signature, bodyState);
+  }
+
+  async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"]): Promise<KyaAuthResult> {
     const sig = await verifySignature(v.agent, text, signature);
-    if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", "signature does not match the credential's agent key over the request text");
+    if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", "signature does not match the credential's agent key over the signed text");
     if (v.status !== "active") return fail(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`);
     const mandate = v.credential?.mandate ?? {};
     const ctx: KyaContext = {
@@ -264,9 +270,22 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
     return { ok: true, kya: ctx };
   }
 
+  /** Low level: verify a signature by a credential's agent key over a text you built yourself (used for signed responses). */
+  async function verifySigned(p: { credentialId: string; text: string; signature: string; body?: KyaContext["body"] }): Promise<KyaAuthResult> {
+    let v: Verification;
+    try {
+      v = await verification(p.credentialId);
+    } catch (e) {
+      const status = (e as { status?: number }).status;
+      return status === 404 ? fail(401, "KYA_CREDENTIAL_UNKNOWN", "unknown credential_id") : fail(502, "KYA_ISSUER_UNAVAILABLE", (e as Error).message);
+    }
+    return finish(p.credentialId, v, p.text, p.signature, p.body ?? "none");
+  }
+
   const auth: KyaAuth = {
     client,
     authenticateParts,
+    verifySigned,
     async authenticate(request, o = {}) {
       let body = o.body;
       if (body === undefined && request.body && !["GET", "HEAD"].includes(request.method)) body = await request.clone().arrayBuffer();
@@ -305,4 +324,99 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
     clearCache: () => cache.clear()
   };
   return auth;
+}
+
+// --- Mutual authentication (agent to agent) --------------------------------------------------
+//
+// When both sides are agents, the caller proves itself with the request headers above and the callee
+// proves itself by signing the response, bound to the request it answers:
+//
+//   KYA Brasil: response
+//   credential: <callee credential_id>
+//   in-reply-to: <sha256 hex of the request's KYA-Signature>
+//   created: <unix seconds>
+//   expires: <unix seconds>
+//   content-sha256: <hex of the response body | ->
+//
+// Response headers: the same KYA-* names plus KYA-In-Reply-To. The caller verifies with the callee's
+// credential (agent key, active status) exactly as a server verifies a request.
+
+export const KYA_REPLY_HEADER = "kya-in-reply-to";
+
+export function responseText(p: { credentialId: string; inReplyTo: string; created: number; expires: number; contentSha256?: string | null }): string {
+  return ["KYA Brasil: response", `credential: ${p.credentialId}`, `in-reply-to: ${p.inReplyTo}`, `created: ${p.created}`, `expires: ${p.expires}`, `content-sha256: ${p.contentSha256 ?? "-"}`].join("\n");
+}
+
+async function signText(key: SigningKey, text: string): Promise<string> {
+  if (key.kind === "web-bot-auth") {
+    const k = typeof key.privateKey === "string" ? await crypto.subtle.importKey("pkcs8", unb64u(key.privateKey.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "")), { name: "Ed25519" }, false, ["sign"]) : key.privateKey;
+    return b64u(new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, k, enc.encode(text))));
+  }
+  return privateKeyToAccount(key.privateKey).signMessage({ message: text });
+}
+
+/** Callee side: headers that prove who answered, bound to the request signature it replies to. */
+export async function signResponse(p: { credentialId: string; key: SigningKey; requestSignature: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date }): Promise<Record<string, string>> {
+  const created = Math.floor((p.now ?? new Date()).getTime() / 1000);
+  const expires = created + (p.ttlSeconds ?? 60);
+  const inReplyTo = await sha256Hex(p.requestSignature);
+  const contentSha256 = p.body !== undefined && p.body !== null && (typeof p.body !== "string" || p.body.length > 0) ? await sha256Hex(p.body) : null;
+  const signature = await signText(p.key, responseText({ credentialId: p.credentialId, inReplyTo, created, expires, contentSha256 }));
+  const headers: Record<string, string> = { [KYA_HEADERS.credential]: p.credentialId, [KYA_REPLY_HEADER]: inReplyTo, [KYA_HEADERS.created]: String(created), [KYA_HEADERS.expires]: String(expires), [KYA_HEADERS.signature]: signature };
+  if (contentSha256) headers[KYA_HEADERS.content] = contentSha256;
+  return headers;
+}
+
+export type KyaResponseResult = { ok: true; kya: Omit<KyaContext, "check" | "allowed"> & { check: KyaContext["check"]; allowed: KyaContext["allowed"] } } | { ok: false; error: string; message: string };
+
+/**
+ * Caller side: verify that a response was signed by an active KYA credential and answers *this* request.
+ * `requestSignature` is the KYA-Signature header the caller sent.
+ */
+export async function verifyResponse(auth: KyaAuth, response: Response, requestSignature: string, opts: { body?: string | ArrayBuffer | Uint8Array | null; maxSkewSeconds?: number } = {}): Promise<KyaResponseResult> {
+  const h = response.headers;
+  const credentialId = h.get(KYA_HEADERS.credential);
+  const inReplyTo = h.get(KYA_REPLY_HEADER);
+  const created = Number(h.get(KYA_HEADERS.created));
+  const expires = Number(h.get(KYA_HEADERS.expires));
+  const signature = h.get(KYA_HEADERS.signature);
+  const contentHeader = h.get(KYA_HEADERS.content);
+  const fail = (error: string, message: string): KyaResponseResult => ({ ok: false, error, message });
+  if (!credentialId || !inReplyTo || !signature || !Number.isFinite(created) || !Number.isFinite(expires)) return fail("KYA_RESPONSE_UNSIGNED", "the response carries no KYA signature");
+  if (inReplyTo !== (await sha256Hex(requestSignature))) return fail("KYA_RESPONSE_MISMATCH", "the response answers a different request");
+  const now = Math.floor(Date.now() / 1000);
+  if (created > now + (opts.maxSkewSeconds ?? 300) || expires < now) return fail("KYA_RESPONSE_EXPIRED", "response signature outside its validity window");
+  let body = opts.body;
+  if (body === undefined) body = await response.clone().arrayBuffer();
+  let bodyState: KyaContext["body"] = "none";
+  if (body && (typeof body !== "string" ? (body as ArrayBuffer | Uint8Array).byteLength > 0 : body.length > 0)) {
+    if (!contentHeader) return fail("KYA_RESPONSE_BODY_UNSIGNED", "the response has a body but no content hash");
+    if ((await sha256Hex(body)) !== contentHeader.toLowerCase()) return fail("KYA_RESPONSE_BODY_MISMATCH", "response body does not match the signed hash");
+    bodyState = "verified";
+  }
+  // Same credential lookup, key selection and status rule as for requests, over the response text.
+  const probe = await auth.verifySigned({ credentialId, text: responseText({ credentialId, inReplyTo, created, expires, contentSha256: contentHeader }), signature, body: bodyState });
+  if (!probe.ok) return fail(probe.error.replace("KYA_", "KYA_RESPONSE_"), probe.message);
+  return { ok: true, kya: probe.kya };
+}
+
+/**
+ * Caller side, all in one: a fetch that signs the request with your credential and, when the other side
+ * answers with KYA headers, verifies them. `callee` is null when the response was not signed.
+ */
+export function createKyaAgent(p: { credentialId: string; key: SigningKey; auth?: KyaAuth; authOptions?: KyaAuthOptions; fetch?: typeof fetch; ttlSeconds?: number }) {
+  const auth = p.auth ?? createKyaAuth(p.authOptions);
+  const base = p.fetch ?? fetch;
+  return {
+    auth,
+    headers: (method: string, url: string, body?: string | ArrayBuffer | Uint8Array | null) => signRequest({ credentialId: p.credentialId, key: p.key, method, url, body, ttlSeconds: p.ttlSeconds }),
+    async fetch(url: string, init: RequestInit & { body?: string | ArrayBuffer | Uint8Array | null } = {}): Promise<{ response: Response; callee: KyaResponseResult | null }> {
+      const method = (init.method ?? "GET").toUpperCase();
+      const body = init.body ?? null;
+      const signed = await signRequest({ credentialId: p.credentialId, key: p.key, method, url, body, ttlSeconds: p.ttlSeconds });
+      const response = await base(url, { ...init, method, headers: { ...(init.headers as Record<string, string>), ...signed }, body: body as BodyInit | null });
+      const callee = response.headers.get(KYA_HEADERS.signature) ? await verifyResponse(auth, response, signed[KYA_HEADERS.signature]!) : null;
+      return { response, callee };
+    }
+  };
 }

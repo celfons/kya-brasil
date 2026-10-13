@@ -69,6 +69,21 @@ await fetch(url, { method: "POST", headers: { ...headers, "content-type": "appli
 
 Keys: `{ kind: "evm" | "erc8004", privateKey }` or `{ kind: "web-bot-auth", privateKey: CryptoKey | pkcs8 }`.
 
+### Agent to agent (mutual)
+
+The callee signs its response, bound to the request; the caller verifies who answered.
+
+```ts
+// callee (inside a handler, after auth.authenticate succeeded)
+const headers = await signResponse({ credentialId: myCredentialId, key: myKey, requestSignature: request.headers.get("kya-signature")!, body });
+return new Response(body, { headers: { ...headers, "content-type": "application/json" } });
+
+// caller
+const me = createKyaAgent({ credentialId: myCredentialId, key: myKey });
+const { response, callee } = await me.fetch("https://beta.com.br/orders", { method: "POST", body });
+if (!callee?.ok) throw new Error("unsigned or invalid callee");       // callee.kya: principal, mandate, status
+```
+
 ## Company: give your own agent a credential
 
 ```ts

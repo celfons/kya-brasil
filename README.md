@@ -86,6 +86,15 @@ app.post("/api/orders", (c) => {
 On the agent side, `signRequest({ credentialId, key, method, url, body })` returns the headers. Profile in
 [docs/SPEC.md](docs/SPEC.md) section 14.
 
+**Agent to agent (mutual):** the callee signs its response too (`signResponse`, bound to the request), and the
+caller's `createKyaAgent(...).fetch(url)` signs the request and verifies who answered:
+
+```ts
+const alfa = createKyaAgent({ credentialId, key: { kind: "evm", privateKey } });
+const { response, callee } = await alfa.fetch("https://beta.com.br/orders", { method: "POST", body });
+if (callee?.ok) console.log("answered by", callee.kya.principal.legal_name);   // BETA SA, credential active
+```
+
 ## For companies: give your own agent a credential
 
 1. `POST /v1/agents` ($0.50) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
