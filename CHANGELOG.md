@@ -2,6 +2,7 @@
 
 ## 0.4.0
 
+- npm package published with provenance and mirrored to GitHub Packages as `@celfons/kya-agent-tools` (repository page, Packages).
 - Scope (D-15): the issuer attests the link between agent and company. Issuance and status depend only on the e-CNPJ (valid, not revoked) and the company being ATIVA at the Receita Federal; sanctions, forced labour, debt and risk score no longer deny or suspend a credential. `kyb_snapshot` stays in v1 credentials as information. The daily review reads only the registration status from KYB Brasil and lifts suspensions made under the old rules when the company is ATIVA.
 - e-CNPJ revocation (D-16): the certificate is checked against its AC's CRL at issuance, renewal and acts export (fail closed, new errors `CERTIFICATE_REVOKED` 422 and `REVOCATION_UNAVAILABLE` 502), and every day after: revoked → credential revoked; on hold → suspended; replaced or retired after the authorization → unchanged. CRLs cached in KV until nextUpdate (6 h at most). Migration `0004` stores the serial number, the issuing AC's certificate and the CRL URLs (public data, no CPF). Spec sections 4, 6 and 11.
 - The review no longer reinstates ERC-8004 credentials suspended for a wallet change.
