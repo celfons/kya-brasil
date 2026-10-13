@@ -11,7 +11,8 @@ import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
-import { kybRegistration, kybRiskScreen } from "./kyb";
+import { kybRiskScreen } from "./kyb";
+import { companyRegistration, kybConfigured, registrationSource } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 
@@ -62,11 +63,13 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
   const revocation = await certificateRevocation(env, icp);
   if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}${revocation.reason ? ` (${revocation.reason})` : ""}`);
-  // D-15: only the registration status decides; the rest of the screen is informative (kyb_snapshot).
-  const kyb = await kybRiskScreen(env, row.cnpj);
-  const decision = principalDecision(kyb.snapshot.registration_status);
+  // D-15: only the registration status decides. With KYB configured its risk screen also fills the informative
+  // kyb_snapshot; without it (D-17) the status comes from the public sources and the snapshot is null.
+  const kyb = kybConfigured(env) ? await kybRiskScreen(env, row.cnpj) : null;
+  const reg = kyb && registrationSource(env) === "kyb" ? { legal_name: kyb.legal_name, registration_status: kyb.snapshot.registration_status, checked_at: kyb.snapshot.checked_at } : await companyRegistration(env, row.cnpj);
+  const decision = principalDecision(reg.registration_status);
   if (!decision.ok) {
-    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: kyb.snapshot.checked_at });
+    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: reg.checked_at });
     throw new KyaError("KYB_BLOCKED", `credential not issued: ${decision.reason}`);
   }
   const m = await material(env);
@@ -74,12 +77,12 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const issuer = issuerOf(env, origin);
   const mandate = JSON.parse(row.mandate) as Mandate;
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
-  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: kyb.legal_name, registration_status: kyb.snapshot.registration_status, certificate, mandate, kyb: kyb.snapshot, issuer });
+  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: reg.legal_name, registration_status: reg.registration_status, certificate, mandate, kyb: kyb?.snapshot ?? null, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
-  await store.issue({ id: row.id, legal_name: kyb.legal_name, credential, certificate: record, mandate, event });
+  await store.issue({ id: row.id, legal_name: reg.legal_name, credential, certificate: record, mandate, event });
   if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
-  return { credential, kyb_warnings: kyb.warnings };
+  return { credential, kyb_warnings: kyb?.warnings ?? [] };
 }
 
 export async function prove(env: AppEnv, origin: string, id: string, body: { challenge_id?: unknown; agent_signature?: unknown; ecnpj_signature?: unknown }) {
@@ -326,7 +329,7 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
         revoked++;
         continue;
       }
-      const reg = await kybRegistration(env, row.cnpj);
+      const reg = await companyRegistration(env, row.cnpj);
       const d = principalDecision(reg.registration_status);
       const hold: { cause: "certificate" | "registration"; reason: string } | null =
         certificate === "suspend" ? { cause: "certificate", reason: certificateReason ?? "e-CNPJ certificate on hold at its AC" } : !d.ok ? { cause: "registration", reason: d.reason ?? "registration not ATIVA" } : null;

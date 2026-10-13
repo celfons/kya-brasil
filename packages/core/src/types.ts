@@ -63,8 +63,8 @@ export interface Credential {
   /** How the company authorized it: hash of the e-CNPJ certificate that signed the challenge (never the CPF of the signer). */
   authorized_by: { method: "icp-brasil-e-cnpj"; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. */
-  kyb_snapshot: KybSnapshot;
+  /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Null when the issuer has no KYB source (D-17). */
+  kyb_snapshot: KybSnapshot | null;
   status: CredentialStatus;
   status_reason: string | null;
   issued_at: string;
@@ -77,7 +77,7 @@ export interface Credential {
 
 export class KyaError extends Error {
   constructor(
-    public code: "INVALID_INPUT" | "INVALID_CNPJ" | "NOT_FOUND" | "CHALLENGE_FAILED" | "CERTIFICATE_INVALID" | "CNPJ_MISMATCH" | "KYB_BLOCKED" | "KYB_UNAVAILABLE" | "CERTIFICATE_REVOKED" | "REVOCATION_UNAVAILABLE" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFLICT",
+    public code: "INVALID_INPUT" | "INVALID_CNPJ" | "NOT_FOUND" | "CHALLENGE_FAILED" | "CERTIFICATE_INVALID" | "CNPJ_MISMATCH" | "KYB_BLOCKED" | "KYB_UNAVAILABLE" | "CERTIFICATE_REVOKED" | "REVOCATION_UNAVAILABLE" | "REGISTRY_UNAVAILABLE" | "RATE_LIMITED" | "UPSTREAM_ERROR" | "CONFLICT",
     message: string
   ) {
     super(message);

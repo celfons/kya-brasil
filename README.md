@@ -168,21 +168,23 @@ name of the certificate holder, only the certificate hash.
 agent / verifier ──x402──▶ kya-br-agents (Cloudflare Worker: Hono HTTP + MCP Durable Object)
                               │  D1 (agents, challenges, events, call_log)   KV (cache, limits, ICP anchors)
                               │  cron 03:17 UTC: daily review (e-CNPJ CRL, registration status)
-                              └──Service Binding──▶ kyb-br-agents (KYB Brasil, closed, same account)
+                              ├──Service Binding──▶ kyb-br-agents (KYB Brasil, closed, optional)
+                              └──or HTTPS──▶ BrasilAPI / CNPJ.ws (Receita open data, when there is no KYB)
 ```
 
-KYB Brasil is a separate product with its own repository; the two Workers talk through a Cloudflare
-Service Binding (never public HTTP, never x402). Its client here is one file, `apps/worker/src/kyb.ts`.
-The issuer acts on one KYB fact only, the registration status (D-15); the risk screen taken at issuance
-is carried in `kyb_snapshot` for information. CRLs are fetched from the URLs in each certificate
+The issuer acts on one company fact only, the registration status (D-15), and its source is configurable
+(`REGISTRATION_SOURCE`, D-17): KYB Brasil when it is configured (a separate product, reached through a
+Cloudflare Service Binding, never public HTTP or x402; client in `apps/worker/src/kyb.ts`), otherwise the
+Receita's open data through BrasilAPI with CNPJ.ws as fallback (`apps/worker/src/registration.ts`). With
+KYB, its risk screen at issuance is carried in `kyb_snapshot` for information; without it, `null`. CRLs are fetched from the URLs in each certificate
 (`apps/worker/src/revocation.ts`).
 
 | Path | What |
 | --- | --- |
 | `packages/core` | Pure logic: CNPJ, mandate schema and checks, challenge, agent signatures (EVM, Ed25519, ERC-8004 wallet resolution), e-CNPJ CMS + ICP-Brasil chain validation, credential build and signing, attestation. |
 | `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, signing helpers, local attestation check, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
-| `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, KYB client, daily review. |
-| `infra` | Pulumi: KV, D1 + migrations, Worker, service binding, cron. |
+| `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, registration sources (KYB or public), CRL checks, daily review. |
+| `infra` | Pulumi: KV, D1 + migrations, Worker, optional KYB service binding, cron. |
 | `anchors` | ICP-Brasil trust anchors (PEM) uploaded to KV by the CD. No anchors, no issuance. |
 | `docs` | Specification, test vectors, decisions, runbook. |
 
@@ -190,17 +192,28 @@ is carried in `kyb_snapshot` for information. CRLs are fetched from the URLs in 
 
 ```
 pnpm install && pnpm typecheck && pnpm test
-cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev      # KYB over KYB_URL locally
+cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev      # no KYB needed: public registration sources
 ```
 
 Push to `main` deploys: the CD creates the Pulumi stacks `dev` and `prod` from the GitHub environments of
-the same name (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`,
-`KYB_INTERNAL_KEY`; optional `INTERNAL_API_KEY`, `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`), uploads the
+the same name (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`; optional
+`KYB_INTERNAL_KEY`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`), uploads the
 anchors, runs the smoke test and publishes the MCP Registry entry when it changed. The signing key is
 generated once per stack and kept in the encrypted stack config; rotations keep the old public key
 published as retired. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [docs/DECISOES.md](docs/DECISOES.md).
 
+## Run your own issuer
+
+The code is MIT and needs nothing closed: fork it, set a Cloudflare account, a Pulumi token and a receiving
+wallet, and push. Your issuer signs with its own key. Step by step: [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).
+
+**Code and service.** The MIT license covers this code. The hosted issuer at
+`kya-br-agents.marcelfons.workers.dev` is a service with its own [terms](https://kya-br-agents.marcelfons.workers.dev/terms),
+and the name KYA Brasil identifies it; a fork is a different issuer with a different key, and verifiers
+choose which issuers they trust.
+
 ## Contributing and security
 
-[CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md). Changes to the format are changes to the
-spec first; `/v1` fields are only added, never renamed or removed.
+[CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md)
+(report vulnerabilities privately). Changes to the format are changes to the spec first; `/v1` fields are
+only added, never renamed or removed.

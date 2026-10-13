@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+- Registration source (D-17): `REGISTRATION_SOURCE` = `auto` (default: KYB Brasil when configured, otherwise the Receita's open data through BrasilAPI with CNPJ.ws as fallback), `kyb` or `public`. Without KYB, `kyb_snapshot` is `null`. New error `REGISTRY_UNAVAILABLE` (502). Infra and CD no longer require KYB: no key, no binding. `/status` shows `registration_source`.
+- Open source: `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue and PR templates, `docs/SELF-HOSTING.md`; security and contact address marcelfons@gmail.com.
+- Publish workflow skips a version already on npm or GitHub Packages instead of failing. npm client 0.4.1 (`kyb_snapshot` typed as nullable; description per D-15).
+
 ## 0.4.0
 
 - npm package published with provenance and mirrored to GitHub Packages as `@celfons/kya-agent-tools` (repository page, Packages).

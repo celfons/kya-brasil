@@ -1,10 +1,11 @@
 # Runbook
 
 ## Segredos por ambiente (GitHub environments `dev` e `prod`)
-`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`, `KYB_INTERNAL_KEY`
-(o `INTERNAL_API_KEY` do Worker KYB Brasil do mesmo ambiente). Opcionais: `INTERNAL_API_KEY`,
-`CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `KYB_WORKER_NAME`, `X402_NETWORK`,
-`FACILITATOR_URL`, `ISSUER_URL`.
+`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Opcionais:
+`KYB_INTERNAL_KEY` (o `INTERNAL_API_KEY` do Worker KYB Brasil do mesmo ambiente; sem ele não há binding e a
+situação cadastral vem da BrasilAPI / CNPJ.ws, D-17), `INTERNAL_API_KEY`, `CDP_API_KEY_ID`,
+`CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `KYB_WORKER_NAME`, `REGISTRATION_SOURCE`,
+`X402_NETWORK`, `FACILITATOR_URL`, `ISSUER_URL`.
 
 ## Âncoras ICP-Brasil
 Fonte principal: `anchors/icp-brasil.pem`, um pacote PEM versionado no repositório com as raízes da
@@ -24,7 +25,8 @@ chaves aposentadas a colocar em `kya-br-agents:attestPreviousKeys`.
 
 ## Revisão diária
 Cron `17 3 * * *` UTC chama `dailyReview`: até 500 credenciais ativas ou suspensas por execução, ordenadas
-pela revisão mais antiga. O log do Worker mostra `daily review {"reviewed","suspended","reinstated","errors"}`.
+pela revisão mais antiga: LCR do e-CNPJ (D-16) e situação cadastral (D-15). O log do Worker mostra
+`daily review {"reviewed","suspended","reinstated","revoked","errors"}`.
 
 ## Teste local
 `pnpm dev` com `.dev.vars` (ver `.dev.vars.example`). Para o KYB: `wrangler dev --port 8788` no repositório

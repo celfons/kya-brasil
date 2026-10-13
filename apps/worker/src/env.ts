@@ -8,6 +8,8 @@ export type AppEnv = Env & {
   KYB_URL?: string;
   /** Shared key for KYB's /internal/v1/* routes (never billed through x402). */
   KYB_INTERNAL_KEY?: string;
+  /** Where the registration status comes from (D-17): "auto" (default: KYB if configured, else public), "kyb" or "public" (BrasilAPI, CNPJ.ws). */
+  REGISTRATION_SOURCE?: "auto" | "kyb" | "public";
   /** Secret. Receiving wallet address. */
   PAY_TO: `0x${string}`;
   /** Public base URL of this deployment, used inside credentials (issuer, verify_url). */

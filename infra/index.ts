@@ -5,9 +5,10 @@
  *   - KV namespace (cache, rate limits, ICP-Brasil trust anchors under icp:anchors)
  *   - D1 database + SQL migrations (apps/worker/migrations, applied through the D1 HTTP API)
  *   - Worker script (bundled by `wrangler deploy --dry-run`) with bindings, vars, secrets
- *   - Service Binding `KYB` to the KYB Brasil Worker (same account): Worker-to-Worker calls,
- *     never public HTTP, never x402. KYB's /internal/v1/* channel is opened with KYB_INTERNAL_KEY.
- *   - Cron trigger for the daily KYB review of live credentials
+ *   - Optional Service Binding `KYB` to the KYB Brasil Worker (same account), only when `kybInternalKey` is set:
+ *     Worker-to-Worker calls, never public HTTP, never x402. Without it the issuer reads the registration
+ *     status from public sources (BrasilAPI, CNPJ.ws; D-17), so a fork deploys with no closed service.
+ *   - Cron trigger for the daily review of live credentials (e-CNPJ CRL, registration status)
  *   - workers.dev subdomain
  *
  * `apps/worker/wrangler.jsonc` is kept only for local development (`wrangler dev`); it is never
@@ -31,7 +32,8 @@ const facilitatorUrl = cfg.get("facilitatorUrl") ?? "https://x402.org/facilitato
 const freeTierDailyLimit = cfg.get("freeTierDailyLimit") ?? "50";
 const issuerUrl = cfg.get("issuerUrl"); // optional; defaults to the request origin
 const payTo = cfg.requireSecret("payTo");
-const kybInternalKey = cfg.requireSecret("kybInternalKey");
+const kybInternalKey = cfg.getSecret("kybInternalKey"); // optional: no key, no KYB binding (D-17)
+const registrationSource = cfg.get("registrationSource"); // optional: auto (default) | kyb | public
 const internalApiKey = cfg.getSecret("internalApiKey");
 const cdpApiKeyId = cfg.getSecret("cdpApiKeyId");
 const cdpApiKeySecret = cfg.getSecret("cdpApiKeySecret");
@@ -143,14 +145,17 @@ const bindings: pulumi.Input<cloudflare.types.input.WorkersScriptBinding>[] = [
   { type: "kv_namespace", name: "CACHE", namespaceId: cache.id },
   { type: "d1", name: "DB", id: db.id },
   { type: "durable_object_namespace", name: "MCP_OBJECT", className: MCP_OBJECT_CLASS },
-  // Direct Worker-to-Worker call into KYB Brasil (no public HTTP hop, no x402; see apps/worker/src/kyb.ts).
-  { type: "service", name: "KYB", service: kybWorkerName },
   { type: "plain_text", name: "X402_NETWORK", text: x402Network },
   { type: "plain_text", name: "X402_FACILITATOR_URL", text: facilitatorUrl },
   { type: "plain_text", name: "FREE_TIER_DAILY_LIMIT", text: freeTierDailyLimit },
-  { type: "secret_text", name: "PAY_TO", text: payTo },
-  { type: "secret_text", name: "KYB_INTERNAL_KEY", text: kybInternalKey }
+  { type: "secret_text", name: "PAY_TO", text: payTo }
 ];
+if (kybInternalKey) {
+  // Direct Worker-to-Worker call into KYB Brasil (no public HTTP hop, no x402; see apps/worker/src/kyb.ts).
+  bindings.push({ type: "service", name: "KYB", service: kybWorkerName });
+  bindings.push({ type: "secret_text", name: "KYB_INTERNAL_KEY", text: kybInternalKey });
+}
+if (registrationSource) bindings.push({ type: "plain_text", name: "REGISTRATION_SOURCE", text: registrationSource });
 if (issuerUrl) bindings.push({ type: "plain_text", name: "ISSUER_URL", text: issuerUrl });
 if (internalApiKey) bindings.push({ type: "secret_text", name: "INTERNAL_API_KEY", text: internalApiKey });
 if (attestPrivateKey) bindings.push({ type: "secret_text", name: "ATTEST_PRIVATE_KEY", text: attestPrivateKey });
@@ -180,7 +185,7 @@ const worker = new cloudflare.WorkersScript(
 
 const subdomain = new cloudflare.WorkersScriptSubdomain("subdomain", { accountId, scriptName: worker.scriptName, enabled: true, previewsEnabled: false });
 
-// Daily review: re-run KYB on every live credential (apps/worker/src/server.ts `scheduled`).
+// Daily review: e-CNPJ CRL and registration status of every live credential (apps/worker/src/server.ts `scheduled`).
 const cron = new cloudflare.WorkersCronTrigger("daily-review", { accountId, scriptName: worker.scriptName, schedules: [{ cron: DAILY_REVIEW_CRON }] });
 
 // --- Outputs -----------------------------------------------------------------
@@ -189,7 +194,7 @@ export const kvNamespaceId = cache.id;
 export const d1DatabaseId = db.id;
 export const d1DatabaseName = db.name;
 export const scriptName = worker.scriptName;
-export const kybServiceBinding = pulumi.output(kybWorkerName);
+export const kybServiceBinding = kybInternalKey ? pulumi.output(kybWorkerName) : pulumi.output("none (public registration sources)");
 export const network = x402Network;
 export const sourcesSha256 = pulumi.output(sourcesHash);
 export const bundleContentSha256 = pulumi.output(bundleSha256);

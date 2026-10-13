@@ -58,7 +58,8 @@ export interface Credential {
   principal: { cnpj: string; legal_name?: string; registration_status?: string };
   authorized_by: { method: string; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  kyb_snapshot: Record<string, unknown>;
+  /** Informative; null when the issuer has no KYB source. */
+  kyb_snapshot: Record<string, unknown> | null;
   status: CredentialStatus;
   issued_at: string;
   expires_at: string;
