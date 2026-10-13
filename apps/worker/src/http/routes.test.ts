@@ -46,7 +46,7 @@ describe("free routes", () => {
 
   it("lists the tools at / with prices", async () => {
     const j = (await (await call(app, env, "/")).json()) as { tools: Record<string, { price_usd: number }> };
-    expect(j.tools.kya_register!.price_usd).toBe(0.5);
+    expect(j.tools.kya_register!.price_usd).toBe(0.2);
     expect(j.tools.kya_prove!.price_usd).toBe(0);
   });
 

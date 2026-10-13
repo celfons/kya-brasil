@@ -53,7 +53,7 @@ await check("GET / lists tools", async () => {
   const r = await fetch(at("/"));
   expect(r.status === 200, `status ${r.status}`);
   const j = await r.json();
-  expect(j.tools?.kya_register?.price_usd === 0.5, "missing register tool");
+  expect(j.tools?.kya_register?.price_usd === 0.2, "missing register tool");
 });
 await check("status: a registration source configured, signing key present", async () => {
   const j = await (await fetch(at("/status"))).json();

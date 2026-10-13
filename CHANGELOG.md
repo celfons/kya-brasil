@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Registration price lowered from $0.50 to $0.20 (D-22).
 - npm client 0.5.1: relative imports carry the `.js` extension, so the package loads in plain Node ESM (0.3.0 to 0.5.0 failed with `ERR_MODULE_NOT_FOUND` outside bundlers).
 - Container for evaluation: `docker compose up` runs the issuer on `workerd` with D1, KV and the Durable Object emulated in a volume, public registration source, Base Sepolia, anchors from the repository, signing key generated once (`docker/`, `docker-compose.yml`). `/status` now reports the number of ICP-Brasil anchors loaded.
 - Landing page at `/` for browsers (Accept negotiation; agents and curl keep the JSON index): live figures from `/status`, tools and prices, links to Swagger, llms.txt, MCP, npm, GitHub and the spec.

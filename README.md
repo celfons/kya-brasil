@@ -103,7 +103,7 @@ if (callee?.ok) console.log("answered by", callee.kya.principal.legal_name);   /
 
 ## For companies: give your own agent a credential
 
-1. `POST /v1/agents` ($0.50) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
+1. `POST /v1/agents` ($0.20) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
 2. The agent signs the challenge with its key; you sign it with the e-CNPJ (detached CMS/PKCS#7).
 3. `POST /v1/agents/{id}/prove` (free). The issuer validates both signatures, the certificate chain against
    the ICP-Brasil roots, the certificate's revocation (CRL), the CNPJ inside the certificate and that the
@@ -137,7 +137,7 @@ The npm package signs the challenge for you (`signChallengeWithEvmKey`, `signCha
 | `kya_check_action` | `GET /v1/agents/{id}/allowed` | 0.01 |
 | `kya_company_agents`, `kya_company_webhook` | `POST /v1/companies/{cnpj}/agents`, `/webhook` (e-CNPJ-signed) | free |
 | `kya_renew` | `POST /v1/agents/{id}/renew` | 0.10 |
-| `kya_register` | `POST /v1/agents` | 0.50 |
+| `kya_register` | `POST /v1/agents` | 0.20 |
 
 Discovery: `/docs` (Swagger UI), `/llms.txt`, `/openapi.json`, `/server.json`, `/.well-known/kya.json` (signing keys, active and
 retired), `/.well-known/kya-mandate.schema.json`, `/.well-known/x402`, `/status`, `/terms`.
