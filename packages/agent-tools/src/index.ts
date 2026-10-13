@@ -21,7 +21,7 @@ import { toClientEvmSigner } from "@x402/evm";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { privateKeyToAccount } from "viem/accounts";
 import * as pkijs from "pkijs";
-import { toBase64Url } from "./base64url";
+import { toBase64Url } from "./base64url.js";
 
 export const DEFAULT_BASE_URL = "https://kya-br-agents.marcelfons.workers.dev";
 
@@ -396,4 +396,4 @@ export async function verifyCredentialOffline(credential: Credential, opts: { ba
   return { signature, within_validity, live_status: "unknown", usable_offline: signature.valid && within_validity && credential.status === "active" };
 }
 
-export * from "./auth";
+export * from "./auth.js";

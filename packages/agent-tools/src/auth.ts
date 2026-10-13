@@ -27,8 +27,8 @@
  */
 import { verifyMessage } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index";
-import { fromBase64Url, toBase64Url } from "./base64url";
+import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index.js";
+import { fromBase64Url, toBase64Url } from "./base64url.js";
 
 export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256" } as const;
 

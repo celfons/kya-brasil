@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- npm client 0.5.1: relative imports carry the `.js` extension, so the package loads in plain Node ESM (0.3.0 to 0.5.0 failed with `ERR_MODULE_NOT_FOUND` outside bundlers).
 - Container for evaluation: `docker compose up` runs the issuer on `workerd` with D1, KV and the Durable Object emulated in a volume, public registration source, Base Sepolia, anchors from the repository, signing key generated once (`docker/`, `docker-compose.yml`). `/status` now reports the number of ICP-Brasil anchors loaded.
 - Landing page at `/` for browsers (Accept negotiation; agents and curl keep the JSON index): live figures from `/status`, tools and prices, links to Swagger, llms.txt, MCP, npm, GitHub and the spec.
 - **0.5.0, acts removed (D-19):** `POST /v1/agents/{id}/acts`, `GET /v1/acts/{act_id}`, the act text and export routes, the MCP tools `kya_register_act`, `kya_act`, `kya_act_text`, `kya_acts_export` and the client's `registerAct`, `act`, `actText`, `exportActs`, `actsExportText` are gone; migration `0005` drops the `acts` table. `max_per_day` is evaluated with the caller's `spent_today`; `/allowed` keeps `spent_today_registered: null`.
