@@ -1,3 +1,4 @@
+/// <reference types="node" /> // test-only: Buffer
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
 import * as x509 from "@peculiar/x509";

@@ -1,3 +1,4 @@
+/// <reference types="node" /> // test-only: Buffer, node:fs, process
 /**
  * Test vectors for "KYA Credential v1" (docs/SPEC.md), kept in docs/vectors/credential-v1.json so other
  * implementations can check their verifier against ours. Regenerate with GEN_VECTORS=1 (new throwaway key).

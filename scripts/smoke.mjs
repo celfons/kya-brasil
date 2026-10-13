@@ -30,9 +30,11 @@ await check("GET / lists tools", async () => {
   const j = await r.json();
   expect(j.tools?.kya_register?.price_usd === 0.5, "missing register tool");
 });
-await check("status: KYB bound through a service binding, signing key present", async () => {
+await check("status: a registration source configured, signing key present", async () => {
   const j = await (await fetch(`${base}/status`)).json();
-  expect(j.kyb_channel === "service-binding", `kyb_channel ${j.kyb_channel}`);
+  // D-17: KYB is optional. With it, the channel must be the service binding; without it, the public sources.
+  const ok = (j.registration_source === "kyb" && j.kyb_channel === "service-binding") || (j.registration_source === "public" && j.kyb_channel === "missing");
+  expect(ok, `registration_source ${j.registration_source}, kyb_channel ${j.kyb_channel}`);
   expect(typeof j.attestation_key === "string" && j.attestation_key.length === 16, "no attestation key");
 });
 await check("register answers 402 with PAYMENT-REQUIRED (bazaar)", async () => {
