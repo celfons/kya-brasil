@@ -31,6 +31,25 @@ pnpm dev                                     # http://localhost:8787, /docs, /st
 
 `GET /status` shows `registration_source` (`kyb` or `public`) and the signing key id.
 
+## Container (evaluation and integration)
+
+The same runtime as production (`workerd`, through `wrangler dev`) with D1, KV and the Durable Object
+emulated inside the container and persisted in a volume. No Cloudflare account, no KYB, no Coinbase keys:
+registration status comes from the Receita's open data, payments stay on Base Sepolia, the ICP-Brasil
+anchors are the bundle from the repository, and the signing key is generated once into the volume.
+
+```sh
+docker compose up --build          # http://localhost:8787  (/docs, /status, /mcp)
+curl localhost:8787/status         # anchors: 180, registration_source: public, attestation_key: ...
+curl -X POST localhost:8787/__scheduled   # run the daily review by hand
+```
+
+Variables are listed in `docker-compose.yml` (`PAY_TO`, `ISSUER_URL`, `X402_NETWORK`, `REGISTRATION_SOURCE`,
+optional `KYB_URL`/`KYB_INTERNAL_KEY`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID`/`CDP_API_KEY_SECRET`). Set
+`ISSUER_URL` to the public address before exposing the container: it is written into every credential.
+This is not a production deployment: the state is a single SQLite file, there is no rollback, no edge, and
+`wrangler dev` is a development server. For production use the cloud path below.
+
 ## Cloud, with the included CD
 
 1. Fork the repository. Create the GitHub environments `dev` and `prod`.

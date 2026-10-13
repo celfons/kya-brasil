@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Container for evaluation: `docker compose up` runs the issuer on `workerd` with D1, KV and the Durable Object emulated in a volume, public registration source, Base Sepolia, anchors from the repository, signing key generated once (`docker/`, `docker-compose.yml`). `/status` now reports the number of ICP-Brasil anchors loaded.
 - Landing page at `/` for browsers (Accept negotiation; agents and curl keep the JSON index): live figures from `/status`, tools and prices, links to Swagger, llms.txt, MCP, npm, GitHub and the spec.
 - **0.5.0, acts removed (D-19):** `POST /v1/agents/{id}/acts`, `GET /v1/acts/{act_id}`, the act text and export routes, the MCP tools `kya_register_act`, `kya_act`, `kya_act_text`, `kya_acts_export` and the client's `registerAct`, `act`, `actText`, `exportActs`, `actsExportText` are gone; migration `0005` drops the `acts` table. `max_per_day` is evaluated with the caller's `spent_today`; `/allowed` keeps `spent_today_registered: null`.
 - Company inventory and webhooks (D-20): `POST /v1/companies/{cnpj}/agents` and `/webhook` (free, e-CNPJ-signed, `at:` within 10 minutes), MCP `kya_company_agents` and `kya_company_webhook`, client `companyAgents`, `setCompanyWebhook`, `companyText`. Signed events: credential issued, renewed, suspended, reinstated, revoked (lifecycle only, never what the agent does). Spec section 13 rewritten.

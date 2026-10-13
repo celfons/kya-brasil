@@ -188,6 +188,16 @@ KYB, its risk screen at issuance is carried in `kyb_snapshot` for information; w
 | `anchors` | ICP-Brasil trust anchors (PEM) uploaded to KV by the CD. No anchors, no issuance. |
 | `docs` | Specification, test vectors, decisions, runbook. |
 
+## Try it in a container
+
+```sh
+docker compose up --build      # http://localhost:8787, no Cloudflare account needed
+```
+
+Same runtime as production with D1, KV and the Durable Object emulated and kept in a volume; registration
+status from the Receita's open data, payments on Base Sepolia, signing key generated once into the volume.
+For evaluation and integration work; production runs on Cloudflare ([docs/SELF-HOSTING.md](docs/SELF-HOSTING.md)).
+
 ## Develop and deploy
 
 ```

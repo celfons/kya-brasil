@@ -4,6 +4,7 @@ import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/
 import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { Hono, type Context } from "hono";
 import { KyaError } from "@kya-br/core";
+import { icpAnchors } from "../anchors";
 import { publishedKeys, signAnswer, verifyAnswer } from "../attest";
 import { checkFreeTier, checkRegistrations, type LimitResult } from "../cache";
 import { attachSettlement, decodeSettlementHeader, logCall } from "../call-log";
@@ -258,7 +259,8 @@ export function buildHttpApp(env: AppEnv) {
     const keys = await publishedKeys(c.env);
     // D-21: when the daily review (e-CNPJ CRL, registration) last ran and what it found; null before the first run.
     const dailyReview = await c.env.CACHE.get("status:daily_review", "json").catch(() => null);
-    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, kyb_channel: c.env.KYB ? "service-binding" : c.env.KYB_URL ? "http-dev" : "missing", registration_source: registrationSource(c.env), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
+    const anchors = await icpAnchors(c.env).then((a) => a.length).catch(() => 0);
+    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, kyb_channel: c.env.KYB ? "service-binding" : c.env.KYB_URL ? "http-dev" : "missing", registration_source: registrationSource(c.env), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
   });
   app.get("/", (c) => {
     const origin = originOf(c);
