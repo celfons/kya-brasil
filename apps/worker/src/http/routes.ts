@@ -244,7 +244,7 @@ export function buildHttpApp(env: AppEnv) {
   app.get("/server.json", (c) => c.json(serverJson(originOf(c))));
   app.get("/icon.svg", (c) => c.body(ICON_SVG, 200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }));
   // Glama connector ownership proof (claim token issued by Glama for this hosting domain; public by design).
-  app.get("/.well-known/glama.json", (c) => (c.env.GLAMA_CLAIM ? c.json({ $schema: "https://glama.ai/mcp/schemas/connector.json", claim: c.env.GLAMA_CLAIM }, 200, { "cache-control": "public, max-age=3600" }) : c.notFound()));
+  app.get("/.well-known/glama.json", (c) => c.json({ $schema: "https://glama.ai/mcp/schemas/connector.json", claim: c.env.GLAMA_CLAIM || "glama_claim_XE5wwVq25RzLcL2wRwUrwsL2WdLHfVqK" }, 200, { "cache-control": "public, max-age=3600" }));
   app.get("/status", async (c) => {
     const counts = await new Store(c.env.DB).counts().catch(() => ({}));
     const keys = await publishedKeys(c.env);
