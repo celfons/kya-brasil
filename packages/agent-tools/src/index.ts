@@ -34,7 +34,8 @@ export interface KyaOptions {
   fetch?: typeof fetch;
 }
 
-export type AgentKey = { kind: "evm" | "web-bot-auth"; id: string };
+/** erc8004: id is eip155:<chainId>:<identityRegistry>:<agentId>; the on-chain agentWallet signs (credential.agent.wallet). */
+export type AgentKey = { kind: "evm" | "web-bot-auth" | "erc8004"; id: string; wallet?: `0x${string}` };
 export type CredentialStatus = "pending" | "active" | "suspended" | "revoked" | "expired";
 
 export interface Mandate {
@@ -202,7 +203,7 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     {
       name: "kya_verify", priceUsd: 0,
       description: "Free. Is this AI agent credentialed by a Brazilian company? Returns the credential (company CNPJ and name, mandate, KYB snapshot), its live status (active, suspended, revoked, expired) and history. Give credential_id, or the agent key (kind + id) to look it up.",
-      parameters: { type: "object", properties: { credential_id: ID, kind: { type: "string", enum: ["evm", "web-bot-auth"] }, id: { type: "string", description: "0x address or base64url Ed25519 key" } }, additionalProperties: false },
+      parameters: { type: "object", properties: { credential_id: ID, kind: { type: "string", enum: ["evm", "web-bot-auth", "erc8004"] }, id: { type: "string", description: "0x address, base64url Ed25519 key, or eip155:<chainId>:<registry>:<agentId>" } }, additionalProperties: false },
       execute: async (a) => (a.credential_id ? client.verify(String(a.credential_id)) : client.verifyByKey({ kind: a.kind as AgentKey["kind"], id: String(a.id) })) as Promise<Record<string, unknown>>
     },
     {

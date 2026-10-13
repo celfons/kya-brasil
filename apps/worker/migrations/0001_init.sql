@@ -1,7 +1,7 @@
 -- Agents registered by companies. One row per (agent key, CNPJ) pair.
 CREATE TABLE IF NOT EXISTS agents (
   id TEXT PRIMARY KEY,                    -- credential_id (uuid)
-  agent_kind TEXT NOT NULL,               -- 'evm' | 'web-bot-auth'
+  agent_kind TEXT NOT NULL,               -- 'evm' | 'web-bot-auth' | 'erc8004'
   agent_id TEXT NOT NULL,                 -- checksummed address or base64url Ed25519 key
   cnpj TEXT NOT NULL,                     -- normalized 14 chars
   legal_name TEXT,

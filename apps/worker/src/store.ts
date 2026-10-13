@@ -6,6 +6,8 @@ export interface AgentRow {
   id: string;
   agent_kind: AgentKey["kind"];
   agent_id: string;
+  /** erc8004: agentWallet resolved at issuance. */
+  agent_wallet: string | null;
   cnpj: string;
   legal_name: string | null;
   mandate: string;
@@ -38,9 +40,13 @@ export class Store {
 
   async createAgent(p: { id: string; agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<void> {
     await this.db
-      .prepare("INSERT INTO agents (id, agent_kind, agent_id, cnpj, mandate, status) VALUES (?1, ?2, ?3, ?4, ?5, 'pending')")
-      .bind(p.id, p.agent.kind, p.agent.id, p.cnpj, JSON.stringify(p.mandate))
+      .prepare("INSERT INTO agents (id, agent_kind, agent_id, agent_wallet, cnpj, mandate, status) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending')")
+      .bind(p.id, p.agent.kind, p.agent.id, p.agent.wallet ?? null, p.cnpj, JSON.stringify(p.mandate))
       .run();
+  }
+
+  async setWallet(id: string, wallet: string | null): Promise<void> {
+    await this.db.prepare("UPDATE agents SET agent_wallet = ?2, updated_at = ?3 WHERE id = ?1").bind(id, wallet, now()).run();
   }
 
   async findByKey(agent: AgentKey, cnpj: string): Promise<AgentRow | null> {

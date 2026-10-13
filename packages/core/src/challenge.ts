@@ -1,13 +1,15 @@
 /**
  * Proof of key possession by the agent. The issuer hands out a one-time challenge; the agent
- * signs it with its key. Two key kinds:
+ * signs it with its key. Three key kinds:
  *   evm           EIP-191 personal_sign over the challenge text; address recovered and compared
  *   web-bot-auth  Ed25519 (RFC 9421 key material) raw signature over the challenge bytes
+ *   erc8004       EIP-191 by the agent's on-chain agentWallet (resolved by the caller, see erc8004.ts)
  * The challenge text binds agent key, CNPJ, issuer and expiry, so a signature cannot be replayed
  * for another company or another issuer.
  */
 import { verifyMessage, getAddress, isAddress } from "viem";
 import { type AgentKey, KyaError } from "./types";
+import { parseErc8004Id } from "./erc8004";
 
 export const CHALLENGE_TTL_SECONDS = 900;
 
@@ -36,7 +38,11 @@ export function normalizeAgentKey(input: { kind?: unknown; id?: unknown }): Agen
     if (raw.length !== 32) throw new KyaError("INVALID_INPUT", "agent.id must decode to 32 bytes");
     return { kind: "web-bot-auth", id: b64u(raw) };
   }
-  throw new KyaError("INVALID_INPUT", "agent.kind must be evm or web-bot-auth");
+  if (input.kind === "erc8004") {
+    const { id } = parseErc8004Id(input.id);
+    return { kind: "erc8004", id };
+  }
+  throw new KyaError("INVALID_INPUT", "agent.kind must be evm, web-bot-auth or erc8004");
 }
 
 /** The exact text the agent signs. Line-based so wallets show it readably. */
@@ -61,9 +67,11 @@ export function newChallenge(p: { issuer: string; agent: AgentKey; cnpj: string;
 /** True when `signature` is the agent key's signature over `text`. Never throws on a bad signature. */
 export async function verifyAgentSignature(agent: AgentKey, text: string, signature: string): Promise<boolean> {
   try {
-    if (agent.kind === "evm") {
+    if (agent.kind === "evm" || agent.kind === "erc8004") {
       if (!/^0x[0-9a-fA-F]{130}$/.test(signature)) return false;
-      return await verifyMessage({ address: agent.id as `0x${string}`, message: text, signature: signature as `0x${string}` });
+      const address = agent.kind === "evm" ? agent.id : agent.wallet;
+      if (!address) return false; // erc8004 without a resolved wallet: nothing to compare against
+      return await verifyMessage({ address: address as `0x${string}`, message: text, signature: signature as `0x${string}` });
     }
     const raw = unb64u(agent.id);
     const key = await crypto.subtle.importKey("raw", raw, { name: "Ed25519" }, false, ["verify"]);

@@ -117,7 +117,7 @@ export function buildHttpApp(env: AppEnv) {
           extensions: declareDiscoveryExtension({
             bodyType: "json",
             input: { agent: { kind: "evm", id: "0x0000000000000000000000000000000000000001" }, cnpj: "00000000000191", mandate: { actions: ["pay"], max_per_operation: { amount: 100, currency: "USDC" }, currencies: ["USDC"] } },
-            inputSchema: { properties: { agent: { type: "object", description: "{kind: 'evm' | 'web-bot-auth', id: address or base64url Ed25519 public key}" }, cnpj: { type: "string" }, mandate: { type: "object", description: "JSON validated by /.well-known/kya-mandate.schema.json" } }, required: ["agent", "cnpj", "mandate"] },
+            inputSchema: { properties: { agent: { type: "object", description: "{kind: 'evm' | 'web-bot-auth' | 'erc8004', id: address, base64url Ed25519 public key, or eip155:<chainId>:<identityRegistry>:<agentId>}" }, cnpj: { type: "string" }, mandate: { type: "object", description: "JSON validated by /.well-known/kya-mandate.schema.json" } }, required: ["agent", "cnpj", "mandate"] },
             output: { example: EXAMPLE_REGISTER, schema: { type: "object" } }
           })
         },

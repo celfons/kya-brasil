@@ -13,8 +13,8 @@ import * as service from "./service";
 import { Store } from "./store";
 
 const AGENT = z.object({
-  kind: z.enum(["evm", "web-bot-auth"]).describe("evm: an Ethereum-style wallet (EIP-191 signatures). web-bot-auth: an Ed25519 key (RFC 9421 / Web Bot Auth)."),
-  id: z.string().min(20).max(128).describe("0x address for evm; base64url raw Ed25519 public key for web-bot-auth.")
+  kind: z.enum(["evm", "web-bot-auth", "erc8004"]).describe("evm: an Ethereum-style wallet (EIP-191 signatures). web-bot-auth: an Ed25519 key (RFC 9421 / Web Bot Auth). erc8004: an agent registered in an ERC-8004 Identity Registry; its on-chain agentWallet signs."),
+  id: z.string().min(20).max(160).describe("0x address for evm; base64url raw Ed25519 public key for web-bot-auth; eip155:<chainId>:<identityRegistry>:<agentId> for erc8004.")
 });
 const CNPJ = z.string().min(14).max(18).describe("The company's CNPJ, with or without punctuation.");
 const ID = z.string().uuid().describe("credential_id returned by kya_register.");

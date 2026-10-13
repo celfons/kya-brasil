@@ -35,7 +35,7 @@ async function generate() {
     challenge: { ...challenge, text: challengeText(challenge) },
     credential,
     verdict,
-    tampered: { ...credential, mandate: { ...credential.mandate, max_per_operation: 50000 } }
+    tampered: { ...credential, mandate: { ...credential.mandate, max_per_operation: { amount: 50000, currency: "USDC" } } }
   };
 }
 

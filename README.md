@@ -16,7 +16,9 @@ the same author; the issuer talks to it through one small client (`apps/worker/s
 
 ## Journey
 
-1. `POST /v1/agents` ($0.50) with `{agent: {kind, id}, cnpj, mandate}` returns a one-time challenge.
+1. `POST /v1/agents` ($0.50) with `{agent: {kind, id}, cnpj, mandate}` returns a one-time challenge. Agent kinds:
+   `evm` (wallet address), `web-bot-auth` (Ed25519 key) or `erc8004` (`eip155:<chainId>:<registry>:<agentId>`,
+   an [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) agent whose on-chain wallet signs).
 2. The agent signs the challenge with its key (EIP-191 or Ed25519); the company signs it with its e-CNPJ (CMS/PKCS#7, detached).
 3. `POST /v1/agents/{id}/prove` (free) validates both signatures, the certificate chain against the
    ICP-Brasil roots, the CNPJ inside the certificate, and asks KYB Brasil to clear the company. Then it issues the credential (90 days).

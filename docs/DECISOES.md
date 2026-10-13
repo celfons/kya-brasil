@@ -13,3 +13,4 @@
 | D-09 | Revisão diária por cron: suspende quem deixou de passar no KYB, reativa quem voltou a passar. A assinatura cobre a credencial como emitida; o estado vivo está em `verify_url` e `/v1/revocations`. | Evita reassinar a cada mudança e mantém o histórico auditável. |
 | D-10 | Nenhum CPF armazenado ou exposto; o assinante do e-CNPJ fica registrado só pelo hash do certificado. | Mesma regra do KYB Brasil. |
 | D-11 | ERC-8004 só na fase 2. | Primeiro provar demanda com credencial fora da cadeia. |
+| D-12 | Fase 2, ERC-8004 só leitura: o agente registrado na cadeia é identificado por `eip155:<chain>:<registry>:<agentId>` e assina com o `agentWallet` lido na cadeia; nada é escrito on-chain. | Sem custo de gás nem carteira operacional; a credencial segue off-chain e verificável. Escrita (validações on-chain) fica para quando houver demanda. |

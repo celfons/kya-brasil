@@ -7,6 +7,7 @@ import {
   normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText
 } from "@kya-br/core";
 import { icpAnchors } from "./anchors";
+import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
 import { kybRiskScreen } from "./kyb";
@@ -15,7 +16,8 @@ import { Store, type AgentRow } from "./store";
 const issuerOf = (env: AppEnv, origin: string) => (env.ISSUER_URL ?? origin).replace(/\/$/, "");
 
 export async function register(env: AppEnv, origin: string, body: { agent?: unknown; cnpj?: unknown; mandate?: unknown }) {
-  const agent = normalizeAgentKey((body.agent ?? {}) as { kind?: unknown; id?: unknown });
+  // erc8004: the token must exist and its wallet is recorded now (and re-read at proof time).
+  const agent = await withWallet(env, normalizeAgentKey((body.agent ?? {}) as { kind?: unknown; id?: unknown }));
   if (typeof body.cnpj !== "string" || !isValidCnpj(body.cnpj)) throw new KyaError("INVALID_CNPJ", "cnpj must be a valid Brazilian CNPJ");
   const cnpj = normalizeCnpj(body.cnpj);
   const mandate = validateMandate(body.mandate ?? {});
@@ -25,7 +27,10 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
   if (row && row.status === "active") throw new KyaError("CONFLICT", `this agent key already holds an active credential for CNPJ ${cnpj} (${row.id}); renew or revoke it instead`);
   const id = row?.id ?? crypto.randomUUID();
   if (!row) await store.createAgent({ id, agent, cnpj, mandate });
-  else await env.DB.prepare("UPDATE agents SET mandate = ?2, status = 'pending', status_reason = NULL, updated_at = ?3 WHERE id = ?1").bind(id, JSON.stringify(mandate), new Date().toISOString()).run();
+  else {
+    await env.DB.prepare("UPDATE agents SET mandate = ?2, status = 'pending', status_reason = NULL, updated_at = ?3 WHERE id = ?1").bind(id, JSON.stringify(mandate), new Date().toISOString()).run();
+    if (agent.wallet) await store.setWallet(id, agent.wallet);
+  }
   const ch = newChallenge({ issuer, agent, cnpj });
   await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at });
   return {
@@ -34,8 +39,9 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
     principal: { cnpj, cnpj_formatted: formatCnpj(cnpj) },
     mandate,
     challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at },
+    ...(agent.wallet ? { agent_wallet: agent.wallet } : {}),
     next: {
-      en: `Sign challenge.text twice: with the agent key (evm: EIP-191 personal_sign hex; web-bot-auth: Ed25519 raw signature, base64url) and with the company's e-CNPJ (CMS/PKCS#7 SignedData, detached, base64 DER). Then POST ${issuer}/v1/agents/${id}/prove with {challenge_id, agent_signature, ecnpj_signature}.`,
+      en: `Sign challenge.text twice: with the agent key (evm: EIP-191 personal_sign hex; web-bot-auth: Ed25519 raw signature, base64url; erc8004: EIP-191 by the on-chain agentWallet ${agent.wallet ?? ""}) and with the company's e-CNPJ (CMS/PKCS#7 SignedData, detached, base64 DER). Then POST ${issuer}/v1/agents/${id}/prove with {challenge_id, agent_signature, ecnpj_signature}.`,
       pt: `Assine challenge.text duas vezes: com a chave do agente (evm: EIP-191 personal_sign em hex; web-bot-auth: assinatura Ed25519 bruta em base64url) e com o e-CNPJ da empresa (CMS/PKCS#7 SignedData, destacado, base64 DER). Depois envie POST ${issuer}/v1/agents/${id}/prove com {challenge_id, agent_signature, ecnpj_signature}.`
     },
     mandate_schema: `${issuer}/.well-known/kya-mandate.schema.json`
@@ -44,7 +50,8 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
 
 async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { challenge_id: string; agent_signature: string; ecnpj_signature: string }, event: "issued" | "renewed") {
   const store = new Store(env.DB);
-  const agent: AgentKey = { kind: row.agent_kind, id: row.agent_id };
+  // erc8004: the wallet is read again now, so a transfer between registration and proof is caught.
+  const agent: AgentKey = await withWallet(env, { kind: row.agent_kind, id: row.agent_id });
   const ch = await store.takeChallenge(proof.challenge_id, row.id);
   if (!ch) throw new KyaError("CHALLENGE_FAILED", "challenge unknown, expired (15 minutes) or already used; register again");
   if (!(await verifyAgentSignature(agent, ch.text, proof.agent_signature))) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over challenge.text");
@@ -64,6 +71,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: kyb.legal_name, registration_status: kyb.snapshot.registration_status, certificate, mandate, kyb: kyb.snapshot, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   await store.issue({ id: row.id, legal_name: kyb.legal_name, credential, certificate, mandate, event });
+  if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
   return { credential, kyb_warnings: kyb.warnings };
 }
 
@@ -103,7 +111,7 @@ function present(row: AgentRow, events: { ts: string; event: string; reason: str
     credential_id: row.id,
     status,
     status_reason: row.status_reason,
-    agent: { kind: row.agent_kind, id: row.agent_id },
+    agent: { kind: row.agent_kind, id: row.agent_id, ...(row.agent_wallet ? { wallet: row.agent_wallet } : {}) },
     principal: { cnpj: row.cnpj, cnpj_formatted: formatCnpj(row.cnpj), legal_name: row.legal_name },
     credential: credential ? { ...credential, status, status_reason: row.status_reason } : null,
     /** The signature covers the credential as issued; a later status change is reported here and at revocation_url, not re-signed. */
@@ -142,7 +150,7 @@ export async function renewChallenge(env: AppEnv, origin: string, id: string) {
   const row = await store.get(id);
   if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
   if (row.status === "revoked") throw new KyaError("CONFLICT", "revoked credentials cannot be renewed; register again");
-  const agent: AgentKey = { kind: row.agent_kind, id: row.agent_id };
+  const agent: AgentKey = await withWallet(env, { kind: row.agent_kind, id: row.agent_id });
   const ch = newChallenge({ issuer: issuerOf(env, origin), agent, cnpj: row.cnpj });
   await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at });
   return { credential_id: id, challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at }, next: `POST ${issuerOf(env, origin)}/v1/agents/${id}/renew/prove with {challenge_id, agent_signature, ecnpj_signature}` };
@@ -177,6 +185,15 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
   let suspended = 0, reinstated = 0, errors = 0;
   for (const row of rows) {
     try {
+      // erc8004: a credential never outlives a wallet change on chain.
+      if (row.agent_kind === "erc8004" && row.status === "active") {
+        const live = await withWallet(env, { kind: "erc8004", id: row.agent_id }).catch(() => null);
+        if (live && row.agent_wallet && live.wallet !== row.agent_wallet) {
+          await store.setStatus({ id: row.id, status: "suspended", reason: `agent wallet changed on chain (${row.agent_wallet} → ${live.wallet}); register again`, actor: "cron" });
+          suspended++;
+          continue;
+        }
+      }
       const kyb = await kybRiskScreen(env, row.cnpj);
       const d = kybDecision(kyb.snapshot);
       if (row.status === "active" && !d.ok) {

@@ -10,12 +10,14 @@ export interface Attestation {
 }
 
 /** How the agent proves it holds its key. */
-export type AgentKeyKind = "evm" | "web-bot-auth";
+export type AgentKeyKind = "evm" | "web-bot-auth" | "erc8004";
 
 export interface AgentKey {
   kind: AgentKeyKind;
-  /** evm: 0x address (checksummed). web-bot-auth: Ed25519 public key, base64url raw 32 bytes (RFC 9421 key id = JWK thumbprint). */
+  /** evm: 0x address (checksummed). web-bot-auth: Ed25519 public key, base64url raw 32 bytes (RFC 9421 key id = JWK thumbprint). erc8004: eip155:<chainId>:<identityRegistry>:<agentId>. */
   id: string;
+  /** erc8004 only: the agentWallet resolved on chain when the credential was issued; the key that signs for the agent. */
+  wallet?: `0x${string}`;
 }
 
 export type CredentialStatus = "pending" | "active" | "suspended" | "revoked" | "expired";

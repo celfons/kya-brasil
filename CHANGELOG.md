@@ -2,6 +2,7 @@
 
 ## 0.2.0
 
+- ERC-8004 identities (read-only): agent kind `erc8004`, wallet resolved on chain (Base, Ethereum and their testnets by default; `EVM_RPC_URLS` to add chains) at registration, proof and daily review; credentials carry `agent.wallet`.
 - Open source under MIT: LICENSE, SECURITY.md, CONTRIBUTING.md; specification `docs/SPEC.md` with test vectors.
 - Examples fixed: `max_per_operation` and `max_per_day` are `{ amount, currency }`, as the schema says.
 - npm package `@kya-brasil/agent-tools` (client, signing helpers, adapters) with a manual publish workflow.

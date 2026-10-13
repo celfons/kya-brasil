@@ -23,11 +23,17 @@ Keywords MUST, SHOULD and MAY are used as in RFC 2119.
 ## 2. Agent keys
 
 ```
-AgentKey = { kind: "evm" | "web-bot-auth", id: string }
+AgentKey = { kind: "evm" | "web-bot-auth" | "erc8004", id: string, wallet?: "0x..." }
 ```
 
 - `evm`: `id` is the EIP-55 checksummed address. Signatures are EIP-191 `personal_sign` over the UTF-8 challenge text, hex encoded.
 - `web-bot-auth`: `id` is the raw 32-byte Ed25519 public key, base64url without padding. Signatures are raw Ed25519 over the UTF-8 challenge text, base64url without padding.
+- `erc8004`: `id` is `eip155:<chainId>:<identityRegistry>:<agentId>`, an agent registered as an ERC-721 token in an
+  [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) Identity Registry (registry address checksummed, agentId decimal).
+  The key that signs is the agent's on-chain `agentWallet` (`getAgentWallet(agentId)`, falling back to `ownerOf`),
+  with EIP-191 as for `evm`. The issuer MUST resolve the wallet on chain at registration and again at proof time,
+  record it in `credential.agent.wallet`, and MUST suspend the credential when a later review finds a different
+  wallet. Verifiers SHOULD compare the request signer with `agent.wallet` and MAY re-read the chain.
 
 Issuers MUST normalize `id` (checksum the address; canonical base64url) before storing or comparing.
 
