@@ -61,12 +61,16 @@ Also check that the key that signed the agent's request is `v.agent.id` (or `v.a
 a credential id alone proves nothing about who is talking.
 
 Once you accept the action, **register it** ($0.02): the issuer re-checks the mandate including everything
-registered today by anyone, so a daily ceiling holds across all the agent's counterparties, and signs a receipt
-that is your proof of what the agent could and did do. The company reads the trail of its agents with its e-CNPJ.
+registered today, so a daily ceiling holds across all the agent's counterparties, and signs a receipt that is
+your proof of what the agent could and did do. The company reads the trail of its agents with its e-CNPJ.
+Send a **proof of origin** with it: the agent's signed request you received (`agent_request`; the Sign in with
+KYA middleware below does it for you) or the agent's signature over the act text. Without one the act is kept
+as evidence but does not count toward the daily ceiling (D-18), so nobody can exhaust an agent's ceiling with
+acts it never asked for.
 
 ```ts
-const receipt = await kya.registerAct(credentialId, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1" });
-// receipt.allowed, receipt.spent_today_registered_after, receipt.receipt_url, receipt.attestation
+const receipt = await kya.registerAct(credentialId, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1", agent_request });
+// receipt.allowed, receipt.counted, receipt.proof, receipt.spent_today_registered_after, receipt.receipt_url, receipt.attestation
 ```
 
 Over MCP, the same three tools are `kya_verify`, `kya_check_action` and `kya_verify_paid`. Claude Desktop,
@@ -86,7 +90,8 @@ app.use("/api/*", auth.hono());                                  // or auth.expr
 app.post("/api/orders", (c) => {
   const kya = c.get("kya");                                       // { credential_id, agent, principal, mandate, check(), allowed() }
   if (!kya.check({ action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" }).allowed) return c.json({ error: "outside the mandate" }, 403);
-  // ... accept, then kya.client.registerAct(kya.credential_id, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" })
+  // ... accept, then kya.registerAct({ action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" })
+  // (the agent's signed request goes along as the proof of origin, so the act counts toward its daily ceiling)
 });
 ```
 

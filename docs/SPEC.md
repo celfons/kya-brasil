@@ -191,19 +191,29 @@ An **act** records what the agent did next to what it was allowed to do. The par
 action (the counterparty) SHOULD register it; the agent MAY register its own acts.
 
 `POST /v1/agents/{id}/acts` with `{ action, amount?, currency?, counterparty?, reference?, content_sha256?,
-registered_by?, registrant?, agent_signature? }`. The issuer MUST:
+registered_by?, registrant?, agent_signature?, agent_request? }`. The issuer MUST:
 
 1. Validate the act (section 5 vocabulary for `action`; `currency` required with `amount`; `content_sha256` is a
    SHA-256 hex and the only trace of the document, which MUST NOT be sent or stored).
-2. If `agent_signature` is present, verify it over the act text below with the agent key (section 2) and record
-   `agent_signed: true`; reject the act when the signature is present but invalid.
+2. Establish the act's **proof of origin** (D-18), rejecting any proof that is present but invalid:
+   - `agent_signature`: the agent's signature over the act text below, verified with the agent key (section 2);
+     record `agent_signed: true`;
+   - `agent_request`: the agent's signed request of section 14 as the registrant received it,
+     `{ method, url, created, expires, content_sha256?, signature }`. The issuer rebuilds the request text with
+     this credential's id and verifies the signature with the agent key. It MUST reject a `created` more than
+     300 s in the future or more than 24 h old, a lifetime over 600 s, and an `act.content_sha256` different from
+     the signed `content_sha256`; when the act has no `content_sha256`, it takes the signed one.
+   - neither: `proof: "none"`.
+   One proof proves one act: the issuer MUST reject (409) a proof whose signature was already used by another act.
 3. Evaluate the mandate (section 5) with `spent_today` set to the sum of the amounts of the acts already
-   registered today (UTC) with `allowed: true` in the currency of `max_per_day`. Daily ceilings therefore hold
+   registered today (UTC) that **count**, in the currency of `max_per_day`. Daily ceilings therefore hold
    across every counterparty, not only the one asking.
 4. Store the act with its verdict, denied or not, and return a signed receipt (section 7) containing the act,
-   the verdict, the registered totals before and after, `registered_at` and `receipt_url`.
+   `proof`, `counted`, the verdict, the registered totals before and after, `registered_at` and `receipt_url`.
 
-Denied acts are evidence and MUST NOT count toward the daily total. Receipts are readable by anyone who holds
+An act **counts** when it is allowed and carries a proof of origin. Denied acts and acts without a proof are
+evidence: they are stored and signed but MUST NOT count toward the daily total, so no third party can exhaust
+an agent's ceiling with acts the agent never asked for. Receipts are readable by anyone who holds
 the `act_id` (`GET /v1/acts/{act_id}`). The full trail of an agent is readable only by its company:
 `POST /v1/agents/{id}/acts/export` with the e-CNPJ signature (section 4) over `KYA Brasil: acts <credential_id>\n<nonce>`.
 

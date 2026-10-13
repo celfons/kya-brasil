@@ -3,7 +3,7 @@
  * an action, renew, revoke, and the daily review. Each returns plain JSON; routes add payment.
  */
 import {
-  type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
+  type AgentKey, type Credential, KyaError, checkActProof, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
   normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
   actText, dayOf, spentToday, validateAct
 } from "@kya-br/core";
@@ -135,7 +135,7 @@ async function registeredToday(env: AppEnv, id: string, mandate: Mandate, now: D
   const currency = mandate.max_per_day?.currency;
   if (!currency) return null;
   const rows = await new Store(env.DB).actsOfDay(id, dayOf(now));
-  return { currency, amount: spentToday(rows.map((r) => ({ amount: r.amount, currency: r.currency, allowed: r.allowed === 1 })), currency) };
+  return { currency, amount: spentToday(rows.map((r) => ({ amount: r.amount, currency: r.currency, allowed: r.allowed === 1, counted: r.counted === 1 })), currency) };
 }
 
 function evaluate(v: Awaited<ReturnType<typeof verify>>, q: { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number }, registered: { currency: string; amount: number } | null, now: Date) {
@@ -149,7 +149,7 @@ function evaluate(v: Awaited<ReturnType<typeof verify>>, q: { action?: string; a
     verdict,
     allowed: live && verdict.allowed,
     reason: !live ? `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}` : verdict.allowed ? "inside the mandate" : verdict.checks.filter((c) => !c.ok).map((c) => c.detail).join("; "),
-    spent_today_registered: registered ? { ...registered, note: "sum of the acts registered today in this currency; the verdict uses the larger of this and your spent_today" } : null
+    spent_today_registered: registered ? { ...registered, note: "sum of the acts registered today in this currency that carry a proof of origin (D-18); the verdict uses the larger of this and your spent_today" } : null
   };
 }
 
@@ -178,35 +178,48 @@ export async function allowed(env: AppEnv, origin: string, id: string, q: { acti
   return attestation ? { ...out, attestation } : out;
 }
 
+async function sha256Hex(text: string): Promise<string> {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 /**
  * Registers an act: what the agent did, checked against the mandate plus everything registered today,
- * with a signed receipt. Denied acts are recorded too (they are evidence) but do not count as spent.
+ * with a signed receipt. Denied acts are recorded too (they are evidence) but do not count as spent, and
+ * neither do acts without a proof of origin (D-18).
  */
 export async function registerAct(env: AppEnv, origin: string, id: string, body: Record<string, unknown>) {
   const act = validateAct(body);
   const v = await verify(env, id);
   const issuer = issuerOf(env, origin);
   const now = new Date();
-  let agent_signed = false;
-  if (act.agent_signature) {
-    agent_signed = await verifyAgentSignature(v.agent, actText({ issuer, credential_id: id, agent: v.agent, act }), act.agent_signature);
-    if (!agent_signed) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over the act text (GET /v1/acts/text for the exact lines)");
-  }
+  // The body hash the agent signed binds the act to that request when the registrant gave none.
+  if (!act.content_sha256 && !act.agent_signature && act.agent_request?.content_sha256) act.content_sha256 = act.agent_request.content_sha256;
+  const p = await checkActProof({ issuer, credential_id: id, agent: v.agent, act, now });
+  const proof_sha256 = p.proof_signature ? await sha256Hex(p.proof_signature) : null;
+  const store = new Store(env.DB);
+  if (proof_sha256 && (await store.proofUsed(proof_sha256))) throw new KyaError("CONFLICT", "this proof was already used by another act; one signed act or request proves one act");
   const registered = await registeredToday(env, id, v.credential?.mandate ?? {}, now);
   const e = evaluate(v, { action: act.action, amount: act.amount, currency: act.currency, counterparty: act.counterparty }, registered, now);
+  const counted = e.allowed && p.proof !== "none";
   const act_id = crypto.randomUUID();
-  const { agent_signature: _s, ...actPublic } = act;
+  const { agent_signature: _s, agent_request: _r, ...actPublic } = act;
+  const before = e.spent_today_registered ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount } : null;
+  const adds = counted && before !== null && act.amount !== undefined && act.currency === before.currency;
   const body_out: Record<string, unknown> = {
     act_id,
     credential_id: id,
     status: v.status,
     allowed: e.allowed,
     reason: e.reason,
-    act: { ...actPublic, registered_by: act.registered_by ?? "counterparty", agent_signed },
+    act: { ...actPublic, registered_by: act.registered_by ?? "counterparty", agent_signed: p.agent_signed },
+    proof: p.proof,
+    counted,
+    ...(e.allowed && !counted ? { counted_note: "no proof of origin (agent_signature or agent_request): kept as evidence, not added to the daily total" } : {}),
     checks: e.verdict.checks,
     not_evaluated: e.verdict.not_evaluated,
-    spent_today_registered_before: e.spent_today_registered ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount } : null,
-    spent_today_registered_after: e.spent_today_registered && e.allowed && act.amount !== undefined && act.currency === e.spent_today_registered.currency ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount + act.amount } : e.spent_today_registered ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount } : null,
+    spent_today_registered_before: before,
+    spent_today_registered_after: before ? { currency: before.currency, amount: before.amount + (adds ? (act.amount as number) : 0) } : null,
     principal: v.principal,
     agent: v.agent,
     registered_at: now.toISOString(),
@@ -214,10 +227,10 @@ export async function registerAct(env: AppEnv, origin: string, id: string, body:
   };
   const attestation = await signAnswer(env, body_out, issuer);
   const receipt = attestation ? { ...body_out, attestation } : body_out;
-  await new Store(env.DB).createAct({
+  await store.createAct({
     id: act_id, agent_row: id, day: dayOf(now), action: act.action, amount: act.amount ?? null, currency: act.currency ?? null, counterparty: act.counterparty ?? null,
     reference: act.reference ?? null, content_sha256: act.content_sha256 ?? null, registered_by: act.registered_by ?? "counterparty", registrant: act.registrant ?? null,
-    agent_signed: agent_signed ? 1 : 0, allowed: e.allowed ? 1 : 0, receipt: JSON.stringify(receipt)
+    agent_signed: p.agent_signed ? 1 : 0, allowed: e.allowed ? 1 : 0, receipt: JSON.stringify(receipt), proof: p.proof, counted: counted ? 1 : 0, proof_sha256
   });
   return receipt;
 }
@@ -250,7 +263,7 @@ export async function exportActs(env: AppEnv, id: string, body: { signed_text?: 
   const acts = await store.acts(id, since);
   return {
     credential_id: id, since, count: acts.length,
-    acts: acts.map((a) => ({ act_id: a.id, ts: a.ts, action: a.action, amount: a.amount, currency: a.currency, counterparty: a.counterparty, reference: a.reference, content_sha256: a.content_sha256, registered_by: a.registered_by, registrant: a.registrant, agent_signed: a.agent_signed === 1, allowed: a.allowed === 1, receipt_url: `/v1/acts/${a.id}` }))
+    acts: acts.map((a) => ({ act_id: a.id, ts: a.ts, action: a.action, amount: a.amount, currency: a.currency, counterparty: a.counterparty, reference: a.reference, content_sha256: a.content_sha256, registered_by: a.registered_by, registrant: a.registrant, agent_signed: a.agent_signed === 1, allowed: a.allowed === 1, proof: a.proof, counted: a.counted === 1, receipt_url: `/v1/acts/${a.id}` }))
   };
 }
 

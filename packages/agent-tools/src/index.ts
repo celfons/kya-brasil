@@ -116,8 +116,14 @@ export interface ActInput {
   content_sha256?: string;
   registered_by?: "counterparty" | "agent";
   registrant?: string;
+  /** Proof of origin (D-18): the agent's signature over the act text. */
   agent_signature?: string;
+  /** Proof of origin (D-18): the agent's signed KYA request you received (createKyaAuth fills it in kya.registerAct). */
+  agent_request?: AgentRequestProof;
 }
+
+/** The agent's signed request as received: method, URL and the KYA-* header values. */
+export interface AgentRequestProof { method: string; url: string; created: number; expires: number; content_sha256?: string; signature: string }
 
 export interface ActReceipt {
   act_id: string;
@@ -125,7 +131,12 @@ export interface ActReceipt {
   status: CredentialStatus;
   allowed: boolean;
   reason: string;
-  act: ActInput & { agent_signed: boolean };
+  act: Omit<ActInput, "agent_signature" | "agent_request"> & { agent_signed: boolean };
+  /** D-18: which proof of origin came with the act. */
+  proof: "agent_signature" | "agent_request" | "none";
+  /** Whether the act was added to the daily total (allowed and proven). */
+  counted: boolean;
+  counted_note?: string;
   checks: { rule: string; ok: boolean; detail?: string }[];
   not_evaluated: string[];
   spent_today_registered_before: { currency: string; amount: number } | null;

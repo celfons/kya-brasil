@@ -46,6 +46,11 @@ export interface ActRow {
   registrant: string | null;
   agent_signed: number;
   allowed: number;
+  /** D-18: 'agent_signature' | 'agent_request' | 'none'. */
+  proof: "agent_signature" | "agent_request" | "none";
+  /** 1 when allowed and proven: the only acts the daily total adds. */
+  counted: number;
+  proof_sha256: string | null;
   receipt: string;
 }
 
@@ -159,8 +164,8 @@ export class Store {
 
   async createAct(a: Omit<ActRow, "ts">): Promise<void> {
     await this.db
-      .prepare("INSERT INTO acts (id, agent_row, day, action, amount, currency, counterparty, reference, content_sha256, registered_by, registrant, agent_signed, allowed, receipt) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)")
-      .bind(a.id, a.agent_row, a.day, a.action, a.amount, a.currency, a.counterparty, a.reference, a.content_sha256, a.registered_by, a.registrant, a.agent_signed, a.allowed, a.receipt)
+      .prepare("INSERT INTO acts (id, agent_row, day, action, amount, currency, counterparty, reference, content_sha256, registered_by, registrant, agent_signed, allowed, receipt, proof, counted, proof_sha256) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)")
+      .bind(a.id, a.agent_row, a.day, a.action, a.amount, a.currency, a.counterparty, a.reference, a.content_sha256, a.registered_by, a.registrant, a.agent_signed, a.allowed, a.receipt, a.proof, a.counted, a.proof_sha256)
       .run();
   }
 
@@ -168,9 +173,14 @@ export class Store {
     return (await this.db.prepare("SELECT * FROM acts WHERE id = ?1").bind(id).first<ActRow>()) ?? null;
   }
 
-  async actsOfDay(agent_row: string, day: string): Promise<Pick<ActRow, "amount" | "currency" | "allowed">[]> {
-    const { results } = await this.db.prepare("SELECT amount, currency, allowed FROM acts WHERE agent_row = ?1 AND day = ?2").bind(agent_row, day).all<Pick<ActRow, "amount" | "currency" | "allowed">>();
+  async actsOfDay(agent_row: string, day: string): Promise<Pick<ActRow, "amount" | "currency" | "allowed" | "counted">[]> {
+    const { results } = await this.db.prepare("SELECT amount, currency, allowed, counted FROM acts WHERE agent_row = ?1 AND day = ?2").bind(agent_row, day).all<Pick<ActRow, "amount" | "currency" | "allowed" | "counted">>();
     return results;
+  }
+
+  /** Whether a proof (SHA-256 of its signature) was already used by another act (D-18: one proof, one act). */
+  async proofUsed(proof_sha256: string): Promise<boolean> {
+    return (await this.db.prepare("SELECT 1 AS used FROM acts WHERE proof_sha256 = ?1").bind(proof_sha256).first<{ used: number }>()) !== null;
   }
 
   async acts(agent_row: string, sinceIso: string, limit = 500): Promise<ActRow[]> {

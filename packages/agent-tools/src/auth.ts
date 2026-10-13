@@ -27,7 +27,7 @@
  */
 import { verifyMessage } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index";
+import { type ActInput, type ActReceipt, type ActionQuery, type AgentKey, type AgentRequestProof, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index";
 
 export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256" } as const;
 
@@ -109,6 +109,13 @@ export interface KyaContext {
   check(q: ActionQuery): LocalVerdict;
   /** Signed verdict from the issuer ($0.01, needs privateKey or internalKey in the options). */
   allowed(q: ActionQuery): Promise<Verdict>;
+  /** The agent's signed request, kept as the proof of origin of an act (absent for signed responses). */
+  request?: AgentRequestProof;
+  /**
+   * Registers the act this request led to ($0.02) with the request as its proof of origin (D-18), so it counts
+   * toward the agent's daily ceiling across counterparties.
+   */
+  registerAct(act: Omit<ActInput, "agent_request">): Promise<ActReceipt>;
 }
 
 export type KyaAuthResult = { ok: true; kya: KyaContext } | { ok: false; status: 401 | 403 | 502; error: string; message: string };
@@ -247,10 +254,11 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       return status === 404 ? fail(401, "KYA_CREDENTIAL_UNKNOWN", "unknown credential_id") : fail(502, "KYA_ISSUER_UNAVAILABLE", (e as Error).message);
     }
     const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader });
-    return finish(credentialId, v, text, signature, bodyState);
+    const request: AgentRequestProof = { method: p.method.toUpperCase(), url: p.url, created, expires, signature, ...(contentHeader ? { content_sha256: contentHeader.toLowerCase() } : {}) };
+    return finish(credentialId, v, text, signature, bodyState, request);
   }
 
-  async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"]): Promise<KyaAuthResult> {
+  async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"], request?: AgentRequestProof): Promise<KyaAuthResult> {
     const sig = await verifySignature(v.agent, text, signature);
     if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", "signature does not match the credential's agent key over the signed text");
     if (v.status !== "active") return fail(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`);
@@ -265,7 +273,9 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       signer: sig.signer,
       body: bodyState,
       check: (q) => checkMandate(mandate, q),
-      allowed: (q) => client.allowed(credentialId, q)
+      allowed: (q) => client.allowed(credentialId, q),
+      ...(request ? { request } : {}),
+      registerAct: (act) => client.registerAct(credentialId, request ? { ...act, agent_request: request } : act)
     };
     return { ok: true, kya: ctx };
   }

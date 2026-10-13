@@ -142,3 +142,33 @@ describe("mutual authentication", () => {
     expect(other).toMatchObject({ ok: false, error: "KYA_RESPONSE_MISMATCH" });
   });
 });
+
+describe("request text shared with the issuer (D-18)", () => {
+  it("is byte-identical to the vector in packages/core/src/act-proof.test.ts", () => {
+    const h = "ab".repeat(32);
+    expect(requestText({ credentialId: CRED, method: "post", url: "https://Beta.COM.br/orders?x=1#frag", created: 1, expires: 61, contentSha256: h })).toBe(
+      ["KYA Brasil: request", `credential: ${CRED}`, "method: POST", "url: https://beta.com.br/orders?x=1", "created: 1", "expires: 61", `content-sha256: ${h}`].join("\n")
+    );
+  });
+});
+
+describe("the verified request becomes the act's proof of origin (D-18)", () => {
+  it("exposes kya.request with the signed headers, ready for kya.registerAct", async () => {
+    const { auth } = issuer();
+    const body = JSON.stringify({ sku: "A1", qty: 3 });
+    const url = "https://beta.com.br/orders";
+    const headers = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: EVM_PK }, method: "POST", url, body });
+    const r = await auth.authenticate(new Request(url, { method: "POST", headers, body }));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.kya.request).toEqual({
+      method: "POST",
+      url,
+      created: Number(headers[KYA_HEADERS.created]),
+      expires: Number(headers[KYA_HEADERS.expires]),
+      content_sha256: headers[KYA_HEADERS.content],
+      signature: headers[KYA_HEADERS.signature]
+    });
+    expect(typeof r.kya.registerAct).toBe("function");
+  });
+});

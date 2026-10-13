@@ -8,3 +8,4 @@ export * from "./icp-brasil";
 export * from "./revocation";
 export * from "./erc8004";
 export * from "./acts";
+export * from "./request";

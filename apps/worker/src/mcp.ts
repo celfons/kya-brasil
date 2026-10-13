@@ -138,7 +138,18 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
         content_sha256: z.string().length(64).optional().describe("SHA-256 hex of the document; only the hash is stored."),
         registered_by: z.enum(["counterparty", "agent"]).optional(),
         registrant: z.string().max(128).optional(),
-        agent_signature: z.string().max(400).optional().describe("Optional: the agent's signature over the act text (kya_act_text).")
+        agent_signature: z.string().max(400).optional().describe("Proof of origin: the agent's signature over the act text (kya_act_text)."),
+        agent_request: z
+          .object({
+            method: z.string().max(10),
+            url: z.string().max(2048),
+            created: z.number().int(),
+            expires: z.number().int(),
+            content_sha256: z.string().length(64).optional(),
+            signature: z.string().max(400)
+          })
+          .optional()
+          .describe("Proof of origin: the agent's signed KYA request you received (KYA-Created, KYA-Expires, KYA-Content-SHA256, KYA-Signature, plus method and URL). Without a proof the act is kept but does not count toward the daily total.")
       },
       { openWorldHint: true },
       async (i, extra) => this.logged("kya_register_act", paymentInfo(extra), () => service.registerAct(this.env, origin, i.credential_id, i as Record<string, unknown>))
