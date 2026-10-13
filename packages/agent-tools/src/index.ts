@@ -382,3 +382,4 @@ export async function verifyAttestation(doc: Record<string, unknown>, opts: { ba
   const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, sig, new TextEncoder().encode(`${hex}\n${att.signed_at}`));
   return ok ? { valid: true, key_id: att.key_id, signed_at: att.signed_at } : { valid: false, reason: "signature does not verify", key_id: att.key_id, signed_at: att.signed_at };
 }
+export * from "./auth";
