@@ -46,6 +46,29 @@ toLangChain(kya, tool);                  // from "@langchain/core/tools"
 toOpenAI(kya); toAnthropic(kya);         // then kya.execute(name, args)
 ```
 
+## Sign in with KYA: accept signed requests from agents
+
+```ts
+import { createKyaAuth } from "@kya-brasil/agent-tools";
+const auth = createKyaAuth();                     // options: privateKey (for kya.allowed), cacheTtlMs, maxSkewSeconds
+
+app.use("/api/*", auth.hono());                    // Hono: c.get("kya")
+app.use(auth.express());                           // Express: req.kya
+export default { fetch: auth.fetchHandler(async (req, kya) => Response.json({ hello: kya.principal.legal_name })) }; // Workers
+const r = await auth.authenticate(request);        // anywhere: { ok, kya } or { ok: false, status, error, message }
+```
+
+`kya` carries `credential_id`, `agent`, `principal`, `mandate`, `check(q)` (local mandate evaluation, no daily
+ceilings) and `allowed(q)` (the issuer's signed verdict, $0.01). The agent signs with `signRequest(...)`:
+
+```ts
+import { signRequest } from "@kya-brasil/agent-tools";
+const headers = await signRequest({ credentialId, key: { kind: "evm", privateKey: agentPk }, method: "POST", url, body });
+await fetch(url, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body });
+```
+
+Keys: `{ kind: "evm" | "erc8004", privateKey }` or `{ kind: "web-bot-auth", privateKey: CryptoKey | pkcs8 }`.
+
 ## Company: give your own agent a credential
 
 ```ts

@@ -203,7 +203,38 @@ reference: <reference> | -
 content_sha256: <hex> | -
 ```
 
-## 14. Test vectors
+## 14. Request signing ("Sign in with KYA")
+
+An agent presents its credential on every request by signing the request with its key. Headers:
+
+| Header | Value |
+| --- | --- |
+| `KYA-Credential` | `credential_id` |
+| `KYA-Created` | Unix seconds when the signature was made |
+| `KYA-Expires` | Unix seconds after which it is invalid (at most 600 s after `KYA-Created`) |
+| `KYA-Signature` | EIP-191 hex (`evm`, `erc8004`) or raw Ed25519 base64url (`web-bot-auth`) over the request text |
+| `KYA-Content-SHA256` | hex SHA-256 of the body, present whenever the request has a body |
+
+Request text, lines joined by `\n`:
+
+```
+KYA Brasil: request
+credential: <credential_id>
+method: <METHOD, upper case>
+url: <scheme>://<host, lower case>[:port if not default]<path>[?query]
+created: <KYA-Created>
+expires: <KYA-Expires>
+content-sha256: <KYA-Content-SHA256 | ->
+```
+
+The verifier MUST reject a signature whose `created` is more than 300 s in the future or whose `expires` has
+passed, MUST recompute the body hash when a body is present, MUST verify the signature with the credential's
+agent key (`agent.id`, or `agent.wallet` for `erc8004`), and MUST accept only `status == "active"`. It MAY
+cache the credential for a short time (60 s in the reference client) and SHOULD honour `/v1/revocations`.
+This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
+is planned and will carry the same `KYA-Credential` header.
+
+## 15. Test vectors
 
 `docs/vectors/credential-v1.json` contains an issuer key, a challenge with its text, a signed credential,
 a signed verdict and a tampered copy of the credential that MUST fail verification. An implementation is

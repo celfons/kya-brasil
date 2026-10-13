@@ -65,6 +65,27 @@ const receipt = await kya.registerAct(credentialId, { action: "order", amount: 4
 Over MCP, the same three tools are `kya_verify`, `kya_check_action` and `kya_verify_paid`. Claude Desktop,
 Cursor and friends: add the remote server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
 
+### Sign in with KYA (one middleware instead of three calls)
+
+The agent signs every request with its key and sends four `KYA-*` headers; your server verifies the signature,
+fetches and caches the credential, and gets who the agent is, which company answers for it and its mandate.
+Hono, Express, Workers, Next, Bun, Deno: anything with a Web-standard `Request`.
+
+```ts
+import { createKyaAuth } from "@kya-brasil/agent-tools";
+const auth = createKyaAuth();
+
+app.use("/api/*", auth.hono());                                  // or auth.express(), or auth.fetchHandler(handler)
+app.post("/api/orders", (c) => {
+  const kya = c.get("kya");                                       // { credential_id, agent, principal, mandate, check(), allowed() }
+  if (!kya.check({ action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" }).allowed) return c.json({ error: "outside the mandate" }, 403);
+  // ... accept, then kya.client.registerAct(kya.credential_id, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" })
+});
+```
+
+On the agent side, `signRequest({ credentialId, key, method, url, body })` returns the headers. Profile in
+[docs/SPEC.md](docs/SPEC.md) section 14.
+
 ## For companies: give your own agent a credential
 
 1. `POST /v1/agents` ($0.50) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.

@@ -2,6 +2,7 @@
 
 ## 0.3.0
 
+- "Sign in with KYA": request signing profile (spec section 14) and `createKyaAuth` in the npm package (0.3.0) with Hono, Express and fetch-handler adapters, credential cache, local mandate check and issuer verdict.
 - Acts: `POST /v1/agents/{id}/acts` ($0.02, MCP `kya_register_act`) registers what the agent did, re-checks the mandate with everything registered today (daily ceilings across counterparties), records denied acts as evidence and returns a signed receipt; `GET /v1/acts/{act_id}`, act text for the optional agent signature, and the company's trail export signed with the e-CNPJ. `/allowed` now uses the registered total too (`spent_today_registered`). Spec section 13.
 
 ## 0.2.0
