@@ -63,12 +63,13 @@ export async function credentialDigest(c: Credential): Promise<string> {
   return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** The KYB result decides whether a credential may be issued or kept active. */
-export function kybDecision(k: KybSnapshot): { ok: boolean; reason: string | null } {
-  if (k.registration_status !== "ATIVA") return { ok: false, reason: `company is ${k.registration_status} at the Receita Federal` };
-  if (k.active_sanctions > 0) return { ok: false, reason: `${k.active_sanctions} active sanction(s) on the CGU lists` };
-  if (k.forced_labor) return { ok: false, reason: "company is on the forced-labour employer list" };
-  if (k.risk_level === "critical") return { ok: false, reason: `KYB risk is critical (${k.red_flags.join(", ")})` };
+/**
+ * Whether the company can still answer for an agent (D-15): only its existence as a legal entity,
+ * i.e. registration ATIVA at the Receita Federal. Sanctions, debt and risk are facts about the company
+ * for the verifier to weigh (KYB Brasil), never a reason to deny or suspend the credential.
+ */
+export function principalDecision(registration_status: string): { ok: boolean; reason: string | null } {
+  if (registration_status !== "ATIVA") return { ok: false, reason: `company is ${registration_status} at the Receita Federal` };
   return { ok: true, reason: null };
 }
 

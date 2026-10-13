@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { generateAttestationKey, importPrivateKey } from "./attestation";
-import { buildCredential, effectiveStatus, kybDecision, signCredential, verifyCredentialSignature } from "./credential";
+import { buildCredential, effectiveStatus, principalDecision, signCredential, verifyCredentialSignature } from "./credential";
 import type { KybSnapshot } from "./types";
 
 const kyb: KybSnapshot = { risk_level: "low", risk_score: 5, registration_status: "ATIVA", active_sanctions: 0, forced_labor: false, federal_debt_brl: null, active_embargoes: 0, red_flags: [], checked_at: "2026-10-12T00:00:00Z" };
@@ -16,11 +16,10 @@ describe("credential", () => {
     expect((await verifyCredentialSignature({ ...signed, status: "revoked" }, key.publicJwk)).valid).toBe(false);
   });
 
-  it("KYB decision blocks sanctioned, inactive or critical companies", () => {
-    expect(kybDecision(kyb).ok).toBe(true);
-    expect(kybDecision({ ...kyb, active_sanctions: 1 }).reason).toMatch(/sanction/);
-    expect(kybDecision({ ...kyb, registration_status: "BAIXADA" }).reason).toMatch(/BAIXADA/);
-    expect(kybDecision({ ...kyb, risk_level: "critical", red_flags: ["INSOLVENCY_IN_REGISTRY"] }).reason).toMatch(/critical/);
+  it("only the registration status decides (D-15): sanctions and risk are the verifier's call", () => {
+    expect(principalDecision("ATIVA")).toEqual({ ok: true, reason: null });
+    expect(principalDecision("BAIXADA").reason).toMatch(/BAIXADA/);
+    expect(principalDecision("INAPTA").ok).toBe(false);
   });
 
   it("an active credential past expires_at reads as expired", () => {

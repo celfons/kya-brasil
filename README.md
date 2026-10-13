@@ -5,10 +5,15 @@ a score. KYA Brasil answers the question a supplier, a bank or a marketplace act
 entity answers for this agent, and what is it allowed to do?**
 
 A Brazilian company signs with its **e-CNPJ** (the ICP-Brasil certificate every company already uses for
-invoices) that an AI agent key acts on its behalf, within a declared **mandate**. [KYB Brasil](https://kyb-br-agents.marcelfons.workers.dev)
-checks the company (Receita Federal, CGU sanctions, forced-labour list, federal debt, environmental
-embargoes) before issuance and every day after. The credential is Ed25519-signed JSON: verifiable offline,
-live status at a stable URL, revocable at once. Every per-action verdict is signed too.
+invoices) that an AI agent key acts on its behalf, within a declared **mandate**. Before issuance and every
+day after, the issuer checks that the e-CNPJ is not revoked (the AC's CRL) and that the company is still
+active at the Receita Federal: the link between agent and company stays true or the credential stops working.
+The credential is Ed25519-signed JSON: verifiable offline, live status at a stable URL, revocable at once.
+Every per-action verdict is signed too.
+
+KYA Brasil answers *who speaks for whom*, not *whether the company is a good risk*. Sanctions, forced
+labour, debt and litigation are your call as the verifier: [KYB Brasil](https://kyb-br-agents.marcelfons.workers.dev)
+answers those, with the CNPJ the credential gives you.
 
 | | |
 | --- | --- |
@@ -25,7 +30,7 @@ live status at a stable URL, revocable at once. Every per-action verdict is sign
 | | Key-only KYA (DID, score, bonds) | Policy gateways (release tokens, provenance) | **KYA Brasil** |
 | --- | --- | --- | --- |
 | Who answers for the agent | nobody, a key | the agent's own operator | **a legal entity, proven by e-CNPJ** |
-| Company checked | no | no | **yes, at issuance and daily (KYB)** |
+| Link kept true | no | no | **e-CNPJ revocation (CRL) and company registration checked at issuance and daily** |
 | Mandate (what the agent may do) | no | operator policy | **declared and signed by the company** |
 | Verdict per action | score | allow / deny | **signed allow / deny with the checks listed** |
 | Record of what the agent did | no | hash-chained ledger, self-declared | **signed receipt per act, daily ceilings enforced across counterparties, trail readable by the company** |
@@ -100,7 +105,8 @@ if (callee?.ok) console.log("answered by", callee.kya.principal.legal_name);   /
 1. `POST /v1/agents` ($0.50) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
 2. The agent signs the challenge with its key; you sign it with the e-CNPJ (detached CMS/PKCS#7).
 3. `POST /v1/agents/{id}/prove` (free). The issuer validates both signatures, the certificate chain against
-   the ICP-Brasil roots, the CNPJ inside the certificate, and KYB Brasil. Credential issued for 90 days.
+   the ICP-Brasil roots, the certificate's revocation (CRL), the CNPJ inside the certificate and that the
+   company is ATIVA at the Receita Federal. Credential issued for 90 days.
 4. `POST /v1/agents/{id}/renew` ($0.10) every 90 days; `POST /v1/agents/{id}/revoke` (free, e-CNPJ-signed) at once.
 
 Agent keys: `evm` (wallet address, EIP-191), `web-bot-auth` (Ed25519, RFC 9421) or `erc8004`
@@ -151,7 +157,8 @@ Verifier for any signed document: `POST /v1/verify`.
   "attestation": { "algorithm": "ed25519", "key_id": "35bb864a2e87c8fd", "sha256": "…", "signed_at": "…", "signature": "…" } }
 ```
 
-The signature covers the credential as issued. Suspension (daily KYB review), revocation and expiry are
+The signature covers the credential as issued. Suspension (company not ATIVA, certificate on hold),
+revocation (by the company, or because its e-CNPJ was revoked at the AC) and expiry are
 reported live at `verify_url` and in `/v1/revocations`. Only legal-entity data is processed: no CPF, no
 name of the certificate holder, only the certificate hash.
 
@@ -160,12 +167,15 @@ name of the certificate holder, only the certificate hash.
 ```
 agent / verifier ──x402──▶ kya-br-agents (Cloudflare Worker: Hono HTTP + MCP Durable Object)
                               │  D1 (agents, challenges, events, call_log)   KV (cache, limits, ICP anchors)
-                              │  cron 03:17 UTC: daily KYB review
+                              │  cron 03:17 UTC: daily review (e-CNPJ CRL, registration status)
                               └──Service Binding──▶ kyb-br-agents (KYB Brasil, closed, same account)
 ```
 
 KYB Brasil is a separate product with its own repository; the two Workers talk through a Cloudflare
 Service Binding (never public HTTP, never x402). Its client here is one file, `apps/worker/src/kyb.ts`.
+The issuer acts on one KYB fact only, the registration status (D-15); the risk screen taken at issuance
+is carried in `kyb_snapshot` for information. CRLs are fetched from the URLs in each certificate
+(`apps/worker/src/revocation.ts`).
 
 | Path | What |
 | --- | --- |

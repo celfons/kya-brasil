@@ -171,7 +171,7 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
     );
     this.server.registerTool(
       "kya_renew_prove",
-      { description: "Free. Second step of kya_renew: send both signatures of the renewal challenge; the credential is re-issued for 90 days if KYB Brasil still clears the company.", inputSchema: PROOF, annotations: { openWorldHint: true } },
+      { description: "Free. Second step of kya_renew: send both signatures of the renewal challenge; the credential is re-issued for 90 days if the e-CNPJ is not revoked and the company is still ATIVA.", inputSchema: PROOF, annotations: { openWorldHint: true } },
       async (i) => this.logged("kya_renew", null, () => service.renewProve(this.env, origin, i.credential_id, i))
     );
     this.server.registerTool(

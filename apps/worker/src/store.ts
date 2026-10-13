@@ -21,6 +21,12 @@ export interface AgentRow {
   issued_at: string | null;
   expires_at: string | null;
   last_kyb_at: string | null;
+  /** D-16: CRL inputs of the e-CNPJ (public data; null on credentials issued before it). */
+  certificate_serial: string | null;
+  certificate_issuer_der: string | null;
+  certificate_crl_urls: string | null;
+  last_revocation_check_at: string | null;
+  suspension_cause: SuspensionCause | null;
   created_at: string;
   updated_at: string;
 }
@@ -49,6 +55,21 @@ export interface ChallengeRow {
   text: string;
   expires_at: string;
   used_at: string | null;
+}
+
+/** Why a credential is suspended: the review reinstates only what it suspended for a reason that can clear. */
+export type SuspensionCause = "registration" | "certificate" | "wallet";
+
+/** What the e-CNPJ proof leaves for the revocation checks (serial, AC certificate, CRL URLs). */
+export interface CertificateRecord {
+  sha256: string;
+  subject: string;
+  issuer: string;
+  signed_at: string;
+  serial_number: string;
+  issuer_certificate: string | null;
+  crl_urls: string[];
+  revocation_checked_at: string;
 }
 
 const now = () => new Date().toISOString();
@@ -91,23 +112,30 @@ export class Store {
     return row;
   }
 
-  async issue(p: { id: string; legal_name: string; credential: Credential; certificate: { sha256: string; subject: string; issuer: string; signed_at: string }; mandate: Mandate; event: "issued" | "renewed" }): Promise<void> {
+  async issue(p: { id: string; legal_name: string; credential: Credential; certificate: CertificateRecord; mandate: Mandate; event: "issued" | "renewed" }): Promise<void> {
+    const c = p.certificate;
     await this.db.batch([
       this.db
-        .prepare("UPDATE agents SET status = 'active', status_reason = NULL, legal_name = ?2, mandate = ?3, certificate_sha256 = ?4, certificate_subject = ?5, certificate_issuer = ?6, authorized_at = ?7, credential = ?8, issued_at = ?9, expires_at = ?10, last_kyb_at = ?11, updated_at = ?11 WHERE id = ?1")
-        .bind(p.id, p.legal_name, JSON.stringify(p.mandate), p.certificate.sha256, p.certificate.subject, p.certificate.issuer, p.certificate.signed_at, JSON.stringify(p.credential), p.credential.issued_at, p.credential.expires_at, now()),
+        .prepare(
+          "UPDATE agents SET status = 'active', status_reason = NULL, suspension_cause = NULL, legal_name = ?2, mandate = ?3, certificate_sha256 = ?4, certificate_subject = ?5, certificate_issuer = ?6, authorized_at = ?7, credential = ?8, issued_at = ?9, expires_at = ?10, last_kyb_at = ?11, updated_at = ?11, certificate_serial = ?12, certificate_issuer_der = ?13, certificate_crl_urls = ?14, last_revocation_check_at = ?15 WHERE id = ?1"
+        )
+        .bind(p.id, p.legal_name, JSON.stringify(p.mandate), c.sha256, c.subject, c.issuer, c.signed_at, JSON.stringify(p.credential), p.credential.issued_at, p.credential.expires_at, now(), c.serial_number, c.issuer_certificate, JSON.stringify(c.crl_urls), c.revocation_checked_at),
       this.db.prepare("INSERT INTO credential_events (agent_row, event, actor) VALUES (?1, ?2, 'company')").bind(p.id, p.event)
     ]);
   }
 
-  async setStatus(p: { id: string; status: CredentialStatus; reason: string | null; actor: "company" | "cron" | "issuer"; credential?: Credential | null; last_kyb_at?: string }): Promise<void> {
+  async setStatus(p: { id: string; status: CredentialStatus; reason: string | null; actor: "company" | "cron" | "issuer"; cause?: SuspensionCause; credential?: Credential | null; last_kyb_at?: string }): Promise<void> {
     const event = p.status === "revoked" ? "revoked" : p.status === "suspended" ? "suspended" : p.status === "active" ? "reinstated" : p.status;
     await this.db.batch([
       this.db
-        .prepare("UPDATE agents SET status = ?2, status_reason = ?3, credential = COALESCE(?4, credential), last_kyb_at = COALESCE(?5, last_kyb_at), updated_at = ?6 WHERE id = ?1")
-        .bind(p.id, p.status, p.reason, p.credential ? JSON.stringify(p.credential) : null, p.last_kyb_at ?? null, now()),
+        .prepare("UPDATE agents SET status = ?2, status_reason = ?3, credential = COALESCE(?4, credential), last_kyb_at = COALESCE(?5, last_kyb_at), suspension_cause = ?7, updated_at = ?6 WHERE id = ?1")
+        .bind(p.id, p.status, p.reason, p.credential ? JSON.stringify(p.credential) : null, p.last_kyb_at ?? null, now(), p.status === "suspended" ? (p.cause ?? null) : null),
       this.db.prepare("INSERT INTO credential_events (agent_row, event, reason, actor) VALUES (?1, ?2, ?3, ?4)").bind(p.id, event, p.reason, p.actor)
     ]);
+  }
+
+  async markReviewed(id: string, p: { last_kyb_at?: string; last_revocation_check_at?: string }): Promise<void> {
+    await this.db.prepare("UPDATE agents SET last_kyb_at = COALESCE(?2, last_kyb_at), last_revocation_check_at = COALESCE(?3, last_revocation_check_at) WHERE id = ?1").bind(id, p.last_kyb_at ?? null, p.last_revocation_check_at ?? null).run();
   }
 
   async events(id: string): Promise<{ ts: string; event: string; reason: string | null; actor: string }[]> {

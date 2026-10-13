@@ -1,8 +1,10 @@
 # KYA Credential v1
 
 A **KYA credential** states that a company, identified by its e-CNPJ (ICP-Brasil) certificate, declared
-that an AI agent key acts on its behalf within a mandate, and that the issuer checked the company with
-KYB Brasil on the dates shown. It is a JSON document signed with Ed25519 by the issuer. Anyone can
+that an AI agent key acts on its behalf within a mandate, and that on the dates shown the certificate
+was not revoked and the company was active at the Receita Federal. It attests the link between agent and
+company, not the company's risk: sanctions, debt or litigation are for the verifier to weigh (KYB Brasil
+is one source). It is a JSON document signed with Ed25519 by the issuer. Anyone can
 verify it offline with the issuer's published key; the live status is read from the issuer.
 
 This document is the normative description of the format and of the verification procedure. The
@@ -17,7 +19,7 @@ Keywords MUST, SHOULD and MAY are used as in RFC 2119.
 | --- | --- | --- |
 | Company (principal) | e-CNPJ certificate (ICP-Brasil A1 or A3) | Declares the mandate, signs the challenge, revokes. |
 | Agent | An EVM key (secp256k1) or a Web Bot Auth key (Ed25519) | Signs the challenge; later signs its requests. |
-| Issuer | An Ed25519 signing key, published | Verifies both signatures and the company (KYB), issues, reviews daily, publishes status. |
+| Issuer | An Ed25519 signing key, published | Verifies both signatures, the certificate's revocation and the company's registration, issues, reviews daily, publishes status. |
 | Verifier | Nothing | Checks a credential before accepting an agent's action. |
 
 ## 2. Agent keys
@@ -64,10 +66,15 @@ The company signs the challenge text with its e-CNPJ certificate as a **detached
    `otherName` with OID `2.16.76.1.3.3` (ICP-Brasil DOC-ICP-04), or from the subject CN suffix
    `:<cnpj>` as a fallback. The CNPJ MUST equal the one in the challenge.
 3. Validate the chain from the signer certificate to a trusted ICP-Brasil root (the issuer's anchor set),
-   including validity dates at verification time. Issuers SHOULD check revocation (CRL or OCSP) when
-   the AC publishes it; the reference implementation does not yet.
-4. Record only the certificate SHA-256, subject, issuer and the signing time. The signer's CPF and any
-   other personal field in the certificate MUST NOT be stored or published.
+   including validity dates at verification time.
+4. Check that the signer certificate is not revoked: fetch the CRL (LCR) from a distribution point named
+   in the certificate, verify its signature with the issuing AC's certificate, reject it when past its
+   `nextUpdate`, and look the serial number up. A listed certificate MUST NOT authorize anything (issuance,
+   renewal, reading the acts trail). When no trustworthy CRL can be obtained the issuer MUST refuse
+   (fail closed). OCSP MAY be used in addition.
+5. Record only the certificate SHA-256, subject, issuer, serial number, the issuing AC's certificate, the
+   CRL URLs and the signing time. The signer's CPF and any other personal field in the certificate MUST
+   NOT be stored or published.
 
 Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
 PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.
@@ -113,7 +120,8 @@ mandate MUST NOT exceed 8192 bytes.
 ```
 
 - `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
-- Issuance MUST be refused when the KYB check shows the company not active, with active sanctions, on the forced-labour list, or at critical risk.
+- Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is not `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
+- `kyb_snapshot` is informative: the KYB Brasil screen taken at issuance, kept in v1 for compatibility. Verifiers MUST NOT read it as a current assessment; for risk they query a KYB source themselves.
 - `status` is the status **at issuance**. Later changes (suspension by the daily review, revocation, expiry) are not re-signed; they are published at `verify_url` and in the revocation list.
 
 ## 7. Signature (attestation)
@@ -159,8 +167,18 @@ The issuer MUST set the status to `revoked` at once, record the event, and list 
 
 ## 11. Daily review
 
-The issuer MUST re-run the KYB check on every `active` or `suspended` credential at least daily, suspend
-the ones that no longer clear, and reinstate suspended ones that clear again, recording each change as an event.
+At least daily, on every `active` or `suspended` credential, the issuer MUST check the two things it
+attests, recording each change as an event:
+
+1. **Certificate.** The CRL of the e-CNPJ that authorized the credential (section 4). A listed certificate
+   revokes the credential (final), except: `certificateHold` suspends it until the entry disappears, and
+   `superseded` or `cessationOfOperation` dated after the authorization change nothing (the certificate was
+   replaced or retired without compromise; the signature stands). An unreachable CRL changes nothing that day.
+2. **Registration.** The company's status at the Receita Federal: not `ATIVA` suspends the credential;
+   `ATIVA` again reinstates it.
+
+ERC-8004 credentials are also suspended when the on-chain wallet changes (section 2); that suspension is
+not lifted by the review.
 
 ## 12. Privacy
 

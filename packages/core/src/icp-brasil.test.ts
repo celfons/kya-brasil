@@ -49,6 +49,9 @@ describe("ICP-Brasil e-CNPJ proof", () => {
     expect(proof.cnpj).toBe("11222333000181");
     expect(proof.certificate_subject).toContain("ACME LTDA");
     expect(proof.certificate_sha256).toHaveLength(64);
+    expect(proof.serial_number).toBe("2");
+    expect(proof.crl_urls).toEqual([]);
+    expect(proof.issuer_certificate).toBe(b64(ca.rawData));
     await expect(verifyIcpSignature({ cmsBase64: cms, challenge: text + "!", expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-12T00:00:00Z") })).rejects.toThrow(/does not match|failed/);
     await expect(verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: "33000167000101", anchors: [b64(ca.rawData)], now: new Date("2026-10-12T00:00:00Z") })).rejects.toThrow(/belongs to CNPJ/);
     await expect(verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: "11222333000181", anchors: [], now: new Date("2026-10-12T00:00:00Z") })).rejects.toThrow(/trust anchors/);

@@ -3,7 +3,7 @@
  * an action, renew, revoke, and the daily review. Each returns plain JSON; routes add payment.
  */
 import {
-  type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, kybDecision, newChallenge,
+  type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
   normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
   actText, dayOf, spentToday, validateAct
 } from "@kya-br/core";
@@ -11,7 +11,8 @@ import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
-import { kybRiskScreen } from "./kyb";
+import { kybRegistration, kybRiskScreen } from "./kyb";
+import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 
 const issuerOf = (env: AppEnv, origin: string) => (env.ISSUER_URL ?? origin).replace(/\/$/, "");
@@ -58,10 +59,14 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   if (!(await verifyAgentSignature(agent, ch.text, proof.agent_signature))) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over challenge.text");
   const anchors = await icpAnchors(env);
   const icp = await verifyIcpSignature({ cmsBase64: proof.ecnpj_signature, challenge: ch.text, expectedCnpj: row.cnpj, anchors });
+  // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
+  const revocation = await certificateRevocation(env, icp);
+  if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}${revocation.reason ? ` (${revocation.reason})` : ""}`);
+  // D-15: only the registration status decides; the rest of the screen is informative (kyb_snapshot).
   const kyb = await kybRiskScreen(env, row.cnpj);
-  const decision = kybDecision(kyb.snapshot);
+  const decision = principalDecision(kyb.snapshot.registration_status);
   if (!decision.ok) {
-    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", last_kyb_at: kyb.snapshot.checked_at });
+    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: kyb.snapshot.checked_at });
     throw new KyaError("KYB_BLOCKED", `credential not issued: ${decision.reason}`);
   }
   const m = await material(env);
@@ -71,7 +76,8 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
   const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: kyb.legal_name, registration_status: kyb.snapshot.registration_status, certificate, mandate, kyb: kyb.snapshot, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
-  await store.issue({ id: row.id, legal_name: kyb.legal_name, credential, certificate, mandate, event });
+  const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
+  await store.issue({ id: row.id, legal_name: kyb.legal_name, credential, certificate: record, mandate, event });
   if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
   return { credential, kyb_warnings: kyb.warnings };
 }
@@ -233,7 +239,10 @@ export async function exportActs(env: AppEnv, id: string, body: { signed_text?: 
   if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
   if (typeof body.ecnpj_signature !== "string" || typeof body.signed_text !== "string") throw new KyaError("INVALID_INPUT", "signed_text and ecnpj_signature are required");
   if (!new RegExp(`^KYA Brasil: acts ${id}\\n`).test(body.signed_text)) throw new KyaError("INVALID_INPUT", `signed_text must start with "KYA Brasil: acts ${id}" followed by a newline and a nonce`);
-  await verifyIcpSignature({ cmsBase64: body.ecnpj_signature, challenge: body.signed_text, expectedCnpj: row.cnpj, anchors: await icpAnchors(env) });
+  const icp = await verifyIcpSignature({ cmsBase64: body.ecnpj_signature, challenge: body.signed_text, expectedCnpj: row.cnpj, anchors: await icpAnchors(env) });
+  // The trail is the company's: a revoked (e.g. stolen) e-CNPJ does not read it (D-16).
+  const revocation = await certificateRevocation(env, icp);
+  if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}`);
   const since = typeof body.since === "string" && !Number.isNaN(Date.parse(body.since)) ? new Date(body.since).toISOString() : new Date(Date.now() - 30 * 86400_000).toISOString();
   const acts = await store.acts(id, since);
   return {
@@ -276,39 +285,69 @@ export async function revoke(env: AppEnv, id: string, body: { reason?: unknown; 
   return { credential_id: id, status: "revoked", reason, revoked_at: new Date().toISOString() };
 }
 
-/** Daily review: re-run KYB on every live credential; suspend what no longer clears, reinstate what does. */
-export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; errors: number }> {
+/**
+ * Daily review of every live credential, on the two things the issuer answers for (D-15, D-16):
+ *   - the e-CNPJ that authorized it: revoked at its AC → the credential is revoked (permanent), on hold
+ *     → suspended; a later benign replacement of the certificate changes nothing (revocationEffect);
+ *   - the company: registration no longer ATIVA → suspended; ATIVA again → reinstated.
+ * ERC-8004 credentials are also suspended when the on-chain wallet changes (register again).
+ * An unreachable CRL or KYB changes nothing; it is counted in `errors` and retried the next day.
+ */
+export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; revoked: number; errors: number }> {
   const store = new Store(env.DB);
   const rows = await store.dueForReview();
-  let suspended = 0, reinstated = 0, errors = 0;
+  let suspended = 0, reinstated = 0, revoked = 0, errors = 0;
   for (const row of rows) {
     try {
       // erc8004: a credential never outlives a wallet change on chain.
       if (row.agent_kind === "erc8004" && row.status === "active") {
         const live = await withWallet(env, { kind: "erc8004", id: row.agent_id }).catch(() => null);
         if (live && row.agent_wallet && live.wallet !== row.agent_wallet) {
-          await store.setStatus({ id: row.id, status: "suspended", reason: `agent wallet changed on chain (${row.agent_wallet} → ${live.wallet}); register again`, actor: "cron" });
+          await store.setStatus({ id: row.id, status: "suspended", reason: `agent wallet changed on chain (${row.agent_wallet} → ${live.wallet}); register again`, actor: "cron", cause: "wallet" });
           suspended++;
           continue;
         }
       }
-      const kyb = await kybRiskScreen(env, row.cnpj);
-      const d = kybDecision(kyb.snapshot);
-      if (row.status === "active" && !d.ok) {
-        await store.setStatus({ id: row.id, status: "suspended", reason: d.reason, actor: "cron", last_kyb_at: kyb.snapshot.checked_at });
+      // Credentials issued before D-16 carry no CRL data; they expire within 90 days and renew with it.
+      let certificate: "none" | "suspend" | "revoke" | "unknown" = "none";
+      let certificateReason: string | null = null;
+      if (row.certificate_serial) {
+        const r = await certificateRevocation(env, { serial_number: row.certificate_serial, issuer_certificate: row.certificate_issuer_der, crl_urls: JSON.parse(row.certificate_crl_urls ?? "[]") as string[] }).catch((e: unknown) => {
+          errors++;
+          console.error("revocation check failed", row.id, e);
+          return null;
+        });
+        certificate = r ? revocationEffect(r, row.authorized_at) : "unknown";
+        if (r?.revoked) certificateReason = `e-CNPJ certificate revoked by its AC on ${r.revoked_at}${r.reason ? ` (${r.reason})` : ""}`;
+        if (r) await store.markReviewed(row.id, { last_revocation_check_at: new Date().toISOString() });
+      }
+      if (certificate === "revoke") {
+        await store.setStatus({ id: row.id, status: "revoked", reason: certificateReason, actor: "cron" });
+        revoked++;
+        continue;
+      }
+      const reg = await kybRegistration(env, row.cnpj);
+      const d = principalDecision(reg.registration_status);
+      const hold: { cause: "certificate" | "registration"; reason: string } | null =
+        certificate === "suspend" ? { cause: "certificate", reason: certificateReason ?? "e-CNPJ certificate on hold at its AC" } : !d.ok ? { cause: "registration", reason: d.reason ?? "registration not ATIVA" } : null;
+      // Reinstate only what this review suspended, and only when the cause is known to be gone.
+      const canLift = row.suspension_cause !== "wallet" && !(row.suspension_cause === "certificate" && certificate === "unknown");
+      if (row.status === "active" && hold) {
+        await store.setStatus({ id: row.id, status: "suspended", reason: hold.reason, actor: "cron", cause: hold.cause, last_kyb_at: reg.checked_at });
         suspended++;
-      } else if (row.status === "suspended" && d.ok) {
-        await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: kyb.snapshot.checked_at });
+      } else if (row.status === "suspended" && !hold && canLift) {
+        // Also lifts suspensions made under the old KYB rules (sanctions, risk), which no longer apply (D-15).
+        await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: reg.checked_at });
         reinstated++;
       } else {
-        await env.DB.prepare("UPDATE agents SET last_kyb_at = ?2 WHERE id = ?1").bind(row.id, kyb.snapshot.checked_at).run();
+        await store.markReviewed(row.id, { last_kyb_at: reg.checked_at });
       }
     } catch (e) {
       errors++;
       console.error("review failed", row.id, e);
     }
   }
-  return { reviewed: rows.length, suspended, reinstated, errors };
+  return { reviewed: rows.length, suspended, reinstated, revoked, errors };
 }
 
 export { challengeText };
