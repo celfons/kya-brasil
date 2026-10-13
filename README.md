@@ -1,5 +1,7 @@
 # KYA Brasil
 
+![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused](docs/assets/demo.gif)
+
 **Know-your-agent, backed by a real company.** Most "KYA" tools prove that an agent holds a key and give it
 a score. KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **which legal
 entity answers for this agent, and what is it allowed to do?**
