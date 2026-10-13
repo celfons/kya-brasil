@@ -15,5 +15,5 @@ curl --proto '=https' --tlsv1.2 -fsSL -o "$file" "https://github.com/pulumi/pulu
 echo "${PULUMI_SHA256}  ${file}" | sha256sum -c -
 tar -xzf "$file"
 rm -f "$file"
-if [ -n "${GITHUB_PATH:-}" ]; then echo "$dest/pulumi" >> "$GITHUB_PATH"; fi
+if [[ -n "${GITHUB_PATH:-}" ]]; then echo "$dest/pulumi" >> "$GITHUB_PATH"; fi
 "$dest/pulumi/pulumi" version

@@ -28,19 +28,14 @@
 import { verifyMessage } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index";
+import { fromBase64Url, toBase64Url } from "./base64url";
 
 export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256" } as const;
 
 const enc = new TextEncoder();
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-/** Drops trailing "=" padding with a linear scan (no regex). */
-const stripPadding = (s: string) => {
-  let end = s.length;
-  while (end > 0 && s[end - 1] === "=") end--;
-  return s.slice(0, end);
-};
-const b64u = (bytes: Uint8Array) => stripPadding(btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_"));
-const unb64u = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+const b64u = toBase64Url;
+const unb64u = fromBase64Url;
 
 export async function sha256Hex(data: string | ArrayBuffer | Uint8Array): Promise<string> {
   const bytes = typeof data === "string" ? enc.encode(data) : data instanceof Uint8Array ? data : new Uint8Array(data);

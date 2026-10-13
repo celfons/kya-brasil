@@ -25,8 +25,11 @@ const stripPadding = (s: string) => {
   while (end > 0 && s[end - 1] === "=") end--;
   return s.slice(0, end);
 };
-const b64u = (bytes: Uint8Array) => stripPadding(btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_"));
-const unb64u = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+const b64u = (bytes: Uint8Array) => stripPadding(btoa(String.fromCodePoint(...bytes)).replaceAll("+", "-").replaceAll("/", "_"));
+const unb64u = (s: string) => {
+  const b64 = s.replaceAll("-", "+").replaceAll("_", "/");
+  return Uint8Array.from(atob(b64.padEnd(Math.ceil(b64.length / 4) * 4, "=")), (c) => c.codePointAt(0) ?? 0);
+};
 
 export function normalizeAgentKey(input: { kind?: unknown; id?: unknown }): AgentKey {
   if (input.kind === "evm") {

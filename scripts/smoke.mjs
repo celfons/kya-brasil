@@ -1,31 +1,29 @@
 #!/usr/bin/env node
 /**
  * Post-deploy smoke test. Exit 1 on any failure so the CD rolls back.
- *   node scripts/smoke.mjs <base url>
- * The base URL must be https on a *.workers.dev host (what the CD deploys to), or http(s) on localhost for a
- * local run. A self-hosted issuer on its own domain adds it to SMOKE_ALLOWED_HOSTS (comma-separated).
- * Every request is built with new URL(path, base), so only paths of that origin are ever fetched.
+ *   SMOKE_ALLOWED_HOSTS=<host> node scripts/smoke.mjs <base url>
+ * The base URL is validated in one place: it must parse, use https (http only on localhost) and name a host in
+ * an exact allowlist: localhost, 127.0.0.1 and the comma-separated SMOKE_ALLOWED_HOSTS (the CD sets it to the
+ * host it just deployed). Every request is then built from that validated origin with new URL(path, base).
  */
-const LOCAL_HOSTS = ["localhost", "127.0.0.1"];
-function baseFrom(arg) {
-  let u;
-  try {
-    u = new URL(arg ?? "");
-  } catch {
-    return null;
-  }
-  const extra = (process.env.SMOKE_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
-  const local = LOCAL_HOSTS.includes(u.hostname);
-  const protocolOk = u.protocol === "https:" || (u.protocol === "http:" && local);
-  const hostOk = local || u.hostname.endsWith(".workers.dev") || extra.includes(u.hostname);
-  if (!protocolOk || !hostOk || u.username || u.password) return null;
-  return new URL(u.origin);
-}
-const base = baseFrom(process.argv[2]);
-if (!base) {
-  console.error("usage: smoke.mjs <base url>  (https://<name>.workers.dev, http://localhost:<port>, or a host listed in SMOKE_ALLOWED_HOSTS)");
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
+const ALLOWED_HOSTS = new Set([
+  ...LOCAL_HOSTS,
+  ...(process.env.SMOKE_ALLOWED_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean)
+]);
+const input = process.argv[2] ?? "";
+const parsed = URL.canParse(input) ? new URL(input) : null;
+const allowed =
+  parsed !== null &&
+  ALLOWED_HOSTS.has(parsed.hostname) &&
+  (parsed.protocol === "https:" || (parsed.protocol === "http:" && LOCAL_HOSTS.has(parsed.hostname))) &&
+  !parsed.username &&
+  !parsed.password;
+if (!allowed) {
+  console.error("usage: SMOKE_ALLOWED_HOSTS=<host> smoke.mjs <base url>  (https on an allowed host, or http(s)://localhost)");
   process.exit(2);
 }
+const base = new URL(parsed.origin);
 const at = (path) => new URL(path, base).toString();
 // A freshly created Worker takes a few seconds to reach every edge location; retry before failing.
 const check = async (name, fn, attempts = 4) => {
@@ -68,10 +66,9 @@ await check("register answers 402 with PAYMENT-REQUIRED (bazaar)", async () => {
   expect(j.accepts?.[0]?.network && j.extensions?.bazaar, "incomplete 402");
 });
 await check("paid verification and verdict answer 402", async () => {
-  for (const p of ["/v1/agents/00000000-0000-0000-0000-000000000000/verified", "/v1/agents/00000000-0000-0000-0000-000000000000/allowed?action=pay"]) {
-    const r = await fetch(at(p));
-    expect(r.status === 402, `${p} status ${r.status}`);
-  }
+  const paths = ["/v1/agents/00000000-0000-0000-0000-000000000000/verified", "/v1/agents/00000000-0000-0000-0000-000000000000/allowed?action=pay"];
+  const responses = await Promise.all(paths.map((p) => fetch(at(p))));
+  responses.forEach((r, i) => expect(r.status === 402, `${paths[i]} status ${r.status}`));
 });
 await check("act registration answers 402; unknown act is 404", async () => {
   const r = await fetch(at("/v1/agents/00000000-0000-0000-0000-000000000000/acts"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "pay" }) });

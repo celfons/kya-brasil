@@ -21,6 +21,7 @@ import { toClientEvmSigner } from "@x402/evm";
 import { wrapFetchWithPayment } from "@x402/fetch";
 import { privateKeyToAccount } from "viem/accounts";
 import * as pkijs from "pkijs";
+import { toBase64Url } from "./base64url";
 
 export const DEFAULT_BASE_URL = "https://kya-br-agents.marcelfons.workers.dev";
 
@@ -292,18 +293,12 @@ export async function signChallengeWithEvmKey(privateKey: `0x${string}`, text: s
   return privateKeyToAccount(privateKey).signMessage({ message: text });
 }
 
-/** Drops trailing "=" padding with a linear scan (no regex). */
-const stripPadding = (s: string) => {
-  let end = s.length;
-  while (end > 0 && s[end - 1] === "=") end--;
-  return s.slice(0, end);
-};
 
 /** Raw Ed25519 signature (base64url) of the challenge text with the agent's Web Bot Auth key (PKCS#8 base64 or CryptoKey). */
 export async function signChallengeWithEd25519(privateKey: CryptoKey | string, text: string): Promise<string> {
   const key = typeof privateKey === "string" ? await crypto.subtle.importKey("pkcs8", Uint8Array.from(atob(privateKey), (c) => c.charCodeAt(0)), { name: "Ed25519" }, false, ["sign"]) : privateKey;
   const sig = new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, key, new TextEncoder().encode(text)));
-  return stripPadding(btoa(String.fromCharCode(...sig)).replace(/\+/g, "-").replace(/\//g, "_"));
+  return toBase64Url(sig);
 }
 
 export interface ECnpjMaterial {
@@ -361,13 +356,21 @@ export function revocationText(credentialId: string, nonce: string = crypto.rand
  * localeCompare: a locale-dependent order would change the signed bytes between machines and break every
  * signature already issued.
  */
-const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+function byCodeUnit(a: string, b: string): number {
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
 
 function canonicalize(v: unknown): string {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
   if (Array.isArray(v)) return `[${v.map(canonicalize).join(",")}]`;
   const o = v as Record<string, unknown>;
-  return `{${Object.keys(o).filter((k) => o[k] !== undefined).sort(byCodeUnit).map((k) => `${JSON.stringify(k)}:${canonicalize(o[k])}`).join(",")}}`;
+  const members = Object.keys(o)
+    .filter((k) => o[k] !== undefined)
+    .sort(byCodeUnit)
+    .map((k) => JSON.stringify(k) + ":" + canonicalize(o[k]));
+  return "{" + members.join(",") + "}";
 }
 
 export interface VerifyResult { valid: boolean; reason?: string; key_id?: string; signed_at?: string }

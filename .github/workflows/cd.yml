@@ -119,6 +119,7 @@ jobs:
           curl --proto '=https' --tlsv1.2 -fsS -o "$RUNNER_TEMP/subdomain.json" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain"
           SUB=$(node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).result.subdomain; if(!/^[a-z0-9-]+$/.test(s)) process.exit(1); console.log(s)' "$RUNNER_TEMP/subdomain.json")
           echo "base=https://$SCRIPT.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
+          echo "host=$SCRIPT.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
           echo "kv=$KV" >> "$GITHUB_OUTPUT"
           echo "::notice::${{ matrix.stack }} → https://$SCRIPT.$SUB.workers.dev"
       - name: ICP-Brasil trust anchors (ITI → KV icp:anchors)
@@ -131,6 +132,8 @@ jobs:
       - name: Smoke test
         if: steps.cfg.outputs.ready == 'true'
         id: smoke
+        env:
+          SMOKE_ALLOWED_HOSTS: ${{ steps.url.outputs.host }}
         run: node scripts/smoke.mjs "${{ steps.url.outputs.base }}"
       # Prod only: publishes io.github.celfons/kya-brasil when the remote URL or description changed.
       - name: Publish to MCP Registry (prod, only when changed)

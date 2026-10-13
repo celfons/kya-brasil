@@ -1,12 +1,13 @@
 """Terminal-style demo animation for KYA Brasil (demo data from the README: ACME LTDA, BETA).
 
-    python3 scripts/demo-gif.py out/kya-demo      # writes out/kya-demo.gif and out/kya-demo_frames/
+    python3 scripts/demo-gif.py kya-demo          # writes out/kya-demo.gif and out/kya-demo_frames/
     # MP4 for social posts, from the frames (list.txt holds each frame's duration):
     #   cd out/kya-demo_frames && ffmpeg -f concat -safe 0 -i list.txt -vf fps=30,format=yuv420p kya-demo.mp4
-The output path must be relative, without "..", and stays inside the current directory.
+The output is a plain name (letters, digits, "-", "_"); files always go to ./out.
 Needs Pillow and the DejaVu fonts. The README embeds docs/assets/demo.gif.
 """
 import os
+import re
 import sys
 from PIL import Image, ImageDraw, ImageFont
 
@@ -122,21 +123,23 @@ for step in SCRIPT:
     elif kind == "end":
         push(end_card(), 4500)
 
-def safe_output(arg: str) -> str:
-    """Relative path, no '..', resolved inside the current directory; anything else is refused."""
-    base = os.path.realpath(os.getcwd())
-    if not arg or os.path.isabs(arg) or ".." in arg.replace("\\", "/").split("/"):
-        sys.exit("output must be a relative path inside the current directory, without '..'")
-    target = os.path.realpath(os.path.join(base, arg))
-    if os.path.commonpath([base, target]) != base:
-        sys.exit("output must stay inside the current directory")
+OUTPUT_DIR = os.path.realpath(os.path.join(os.getcwd(), "out"))
+NAME_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
+
+
+def safe_output(name: str) -> str:
+    """Output name (letters, digits, '-', '_'), written under ./out; nothing else is accepted."""
+    if not NAME_RE.fullmatch(name):
+        sys.exit("output name: 1-64 letters, digits, '-' or '_' (written under ./out)")
+    target = os.path.realpath(os.path.join(OUTPUT_DIR, name))
+    if not target.startswith(OUTPUT_DIR + os.sep):
+        sys.exit("output must stay inside ./out")
     return target
 
 
 if len(sys.argv) != 2:
-    sys.exit("usage: demo-gif.py <relative output path, without extension>")
+    sys.exit("usage: demo-gif.py <name>   (writes out/<name>.gif and out/<name>_frames/)")
 out = safe_output(sys.argv[1])
-os.makedirs(os.path.dirname(out), exist_ok=True)
 os.makedirs(f"{out}_frames", exist_ok=True)
 pal = [fr.convert("P", palette=Image.Palette.ADAPTIVE, colors=64) for fr in frames]
 pal[0].save(out + ".gif", save_all=True, append_images=pal[1:], duration=durations, loop=0, optimize=True, disposal=1)
