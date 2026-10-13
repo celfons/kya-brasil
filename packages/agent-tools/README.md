@@ -105,7 +105,7 @@ import { createKyaClient, signChallengeWithEvmKey, signWithECnpj } from "@kya-br
 import { readFileSync } from "node:fs";
 
 const kya = createKyaClient({ privateKey: payerPk });
-const reg = await kya.register({                                           // $0.20
+const reg = await kya.register({                                           // $0.25
   agent: { kind: "evm", id: agentAddress },
   cnpj: "11.222.333/0001-81",
   mandate: {
@@ -141,7 +141,7 @@ Renew every 90 days (`kya.renew` then `kya.renewProve`), revoke at once (`kya.re
 | verify, verifyByKey, prove, renewProve, revoke, revocations, companyAgents, setCompanyWebhook | free |
 | verified (signed receipt, no limit), allowed (signed verdict) | 0.01 |
 | renew | 0.10 |
-| register | 0.20 |
+| register | 0.25 |
 
 Schemas and keys: `/.well-known/kya-mandate.schema.json`, `/.well-known/kya.json`, `/openapi.json`, `/llms.txt`.
 Legal entities only: no CPF is stored; the e-CNPJ signer is recorded by certificate hash.

@@ -10,7 +10,7 @@
  *     tools for your agent framework: toOpenAI(kya), toVercelAI(kya, { tool, jsonSchema }), toLangChain(kya, tool), toAnthropic(kya)
  *
  *   Company (you give your own agent a credential):
- *     const reg = await kya.register({ agent: { kind: "evm", id: address }, cnpj, mandate });   // $0.20, returns a challenge
+ *     const reg = await kya.register({ agent: { kind: "evm", id: address }, cnpj, mandate });   // $0.25, returns a challenge
  *     const agent_signature = await signChallengeWithEvmKey(agentPrivateKey, reg.challenge.text);
  *     const ecnpj_signature = await signWithECnpj({ certificatePem, privateKeyPem, chainPem }, reg.challenge.text);
  *     const issued = await kya.prove(reg.credential_id, { challenge_id: reg.challenge.id, agent_signature, ecnpj_signature });
@@ -149,7 +149,7 @@ export interface KyaClient {
   verified(credentialId: string): Promise<Verification & { verification: Record<string, unknown> }>;
   /** $0.01: signed verdict, is this action inside the mandate and is the credential active? */
   allowed(credentialId: string, q: ActionQuery): Promise<Verdict>;
-  /** $0.20: register an agent for a company; returns the challenge both parties sign. */
+  /** $0.25: register an agent for a company; returns the challenge both parties sign. */
   register(input: { agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<Registration>;
   /** Free: send both signatures; the credential is issued if the e-CNPJ is valid and not revoked, the CNPJ matches and the company is ATIVA. */
   prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
@@ -202,7 +202,7 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     verifyByKey: (agent) => call("GET", `/v1/agents/by-key${q({ kind: agent.kind, id: agent.id })}`),
     verified: (id) => call("GET", `/v1/agents/${encodeURIComponent(id)}/verified`, undefined, true, 0.01),
     allowed: (id, a) => call("GET", `/v1/agents/${encodeURIComponent(id)}/allowed${q(a as Record<string, unknown>)}`, undefined, true, 0.01),
-    register: (input) => call("POST", "/v1/agents", input, true, 0.2),
+    register: (input) => call("POST", "/v1/agents", input, true, 0.25),
     prove: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/prove`, proof),
     renew: (id) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew`, {}, true, 0.1),
     renewProve: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew/prove`, proof),
