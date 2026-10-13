@@ -23,21 +23,28 @@ const local = JSON.parse(readFileSync(insideCwd(process.argv[2]), "utf8"));
 const search = JSON.parse(readFileSync(insideCwd(process.argv[3]), "utf8"));
 const entries = (search.servers ?? []).map((s) => s.server ?? s).filter((s) => s.name === local.name);
 
+/** Versions are parsed into three integers; only values rebuilt from those integers are ever printed. */
+function parseVersion(v) {
+  const m = /^(\d{1,6})\.(\d{1,6})\.(\d{1,6})$/.exec(typeof v === "string" ? v : "");
+  if (!m) throw new Error("version is not MAJOR.MINOR.PATCH");
+  return [Number(m[1]), Number(m[2]), Number(m[3])];
+}
+const format = ([maj, min, pat]) => `${maj}.${min}.${pat}`;
 const cmp = (a, b) => {
-  const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
-  for (let i = 0; i < 3; i++) if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i];
   return 0;
 };
-const latest = entries.sort((a, b) => cmp(b.version, a.version))[0];
+
+const localVersion = parseVersion(local.version);
+const latest = entries.map((e) => ({ ...e, parsed: parseVersion(e.version) })).sort((a, b) => cmp(b.parsed, a.parsed))[0];
 if (!latest) {
-  console.log(local.version);
+  process.stdout.write(format(localVersion) + "\n");
 } else {
   const urls = (s) => JSON.stringify((s.remotes ?? []).map((r) => r.url).sort((a, b) => a.localeCompare(b)));
   if (urls(latest) === urls(local) && latest.description === local.description) {
-    console.log("unchanged");
+    process.stdout.write("unchanged\n");
   } else {
-    const [maj, min, pat] = latest.version.split(".").map(Number);
-    const next = `${maj}.${min}.${(pat ?? 0) + 1}`;
-    console.log(cmp(local.version, next) > 0 ? local.version : next);
+    const next = [latest.parsed[0], latest.parsed[1], latest.parsed[2] + 1];
+    process.stdout.write(format(cmp(localVersion, next) > 0 ? localVersion : next) + "\n");
   }
 }
