@@ -91,7 +91,7 @@ The npm package signs the challenge for you (`signChallengeWithEvmKey`, `signCha
 | `kya_renew` | `POST /v1/agents/{id}/renew` | 0.10 |
 | `kya_register` | `POST /v1/agents` | 0.50 |
 
-Discovery: `/llms.txt`, `/openapi.json`, `/server.json`, `/.well-known/kya.json` (signing keys, active and
+Discovery: `/docs` (Swagger UI), `/llms.txt`, `/openapi.json`, `/server.json`, `/.well-known/kya.json` (signing keys, active and
 retired), `/.well-known/kya-mandate.schema.json`, `/.well-known/x402`, `/status`, `/terms`.
 Verifier for any signed document: `POST /v1/verify`.
 

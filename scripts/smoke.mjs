@@ -62,6 +62,8 @@ await check("mandate schema, keys, revocations, openapi, llms.txt", async () => 
   expect(Array.isArray(rv.revocations), "revocations not a list");
   const o = await (await fetch(`${base}/openapi.json`)).json();
   expect(o.paths?.["/v1/agents"]?.post, "openapi without register");
+  const d = await (await fetch(`${base}/docs`)).text();
+  expect(d.includes("swagger-ui"), "docs without Swagger UI");
   const t = await (await fetch(`${base}/llms.txt`)).text();
   expect(t.includes("kya_register"), "llms.txt without tools");
 });

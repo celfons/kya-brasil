@@ -113,3 +113,25 @@ export const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12
   <circle cx="64" cy="62" r="17" fill="#009C3B"/>
   <text x="64" y="68" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" fill="#FFFFFF" text-anchor="middle">KYA</text>
 </svg>`;
+
+/** Swagger UI for humans evaluating the API; the spec itself is /openapi.json. */
+export function docsHtml(origin: string): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KYA Brasil API</title>
+<link rel="icon" href="${origin}/icon.svg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css">
+<style>body{margin:0;background:#fff}.topbar{display:none}</style>
+</head>
+<body>
+<div id="swagger-ui"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js" crossorigin="anonymous"></script>
+<script>
+window.ui = SwaggerUIBundle({ url: "${origin}/openapi.json", dom_id: "#swagger-ui", deepLinking: true, tryItOutEnabled: true, defaultModelsExpandDepth: 0 });
+</script>
+</body>
+</html>`;
+}
