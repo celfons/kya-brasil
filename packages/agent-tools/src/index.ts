@@ -39,8 +39,8 @@ export type CredentialStatus = "pending" | "active" | "suspended" | "revoked" | 
 
 export interface Mandate {
   actions?: string[];
-  max_per_operation?: number;
-  max_per_day?: number;
+  max_per_operation?: { amount: number; currency: string };
+  max_per_day?: { amount: number; currency: string };
   currencies?: string[];
   counterparties?: string[];
   valid_from?: string;

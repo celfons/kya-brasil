@@ -2,6 +2,8 @@
 
 ## 0.2.0
 
+- Open source under MIT: LICENSE, SECURITY.md, CONTRIBUTING.md; specification `docs/SPEC.md` with test vectors.
+- Examples fixed: `max_per_operation` and `max_per_day` are `{ amount, currency }`, as the schema says.
 - npm package `@kya-brasil/agent-tools` (client, signing helpers, adapters) with a manual publish workflow.
 - MCP server (streamable HTTP at `/mcp`, one Durable Object per session) with the same tools as the HTTP API and x402 inside the protocol; `/server.json` and `/icon.svg`; automatic publication to the MCP Registry from the prod CD; optional Glama claim at `/.well-known/glama.json`.
 

@@ -9,6 +9,11 @@ revocable at once. Paid per call with x402 (USDC on Base); verification is free 
 Separate product from KYB Brasil, separate repository and Worker. The two talk through a Cloudflare
 Service Binding (Worker to Worker, never public HTTP, never x402).
 
+**Open source (MIT).** This repository holds the complete issuer, the client library and the
+specification ([docs/SPEC.md](docs/SPEC.md), test vectors in `docs/vectors`), so anyone can audit how a
+credential is issued and verified. KYB Brasil, the company-check service it calls, is a closed service of
+the same author; the issuer talks to it through one small client (`apps/worker/src/kyb.ts`).
+
 ## Journey
 
 1. `POST /v1/agents` ($0.50) with `{agent: {kind, id}, cnpj, mandate}` returns a one-time challenge.
@@ -55,6 +60,12 @@ Push to `main`. The CD creates the Pulumi stacks `dev` and `prod` from the GitHu
 same name. Required secrets: `PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
 `PAY_TO`, `KYB_INTERNAL_KEY` (the `INTERNAL_API_KEY` of the KYB Brasil Worker). Optional:
 `INTERNAL_API_KEY` (fiat channel), `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET` (mainnet facilitator).
+
+## Specification
+
+[docs/SPEC.md](docs/SPEC.md) is the normative description of the credential, the challenge, the e-CNPJ
+proof, the mandate, the signature and the verification procedure. `docs/vectors/credential-v1.json` holds
+test vectors; `packages/core/src/vectors.test.ts` verifies them.
 
 ## Rules
 

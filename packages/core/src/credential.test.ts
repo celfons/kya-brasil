@@ -8,7 +8,7 @@ const kyb: KybSnapshot = { risk_level: "low", risk_score: 5, registration_status
 describe("credential", () => {
   it("builds, signs and verifies; expiry never outlives the mandate", async () => {
     const key = await generateAttestationKey();
-    const c = buildCredential({ credential_id: "cred-1", agent: { kind: "evm", id: "0x5140BaA4a5e7502995DDE56248efe4c6BDD8e69e" }, cnpj: "11.222.333/0001-81", legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: "ab", subject: "CN=ACME LTDA:11222333000181", issuer: "CN=AC Teste", signed_at: "2026-10-12T00:00:00Z" }, mandate: { actions: ["pay"], valid_until: "2026-11-01T00:00:00Z" }, kyb, issuer: "https://kya.test", now: new Date("2026-10-12T00:00:00Z") });
+    const c = buildCredential({ credential_id: "cred-1", agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" }, cnpj: "11.222.333/0001-81", legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: "ab", subject: "CN=ACME LTDA:11222333000181", issuer: "CN=AC Teste", signed_at: "2026-10-12T00:00:00Z" }, mandate: { actions: ["pay"], valid_until: "2026-11-01T00:00:00Z" }, kyb, issuer: "https://kya.test", now: new Date("2026-10-12T00:00:00Z") });
     expect(c.expires_at).toBe("2026-11-01T00:00:00.000Z");
     expect(c.principal.cnpj_formatted).toBe("11.222.333/0001-81");
     const signed = await signCredential(c, await importPrivateKey(key.privateKeyPkcs8), key.keyId);

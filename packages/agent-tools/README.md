@@ -52,7 +52,13 @@ const kya = createKyaClient({ privateKey: payerPk });
 const reg = await kya.register({                                           // $0.50
   agent: { kind: "evm", id: agentAddress },
   cnpj: "11.222.333/0001-81",
-  mandate: { actions: ["quote", "order", "pay"], max_per_operation: 5000, max_per_day: 20000, currencies: ["BRL", "USDC"] }
+  mandate: {
+    actions: ["quote", "order", "pay"],
+    max_per_operation: { amount: 5000, currency: "BRL" },
+    max_per_day: { amount: 20000, currency: "BRL" },
+    currencies: ["BRL"],
+    counterparties: ["12345678000190", "*.beta.com.br"]
+  }
 });
 
 const agent_signature = await signChallengeWithEvmKey(agentPk, reg.challenge.text);

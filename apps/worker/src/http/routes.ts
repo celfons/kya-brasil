@@ -75,7 +75,7 @@ async function run(c: Ctx, tool: ToolName, cnpjRoot: string | null, paid: { netw
 }
 
 const EXAMPLE_REGISTER = { credential_id: "6d0b…", agent: { kind: "evm", id: "0xAbC…" }, principal: { cnpj: "00000000000191" }, challenge: { id: "…", text: "KYA Brasil: prove this agent key acts for a company\n…", expires_at: "…" }, next: { en: "Sign challenge.text with the agent key and with the e-CNPJ, then POST /v1/agents/{id}/prove" } };
-const EXAMPLE_VERIFIED = { credential_id: "6d0b…", status: "active", agent: { kind: "evm", id: "0xAbC…" }, principal: { cnpj: "00000000000191", legal_name: "ACME LTDA" }, credential: { mandate: { actions: ["pay"], max_per_operation: 100 }, expires_at: "…", attestation: { key_id: "…", signature: "…" } }, verification: { checked_at: "…" }, attestation: { key_id: "…", signature: "…" } };
+const EXAMPLE_VERIFIED = { credential_id: "6d0b…", status: "active", agent: { kind: "evm", id: "0xAbC…" }, principal: { cnpj: "00000000000191", legal_name: "ACME LTDA" }, credential: { mandate: { actions: ["pay"], max_per_operation: { amount: 100, currency: "USDC" } }, expires_at: "…", attestation: { key_id: "…", signature: "…" } }, verification: { checked_at: "…" }, attestation: { key_id: "…", signature: "…" } };
 const EXAMPLE_ALLOWED = { credential_id: "6d0b…", status: "active", allowed: true, reason: "inside the mandate", checks: [{ field: "actions", ok: true }], not_evaluated: [], attestation: { key_id: "…", signature: "…" } };
 
 const ID_PARAM = { pathParams: { id: "6d0b1c2e-…" }, pathParamsSchema: { properties: { id: { type: "string", description: "credential_id returned by POST /v1/agents" } }, required: ["id"] } };
@@ -116,7 +116,7 @@ export function buildHttpApp(env: AppEnv) {
           accepts: accepts(TOOLS.kya_register.priceUsd), description: TOOLS.kya_register.description, ...resource,
           extensions: declareDiscoveryExtension({
             bodyType: "json",
-            input: { agent: { kind: "evm", id: "0x0000000000000000000000000000000000000001" }, cnpj: "00000000000191", mandate: { actions: ["pay"], max_per_operation: 100, currencies: ["USDC"] } },
+            input: { agent: { kind: "evm", id: "0x0000000000000000000000000000000000000001" }, cnpj: "00000000000191", mandate: { actions: ["pay"], max_per_operation: { amount: 100, currency: "USDC" }, currencies: ["USDC"] } },
             inputSchema: { properties: { agent: { type: "object", description: "{kind: 'evm' | 'web-bot-auth', id: address or base64url Ed25519 public key}" }, cnpj: { type: "string" }, mandate: { type: "object", description: "JSON validated by /.well-known/kya-mandate.schema.json" } }, required: ["agent", "cnpj", "mandate"] },
             output: { example: EXAMPLE_REGISTER, schema: { type: "object" } }
           })
