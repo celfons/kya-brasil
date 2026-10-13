@@ -1,6 +1,7 @@
 # KYA Brasil
 
-Know-your-agent credentials for Brazil. A company proves with its **e-CNPJ** (ICP-Brasil certificate)
+**KYA backed by a real company.** Most "know your agent" tools prove that an agent holds a key and give it a
+score; KYA Brasil proves **which legal entity answers for the agent**. A company proves with its **e-CNPJ** (ICP-Brasil certificate)
 that an AI agent key (EVM wallet or Web Bot Auth Ed25519 key) acts on its behalf, within a declared
 **mandate**. [KYB Brasil](https://kyb-br-agents.marcelfons.workers.dev) checks the company before
 issuance and every day after. Credentials are Ed25519-signed JSON, verifiable at a stable URL and

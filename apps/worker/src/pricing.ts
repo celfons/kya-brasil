@@ -3,11 +3,11 @@ export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "kyb", "attestat
 export const VERSION = "0.2.0";
 export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
 /** MCP Registry entry (≤100 chars). */
-export const REGISTRY_DESCRIPTION = "Know-your-agent for Brazil: e-CNPJ-signed credentials binding AI agents to companies, KYB-checked";
+export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, KYB-checked daily, signed verdicts";
 export const HOMEPAGE = "https://kya-br-agents.marcelfons.workers.dev";
 export const CONTACT_EMAIL = "matheuscoreggio@gmail.com";
 export const SERVICE_DESCRIPTION =
-  "Know-your-agent credentials for Brazil: a company proves with its e-CNPJ (ICP-Brasil) certificate that an AI agent key (EVM wallet or Web Bot Auth) acts on its behalf, within a declared mandate. KYB Brasil checks the company (Receita, CGU sanctions, forced labour, debt, embargoes) before issuance and every day after. Credentials are Ed25519-signed JSON, verifiable at a stable URL, revocable at once. Verification free up to 50/day per IP, then x402.";
+  "KYA backed by a real company. A Brazilian company signs with its e-CNPJ (ICP-Brasil) that an AI agent key (EVM, Web Bot Auth or ERC-8004) acts for it within a mandate; KYB Brasil checks the company (Receita, sanctions, forced labour, debt, embargoes) at issuance and every day. Credentials are Ed25519-signed, verifiable offline, revocable at once; every per-action verdict is signed. Verification free up to 50/day per IP, then x402.";
 export const MAX_DESCRIPTION = 480;
 
 export const TOOLS = {
