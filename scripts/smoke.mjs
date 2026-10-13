@@ -44,6 +44,11 @@ const check = async (name, fn, attempts = 4) => {
 };
 const expect = (cond, msg) => { if (!cond) throw new Error(msg); };
 
+await check("GET / serves a landing page to browsers", async () => {
+  const r = await fetch(`${base}/`, { headers: { accept: "text/html" } });
+  expect(r.status === 200 && /text\/html/.test(r.headers.get("content-type") ?? ""), `status ${r.status}`);
+  expect((await r.text()).includes("Swagger"), "landing without the docs link");
+});
 await check("GET / lists tools", async () => {
   const r = await fetch(at("/"));
   expect(r.status === 200, `status ${r.status}`);

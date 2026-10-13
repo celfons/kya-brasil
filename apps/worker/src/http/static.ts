@@ -139,3 +139,79 @@ window.ui = SwaggerUIBundle({ url: "${origin}/openapi.json", dom_id: "#swagger-u
 </body>
 </html>`;
 }
+
+/**
+ * Landing page for humans who open the origin in a browser (agents and curl get the JSON index: the
+ * route negotiates on Accept). Live figures come from /status; everything else is static.
+ */
+export function landingHtml(origin: string, network: string): string {
+  const rows = (Object.keys(TOOLS) as ToolName[])
+    .map((n) => `<tr><td><code>${n}</code></td><td><code>${TOOLS[n].method} ${TOOLS[n].path}</code></td><td class="p">${TOOLS[n].priceUsd === 0 ? "free" : `$${TOOLS[n].priceUsd.toFixed(2)}`}</td></tr>`)
+    .join("");
+  const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${SERVICE_NAME}</title>
+<meta name="description" content="${esc(SERVICE_DESCRIPTION)}">
+<link rel="icon" href="${origin}/icon.svg">
+<style>
+:root{--bg:#f7f7f4;--fg:#1d2129;--muted:#5d6470;--line:#d4d8de;--panel:#fff;--accent:#0b6e4f;--money:#9a4d00}
+@media(prefers-color-scheme:dark){:root{--bg:#14171c;--fg:#e8eaee;--muted:#a0a7b2;--line:#3a414b;--panel:#1c2128;--accent:#4fc69a;--money:#e5a04a;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 16px 48px}
+main{max-width:900px;margin:0 auto;display:grid;gap:28px}h1{font-size:1.8rem;margin:0 0 4px}h2{font-size:1.05rem;margin:0 0 8px}p{margin:0;max-width:72ch}
+.lead{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}.tile b{display:block;font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.tile span{font-variant-numeric:tabular-nums;word-break:break-all}.ok{color:var(--accent)}
+nav{display:flex;flex-wrap:wrap;gap:8px}nav a{border:1px solid var(--line);border-radius:999px;padding:4px 12px;text-decoration:none;color:var(--fg);background:var(--panel)}nav a:hover{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}td,th{padding:8px 10px;border-top:1px solid var(--line);text-align:left;vertical-align:top}th{border-top:0;font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.p{white-space:nowrap;color:var(--money);font-variant-numeric:tabular-nums}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86em}pre{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;overflow-x:auto;margin:0}
+.wrap{overflow-x:auto}footer{color:var(--muted);font-size:.9rem}a{color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>${SERVICE_NAME}</h1>
+<p class="lead">${esc(SERVICE_DESCRIPTION)}</p>
+</header>
+<nav>
+<a href="${origin}/docs">API (Swagger)</a><a href="${origin}/llms.txt">llms.txt</a><a href="${origin}/openapi.json">openapi.json</a>
+<a href="${origin}/mcp">MCP endpoint</a><a href="https://www.npmjs.com/package/@kya-brasil/agent-tools">npm client</a>
+<a href="https://github.com/celfons/kya-brasil">GitHub</a><a href="https://github.com/celfons/kya-brasil/blob/main/docs/SPEC.md">Spec</a>
+<a href="${origin}/.well-known/kya.json">Signing keys</a><a href="${origin}/status">status.json</a><a href="${origin}/terms">Terms</a>
+</nav>
+<section>
+<h2>Live</h2>
+<div class="grid" id="live">
+<div class="tile"><b>Version</b><span id="v">${VERSION}</span></div>
+<div class="tile"><b>Network</b><span>${network}</span></div>
+<div class="tile"><b>Signing key</b><span id="k">loading</span></div>
+<div class="tile"><b>Credentials</b><span id="c">loading</span></div>
+<div class="tile"><b>Registration source</b><span id="r">loading</span></div>
+<div class="tile"><b>Last daily review</b><span id="d">loading</span></div>
+</div>
+</section>
+<section>
+<h2>Tools and prices (USDC, x402 on ${network})</h2>
+<div class="wrap"><table><thead><tr><th>Tool</th><th>HTTP</th><th>Price</th></tr></thead><tbody>${rows}</tbody></table></div>
+</section>
+<section>
+<h2>Verify a credential from a terminal</h2>
+<pre>curl ${origin}/v1/agents/&lt;credential_id&gt;
+curl "${origin}/v1/agents/&lt;credential_id&gt;/allowed?action=pay&amp;amount=80&amp;currency=USDC"   # 402: pay with x402, or use the npm client</pre>
+</section>
+<footer>Agents get JSON here (<code>Accept: application/json</code>). Errors are never charged. No CPF is stored.</footer>
+</main>
+<script>
+(async()=>{try{const s=await (await fetch("${origin}/status")).json();const q=(i)=>document.getElementById(i);
+q("v").textContent=s.version;q("k").textContent=s.attestation_key||"none";q("k").className=s.attestation_key?"ok":"";
+const c=s.credentials||{};q("c").textContent=Object.keys(c).length?Object.entries(c).map(([k,v])=>k+" "+v).join(", "):"none yet";
+q("r").textContent=s.registration_source||"-";const d=s.daily_review;q("d").textContent=d&&d.ran_at?new Date(d.ran_at).toISOString().slice(0,16).replace("T"," ")+" UTC":d&&d.at?new Date(d.at).toISOString().slice(0,16).replace("T"," ")+" UTC":"not yet";}
+catch(e){for(const i of["k","c","r","d"])document.getElementById(i).textContent="unavailable"}})();
+</script>
+</body>
+</html>`;
+}

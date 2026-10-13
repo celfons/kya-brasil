@@ -34,6 +34,16 @@ describe("free routes", () => {
   const env = fakeEnv();
   const app = buildHttpApp(env);
 
+  it("serves a landing page to browsers and JSON to everyone else at /", async () => {
+    const html = await call(app, env, "/", { headers: { accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" } });
+    expect(html.headers.get("content-type")).toMatch(/text\/html/);
+    expect(await html.text()).toContain("kya_register");
+    const json = await call(app, env, "/", { headers: { accept: "application/json" } });
+    expect(json.headers.get("content-type")).toMatch(/application\/json/);
+    const curl = await call(app, env, "/", { headers: { accept: "*/*" } });
+    expect(curl.headers.get("content-type")).toMatch(/application\/json/);
+  });
+
   it("lists the tools at / with prices", async () => {
     const j = (await (await call(app, env, "/")).json()) as { tools: Record<string, { price_usd: number }> };
     expect(j.tools.kya_register!.price_usd).toBe(0.5);

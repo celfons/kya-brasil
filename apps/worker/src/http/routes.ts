@@ -14,7 +14,7 @@ import { registrationSource } from "../registration";
 import { companyAgents, setCompanyWebhook } from "../company";
 import * as service from "../service";
 import { Store } from "../store";
-import { ICON_SVG, docsHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
+import { ICON_SVG, docsHtml, landingHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
 
 type Vars = { callLogId: number | null };
 type Ctx = Context<{ Bindings: AppEnv; Variables: Vars }>;
@@ -262,6 +262,9 @@ export function buildHttpApp(env: AppEnv) {
   });
   app.get("/", (c) => {
     const origin = originOf(c);
+    const accept = c.req.header("accept") ?? "";
+    // Browsers get a landing page; agents, curl and anything asking for JSON get the index.
+    if (/text\/html/.test(accept) && !/application\/json/.test(accept.split("text/html")[0] ?? "")) return c.html(landingHtml(origin, c.env.X402_NETWORK));
     return c.json({ service: SERVICE_NAME, version: VERSION, description: SERVICE_DESCRIPTION, mcp: `${origin}/mcp`, mcp_registry: `${origin}/server.json`, docs: `${origin}/docs`, llms: `${origin}/llms.txt`, openapi: `${origin}/openapi.json`, keys: `${origin}/.well-known/kya.json`, mandate_schema: `${origin}/.well-known/kya-mandate.schema.json`, tools: Object.fromEntries(Object.entries(TOOLS).map(([k, t]) => [k, { method: t.method, path: t.path, price_usd: t.priceUsd }])) });
   });
 
