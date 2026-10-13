@@ -142,3 +142,18 @@ describe("mutual authentication", () => {
     expect(other).toMatchObject({ ok: false, error: "KYA_RESPONSE_MISMATCH" });
   });
 });
+
+describe("counterparty matching stays linear (ReDoS)", () => {
+  it("normalizes URLs to their host", () => {
+    expect(checkMandate(mandate, { action: "order", counterparty: "https://app.beta.com.br/orders/1" }).allowed).toBe(true);
+    expect(checkMandate(mandate, { action: "order", counterparty: "http://evil.com/beta.com.br" }).allowed).toBe(false);
+  });
+
+  it("answers fast on a long malicious counterparty", () => {
+    const evil = "a" + "/".repeat(200_000) + "\n";
+    const t0 = performance.now();
+    const v = checkMandate(mandate, { action: "order", counterparty: evil });
+    expect(v.allowed).toBe(false);
+    expect(performance.now() - t0).toBeLessThan(500);
+  });
+});

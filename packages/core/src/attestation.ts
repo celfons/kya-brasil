@@ -5,11 +5,18 @@
  */
 import type { Attestation } from "./types";
 
+/**
+ * Key order of the canonical JSON: UTF-16 code units, exactly what a comparator-less sort() does. Not
+ * localeCompare: a locale-dependent order would change the signed bytes between machines and break every
+ * signature already issued.
+ */
+const byCodeUnit = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
 export function canonicalize(v: unknown): string {
   if (v === null || typeof v !== "object") return JSON.stringify(v);
   if (Array.isArray(v)) return `[${v.map(canonicalize).join(",")}]`;
   const o = v as Record<string, unknown>;
-  return `{${Object.keys(o).filter((k) => o[k] !== undefined).sort().map((k) => `${JSON.stringify(k)}:${canonicalize(o[k])}`).join(",")}}`;
+  return `{${Object.keys(o).filter((k) => o[k] !== undefined).sort(byCodeUnit).map((k) => `${JSON.stringify(k)}:${canonicalize(o[k])}`).join(",")}}`;
 }
 
 export function attestedPayload(answer: Record<string, unknown>): Record<string, unknown> {

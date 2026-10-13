@@ -7,9 +7,20 @@
  * when nothing is published yet).
  */
 import { readFileSync } from "node:fs";
+import { isAbsolute, relative, resolve } from "node:path";
 
-const local = JSON.parse(readFileSync(process.argv[2], "utf8"));
-const search = JSON.parse(readFileSync(process.argv[3], "utf8"));
+/** Only relative paths without "..", resolved inside the working directory (the CD passes server.json latest.json). */
+function insideCwd(arg) {
+  const base = process.cwd();
+  if (typeof arg !== "string" || !arg || isAbsolute(arg) || arg.split(/[\\/]/).includes("..")) throw new Error(`refused path: ${arg}`);
+  const target = resolve(base, arg);
+  const rel = relative(base, target);
+  if (rel.startsWith("..") || isAbsolute(rel)) throw new Error(`refused path: ${arg}`);
+  return target;
+}
+
+const local = JSON.parse(readFileSync(insideCwd(process.argv[2]), "utf8"));
+const search = JSON.parse(readFileSync(insideCwd(process.argv[3]), "utf8"));
 const entries = (search.servers ?? []).map((s) => s.server ?? s).filter((s) => s.name === local.name);
 
 const cmp = (a, b) => {
@@ -21,7 +32,7 @@ const latest = entries.sort((a, b) => cmp(b.version, a.version))[0];
 if (!latest) {
   console.log(local.version);
 } else {
-  const urls = (s) => JSON.stringify((s.remotes ?? []).map((r) => r.url).sort());
+  const urls = (s) => JSON.stringify((s.remotes ?? []).map((r) => r.url).sort((a, b) => a.localeCompare(b)));
   if (urls(latest) === urls(local) && latest.description === local.description) {
     console.log("unchanged");
   } else {
