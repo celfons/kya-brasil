@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- **No KYB dependency (D-23):** the KYB Brasil client, the `KYB` service binding and `KYB_INTERNAL_KEY`, `KYB_URL`, `REGISTRATION_SOURCE` are gone. Registration status comes from the Receita's open data (BrasilAPI, CNPJ.ws), optionally after an own endpoint in `CNPJ_API_URL` (BrasilAPI format, `{cnpj}` placeholder). `/status` reports `registration_sources` instead of `registration_source` and `kyb_channel`. Kept for /v1: `kyb_snapshot` (always `null`), `kyb_warnings` (always empty), error code `KYB_BLOCKED`.
+- **No KYB dependency (D-23):** the KYB Brasil client, the `KYB` service binding and `KYB_INTERNAL_KEY`, `KYB_URL`, `REGISTRATION_SOURCE` are gone. Registration status comes from the Receita's open data (BrasilAPI, CNPJ.ws), optionally after an own endpoint in `CNPJ_API_URL` (BrasilAPI format, `{cnpj}` placeholder). `/status` reports `registration_sources` instead of `registration_source` and `kyb_channel`. Kept for /v1: `kyb_snapshot` (always `null`), `kyb_warnings` (always empty), error code `KYB_BLOCKED`. Issuer 0.6.0, npm client 0.5.3 (types and description).
 - Registration price lowered from $0.50 to $0.25 (D-22). npm client 0.5.2 carries the new price in its hints and README.
 - npm client 0.5.1: relative imports carry the `.js` extension, so the package loads in plain Node ESM (0.3.0 to 0.5.0 failed with `ERR_MODULE_NOT_FOUND` outside bundlers).
 - Container for evaluation: `docker compose up` runs the issuer on `workerd` with D1, KV and the Durable Object emulated in a volume, public registration source, Base Sepolia, anchors from the repository, signing key generated once (`docker/`, `docker-compose.yml`). `/status` now reports the number of ICP-Brasil anchors loaded.

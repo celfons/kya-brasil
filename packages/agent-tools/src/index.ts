@@ -152,10 +152,10 @@ export interface KyaClient {
   /** $0.25: register an agent for a company; returns the challenge both parties sign. */
   register(input: { agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<Registration>;
   /** Free: send both signatures; the credential is issued if the e-CNPJ is valid and not revoked, the CNPJ matches and the company is ATIVA. */
-  prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
+  prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; /** /v1 compatibility, always empty. */ kyb_warnings: string[] }>;
   /** $0.10: renewal challenge (then renewProve). */
   renew(credentialId: string): Promise<{ credential_id: string; challenge: { id: string; text: string; expires_at: string } }>;
-  renewProve(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
+  renewProve(credentialId: string, proof: Proof): Promise<{ credential: Credential; /** /v1 compatibility, always empty. */ kyb_warnings: string[] }>;
   /** Free: the company revokes at once. signed_text must be "KYA Brasil: revoke <id>\n<nonce>", signed with the e-CNPJ. */
   revoke(credentialId: string, input: { signed_text: string; ecnpj_signature: string; reason?: string }): Promise<{ credential_id: string; status: "revoked" }>;
   /** Free, company only: every credential registered for the CNPJ, any status. signed_text = companyText("agents", cnpj), signed with the e-CNPJ. */

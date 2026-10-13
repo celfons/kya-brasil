@@ -17,12 +17,17 @@ KYA Brasil answers *who speaks for whom*, not *whether the company is a good ris
 labour, debt and litigation are your call as the verifier, with whatever screening you trust and the CNPJ
 the credential gives you.
 
+Self-contained: no closed service, no API key, no contract. The company's registration status comes from the
+Receita Federal's open data (BrasilAPI, CNPJ.ws as fallback, or your own source in `CNPJ_API_URL`), the
+revocation check from each AC's public CRL, the trust anchors from the ITI bundle in this repository.
+
 | | |
 | --- | --- |
 | Service | `https://kya-br-agents.marcelfons.workers.dev` |
 | MCP (streamable HTTP) | `https://kya-br-agents.marcelfons.workers.dev/mcp` |
 | MCP Registry | `io.github.celfons/kya-brasil` |
 | npm | [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) |
+| Registration data | Receita Federal open data via BrasilAPI / CNPJ.ws, or your own `CNPJ_API_URL` (D-23) |
 | Payments | [x402](https://x402.org), USDC on Base, no signup. Free verification up to 50/day per IP. Errors are never charged. |
 | Spec | [docs/SPEC.md](docs/SPEC.md) with [test vectors](docs/vectors/credential-v1.json) |
 | License | MIT |
