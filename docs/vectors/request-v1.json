@@ -1,0 +1,5 @@
+{
+  "description": "Request text of SPEC section 14 (Sign in with KYA). The npm client and the issuer (D-18 agent_request proof) must produce exactly `text` from `input`.",
+  "input": { "credentialId": "6d0b1c2e-1111-4222-8333-444455556666", "method": "post", "url": "https://Beta.COM.br/orders?x=1#frag", "created": 1, "expires": 61, "contentSha256": "abababababababababababababababababababababababababababababababab" },
+  "text": "KYA Brasil: request\ncredential: 6d0b1c2e-1111-4222-8333-444455556666\nmethod: POST\nurl: https://beta.com.br/orders?x=1\ncreated: 1\nexpires: 61\ncontent-sha256: abababababababababababababababababababababababababababababababab"
+}

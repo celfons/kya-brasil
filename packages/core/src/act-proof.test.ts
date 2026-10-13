@@ -1,3 +1,5 @@
+/// <reference types="node" /> // test-only: node:fs
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { actText, checkActProof, spentToday, validateAct } from "./acts";
@@ -20,10 +22,9 @@ async function signedRequest(over: Partial<{ url: string; created: number; expir
 }
 
 describe("request text", () => {
-  it("matches the npm client's requestText byte for byte (shared vector)", () => {
-    expect(requestText({ credentialId: CRED, method: "post", url: "https://Beta.COM.br/orders?x=1#frag", created: 1, expires: 61, contentSha256: BODY_HASH })).toBe(
-      ["KYA Brasil: request", `credential: ${CRED}`, "method: POST", "url: https://beta.com.br/orders?x=1", "created: 1", "expires: 61", `content-sha256: ${BODY_HASH}`].join("\n")
-    );
+  it("matches the shared vector docs/vectors/request-v1.json (the npm client checks the same file)", () => {
+    const v = JSON.parse(readFileSync(new URL("../../../docs/vectors/request-v1.json", import.meta.url), "utf8"));
+    expect(requestText(v.input)).toBe(v.text);
   });
 });
 

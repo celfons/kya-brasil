@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Acts need a proof of origin to count (D-18): `agent_signature` over the act text, or `agent_request`, the agent's signed KYA request the counterparty received (verified with the agent key, at most 24 h old, body hash bound to the act). Acts without a proof are kept and signed with `counted: false`; one proof proves one act (409 on reuse). Receipts carry `proof` and `counted`; the acts export too. Migration `0005`: existing acts count only when the agent signed them. npm client: `ActInput.agent_request`, `kya.request` and `kya.registerAct()` in the Sign in with KYA middleware, which sends the proof by itself.
+- Security hardening from SonarCloud: GitHub Actions pinned by commit SHA; Pulumi CLI and mcp-publisher installed at pinned versions with SHA-256 verification (no more `curl | sh`, HTTPS enforced with `--proto '=https' --tlsv1.2`); `smoke.mjs` accepts only an exact host allowlist (localhost or `SMOKE_ALLOWED_HOSTS`, which the CD sets to the host it deployed) and builds URLs with `new URL()`; `demo-gif.py` takes an output name and writes under `./out`; `registry-version.mjs` accepts only relative paths inside the working directory.
+- `.github/dependabot.yml`: weekly grouped updates for the SHA-pinned GitHub Actions.
+- npm client: counterparty matching in `checkMandate` no longer uses a backtracking regex (a crafted counterparty took ~22 s; now linear). Base64url padding trimmed without regex in core and client. Canonical JSON keeps its exact key order through an explicit code-unit comparator. One base64url helper in the client (`src/base64url.ts`).
 
 ## 0.4.1
 

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { KYA_HEADERS, checkMandate, createKyaAgent, createKyaAuth, requestText, signRequest, signResponse, verifyResponse } from "./auth";
@@ -144,11 +145,9 @@ describe("mutual authentication", () => {
 });
 
 describe("request text shared with the issuer (D-18)", () => {
-  it("is byte-identical to the vector in packages/core/src/act-proof.test.ts", () => {
-    const h = "ab".repeat(32);
-    expect(requestText({ credentialId: CRED, method: "post", url: "https://Beta.COM.br/orders?x=1#frag", created: 1, expires: 61, contentSha256: h })).toBe(
-      ["KYA Brasil: request", `credential: ${CRED}`, "method: POST", "url: https://beta.com.br/orders?x=1", "created: 1", "expires: 61", `content-sha256: ${h}`].join("\n")
-    );
+  it("matches the shared vector docs/vectors/request-v1.json (the issuer checks the same file)", () => {
+    const v = JSON.parse(readFileSync(new URL("../../../docs/vectors/request-v1.json", import.meta.url), "utf8"));
+    expect(requestText(v.input)).toBe(v.text);
   });
 });
 
@@ -170,5 +169,20 @@ describe("the verified request becomes the act's proof of origin (D-18)", () => 
       signature: headers[KYA_HEADERS.signature]
     });
     expect(typeof r.kya.registerAct).toBe("function");
+  });
+});
+
+describe("counterparty matching stays linear (ReDoS)", () => {
+  it("normalizes URLs to their host", () => {
+    expect(checkMandate(mandate, { action: "order", counterparty: "https://app.beta.com.br/orders/1" }).allowed).toBe(true);
+    expect(checkMandate(mandate, { action: "order", counterparty: "http://evil.com/beta.com.br" }).allowed).toBe(false);
+  });
+
+  it("answers fast on a long malicious counterparty", () => {
+    const evil = "a" + "/".repeat(200_000) + "\n";
+    const t0 = performance.now();
+    const v = checkMandate(mandate, { action: "order", counterparty: evil });
+    expect(v.allowed).toBe(false);
+    expect(performance.now() - t0).toBeLessThan(500);
   });
 });
