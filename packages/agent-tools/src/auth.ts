@@ -132,7 +132,7 @@ function normalizeCounterparty(c: string): string {
 /**
  * Local evaluation of the reserved mandate fields: actions, max_per_operation, currencies, counterparties
  * (with `*.` wildcards), valid_from / valid_until. `max_per_day` is listed as not evaluated: only the issuer
- * knows what was registered today (use ctx.allowed or registerAct).
+ * knows nothing of it either: pass your own spent_today to ctx.allowed.
  */
 export function checkMandate(mandate: Mandate, q: ActionQuery, now = new Date()): LocalVerdict {
   const checks: LocalVerdict["checks"] = [];

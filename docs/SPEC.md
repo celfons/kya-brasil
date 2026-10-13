@@ -70,7 +70,7 @@ The company signs the challenge text with its e-CNPJ certificate as a **detached
 4. Check that the signer certificate is not revoked: fetch the CRL (LCR) from a distribution point named
    in the certificate, verify its signature with the issuing AC's certificate, reject it when past its
    `nextUpdate`, and look the serial number up. A listed certificate MUST NOT authorize anything (issuance,
-   renewal, reading the acts trail). When no trustworthy CRL can be obtained the issuer MUST refuse
+   renewal, company requests of section 13). When no trustworthy CRL can be obtained the issuer MUST refuse
    (fail closed). OCSP MAY be used in addition.
 5. Record only the certificate SHA-256, subject, issuer, serial number, the issuing AC's certificate, the
    CRL URLs and the signing time. The signer's CPF and any other personal field in the certificate MUST
@@ -143,7 +143,7 @@ A verifier that receives a credential (or a `credential_id`) with an agent's req
 
 1. **Binding**: confirm that the key that signed the agent's request equals `credential.agent.id` (same `kind`). A credential alone proves nothing about who is talking.
 2. **Signature**: fetch the issuer's keys, pick the one whose `key_id` equals `attestation.key_id`, and run section 7 in reverse. Reject on hash mismatch or bad signature.
-3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily.
+3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily. When the issuer is unreachable, steps 2 and 4 still work offline but say nothing about a later suspension or revocation; accepting such a credential is the verifier's risk until `expires_at`.
 4. **Expiry**: `now < expires_at`.
 5. **Mandate**: either evaluate section 5 locally, or request a signed verdict from the issuer (section 9) and keep it as evidence.
 
@@ -185,41 +185,32 @@ not lifted by the review.
 Only legal-entity data is processed. The credential and the issuer's records MUST NOT contain the CPF or
 the name of the natural person who holds the e-CNPJ; the certificate hash identifies the authorization.
 
-## 13. Acts (registered actions)
+## 13. Company: inventory and events
 
-An **act** records what the agent did next to what it was allowed to do. The party that accepted the
-action (the counterparty) SHOULD register it; the agent MAY register its own acts.
+The issuer does not record what agents do (acts were removed in 0.5.0, D-19). `max_per_day` is evaluated with
+the `spent_today` the verifier supplies. What the issuer offers the company instead:
 
-`POST /v1/agents/{id}/acts` with `{ action, amount?, currency?, counterparty?, reference?, content_sha256?,
-registered_by?, registrant?, agent_signature? }`. The issuer MUST:
-
-1. Validate the act (section 5 vocabulary for `action`; `currency` required with `amount`; `content_sha256` is a
-   SHA-256 hex and the only trace of the document, which MUST NOT be sent or stored).
-2. If `agent_signature` is present, verify it over the act text below with the agent key (section 2) and record
-   `agent_signed: true`; reject the act when the signature is present but invalid.
-3. Evaluate the mandate (section 5) with `spent_today` set to the sum of the amounts of the acts already
-   registered today (UTC) with `allowed: true` in the currency of `max_per_day`. Daily ceilings therefore hold
-   across every counterparty, not only the one asking.
-4. Store the act with its verdict, denied or not, and return a signed receipt (section 7) containing the act,
-   the verdict, the registered totals before and after, `registered_at` and `receipt_url`.
-
-Denied acts are evidence and MUST NOT count toward the daily total. Receipts are readable by anyone who holds
-the `act_id` (`GET /v1/acts/{act_id}`). The full trail of an agent is readable only by its company:
-`POST /v1/agents/{id}/acts/export` with the e-CNPJ signature (section 4) over `KYA Brasil: acts <credential_id>\n<nonce>`.
-
-Act text (the agent's optional signature covers it; empty fields are `-`):
+**Requests.** Text signed with the e-CNPJ (section 4, including the revocation check), lines joined by `\n`:
 
 ```
-KYA Brasil: act
-issuer: <issuer origin>
-credential: <credential_id>
-agent: <kind>:<id>
-action: <action>
-amount: <amount> <currency> | -
-counterparty: <counterparty> | -
-reference: <reference> | -
-content_sha256: <hex> | -
+KYA Brasil: <verb> <cnpj, 14 digits>
+[extra lines]
+at: <ISO 8601 time>
 ```
+
+The issuer MUST reject `at` more than 10 minutes away from its clock.
+
+- **Inventory**, `POST /v1/companies/{cnpj}/agents` with `{ signed_text, ecnpj_signature }`, verb `agents`:
+  every credential registered for the CNPJ in any status, whoever held the certificate.
+- **Webhook**, `POST /v1/companies/{cnpj}/webhook`, verb `webhook`, one extra line `url: <https URL | ->`
+  (`-` removes it). The URL MUST be https on a host name (no IP literal, no credentials). The request MUST
+  be newer (`at`) than the last accepted one, so a captured request cannot be replayed.
+
+**Events.** On `credential.issued`, `credential.renewed`, `credential.suspended`, `credential.reinstated`,
+`credential.revoked` and `verdict.denied` (a signed `/allowed` verdict that denied an active credential) the
+issuer POSTs `{ event, cnpj, at, data, attestation }` to the webhook, signed as in section 7. Delivery is
+best effort (one attempt, 5 s timeout); the company checks the attestation before trusting an event and
+uses the inventory as the source of truth.
 
 ## 14. Request signing ("Sign in with KYA")
 

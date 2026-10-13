@@ -1,4 +1,4 @@
-/** D1 persistence for agents, challenges and events. Rows never carry personal data. */
+/** D1 persistence for agents, challenges, events and company webhooks. Rows never carry personal data. */
 import type { AgentKey, Credential, CredentialStatus, Mandate } from "@kya-br/core";
 import type { AppEnv } from "./env";
 
@@ -29,24 +29,6 @@ export interface AgentRow {
   suspension_cause: SuspensionCause | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface ActRow {
-  id: string;
-  agent_row: string;
-  ts: string;
-  day: string;
-  action: string;
-  amount: number | null;
-  currency: string | null;
-  counterparty: string | null;
-  reference: string | null;
-  content_sha256: string | null;
-  registered_by: "counterparty" | "agent";
-  registrant: string | null;
-  agent_signed: number;
-  allowed: number;
-  receipt: string;
 }
 
 export interface ChallengeRow {
@@ -157,25 +139,21 @@ export class Store {
     return results;
   }
 
-  async createAct(a: Omit<ActRow, "ts">): Promise<void> {
+  /** Every credential registered for a CNPJ, newest first (the company's inventory, D-20). */
+  async byCnpj(cnpj: string, limit = 500): Promise<AgentRow[]> {
+    const { results } = await this.db.prepare("SELECT * FROM agents WHERE cnpj = ?1 ORDER BY created_at DESC LIMIT ?2").bind(cnpj, limit).all<AgentRow>();
+    return results;
+  }
+
+  async webhook(cnpj: string): Promise<{ url: string | null; signed_at: string } | null> {
+    return (await this.db.prepare("SELECT url, signed_at FROM company_webhooks WHERE cnpj = ?1").bind(cnpj).first<{ url: string | null; signed_at: string }>()) ?? null;
+  }
+
+  async setWebhook(cnpj: string, url: string | null, signed_at: string): Promise<void> {
     await this.db
-      .prepare("INSERT INTO acts (id, agent_row, day, action, amount, currency, counterparty, reference, content_sha256, registered_by, registrant, agent_signed, allowed, receipt) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)")
-      .bind(a.id, a.agent_row, a.day, a.action, a.amount, a.currency, a.counterparty, a.reference, a.content_sha256, a.registered_by, a.registrant, a.agent_signed, a.allowed, a.receipt)
+      .prepare("INSERT INTO company_webhooks (cnpj, url, signed_at, updated_at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(cnpj) DO UPDATE SET url = ?2, signed_at = ?3, updated_at = ?4")
+      .bind(cnpj, url, signed_at, now())
       .run();
-  }
-
-  async getAct(id: string): Promise<ActRow | null> {
-    return (await this.db.prepare("SELECT * FROM acts WHERE id = ?1").bind(id).first<ActRow>()) ?? null;
-  }
-
-  async actsOfDay(agent_row: string, day: string): Promise<Pick<ActRow, "amount" | "currency" | "allowed">[]> {
-    const { results } = await this.db.prepare("SELECT amount, currency, allowed FROM acts WHERE agent_row = ?1 AND day = ?2").bind(agent_row, day).all<Pick<ActRow, "amount" | "currency" | "allowed">>();
-    return results;
-  }
-
-  async acts(agent_row: string, sinceIso: string, limit = 500): Promise<ActRow[]> {
-    const { results } = await this.db.prepare("SELECT * FROM acts WHERE agent_row = ?1 AND ts >= ?2 ORDER BY ts DESC LIMIT ?3").bind(agent_row, sinceIso, limit).all<ActRow>();
-    return results;
   }
 
   async counts(): Promise<Record<string, number>> {

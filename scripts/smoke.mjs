@@ -70,11 +70,9 @@ await check("paid verification and verdict answer 402", async () => {
   const responses = await Promise.all(paths.map((p) => fetch(at(p))));
   responses.forEach((r, i) => expect(r.status === 402, `${paths[i]} status ${r.status}`));
 });
-await check("act registration answers 402; unknown act is 404", async () => {
-  const r = await fetch(at("/v1/agents/00000000-0000-0000-0000-000000000000/acts"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "pay" }) });
-  expect(r.status === 402, `status ${r.status}`);
-  const a = await fetch(at("/v1/acts/00000000-0000-0000-0000-000000000000"));
-  expect(a.status === 404, `act status ${a.status}`);
+await check("company inventory rejects an unsigned request (never charged)", async () => {
+  const r = await fetch(at("/v1/companies/11222333000181/agents"), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({}) });
+  expect(r.status === 400, `status ${r.status}`);
 });
 await check("free verification of an unknown id is 404 (never charged)", async () => {
   const r = await fetch(at("/v1/agents/00000000-0000-0000-0000-000000000000"));

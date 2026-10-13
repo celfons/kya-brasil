@@ -19,7 +19,7 @@ Node 18+ (global `fetch`, WebCrypto). ESM.
 ## Verifier: you receive an action from someone else's agent
 
 ```ts
-import { createKyaClient, verifyAttestation } from "@kya-brasil/agent-tools";
+import { createKyaClient, verifyAttestation, verifyCredentialOffline, companyText, signWithECnpj } from "@kya-brasil/agent-tools";
 
 const kya = createKyaClient({ privateKey: process.env.KYA_PAYER_PK as `0x${string}` }); // wallet optional
 
@@ -33,14 +33,25 @@ if (!verdict.allowed) reject(verdict.reason);
 
 await verifyAttestation(verdict);                          // local Ed25519 check of the issuer's signature
 
-const receipt = await kya.registerAct(credentialId, {       // $0.02 once you accept it: signed receipt,
-  action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1"
-});                                                          // daily ceilings enforced across counterparties
+// max_per_day: pass your own spent_today; the issuer does not record acts.
+
+const offline = await verifyCredentialOffline(credential);   // issuer down: signature + expires_at only,
+                                                             // live_status "unknown" (your risk until expires_at)
 ```
 
 Also check that the key that signed the agent's request is `v.agent.id`; the credential_id alone proves nothing.
 
-Agent frameworks (verifier tools `kya_verify`, `kya_check_action`, `kya_register_act`, `kya_verify_paid`):
+Company side, after issuance: see every agent in your name and get signed events (issued, renewed, suspended,
+reinstated, revoked, verdict.denied) at your webhook. Both requests are signed with the e-CNPJ:
+
+```ts
+const text = companyText("webhook", cnpj, { url: "https://acme.com.br/kya-events" });
+await kya.setCompanyWebhook(cnpj, { signed_text: text, ecnpj_signature: await signWithECnpj(material, text) });
+const inv = await kya.companyAgents(cnpj, { signed_text: t2, ecnpj_signature: s2 });   // t2 = companyText("agents", cnpj)
+// on your webhook: (await verifyAttestation(body)).valid before trusting the event
+```
+
+Agent frameworks (verifier tools `kya_verify`, `kya_check_action`, `kya_verify_paid`):
 
 ```ts
 import { toOpenAI, toVercelAI, toLangChain, toAnthropic } from "@kya-brasil/agent-tools";
@@ -127,9 +138,8 @@ Renew every 90 days (`kya.renew` then `kya.renewProve`), revoke at once (`kya.re
 
 | Call | Price |
 |---|---|
-| verify, verifyByKey, prove, renewProve, revoke, revocations | free |
+| verify, verifyByKey, prove, renewProve, revoke, revocations, companyAgents, setCompanyWebhook | free |
 | verified (signed receipt, no limit), allowed (signed verdict) | 0.01 |
-| registerAct (signed receipt of what the agent did) | 0.02 |
 | renew | 0.10 |
 | register | 0.50 |
 

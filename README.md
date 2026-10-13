@@ -1,6 +1,6 @@
 # KYA Brasil
 
-![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused](docs/assets/demo.gif)
+![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused and the company is notified by a signed webhook event](docs/assets/demo.gif)
 
 **Know-your-agent, backed by a real company.** Most "KYA" tools prove that an agent holds a key and give it
 a score. KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **which legal
@@ -35,7 +35,7 @@ answers those, with the CNPJ the credential gives you.
 | Link kept true | no | no | **e-CNPJ revocation (CRL) and company registration checked at issuance and daily** |
 | Mandate (what the agent may do) | no | operator policy | **declared and signed by the company** |
 | Verdict per action | score | allow / deny | **signed allow / deny with the checks listed** |
-| Record of what the agent did | no | hash-chained ledger, self-declared | **signed receipt per act, daily ceilings enforced across counterparties, trail readable by the company** |
+| The company sees its agents | no | operator dashboard | **inventory and signed webhook events, both authorized by e-CNPJ** |
 | Verifiable offline | sometimes | no | **yes, Ed25519 + published keys** |
 | Open specification and code | rarely | no | **yes** |
 
@@ -60,14 +60,13 @@ await verifyAttestation(verdict);                                 // the issuer'
 Also check that the key that signed the agent's request is `v.agent.id` (or `v.agent.wallet` for ERC-8004):
 a credential id alone proves nothing about who is talking.
 
-Once you accept the action, **register it** ($0.02): the issuer re-checks the mandate including everything
-registered today by anyone, so a daily ceiling holds across all the agent's counterparties, and signs a receipt
-that is your proof of what the agent could and did do. The company reads the trail of its agents with its e-CNPJ.
+`max_per_day` is checked against the `spent_today` you pass: the issuer does not record what agents do (D-19),
+so keep your own record of what you accepted.
 
-```ts
-const receipt = await kya.registerAct(credentialId, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1" });
-// receipt.allowed, receipt.spent_today_registered_after, receipt.receipt_url, receipt.attestation
-```
+**Offline** (issuer unreachable): `verifyCredentialOffline(credential)` checks the issuer's signature and
+`expires_at` with the published key only. It returns `live_status: "unknown"`: a signature cannot tell that the
+credential was suspended or revoked since. Accepting it is your risk until `expires_at`; `/status` shows whether
+the issuer and its daily review are up.
 
 Over MCP, the same three tools are `kya_verify`, `kya_check_action` and `kya_verify_paid`. Claude Desktop,
 Cursor and friends: add the remote server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
@@ -86,7 +85,7 @@ app.use("/api/*", auth.hono());                                  // or auth.expr
 app.post("/api/orders", (c) => {
   const kya = c.get("kya");                                       // { credential_id, agent, principal, mandate, check(), allowed() }
   if (!kya.check({ action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" }).allowed) return c.json({ error: "outside the mandate" }, 403);
-  // ... accept, then kya.client.registerAct(kya.credential_id, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" })
+  // ... accept
 });
 ```
 
@@ -136,8 +135,7 @@ The npm package signs the challenge for you (`signChallengeWithEvmKey`, `signCha
 | `kya_verify` | `GET /v1/agents/{id}`, `GET /v1/agents/by-key` | free, 50/day per IP |
 | `kya_verify_paid` | `GET /v1/agents/{id}/verified` | 0.01 |
 | `kya_check_action` | `GET /v1/agents/{id}/allowed` | 0.01 |
-| `kya_register_act` | `POST /v1/agents/{id}/acts` | 0.02 |
-| `kya_act`, `kya_act_text`, `kya_acts_export` | `GET /v1/acts/{act_id}`; `POST /v1/agents/{id}/acts/text`, `/acts/export` | free |
+| `kya_company_agents`, `kya_company_webhook` | `POST /v1/companies/{cnpj}/agents`, `/webhook` (e-CNPJ-signed) | free |
 | `kya_renew` | `POST /v1/agents/{id}/renew` | 0.10 |
 | `kya_register` | `POST /v1/agents` | 0.50 |
 

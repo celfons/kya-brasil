@@ -38,7 +38,7 @@ SCRIPT = [
     ("check", "✓ credential active · issuer key 35bb864a2e87c8fd", "ok", False),
     ("check", "✓ e-CNPJ not revoked (ICP-Brasil CRL checked)", "ok", False),
     ("check", "✓ ACME LTDA · CNPJ 11.222.333/0001-81 · ATIVA", "ok", False),
-    ("check", "✓ mandate: order ≤ 5,000 BRL · 4,200 of 20,000 BRL today", "ok", False),
+    ("check", "✓ mandate: order ≤ 5,000 BRL · BETA's spent_today 4,200 of 20,000", "ok", False),
     ("print", "  allowed: true   verdict signed (Ed25519), verifiable offline", "ok", True),
     ("pause", 18),
     ("blank",),
@@ -46,6 +46,9 @@ SCRIPT = [
     ("check", "✓ signature, credential, e-CNPJ, company: all fine", "ok", False),
     ("check", "✗ mandate: 50,000 BRL exceeds max_per_operation 5,000 BRL", "err", False),
     ("print", "  allowed: false  → 403 outside the mandate", "err", True),
+    ("pause", 10),
+    ("print", "[acme.com.br/kya-events] ← verdict.denied, signed by the issuer", "head", False),
+    ("check", "✓ ACME sees it at once: inventory + webhook, both e-CNPJ-authorized", "ok", False),
     ("pause", 24),
     ("end",),
 ]
@@ -84,7 +87,7 @@ def end_card():
     d = ImageDraw.Draw(img)
     d.text((W // 2, 150), "KYA Brasil", font=ImageFont.truetype(SANS_B, 58), fill=(255, 255, 255), anchor="mm")
     d.text((W // 2, 215), "Know-your-agent, backed by a real company", font=ImageFont.truetype(SANS, 26), fill=C["fg"], anchor="mm")
-    d.text((W // 2, 262), "e-CNPJ-signed mandates · revocation checked daily · signed verdicts", font=ImageFont.truetype(SANS, 18), fill=C["dim"], anchor="mm")
+    d.text((W // 2, 262), "e-CNPJ-signed mandates · revocation checked daily · signed verdicts · company webhooks", font=ImageFont.truetype(SANS, 18), fill=C["dim"], anchor="mm")
     d.text((W // 2, 330), "Open source · MIT · self-hostable · MCP + HTTP · x402", font=ImageFont.truetype(SANS_B, 20), fill=C["ok"], anchor="mm")
     d.text((W // 2, 400), "github.com/celfons/kya-brasil", font=ImageFont.truetype(MONO_B, 24), fill=C["prompt"], anchor="mm")
     d.text((W // 2, 444), "npm i @kya-brasil/agent-tools", font=ImageFont.truetype(MONO, 20), fill=C["str"], anchor="mm")

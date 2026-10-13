@@ -5,13 +5,13 @@
 import {
   type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
   normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
-  actText, dayOf, spentToday, validateAct
 } from "@kya-br/core";
 import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
 import { kybRiskScreen } from "./kyb";
+import { notifyCompany } from "./company";
 import { companyRegistration, kybConfigured, registrationSource } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
@@ -82,6 +82,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
   await store.issue({ id: row.id, legal_name: reg.legal_name, credential, certificate: record, mandate, event });
   if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
+  await notifyCompany(env, issuer, row.cnpj, event === "issued" ? "credential.issued" : "credential.renewed", { credential_id: row.id, agent, expires_at: credential.expires_at, certificate_sha256: icp.certificate_sha256 });
   return { credential, kyb_warnings: kyb?.warnings ?? [] };
 }
 
@@ -130,27 +131,19 @@ function present(row: AgentRow, events: { ts: string; event: string; reason: str
   };
 }
 
-/** What this agent already spent today (UTC) in the mandate's daily currency, from the registered acts. */
-async function registeredToday(env: AppEnv, id: string, mandate: Mandate, now: Date): Promise<{ currency: string; amount: number } | null> {
-  const currency = mandate.max_per_day?.currency;
-  if (!currency) return null;
-  const rows = await new Store(env.DB).actsOfDay(id, dayOf(now));
-  return { currency, amount: spentToday(rows.map((r) => ({ amount: r.amount, currency: r.currency, allowed: r.allowed === 1 })), currency) };
-}
-
-function evaluate(v: Awaited<ReturnType<typeof verify>>, q: { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number }, registered: { currency: string; amount: number } | null, now: Date) {
+/**
+ * The mandate verdict for one action. `max_per_day` is evaluated with the `spent_today` the caller gives: the
+ * issuer keeps no record of what agents do (D-19), so the daily ceiling is the verifier's or the agent
+ * platform's count, never a guarantee across counterparties.
+ */
+function evaluate(v: Awaited<ReturnType<typeof verify>>, q: { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number }, now: Date) {
   const live = v.status === "active";
   const mandate = v.credential?.mandate ?? {};
-  // The caller's own count and the issuer's registered acts: the larger one applies.
-  const spent = Math.max(q.spent_today ?? 0, registered && (!q.currency || q.currency.toUpperCase() === registered.currency) ? registered.amount : 0);
-  const verdict = checkAction(mandate, { action: q.action, amount: q.amount, currency: q.currency, counterparty: q.counterparty, spent_today: spent > 0 ? spent : undefined, now });
-  return {
-    live,
-    verdict,
-    allowed: live && verdict.allowed,
-    reason: !live ? `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}` : verdict.allowed ? "inside the mandate" : verdict.checks.filter((c) => !c.ok).map((c) => c.detail).join("; "),
-    spent_today_registered: registered ? { ...registered, note: "sum of the acts registered today in this currency; the verdict uses the larger of this and your spent_today" } : null
-  };
+  const verdict = checkAction(mandate, { action: q.action, amount: q.amount, currency: q.currency, counterparty: q.counterparty, spent_today: q.spent_today, now });
+  let reason = "inside the mandate";
+  if (!live) reason = `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`;
+  else if (!verdict.allowed) reason = verdict.checks.filter((c) => !c.ok).map((c) => c.detail).join("; ");
+  return { live, verdict, allowed: live && verdict.allowed, reason };
 }
 
 export async function allowed(env: AppEnv, origin: string, id: string, q: { action?: string; amount?: string; currency?: string; counterparty?: string; spent_today?: string }) {
@@ -158,100 +151,27 @@ export async function allowed(env: AppEnv, origin: string, id: string, q: { acti
   const amount = q.amount !== undefined && q.amount !== "" ? Number(q.amount) : undefined;
   if (amount !== undefined && !Number.isFinite(amount)) throw new KyaError("INVALID_INPUT", "amount must be a number");
   const spent = q.spent_today !== undefined && q.spent_today !== "" ? Number(q.spent_today) : undefined;
+  if (spent !== undefined && !Number.isFinite(spent)) throw new KyaError("INVALID_INPUT", "spent_today must be a number");
   const now = new Date();
-  const registered = await registeredToday(env, id, v.credential?.mandate ?? {}, now);
-  const e = evaluate(v, { action: q.action, amount, currency: q.currency, counterparty: q.counterparty, spent_today: Number.isFinite(spent) ? spent : undefined }, registered, now);
+  const e = evaluate(v, { action: q.action, amount, currency: q.currency, counterparty: q.counterparty, spent_today: spent }, now);
   const out: Record<string, unknown> = {
     credential_id: id,
     status: v.status,
     allowed: e.allowed,
     reason: e.reason,
-    query: { action: q.action ?? null, amount: amount ?? null, currency: q.currency ?? null, counterparty: q.counterparty ?? null },
+    query: { action: q.action ?? null, amount: amount ?? null, currency: q.currency ?? null, counterparty: q.counterparty ?? null, spent_today: spent ?? null },
     checks: e.verdict.checks,
     not_evaluated: e.verdict.not_evaluated,
-    spent_today_registered: e.spent_today_registered,
+    /** Kept in /v1 for compatibility; always null since D-19 (the issuer no longer records acts). */
+    spent_today_registered: null,
     principal: v.principal,
     agent: v.agent,
     checked_at: now.toISOString()
   };
   const attestation = await signAnswer(env, out, issuerOf(env, origin));
-  return attestation ? { ...out, attestation } : out;
-}
-
-/**
- * Registers an act: what the agent did, checked against the mandate plus everything registered today,
- * with a signed receipt. Denied acts are recorded too (they are evidence) but do not count as spent.
- */
-export async function registerAct(env: AppEnv, origin: string, id: string, body: Record<string, unknown>) {
-  const act = validateAct(body);
-  const v = await verify(env, id);
-  const issuer = issuerOf(env, origin);
-  const now = new Date();
-  let agent_signed = false;
-  if (act.agent_signature) {
-    agent_signed = await verifyAgentSignature(v.agent, actText({ issuer, credential_id: id, agent: v.agent, act }), act.agent_signature);
-    if (!agent_signed) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over the act text (GET /v1/acts/text for the exact lines)");
-  }
-  const registered = await registeredToday(env, id, v.credential?.mandate ?? {}, now);
-  const e = evaluate(v, { action: act.action, amount: act.amount, currency: act.currency, counterparty: act.counterparty }, registered, now);
-  const act_id = crypto.randomUUID();
-  const { agent_signature: _s, ...actPublic } = act;
-  const body_out: Record<string, unknown> = {
-    act_id,
-    credential_id: id,
-    status: v.status,
-    allowed: e.allowed,
-    reason: e.reason,
-    act: { ...actPublic, registered_by: act.registered_by ?? "counterparty", agent_signed },
-    checks: e.verdict.checks,
-    not_evaluated: e.verdict.not_evaluated,
-    spent_today_registered_before: e.spent_today_registered ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount } : null,
-    spent_today_registered_after: e.spent_today_registered && e.allowed && act.amount !== undefined && act.currency === e.spent_today_registered.currency ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount + act.amount } : e.spent_today_registered ? { currency: e.spent_today_registered.currency, amount: e.spent_today_registered.amount } : null,
-    principal: v.principal,
-    agent: v.agent,
-    registered_at: now.toISOString(),
-    receipt_url: `${issuer}/v1/acts/${act_id}`
-  };
-  const attestation = await signAnswer(env, body_out, issuer);
-  const receipt = attestation ? { ...body_out, attestation } : body_out;
-  await new Store(env.DB).createAct({
-    id: act_id, agent_row: id, day: dayOf(now), action: act.action, amount: act.amount ?? null, currency: act.currency ?? null, counterparty: act.counterparty ?? null,
-    reference: act.reference ?? null, content_sha256: act.content_sha256 ?? null, registered_by: act.registered_by ?? "counterparty", registrant: act.registrant ?? null,
-    agent_signed: agent_signed ? 1 : 0, allowed: e.allowed ? 1 : 0, receipt: JSON.stringify(receipt)
-  });
-  return receipt;
-}
-
-export async function getAct(env: AppEnv, actId: string) {
-  const row = await new Store(env.DB).getAct(actId);
-  if (!row) throw new KyaError("NOT_FOUND", "unknown act_id");
-  return JSON.parse(row.receipt) as Record<string, unknown>;
-}
-
-/** The exact text an agent signs for an act (so clients do not have to reimplement it). */
-export async function actTextFor(env: AppEnv, origin: string, id: string, body: Record<string, unknown>) {
-  const act = validateAct(body);
-  const v = await verify(env, id);
-  return { credential_id: id, agent: v.agent, text: actText({ issuer: issuerOf(env, origin), credential_id: id, agent: v.agent, act }) };
-}
-
-/** The company reads the trail of its agent: request signed with the e-CNPJ over "KYA Brasil: acts <id>\n<nonce>". */
-export async function exportActs(env: AppEnv, id: string, body: { signed_text?: unknown; ecnpj_signature?: unknown; since?: unknown }) {
-  const store = new Store(env.DB);
-  const row = await store.get(id);
-  if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
-  if (typeof body.ecnpj_signature !== "string" || typeof body.signed_text !== "string") throw new KyaError("INVALID_INPUT", "signed_text and ecnpj_signature are required");
-  if (!new RegExp(`^KYA Brasil: acts ${id}\\n`).test(body.signed_text)) throw new KyaError("INVALID_INPUT", `signed_text must start with "KYA Brasil: acts ${id}" followed by a newline and a nonce`);
-  const icp = await verifyIcpSignature({ cmsBase64: body.ecnpj_signature, challenge: body.signed_text, expectedCnpj: row.cnpj, anchors: await icpAnchors(env) });
-  // The trail is the company's: a revoked (e.g. stolen) e-CNPJ does not read it (D-16).
-  const revocation = await certificateRevocation(env, icp);
-  if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}`);
-  const since = typeof body.since === "string" && !Number.isNaN(Date.parse(body.since)) ? new Date(body.since).toISOString() : new Date(Date.now() - 30 * 86400_000).toISOString();
-  const acts = await store.acts(id, since);
-  return {
-    credential_id: id, since, count: acts.length,
-    acts: acts.map((a) => ({ act_id: a.id, ts: a.ts, action: a.action, amount: a.amount, currency: a.currency, counterparty: a.counterparty, reference: a.reference, content_sha256: a.content_sha256, registered_by: a.registered_by, registrant: a.registrant, agent_signed: a.agent_signed === 1, allowed: a.allowed === 1, receipt_url: `/v1/acts/${a.id}` }))
-  };
+  const answer = attestation ? { ...out, attestation } : out;
+  if (!e.allowed && v.status === "active") await notifyCompany(env, issuerOf(env, origin), v.principal.cnpj, "verdict.denied", { credential_id: id, reason: e.reason, query: out.query });
+  return answer;
 }
 
 /** Renewal: new challenge (company re-signs), then the same issuance path. Two steps like registration. */
@@ -275,7 +195,7 @@ export async function renewProve(env: AppEnv, origin: string, id: string, body: 
 }
 
 /** Revocation: the company signs "revoke <credential_id> <nonce>" with its e-CNPJ; no agent signature needed. */
-export async function revoke(env: AppEnv, id: string, body: { reason?: unknown; ecnpj_signature?: unknown; signed_text?: unknown }) {
+export async function revoke(env: AppEnv, origin: string, id: string, body: { reason?: unknown; ecnpj_signature?: unknown; signed_text?: unknown }) {
   const store = new Store(env.DB);
   const row = await store.get(id);
   if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
@@ -285,6 +205,7 @@ export async function revoke(env: AppEnv, id: string, body: { reason?: unknown; 
   await verifyIcpSignature({ cmsBase64: body.ecnpj_signature, challenge: body.signed_text, expectedCnpj: row.cnpj, anchors: await icpAnchors(env) });
   const reason = typeof body.reason === "string" ? body.reason.slice(0, 200) : "revoked by the company";
   await store.setStatus({ id, status: "revoked", reason, actor: "company" });
+  await notifyCompany(env, issuerOf(env, origin), row.cnpj, "credential.revoked", { credential_id: id, reason, actor: "company" });
   return { credential_id: id, status: "revoked", reason, revoked_at: new Date().toISOString() };
 }
 
@@ -298,6 +219,7 @@ export async function revoke(env: AppEnv, id: string, body: { reason?: unknown; 
  */
 export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; revoked: number; errors: number }> {
   const store = new Store(env.DB);
+  const issuer = (env.ISSUER_URL ?? "").replace(/\/$/, "");
   const rows = await store.dueForReview();
   let suspended = 0, reinstated = 0, revoked = 0, errors = 0;
   for (const row of rows) {
@@ -306,7 +228,9 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
       if (row.agent_kind === "erc8004" && row.status === "active") {
         const live = await withWallet(env, { kind: "erc8004", id: row.agent_id }).catch(() => null);
         if (live && row.agent_wallet && live.wallet !== row.agent_wallet) {
-          await store.setStatus({ id: row.id, status: "suspended", reason: `agent wallet changed on chain (${row.agent_wallet} → ${live.wallet}); register again`, actor: "cron", cause: "wallet" });
+          const reason = `agent wallet changed on chain (${row.agent_wallet} → ${live.wallet}); register again`;
+          await store.setStatus({ id: row.id, status: "suspended", reason, actor: "cron", cause: "wallet" });
+          await notifyCompany(env, issuer, row.cnpj, "credential.suspended", { credential_id: row.id, reason });
           suspended++;
           continue;
         }
@@ -326,6 +250,7 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
       }
       if (certificate === "revoke") {
         await store.setStatus({ id: row.id, status: "revoked", reason: certificateReason, actor: "cron" });
+        await notifyCompany(env, issuer, row.cnpj, "credential.revoked", { credential_id: row.id, reason: certificateReason, actor: "issuer" });
         revoked++;
         continue;
       }
@@ -337,10 +262,12 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
       const canLift = row.suspension_cause !== "wallet" && !(row.suspension_cause === "certificate" && certificate === "unknown");
       if (row.status === "active" && hold) {
         await store.setStatus({ id: row.id, status: "suspended", reason: hold.reason, actor: "cron", cause: hold.cause, last_kyb_at: reg.checked_at });
+        await notifyCompany(env, issuer, row.cnpj, "credential.suspended", { credential_id: row.id, reason: hold.reason });
         suspended++;
       } else if (row.status === "suspended" && !hold && canLift) {
         // Also lifts suspensions made under the old KYB rules (sanctions, risk), which no longer apply (D-15).
         await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: reg.checked_at });
+        await notifyCompany(env, issuer, row.cnpj, "credential.reinstated", { credential_id: row.id });
         reinstated++;
       } else {
         await store.markReviewed(row.id, { last_kyb_at: reg.checked_at });
@@ -350,7 +277,10 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
       console.error("review failed", row.id, e);
     }
   }
-  return { reviewed: rows.length, suspended, reinstated, revoked, errors };
+  const summary = { reviewed: rows.length, suspended, reinstated, revoked, errors };
+  // Shown at /status (D-21): when the review last ran and what it found.
+  await env.CACHE.put("status:daily_review", JSON.stringify({ ...summary, finished_at: new Date().toISOString() })).catch(() => undefined);
+  return summary;
 }
 
 export { challengeText };
