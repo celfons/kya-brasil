@@ -11,6 +11,9 @@ Paid per call with [x402](https://x402.org) (USDC on Base, no signup). Free veri
 npm i @kya-brasil/agent-tools
 ```
 
+The same build is mirrored to GitHub Packages as `@celfons/kya-agent-tools` (listed on the repository page;
+installing from there needs a GitHub token). npmjs.com is the channel to install from.
+
 Node 18+ (global `fetch`, WebCrypto). ESM.
 
 ## Verifier: you receive an action from someone else's agent
