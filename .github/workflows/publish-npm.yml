@@ -25,3 +25,5 @@ jobs:
           if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
           # No --provenance: npm only accepts it from public source repositories.
           npm publish --access public
+          # Placeholder npm left from the first publish (scope did not exist yet); unpublish is allowed within 72 h, ignore otherwise.
+          npm unpublish @kya-brasil/agent-tools@0.0.0-stage 2>/dev/null || true
