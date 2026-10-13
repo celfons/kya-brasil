@@ -4,6 +4,7 @@
 
 - Registration source (D-17): `REGISTRATION_SOURCE` = `auto` (default: KYB Brasil when configured, otherwise the Receita's open data through BrasilAPI with CNPJ.ws as fallback), `kyb` or `public`. Without KYB, `kyb_snapshot` is `null`. New error `REGISTRY_UNAVAILABLE` (502). Infra and CD no longer require KYB: no key, no binding. `/status` shows `registration_source`.
 - Open source: `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue and PR templates, `docs/SELF-HOSTING.md`; security and contact address marcelfons@gmail.com.
+- Dependencies: vitest 4.1 (fixes the `@vitest/mocker` path traversal and the `tinypool` prototype-pollution RCEs, dev only) and `@modelcontextprotocol/client` 2.3 as a direct dependency of the Worker (the `agents` peer pin 2.0.0 had the OAuth credentials advisory). `pnpm audit`: no known vulnerabilities. Smoke test accepts a stack without KYB (D-17).
 - Fixes after deploy: `kybInternalKey` no longer declared (required) in `infra/Pulumi.yaml`, so a stack without KYB deploys; MCP Registry description back under 100 characters (test added).
 - Publish workflow skips a version already on npm or GitHub Packages instead of failing. npm client 0.4.1 (`kyb_snapshot` typed as nullable; description per D-15).
 

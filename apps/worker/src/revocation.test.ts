@@ -1,3 +1,4 @@
+/// <reference types="node" /> // test-only: Buffer
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { certificateRevocation, resetCrlMemory } from "./revocation"; // loads reflect-metadata (via core) before x509
 import * as x509 from "@peculiar/x509";
