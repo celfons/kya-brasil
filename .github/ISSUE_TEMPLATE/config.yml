@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/celfons/kya-brasil/security/advisories/new
+    about: Report privately, never in a public issue.
+  - name: Specification
+    url: https://github.com/celfons/kya-brasil/blob/main/docs/SPEC.md
+    about: The normative description of the credential and its verification.

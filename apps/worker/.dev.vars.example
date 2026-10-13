@@ -1,7 +1,8 @@
 # Local development only. Never commit .dev.vars.
 PAY_TO=0x0000000000000000000000000000000000000001
 ATTEST_PRIVATE_KEY=            # node ../../scripts/gen-attest-key.mjs
-KYB_URL=http://localhost:8788  # wrangler dev of KYB Brasil (apps/mcp-worker) on another port
-KYB_INTERNAL_KEY=              # KYB's INTERNAL_API_KEY in its own .dev.vars
+KYB_URL=                       # optional: wrangler dev of KYB Brasil on another port, e.g. http://localhost:8788
+KYB_INTERNAL_KEY=              # optional: KYB's INTERNAL_API_KEY; empty = registration status from BrasilAPI / CNPJ.ws
+REGISTRATION_SOURCE=auto       # auto (KYB if configured, else public) | kyb | public
 INTERNAL_API_KEY=              # optional: fiat channel of this worker
 ICP_ANCHORS_PEM=               # optional: PEM bundle (node ../../scripts/icp-anchors.mjs --dry-run)

@@ -121,7 +121,7 @@ mandate MUST NOT exceed 8192 bytes.
 
 - `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
 - Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is not `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
-- `kyb_snapshot` is informative: the KYB Brasil screen taken at issuance, kept in v1 for compatibility. Verifiers MUST NOT read it as a current assessment; for risk they query a KYB source themselves.
+- `kyb_snapshot` is informative: the KYB Brasil screen taken at issuance, kept in v1 for compatibility. It is `null` when the issuer has no KYB source. Verifiers MUST NOT read it as a current assessment; for risk they query a KYB source themselves.
 - `status` is the status **at issuance**. Later changes (suspension by the daily review, revocation, expiry) are not re-signed; they are published at `verify_url` and in the revocation list.
 
 ## 7. Signature (attestation)

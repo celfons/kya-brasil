@@ -17,7 +17,7 @@ export function buildCredential(p: {
   registration_status: string;
   certificate: { sha256: string; subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  kyb: KybSnapshot;
+  kyb: KybSnapshot | null;
   issuer: string;
   now?: Date;
   status?: CredentialStatus;

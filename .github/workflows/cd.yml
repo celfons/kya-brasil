@@ -4,9 +4,10 @@
 # A stack is skipped when its environment has no PAY_TO secret. Nothing is ever run from a laptop.
 #
 # Required secrets per environment: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
-# PAY_TO, KYB_INTERNAL_KEY (the INTERNAL_API_KEY of the KYB Brasil Worker in the same account).
+# PAY_TO. Optional: KYB_INTERNAL_KEY (the INTERNAL_API_KEY of a KYB Brasil Worker in the same account; without it
+# the issuer reads registration status from public sources, D-17).
 # Optional: INTERNAL_API_KEY (fiat channel), CDP_API_KEY_ID / CDP_API_KEY_SECRET (mainnet facilitator).
-# Optional vars: WORKER_NAME, KYB_WORKER_NAME, X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
+# Optional vars: WORKER_NAME, KYB_WORKER_NAME, REGISTRATION_SOURCE, X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
 name: CD
 on:
   push:
@@ -51,12 +52,13 @@ jobs:
       FACILITATOR_URL: ${{ vars.FACILITATOR_URL || (matrix.stack == 'prod' && 'https://api.cdp.coinbase.com/platform/v2/x402' || 'https://x402.org/facilitator') }}
       ISSUER_URL: ${{ vars.ISSUER_URL }}
       GLAMA_CLAIM: ${{ vars.GLAMA_CLAIM }}
+      REGISTRATION_SOURCE: ${{ vars.REGISTRATION_SOURCE }}
     steps:
       - name: Environment configured?
         id: cfg
         run: |
-          if [ -z "$PAY_TO" ] || [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$PULUMI_ACCESS_TOKEN" ] || [ -z "$KYB_INTERNAL_KEY" ]; then
-            echo "ready=false" >> "$GITHUB_OUTPUT"; echo "::notice::environment '${{ matrix.stack }}' lacks PAY_TO/CLOUDFLARE_API_TOKEN/PULUMI_ACCESS_TOKEN/KYB_INTERNAL_KEY; skipping"
+          if [ -z "$PAY_TO" ] || [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$PULUMI_ACCESS_TOKEN" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"; echo "::notice::environment '${{ matrix.stack }}' lacks PAY_TO/CLOUDFLARE_API_TOKEN/PULUMI_ACCESS_TOKEN; skipping"
           else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
       - uses: actions/checkout@v5
         if: steps.cfg.outputs.ready == 'true'
@@ -85,7 +87,8 @@ jobs:
           pulumi config set kya-br-agents:x402Network "$X402_NETWORK"
           pulumi config set kya-br-agents:facilitatorUrl "$FACILITATOR_URL"
           pulumi config set --secret kya-br-agents:payTo "$PAY_TO"
-          pulumi config set --secret kya-br-agents:kybInternalKey "$KYB_INTERNAL_KEY"
+          if [ -n "$KYB_INTERNAL_KEY" ]; then pulumi config set --secret kya-br-agents:kybInternalKey "$KYB_INTERNAL_KEY"; else pulumi config rm kya-br-agents:kybInternalKey 2>/dev/null || true; fi
+          if [ -n "$REGISTRATION_SOURCE" ]; then pulumi config set kya-br-agents:registrationSource "$REGISTRATION_SOURCE"; else pulumi config rm kya-br-agents:registrationSource 2>/dev/null || true; fi
           if [ -n "$ISSUER_URL" ]; then pulumi config set kya-br-agents:issuerUrl "$ISSUER_URL"; else pulumi config rm kya-br-agents:issuerUrl 2>/dev/null || true; fi
           if [ -n "$GLAMA_CLAIM" ]; then pulumi config set kya-br-agents:glamaClaim "$GLAMA_CLAIM"; else pulumi config rm kya-br-agents:glamaClaim 2>/dev/null || true; fi
           if [ -n "$INTERNAL_API_KEY" ]; then pulumi config set --secret kya-br-agents:internalApiKey "$INTERNAL_API_KEY"; else pulumi config rm kya-br-agents:internalApiKey 2>/dev/null || true; fi

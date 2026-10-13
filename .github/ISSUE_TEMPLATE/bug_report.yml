@@ -1,0 +1,27 @@
+name: Bug report
+description: Something in the issuer, the spec or the npm client does not behave as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Security problems (a credential issued, kept or verified wrongly; personal data exposed) go to
+        **Security → Report a vulnerability**, never to a public issue. See SECURITY.md.
+        Never paste an e-CNPJ, a private key or a CPF here.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Issuer (apps/worker), Core logic (packages/core), npm client (packages/agent-tools), Specification (docs/SPEC.md), Deployment (infra, workflows)]
+    validations: { required: true }
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened and what you expected
+      description: Request (route or MCP tool, input with secrets removed), the answer you got, the answer you expected.
+    validations: { required: true }
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "`version` from GET /status, or the npm package version."

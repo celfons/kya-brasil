@@ -10,6 +10,7 @@ import { attachSettlement, decodeSettlementHeader, logCall } from "../call-log";
 import type { AppEnv } from "../env";
 import { facilitatorConfig } from "../facilitator";
 import { SERVICE_DESCRIPTION, SERVICE_NAME, SERVICE_TAGS, TOOLS, VERSION, type ToolName } from "../pricing";
+import { registrationSource } from "../registration";
 import * as service from "../service";
 import { Store } from "../store";
 import { ICON_SVG, docsHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
@@ -31,7 +32,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 const STATUS: Record<string, number> = {
   INVALID_INPUT: 400, INVALID_CNPJ: 400, NOT_FOUND: 404, CONFLICT: 409,
   CHALLENGE_FAILED: 422, CERTIFICATE_INVALID: 422, CERTIFICATE_REVOKED: 422, CNPJ_MISMATCH: 422, KYB_BLOCKED: 422,
-  RATE_LIMITED: 429, KYB_UNAVAILABLE: 502, REVOCATION_UNAVAILABLE: 502, UPSTREAM_ERROR: 502
+  RATE_LIMITED: 429, KYB_UNAVAILABLE: 502, REVOCATION_UNAVAILABLE: 502, REGISTRY_UNAVAILABLE: 502, UPSTREAM_ERROR: 502
 };
 
 function errorResponse(err: unknown) {
@@ -268,7 +269,7 @@ export function buildHttpApp(env: AppEnv) {
   app.get("/status", async (c) => {
     const counts = await new Store(c.env.DB).counts().catch(() => ({}));
     const keys = await publishedKeys(c.env);
-    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, kyb_channel: c.env.KYB ? "service-binding" : c.env.KYB_URL ? "http-dev" : "missing", attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
+    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, kyb_channel: c.env.KYB ? "service-binding" : c.env.KYB_URL ? "http-dev" : "missing", registration_source: registrationSource(c.env), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
   });
   app.get("/", (c) => {
     const origin = originOf(c);
