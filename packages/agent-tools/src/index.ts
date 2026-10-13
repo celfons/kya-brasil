@@ -108,7 +108,7 @@ export interface Registration {
 
 export interface Proof { challenge_id: string; agent_signature: string; ecnpj_signature: string }
 
-export type CompanyEvent = "credential.issued" | "credential.renewed" | "credential.suspended" | "credential.reinstated" | "credential.revoked" | "verdict.denied";
+export type CompanyEvent = "credential.issued" | "credential.renewed" | "credential.suspended" | "credential.reinstated" | "credential.revoked";
 
 /** Body POSTed to the company's webhook. Check it with verifyAttestation(event) before trusting it. */
 export interface CompanyWebhookEvent { event: CompanyEvent; cnpj: string; at: string; data: Record<string, unknown>; attestation?: Attestation }

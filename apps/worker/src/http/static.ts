@@ -66,7 +66,7 @@ export function llmsTxt(origin: string, network: string): string {
 - Before letting an agent do something specific: GET ${origin}/v1/agents/{id}/allowed?action=pay&amount=80&currency=USDC&counterparty=<cnpj> returns a signed allowed/denied verdict.
 - To give your own agent a credential: POST /v1/agents, sign the challenge with the agent key and with the company's e-CNPJ, POST /v1/agents/{id}/prove.
 - max_per_day is checked against the spent_today you pass to /allowed: the issuer does not record what agents do. Keep your own records of accepted actions.
-- A company sees every agent registered in its name with POST ${origin}/v1/companies/{cnpj}/agents and gets signed events (issued, renewed, suspended, reinstated, revoked, verdict.denied) at the webhook it sets with POST ${origin}/v1/companies/{cnpj}/webhook; both free and signed with its e-CNPJ.
+- A company sees every agent registered in its name with POST ${origin}/v1/companies/{cnpj}/agents and gets signed events (issued, renewed, suspended, reinstated, revoked) at the webhook it sets with POST ${origin}/v1/companies/{cnpj}/webhook; both free and signed with its e-CNPJ.
 - Offline verification (issuer signature on the credential) proves what was issued, not that it is still active: check status online, or accept the risk until expires_at.
 
 ## Tools

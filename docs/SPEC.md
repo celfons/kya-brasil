@@ -206,11 +206,11 @@ The issuer MUST reject `at` more than 10 minutes away from its clock.
   (`-` removes it). The URL MUST be https on a host name (no IP literal, no credentials). The request MUST
   be newer (`at`) than the last accepted one, so a captured request cannot be replayed.
 
-**Events.** On `credential.issued`, `credential.renewed`, `credential.suspended`, `credential.reinstated`,
-`credential.revoked` and `verdict.denied` (a signed `/allowed` verdict that denied an active credential) the
-issuer POSTs `{ event, cnpj, at, data, attestation }` to the webhook, signed as in section 7. Delivery is
-best effort (one attempt, 5 s timeout); the company checks the attestation before trusting an event and
-uses the inventory as the source of truth.
+**Events.** On `credential.issued`, `credential.renewed`, `credential.suspended`, `credential.reinstated` and
+`credential.revoked` the issuer POSTs `{ event, cnpj, at, data, attestation }` to the webhook, signed as in
+section 7. Events cover the credential's lifecycle only, never what the agent does or is asked (D-19).
+Delivery is best effort (one attempt, 5 s timeout); the company checks the attestation before trusting an
+event and uses the inventory as the source of truth.
 
 ## 14. Request signing ("Sign in with KYA")
 

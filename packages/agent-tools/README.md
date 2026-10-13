@@ -42,7 +42,7 @@ const offline = await verifyCredentialOffline(credential);   // issuer down: sig
 Also check that the key that signed the agent's request is `v.agent.id`; the credential_id alone proves nothing.
 
 Company side, after issuance: see every agent in your name and get signed events (issued, renewed, suspended,
-reinstated, revoked, verdict.denied) at your webhook. Both requests are signed with the e-CNPJ:
+reinstated, revoked) at your webhook. Both requests are signed with the e-CNPJ:
 
 ```ts
 const text = companyText("webhook", cnpj, { url: "https://acme.com.br/kya-events" });
