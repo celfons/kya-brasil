@@ -57,9 +57,9 @@ await check("GET / lists tools", async () => {
 });
 await check("status: a registration source configured, signing key present", async () => {
   const j = await (await fetch(at("/status"))).json();
-  // D-17: KYB is optional. With it, the channel must be the service binding; without it, the public sources.
-  const ok = (j.registration_source === "kyb" && j.kyb_channel === "service-binding") || (j.registration_source === "public" && j.kyb_channel === "missing");
-  expect(ok, `registration_source ${j.registration_source}, kyb_channel ${j.kyb_channel}`);
+  // D-23: the Receita's open data through public mirrors, optionally after an own endpoint.
+  const s = j.registration_sources;
+  expect(Array.isArray(s) && s.includes("brasilapi") && s.includes("cnpjws"), `registration_sources ${JSON.stringify(s)}`);
   expect(typeof j.attestation_key === "string" && j.attestation_key.length === 16, "no attestation key");
 });
 await check("register answers 402 with PAYMENT-REQUIRED (bazaar)", async () => {

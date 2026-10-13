@@ -3,8 +3,8 @@
 A **KYA credential** states that a company, identified by its e-CNPJ (ICP-Brasil) certificate, declared
 that an AI agent key acts on its behalf within a mandate, and that on the dates shown the certificate
 was not revoked and the company was active at the Receita Federal. It attests the link between agent and
-company, not the company's risk: sanctions, debt or litigation are for the verifier to weigh (KYB Brasil
-is one source). It is a JSON document signed with Ed25519 by the issuer. Anyone can
+company, not the company's risk: sanctions, debt or litigation are for the verifier to weigh with its own
+sources. It is a JSON document signed with Ed25519 by the issuer. Anyone can
 verify it offline with the issuer's published key; the live status is read from the issuer.
 
 This document is the normative description of the format and of the verification procedure. The
@@ -107,7 +107,7 @@ mandate MUST NOT exceed 8192 bytes.
   "principal": { "cnpj": "11222333000181", "cnpj_formatted": "11.222.333/0001-81", "legal_name": "ACME LTDA", "registration_status": "ATIVA" },
   "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "hex", "certificate_subject": "CN=...", "issuer": "CN=AC ...", "signed_at": "ISO 8601" },
   "mandate": { ... },
-  "kyb_snapshot": { "risk_level": "low", "risk_score": 5, "registration_status": "ATIVA", "active_sanctions": 0, "forced_labor": false, "federal_debt_brl": null, "active_embargoes": 0, "red_flags": [], "checked_at": "ISO 8601" },
+  "kyb_snapshot": null,
   "status": "active",
   "status_reason": null,
   "issued_at": "ISO 8601",
@@ -121,7 +121,7 @@ mandate MUST NOT exceed 8192 bytes.
 
 - `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
 - Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is not `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
-- `kyb_snapshot` is informative: the KYB Brasil screen taken at issuance, kept in v1 for compatibility. It is `null` when the issuer has no KYB source. Verifiers MUST NOT read it as a current assessment; for risk they query a KYB source themselves.
+- `kyb_snapshot` is kept in v1 for compatibility and is `null` in credentials issued by the reference issuer since D-23. Older credentials may carry a risk screen taken at issuance (an object with `risk_level`, `active_sanctions`, `checked_at` and similar); it never affected status and verifiers MUST NOT read it as a current assessment.
 - `status` is the status **at issuance**. Later changes (suspension by the daily review, revocation, expiry) are not re-signed; they are published at `verify_url` and in the revocation list.
 
 ## 7. Signature (attestation)

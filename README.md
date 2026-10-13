@@ -14,8 +14,8 @@ The credential is Ed25519-signed JSON: verifiable offline, live status at a stab
 Every per-action verdict is signed too.
 
 KYA Brasil answers *who speaks for whom*, not *whether the company is a good risk*. Sanctions, forced
-labour, debt and litigation are your call as the verifier: [KYB Brasil](https://kyb-br-agents.marcelfons.workers.dev)
-answers those, with the CNPJ the credential gives you.
+labour, debt and litigation are your call as the verifier, with whatever screening you trust and the CNPJ
+the credential gives you.
 
 | | |
 | --- | --- |
@@ -151,7 +151,7 @@ Verifier for any signed document: `POST /v1/verify`.
   "principal": { "cnpj": "11222333000181", "legal_name": "ACME LTDA", "registration_status": "ATIVA" },
   "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "3b7a…", "certificate_subject": "CN=ACME LTDA:11222333000181, …", "signed_at": "…" },
   "mandate": { "…": "…" },
-  "kyb_snapshot": { "risk_level": "low", "active_sanctions": 0, "forced_labor": false, "checked_at": "…" },
+  "kyb_snapshot": null,
   "status": "active", "issued_at": "…", "expires_at": "…",
   "verify_url": "https://kya-br-agents.marcelfons.workers.dev/v1/agents/6d0b…",
   "attestation": { "algorithm": "ed25519", "key_id": "35bb864a2e87c8fd", "sha256": "…", "signed_at": "…", "signature": "…" } }
@@ -168,23 +168,22 @@ name of the certificate holder, only the certificate hash.
 agent / verifier ──x402──▶ kya-br-agents (Cloudflare Worker: Hono HTTP + MCP Durable Object)
                               │  D1 (agents, challenges, events, call_log)   KV (cache, limits, ICP anchors)
                               │  cron 03:17 UTC: daily review (e-CNPJ CRL, registration status)
-                              ├──Service Binding──▶ kyb-br-agents (KYB Brasil, closed, optional)
-                              └──or HTTPS──▶ BrasilAPI / CNPJ.ws (Receita open data, when there is no KYB)
+                              └──HTTPS──▶ [CNPJ_API_URL] → BrasilAPI → CNPJ.ws (Receita open data, no key)
 ```
 
-The issuer acts on one company fact only, the registration status (D-15), and its source is configurable
-(`REGISTRATION_SOURCE`, D-17): KYB Brasil when it is configured (a separate product, reached through a
-Cloudflare Service Binding, never public HTTP or x402; client in `apps/worker/src/kyb.ts`), otherwise the
-Receita's open data through BrasilAPI with CNPJ.ws as fallback (`apps/worker/src/registration.ts`). With
-KYB, its risk screen at issuance is carried in `kyb_snapshot` for information; without it, `null`. CRLs are fetched from the URLs in each certificate
+The issuer acts on one company fact only, the registration status (D-15), read from the Receita's open
+data: BrasilAPI with CNPJ.ws as fallback, both free and keyless (`apps/worker/src/registration.ts`, D-23).
+To depend on no third party at all, point `CNPJ_API_URL` at your own endpoint in the BrasilAPI format
+(a self-hosted BrasilAPI, or your own import of the Receita dataset); it is tried first. `kyb_snapshot`
+stays in the credential for /v1 compatibility and is always `null`. CRLs are fetched from the URLs in each certificate
 (`apps/worker/src/revocation.ts`).
 
 | Path | What |
 | --- | --- |
 | `packages/core` | Pure logic: CNPJ, mandate schema and checks, challenge, agent signatures (EVM, Ed25519, ERC-8004 wallet resolution), e-CNPJ CMS + ICP-Brasil chain validation, credential build and signing, attestation. |
 | `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, signing helpers, local attestation check, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
-| `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, registration sources (KYB or public), CRL checks, daily review. |
-| `infra` | Pulumi: KV, D1 + migrations, Worker, optional KYB service binding, cron. |
+| `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, registration sources (Receita open data), CRL checks, daily review. |
+| `infra` | Pulumi: KV, D1 + migrations, Worker, cron. |
 | `anchors` | ICP-Brasil trust anchors (PEM) uploaded to KV by the CD. No anchors, no issuance. |
 | `docs` | Specification, test vectors, decisions, runbook. |
 
@@ -202,12 +201,12 @@ For evaluation and integration work; production runs on Cloudflare ([docs/SELF-H
 
 ```
 pnpm install && pnpm typecheck && pnpm test
-cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev      # no KYB needed: public registration sources
+cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev      # no keys needed: Receita open data
 ```
 
 Push to `main` deploys: the CD creates the Pulumi stacks `dev` and `prod` from the GitHub environments of
 the same name (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`; optional
-`KYB_INTERNAL_KEY`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`), uploads the
+`INTERNAL_API_KEY`, `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`), uploads the
 anchors, runs the smoke test and publishes the MCP Registry entry when it changed. The signing key is
 generated once per stack and kept in the encrypted stack config; rotations keep the old public key
 published as retired. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [docs/DECISOES.md](docs/DECISOES.md).

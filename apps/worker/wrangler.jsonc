@@ -12,10 +12,8 @@
     "X402_FACILITATOR_URL": "https://x402.org/facilitator",
     "FREE_TIER_DAILY_LIMIT": "50",
     "ISSUER_URL": "http://localhost:8787"
-    // PAY_TO, ATTEST_PRIVATE_KEY, KYB_INTERNAL_KEY are secrets: .dev.vars locally; Pulumi config in the cloud
+    // PAY_TO, ATTEST_PRIVATE_KEY are secrets: .dev.vars locally; Pulumi config in the cloud
   },
-  // KYB Brasil Worker, called directly (Service Binding), never over public HTTP. Locally: run the KYB worker
-  // with `wrangler dev` on another port and point KYB_URL at it (see src/kyb.ts); the binding is cloud-only.
   "durable_objects": { "bindings": [{ "name": "MCP_OBJECT", "class_name": "KyaMcp" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["KyaMcp"] }],
   "kv_namespaces": [{ "binding": "CACHE", "id": "local-cache" }],

@@ -7,7 +7,7 @@ public issue for a vulnerability. You will get an answer within 72 hours and a f
 within 14 days for anything that lets a credential be issued, kept or verified wrongly.
 
 In scope: the issuer (`apps/worker`), the domain logic (`packages/core`), the client (`packages/agent-tools`),
-the deployment (`infra`, workflows). Out of scope: KYB Brasil (a separate, closed, optional service), BrasilAPI and CNPJ.ws, the x402
+the deployment (`infra`, workflows). Out of scope: BrasilAPI and CNPJ.ws, the x402
 facilitator, ICP-Brasil certificate authorities.
 
 What we consider severe: issuing without a valid e-CNPJ chain, accepting a challenge signature for another

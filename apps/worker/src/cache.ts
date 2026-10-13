@@ -41,7 +41,7 @@ export async function checkGlobal(env: AppEnv, ip: string): Promise<LimitResult>
   return { allowed: n <= GLOBAL_HOURLY_LIMIT, remaining: Math.max(0, GLOBAL_HOURLY_LIMIT - n), retryAfter: secondsToNextHour() };
 }
 
-/** Registration attempts per IP per day (each costs a KYB call once paid; the challenge step itself is free). */
+/** Registration attempts per IP per day (each costs a registration lookup once paid; the challenge step itself is free). */
 export async function checkRegistrations(env: AppEnv, ip: string): Promise<LimitResult> {
   const n = await bump(env, `rlr:${today()}:${ip}`, DAY);
   return { allowed: n <= 200, remaining: Math.max(0, 200 - n), retryAfter: secondsToMidnight() };

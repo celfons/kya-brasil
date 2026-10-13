@@ -59,7 +59,7 @@ export interface Credential {
   principal: { cnpj: string; legal_name?: string; registration_status?: string };
   authorized_by: { method: string; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  /** Informative; null when the issuer has no KYB source. */
+  /** Kept for /v1 compatibility; always null from this issuer since D-23. */
   kyb_snapshot: Record<string, unknown> | null;
   status: CredentialStatus;
   issued_at: string;
@@ -222,7 +222,7 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
   client.tools = [
     {
       name: "kya_verify", priceUsd: 0,
-      description: "Free. Is this AI agent credentialed by a Brazilian company? Returns the credential (company CNPJ and name, mandate, KYB snapshot), its live status (active, suspended, revoked, expired) and history. Give credential_id, or the agent key (kind + id) to look it up.",
+      description: "Free. Is this AI agent credentialed by a Brazilian company? Returns the credential (company CNPJ and name, mandate), its live status (active, suspended, revoked, expired) and history. Give credential_id, or the agent key (kind + id) to look it up.",
       parameters: { type: "object", properties: { credential_id: ID, kind: { type: "string", enum: ["evm", "web-bot-auth", "erc8004"] }, id: { type: "string", description: "0x address, base64url Ed25519 key, or eip155:<chainId>:<registry>:<agentId>" } }, additionalProperties: false },
       execute: async (a) => (a.credential_id ? client.verify(String(a.credential_id)) : client.verifyByKey({ kind: a.kind as AgentKey["kind"], id: String(a.id) })) as Promise<Record<string, unknown>>
     },

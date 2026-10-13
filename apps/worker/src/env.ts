@@ -2,14 +2,8 @@
  * `wrangler types` generates `Env` from wrangler.jsonc; cloud-only bindings and secrets are added here.
  */
 export type AppEnv = Env & {
-  /** Service Binding to the KYB Brasil Worker (cloud). Absent locally: KYB_URL + fetch instead. */
-  KYB?: Fetcher;
-  /** Local dev only: public URL of a KYB worker (wrangler dev on another port). */
-  KYB_URL?: string;
-  /** Shared key for KYB's /internal/v1/* routes (never billed through x402). */
-  KYB_INTERNAL_KEY?: string;
-  /** Where the registration status comes from (D-17): "auto" (default: KYB if configured, else public), "kyb" or "public" (BrasilAPI, CNPJ.ws). */
-  REGISTRATION_SOURCE?: "auto" | "kyb" | "public";
+  /** Optional (D-23): BrasilAPI-format endpoint for the registration status, tried before the public mirrors; "{cnpj}" is replaced. */
+  CNPJ_API_URL?: string;
   /** Secret. Receiving wallet address. */
   PAY_TO: `0x${string}`;
   /** Public base URL of this deployment, used inside credentials (issuer, verify_url). */

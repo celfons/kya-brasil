@@ -1,8 +1,10 @@
 # Run your own issuer
 
 The code is MIT: anyone can run a KYA issuer with its own signing key, on its own Cloudflare account.
-Nothing closed is required. KYB Brasil is optional; without it the issuer reads the company's registration
-status from the Receita Federal's open data through BrasilAPI, with CNPJ.ws as fallback (D-17).
+Nothing closed, paid or keyed is required. The issuer reads the company's registration status from the
+Receita Federal's open data through BrasilAPI, with CNPJ.ws as fallback (D-23). To depend on neither, run
+your own source in the BrasilAPI format (a self-hosted BrasilAPI, or an import of the Receita dataset) and
+set `CNPJ_API_URL` to it, e.g. `https://cnpj.example/api/cnpj/v1/{cnpj}`; it is tried first.
 
 Your issuer is a different issuer: its credentials are signed by your key and verified against your
 `/.well-known/kya.json`. Verifiers decide which issuers they trust; the name "KYA Brasil" and the hosted
@@ -16,7 +18,7 @@ service at `kya-br-agents.marcelfons.workers.dev` identify this project's own is
 | Pulumi account | State and encrypted config of the stack (free tier). |
 | Receiving wallet | An EVM address for x402 payments (`PAY_TO`). Testnet first: Base Sepolia, `eip155:84532`. |
 | ICP-Brasil anchors | `anchors/icp-brasil.pem` is in the repository; refresh it from the ITI repository (see `docs/RUNBOOK.md`). |
-| Optional | A KYB Brasil Worker in the same account (`KYB_INTERNAL_KEY`), Coinbase CDP keys for the mainnet facilitator. |
+| Optional | Your own CNPJ source (`CNPJ_API_URL`), Coinbase CDP keys for the mainnet facilitator. |
 
 ## Local
 
@@ -24,28 +26,28 @@ service at `kya-br-agents.marcelfons.workers.dev` identify this project's own is
 pnpm install && pnpm typecheck && pnpm test
 cd apps/worker && cp .dev.vars.example .dev.vars
 node ../../scripts/gen-attest-key.mjs        # paste the private key into ATTEST_PRIVATE_KEY
-# leave KYB_URL / KYB_INTERNAL_KEY empty: registration status comes from BrasilAPI / CNPJ.ws
+# leave CNPJ_API_URL empty: registration status comes from BrasilAPI / CNPJ.ws
 npx wrangler d1 migrations apply kya-br --local
 pnpm dev                                     # http://localhost:8787, /docs, /status
 ```
 
-`GET /status` shows `registration_source` (`kyb` or `public`) and the signing key id.
+`GET /status` shows `registration_sources` (in the order they are tried) and the signing key id.
 
 ## Container (evaluation and integration)
 
 The same runtime as production (`workerd`, through `wrangler dev`) with D1, KV and the Durable Object
-emulated inside the container and persisted in a volume. No Cloudflare account, no KYB, no Coinbase keys:
+emulated inside the container and persisted in a volume. No Cloudflare account, no API keys, no Coinbase keys:
 registration status comes from the Receita's open data, payments stay on Base Sepolia, the ICP-Brasil
 anchors are the bundle from the repository, and the signing key is generated once into the volume.
 
 ```sh
 docker compose up --build          # http://localhost:8787  (/docs, /status, /mcp)
-curl localhost:8787/status         # anchors: 180, registration_source: public, attestation_key: ...
+curl localhost:8787/status         # anchors: 180, registration_sources: [brasilapi, cnpjws], attestation_key: ...
 curl -X POST localhost:8787/__scheduled   # run the daily review by hand
 ```
 
-Variables are listed in `docker-compose.yml` (`PAY_TO`, `ISSUER_URL`, `X402_NETWORK`, `REGISTRATION_SOURCE`,
-optional `KYB_URL`/`KYB_INTERNAL_KEY`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID`/`CDP_API_KEY_SECRET`). Set
+Variables are listed in `docker-compose.yml` (`PAY_TO`, `ISSUER_URL`, `X402_NETWORK`,
+optional `CNPJ_API_URL`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID`/`CDP_API_KEY_SECRET`). Set
 `ISSUER_URL` to the public address before exposing the container: it is written into every credential.
 This is not a production deployment: the state is a single SQLite file, there is no rollback, no edge, and
 `wrangler dev` is a development server. For production use the cloud path below.
@@ -54,10 +56,10 @@ This is not a production deployment: the state is a single SQLite file, there is
 
 1. Fork the repository. Create the GitHub environments `dev` and `prod`.
 2. Secrets in each environment: `PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN` (Workers, D1, KV edit),
-   `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Optional: `KYB_INTERNAL_KEY`, `INTERNAL_API_KEY`, `CDP_API_KEY_ID`,
+   `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Optional: `INTERNAL_API_KEY`, `CDP_API_KEY_ID`,
    `CDP_API_KEY_SECRET`.
 3. Variables (optional): `WORKER_NAME` (pick your own, e.g. `kya-acme`), `ISSUER_URL` (your public URL, used
-   inside credentials), `X402_NETWORK`, `FACILITATOR_URL`, `REGISTRATION_SOURCE` (`auto`, `kyb` or `public`).
+   inside credentials), `X402_NETWORK`, `FACILITATOR_URL`, `CNPJ_API_URL` (own registration source).
 4. Push to `main`. The CD creates the stacks, applies the D1 migrations, generates the signing key once per
    stack (kept in the encrypted Pulumi config), uploads the anchors and runs the smoke test.
 

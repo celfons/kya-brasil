@@ -5,9 +5,8 @@
  *   - KV namespace (cache, rate limits, ICP-Brasil trust anchors under icp:anchors)
  *   - D1 database + SQL migrations (apps/worker/migrations, applied through the D1 HTTP API)
  *   - Worker script (bundled by `wrangler deploy --dry-run`) with bindings, vars, secrets
- *   - Optional Service Binding `KYB` to the KYB Brasil Worker (same account), only when `kybInternalKey` is set:
- *     Worker-to-Worker calls, never public HTTP, never x402. Without it the issuer reads the registration
- *     status from public sources (BrasilAPI, CNPJ.ws; D-17), so a fork deploys with no closed service.
+ *   - Registration status from the Receita's open data (BrasilAPI, CNPJ.ws; D-23), optionally preceded by
+ *     an own endpoint (`cnpjApiUrl`, e.g. a self-hosted BrasilAPI). No closed or paid service is involved.
  *   - Cron trigger for the daily review of live credentials (e-CNPJ CRL, registration status)
  *   - workers.dev subdomain
  *
@@ -25,15 +24,12 @@ import * as command from "@pulumi/command";
 const cfg = new pulumi.Config();
 const accountId = cfg.require("accountId");
 const workerName = cfg.get("workerName") ?? "kya-br-agents";
-/** Script name of the KYB Brasil Worker in the same account (kyb-br-agents on prod, kyb-br-agents-dev on dev). */
-const kybWorkerName = cfg.get("kybWorkerName") ?? "kyb-br-agents";
 const x402Network = cfg.get("x402Network") ?? "eip155:84532";
 const facilitatorUrl = cfg.get("facilitatorUrl") ?? "https://x402.org/facilitator";
 const freeTierDailyLimit = cfg.get("freeTierDailyLimit") ?? "50";
 const issuerUrl = cfg.get("issuerUrl"); // optional; defaults to the request origin
 const payTo = cfg.requireSecret("payTo");
-const kybInternalKey = cfg.getSecret("kybInternalKey"); // optional: no key, no KYB binding (D-17)
-const registrationSource = cfg.get("registrationSource"); // optional: auto (default) | kyb | public
+const cnpjApiUrl = cfg.get("cnpjApiUrl"); // optional: own registration endpoint with {cnpj}, BrasilAPI format (D-23)
 const internalApiKey = cfg.getSecret("internalApiKey");
 const cdpApiKeyId = cfg.getSecret("cdpApiKeyId");
 const cdpApiKeySecret = cfg.getSecret("cdpApiKeySecret");
@@ -52,7 +48,7 @@ const migrationsDir = path.join(workerDir, "migrations");
 // Must match apps/worker/wrangler.jsonc (local dev).
 const COMPATIBILITY_DATE = "2026-06-11";
 const COMPATIBILITY_FLAGS = ["nodejs_compat"];
-const DAILY_REVIEW_CRON = "17 3 * * *"; // 03:17 UTC, after KYB's own nightly dataset loads
+const DAILY_REVIEW_CRON = "17 3 * * *"; // 03:17 UTC, a quiet hour for the public CNPJ sources
 const MCP_OBJECT_CLASS = "KyaMcp"; // one Durable Object per MCP session (apps/worker/src/mcp.ts)
 
 // --- Storage -----------------------------------------------------------------
@@ -150,12 +146,7 @@ const bindings: pulumi.Input<cloudflare.types.input.WorkersScriptBinding>[] = [
   { type: "plain_text", name: "FREE_TIER_DAILY_LIMIT", text: freeTierDailyLimit },
   { type: "secret_text", name: "PAY_TO", text: payTo }
 ];
-if (kybInternalKey) {
-  // Direct Worker-to-Worker call into KYB Brasil (no public HTTP hop, no x402; see apps/worker/src/kyb.ts).
-  bindings.push({ type: "service", name: "KYB", service: kybWorkerName });
-  bindings.push({ type: "secret_text", name: "KYB_INTERNAL_KEY", text: kybInternalKey });
-}
-if (registrationSource) bindings.push({ type: "plain_text", name: "REGISTRATION_SOURCE", text: registrationSource });
+if (cnpjApiUrl) bindings.push({ type: "plain_text", name: "CNPJ_API_URL", text: cnpjApiUrl });
 if (issuerUrl) bindings.push({ type: "plain_text", name: "ISSUER_URL", text: issuerUrl });
 if (internalApiKey) bindings.push({ type: "secret_text", name: "INTERNAL_API_KEY", text: internalApiKey });
 if (attestPrivateKey) bindings.push({ type: "secret_text", name: "ATTEST_PRIVATE_KEY", text: attestPrivateKey });
@@ -194,7 +185,7 @@ export const kvNamespaceId = cache.id;
 export const d1DatabaseId = db.id;
 export const d1DatabaseName = db.name;
 export const scriptName = worker.scriptName;
-export const kybServiceBinding = kybInternalKey ? pulumi.output(kybWorkerName) : pulumi.output("none (public registration sources)");
+export const registrationSources = pulumi.output(cnpjApiUrl ? "custom, brasilapi, cnpjws" : "brasilapi, cnpjws");
 export const network = x402Network;
 export const sourcesSha256 = pulumi.output(sourcesHash);
 export const bundleContentSha256 = pulumi.output(bundleSha256);

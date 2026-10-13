@@ -1,29 +1,21 @@
 /**
  * The company's registration status at the Receita Federal: the one company fact the issuer acts on (D-15).
- * Sources, chosen by REGISTRATION_SOURCE:
- *   - "kyb": KYB Brasil over its internal channel (Service Binding in the cloud, KYB_URL locally);
- *   - "public": the Receita's open CNPJ data through BrasilAPI, with CNPJ.ws as fallback. The Receita itself
- *     has no free per-CNPJ API (its consultation page has a CAPTCHA), so these mirrors are the direct route;
- *   - "auto" (default): KYB when it is configured, public otherwise. A fork runs without any closed service.
+ * The Receita has no free per-CNPJ API (its consultation page has a CAPTCHA), so the status comes from its
+ * open CNPJ data through public mirrors, tried in order (D-23):
+ *   1. CNPJ_API_URL, when set: any service answering in the BrasilAPI format, e.g. a self-hosted BrasilAPI
+ *      (open source) or your own import of the Receita's monthly open-data dump; "{cnpj}" is replaced;
+ *   2. BrasilAPI (brasilapi.com.br, open source, no key);
+ *   3. CNPJ.ws public API (no key).
+ * No key, no contract, no closed service: anyone running the issuer gets the same answer.
  */
 import { KyaError, normalizeCnpj } from "@kya-br/core";
 import type { AppEnv } from "./env";
-import { kybRegistration } from "./kyb";
 
 export interface Registration {
   legal_name: string;
   registration_status: string;
   checked_at: string;
-  source: "kyb" | "brasilapi" | "cnpjws";
-}
-
-export const kybConfigured = (env: AppEnv) => Boolean(env.KYB_INTERNAL_KEY && (env.KYB || env.KYB_URL));
-
-/** Which source answers: KYB when asked for, or in auto mode when it is configured. */
-export function registrationSource(env: AppEnv): "kyb" | "public" {
-  const mode = env.REGISTRATION_SOURCE ?? "auto";
-  if (mode === "kyb" || mode === "public") return mode;
-  return kybConfigured(env) ? "kyb" : "public";
+  source: "custom" | "brasilapi" | "cnpjws";
 }
 
 /** "Ativa" / "ATIVA" / "ativa " → "ATIVA" (the Receita's vocabulary: ATIVA, BAIXADA, INAPTA, SUSPENSA, NULA). */
@@ -35,16 +27,27 @@ interface PublicSource {
   read: (body: Record<string, unknown>) => { legal_name?: unknown; status?: unknown };
 }
 
+const brasilApiShape = (b: Record<string, unknown>) => ({ legal_name: b.razao_social, status: b.descricao_situacao_cadastral });
+
 const PUBLIC_SOURCES: PublicSource[] = [
-  { name: "brasilapi", url: (c) => `https://brasilapi.com.br/api/cnpj/v1/${c}`, read: (b) => ({ legal_name: b.razao_social, status: b.descricao_situacao_cadastral }) },
+  { name: "brasilapi", url: (c) => `https://brasilapi.com.br/api/cnpj/v1/${c}`, read: brasilApiShape },
   { name: "cnpjws", url: (c) => `https://publica.cnpj.ws/cnpj/${c}`, read: (b) => ({ legal_name: b.razao_social, status: (b.estabelecimento as Record<string, unknown> | undefined)?.situacao_cadastral }) }
 ];
 
-async function publicRegistration(cnpj: string): Promise<Registration> {
+/** The sources this deployment uses, in order (also shown at /status). */
+export function registrationSources(env: AppEnv): PublicSource[] {
+  const custom = env.CNPJ_API_URL?.trim();
+  if (!custom) return PUBLIC_SOURCES;
+  if (!/^https?:\/\//.test(custom) || !custom.includes("{cnpj}")) throw new KyaError("UPSTREAM_ERROR", "CNPJ_API_URL must be an http(s) URL containing {cnpj}");
+  return [{ name: "custom", url: (c) => custom.replace("{cnpj}", c), read: brasilApiShape }, ...PUBLIC_SOURCES];
+}
+
+export async function companyRegistration(env: AppEnv, cnpj: string): Promise<Registration> {
+  const c = normalizeCnpj(cnpj);
   const failures: string[] = [];
-  for (const src of PUBLIC_SOURCES) {
+  for (const src of registrationSources(env)) {
     try {
-      const res = await fetch(src.url(cnpj), { headers: { accept: "application/json", "user-agent": "kya-brasil (+https://github.com/celfons/kya-brasil)" }, signal: AbortSignal.timeout(10_000) });
+      const res = await fetch(src.url(c), { headers: { accept: "application/json", "user-agent": "kya-brasil (+https://github.com/celfons/kya-brasil)" }, signal: AbortSignal.timeout(10_000) });
       // Not found is an answer about the CNPJ, not a source failure: stop here.
       if (res.status === 404) throw new KyaError("NOT_FOUND", "CNPJ not found at the Receita Federal");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -57,13 +60,4 @@ async function publicRegistration(cnpj: string): Promise<Registration> {
     }
   }
   throw new KyaError("REGISTRY_UNAVAILABLE", `no source answered for the registration status (${failures.join("; ")})`);
-}
-
-export async function companyRegistration(env: AppEnv, cnpj: string): Promise<Registration> {
-  const c = normalizeCnpj(cnpj);
-  if (registrationSource(env) === "kyb") {
-    const r = await kybRegistration(env, c);
-    return { ...r, registration_status: normalizeStatus(r.registration_status), source: "kyb" };
-  }
-  return publicRegistration(c);
 }

@@ -20,6 +20,7 @@ export interface AgentRow {
   credential: string | null;
   issued_at: string | null;
   expires_at: string | null;
+  /** Last registration check (column name kept from before D-23). */
   last_kyb_at: string | null;
   /** D-16: CRL inputs of the e-CNPJ (public data; null on credentials issued before it). */
   certificate_serial: string | null;

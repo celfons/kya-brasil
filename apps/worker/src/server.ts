@@ -26,7 +26,7 @@ export default {
     httpApp ??= buildHttpApp(env);
     return httpApp.fetch(request, env, ctx);
   },
-  /** Daily: re-run KYB on live credentials (cron trigger set by infra). */
+  /** Daily: e-CNPJ CRL and registration status of live credentials (cron trigger set by infra). */
   async scheduled(_event: ScheduledEvent, env: AppEnv, ctx: ExecutionContext) {
     ctx.waitUntil(dailyReview(env).then((r) => console.log("daily review", JSON.stringify(r))));
   }

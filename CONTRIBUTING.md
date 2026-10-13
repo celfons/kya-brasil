@@ -10,7 +10,6 @@ Issues and pull requests are welcome, in Portuguese or English.
 - Never add personal data of natural persons to anything stored or returned.
 - Secrets never go in the repository: `.dev.vars` locally, GitHub environments for the cloud.
 
-Nothing closed is needed to run or test the issuer. KYB Brasil, a separate closed product, is an optional
-source: when it is configured the issuer reads the registration status (and the informative risk snapshot)
-from it, otherwise from the Receita's open data through BrasilAPI / CNPJ.ws (`apps/worker/src/registration.ts`,
-D-17). Running your own issuer: `docs/SELF-HOSTING.md`. Code of conduct: `CODE_OF_CONDUCT.md`.
+Nothing closed, paid or keyed is needed to run or test the issuer. The registration status comes from the
+Receita's open data through BrasilAPI / CNPJ.ws, optionally after an own endpoint in `CNPJ_API_URL`
+(`apps/worker/src/registration.ts`, D-23). Running your own issuer: `docs/SELF-HOSTING.md`. Code of conduct: `CODE_OF_CONDUCT.md`.

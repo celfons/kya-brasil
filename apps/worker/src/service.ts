@@ -10,9 +10,8 @@ import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
-import { kybRiskScreen } from "./kyb";
 import { notifyCompany } from "./company";
-import { companyRegistration, kybConfigured, registrationSource } from "./registration";
+import { companyRegistration } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 
@@ -63,13 +62,13 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
   const revocation = await certificateRevocation(env, icp);
   if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}${revocation.reason ? ` (${revocation.reason})` : ""}`);
-  // D-15: only the registration status decides. With KYB configured its risk screen also fills the informative
-  // kyb_snapshot; without it (D-17) the status comes from the public sources and the snapshot is null.
-  const kyb = kybConfigured(env) ? await kybRiskScreen(env, row.cnpj) : null;
-  const reg = kyb && registrationSource(env) === "kyb" ? { legal_name: kyb.legal_name, registration_status: kyb.snapshot.registration_status, checked_at: kyb.snapshot.checked_at } : await companyRegistration(env, row.cnpj);
+  // D-15: only the registration status decides; it comes from the Receita's open data (D-23). The /v1 credential
+  // keeps its kyb_snapshot field, always null since D-23.
+  const reg = await companyRegistration(env, row.cnpj);
   const decision = principalDecision(reg.registration_status);
   if (!decision.ok) {
     await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: reg.checked_at });
+    // Error code kept for /v1 compatibility: it means "company not ATIVA at the Receita".
     throw new KyaError("KYB_BLOCKED", `credential not issued: ${decision.reason}`);
   }
   const m = await material(env);
@@ -77,13 +76,14 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const issuer = issuerOf(env, origin);
   const mandate = JSON.parse(row.mandate) as Mandate;
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
-  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: reg.legal_name, registration_status: reg.registration_status, certificate, mandate, kyb: kyb?.snapshot ?? null, issuer });
+  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: reg.legal_name, registration_status: reg.registration_status, certificate, mandate, kyb: null, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
   await store.issue({ id: row.id, legal_name: reg.legal_name, credential, certificate: record, mandate, event });
   if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
   await notifyCompany(env, issuer, row.cnpj, event === "issued" ? "credential.issued" : "credential.renewed", { credential_id: row.id, agent, expires_at: credential.expires_at, certificate_sha256: icp.certificate_sha256 });
-  return { credential, kyb_warnings: kyb?.warnings ?? [] };
+  // kyb_warnings kept for /v1 compatibility (always empty since D-23).
+  return { credential, kyb_warnings: [] as string[] };
 }
 
 export async function prove(env: AppEnv, origin: string, id: string, body: { challenge_id?: unknown; agent_signature?: unknown; ecnpj_signature?: unknown }) {
@@ -213,7 +213,7 @@ export async function revoke(env: AppEnv, origin: string, id: string, body: { re
  *     → suspended; a later benign replacement of the certificate changes nothing (revocationEffect);
  *   - the company: registration no longer ATIVA → suspended; ATIVA again → reinstated.
  * ERC-8004 credentials are also suspended when the on-chain wallet changes (register again).
- * An unreachable CRL or KYB changes nothing; it is counted in `errors` and retried the next day.
+ * An unreachable CRL or registration source changes nothing; it is counted in `errors` and retried the next day.
  */
 export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; revoked: number; errors: number }> {
   const store = new Store(env.DB);
@@ -263,7 +263,7 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
         await notifyCompany(env, issuer, row.cnpj, "credential.suspended", { credential_id: row.id, reason: hold.reason });
         suspended++;
       } else if (row.status === "suspended" && !hold && canLift) {
-        // Also lifts suspensions made under the old KYB rules (sanctions, risk), which no longer apply (D-15).
+        // Also lifts suspensions made under the old rules (sanctions, risk), which no longer apply (D-15).
         await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: reg.checked_at });
         await notifyCompany(env, issuer, row.cnpj, "credential.reinstated", { credential_id: row.id });
         reinstated++;

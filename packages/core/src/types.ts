@@ -41,7 +41,7 @@ export interface MandateCore {
 
 export type Mandate = MandateCore & Record<string, unknown>;
 
-/** KYB Brasil risk screen at issuance. Informative only since D-15 (no effect on status); kept in /v1 for compatibility. */
+/** Legacy risk screen at issuance. Informative only since D-15, never filled since D-23; the shape stays in /v1 for compatibility. */
 export interface KybSnapshot {
   risk_level: "low" | "medium" | "high" | "critical";
   risk_score: number;
@@ -63,7 +63,7 @@ export interface Credential {
   /** How the company authorized it: hash of the e-CNPJ certificate that signed the challenge (never the CPF of the signer). */
   authorized_by: { method: "icp-brasil-e-cnpj"; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Null when the issuer has no KYB source (D-17). */
+  /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Always null from the reference issuer since D-23 (no KYB dependency); kept in /v1. Null when the issuer has no KYB source (D-17). */
   kyb_snapshot: KybSnapshot | null;
   status: CredentialStatus;
   status_reason: string | null;

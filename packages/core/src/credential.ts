@@ -1,7 +1,7 @@
 /**
- * Credential assembly, signing and verification. The signature is the same Ed25519 attestation
- * used by KYB Brasil (SHA-256 of the canonical JSON without `attestation`), so one public key
- * document verifies both products and the SDK's verifyAttestation() works unchanged.
+ * Credential assembly, signing and verification. The signature is an Ed25519 attestation over the
+ * SHA-256 of the canonical JSON without `attestation`, so the public key document at
+ * /.well-known/kya.json and the SDK's verifyAttestation() verify credentials and verdicts alike.
  */
 import { attestedPayload, canonicalize, signAttestation, verifyAttestation } from "./attestation";
 import { formatCnpj, normalizeCnpj } from "./cnpj";
@@ -66,7 +66,7 @@ export async function credentialDigest(c: Credential): Promise<string> {
 /**
  * Whether the company can still answer for an agent (D-15): only its existence as a legal entity,
  * i.e. registration ATIVA at the Receita Federal. Sanctions, debt and risk are facts about the company
- * for the verifier to weigh (KYB Brasil), never a reason to deny or suspend the credential.
+ * for the verifier to weigh with its own screening, never a reason to deny or suspend the credential.
  */
 export function principalDecision(registration_status: string): { ok: boolean; reason: string | null } {
   if (registration_status !== "ATIVA") return { ok: false, reason: `company is ${registration_status} at the Receita Federal` };

@@ -4,10 +4,8 @@
 # A stack is skipped when its environment has no PAY_TO secret. Nothing is ever run from a laptop.
 #
 # Required secrets per environment: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
-# PAY_TO. Optional: KYB_INTERNAL_KEY (the INTERNAL_API_KEY of a KYB Brasil Worker in the same account; without it
-# the issuer reads registration status from public sources, D-17).
-# Optional: INTERNAL_API_KEY (fiat channel), CDP_API_KEY_ID / CDP_API_KEY_SECRET (mainnet facilitator).
-# Optional vars: WORKER_NAME, KYB_WORKER_NAME, REGISTRATION_SOURCE, X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
+# PAY_TO. Optional: INTERNAL_API_KEY (fiat channel), CDP_API_KEY_ID / CDP_API_KEY_SECRET (mainnet facilitator).
+# Optional vars: WORKER_NAME, CNPJ_API_URL (own registration endpoint, D-23), X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
 name: CD
 on:
   push:
@@ -42,17 +40,15 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       PAY_TO: ${{ secrets.PAY_TO }}
-      KYB_INTERNAL_KEY: ${{ secrets.KYB_INTERNAL_KEY }}
       INTERNAL_API_KEY: ${{ secrets.INTERNAL_API_KEY }}
       CDP_API_KEY_ID: ${{ secrets.CDP_API_KEY_ID }}
       CDP_API_KEY_SECRET: ${{ secrets.CDP_API_KEY_SECRET }}
       WORKER_NAME: ${{ vars.WORKER_NAME || (matrix.stack == 'prod' && 'kya-br-agents' || 'kya-br-agents-dev') }}
-      KYB_WORKER_NAME: ${{ vars.KYB_WORKER_NAME || (matrix.stack == 'prod' && 'kyb-br-agents' || 'kyb-br-agents-dev') }}
       X402_NETWORK: ${{ vars.X402_NETWORK || (matrix.stack == 'prod' && 'eip155:8453' || 'eip155:84532') }}
       FACILITATOR_URL: ${{ vars.FACILITATOR_URL || (matrix.stack == 'prod' && 'https://api.cdp.coinbase.com/platform/v2/x402' || 'https://x402.org/facilitator') }}
       ISSUER_URL: ${{ vars.ISSUER_URL }}
       GLAMA_CLAIM: ${{ vars.GLAMA_CLAIM }}
-      REGISTRATION_SOURCE: ${{ vars.REGISTRATION_SOURCE }}
+      CNPJ_API_URL: ${{ vars.CNPJ_API_URL }}
     steps:
       - name: Environment configured?
         id: cfg
@@ -83,12 +79,12 @@ jobs:
           pulumi config set --secret cloudflare:apiToken "$CLOUDFLARE_API_TOKEN"
           pulumi config set kya-br-agents:accountId "$CLOUDFLARE_ACCOUNT_ID"
           pulumi config set kya-br-agents:workerName "$WORKER_NAME"
-          pulumi config set kya-br-agents:kybWorkerName "$KYB_WORKER_NAME"
           pulumi config set kya-br-agents:x402Network "$X402_NETWORK"
           pulumi config set kya-br-agents:facilitatorUrl "$FACILITATOR_URL"
           pulumi config set --secret kya-br-agents:payTo "$PAY_TO"
-          if [ -n "$KYB_INTERNAL_KEY" ]; then pulumi config set --secret kya-br-agents:kybInternalKey "$KYB_INTERNAL_KEY"; else pulumi config rm kya-br-agents:kybInternalKey 2>/dev/null || true; fi
-          if [ -n "$REGISTRATION_SOURCE" ]; then pulumi config set kya-br-agents:registrationSource "$REGISTRATION_SOURCE"; else pulumi config rm kya-br-agents:registrationSource 2>/dev/null || true; fi
+          # Leftovers of the optional KYB source (removed in D-23).
+          for k in kybWorkerName kybInternalKey registrationSource; do pulumi config rm "kya-br-agents:$k" 2>/dev/null || true; done
+          if [ -n "$CNPJ_API_URL" ]; then pulumi config set kya-br-agents:cnpjApiUrl "$CNPJ_API_URL"; else pulumi config rm kya-br-agents:cnpjApiUrl 2>/dev/null || true; fi
           if [ -n "$ISSUER_URL" ]; then pulumi config set kya-br-agents:issuerUrl "$ISSUER_URL"; else pulumi config rm kya-br-agents:issuerUrl 2>/dev/null || true; fi
           if [ -n "$GLAMA_CLAIM" ]; then pulumi config set kya-br-agents:glamaClaim "$GLAMA_CLAIM"; else pulumi config rm kya-br-agents:glamaClaim 2>/dev/null || true; fi
           if [ -n "$INTERNAL_API_KEY" ]; then pulumi config set --secret kya-br-agents:internalApiKey "$INTERNAL_API_KEY"; else pulumi config rm kya-br-agents:internalApiKey 2>/dev/null || true; fi

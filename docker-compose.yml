@@ -1,7 +1,7 @@
 # KYA Brasil issuer in a container, for evaluation and integration work. Same runtime as production
 # (workerd) with D1, KV and the Durable Object emulated and persisted in the `kya-data` volume.
-# Not for production: payments stay on the Base Sepolia testnet unless you add CDP keys, there is no
-# KYB Brasil (registration status comes from the Receita's open data), and the signing key lives in the volume.
+# Not for production: payments stay on the Base Sepolia testnet unless you add CDP keys, registration
+# status comes from the Receita's open data (BrasilAPI / CNPJ.ws), and the signing key lives in the volume.
 services:
   kya:
     build:
@@ -17,10 +17,7 @@ services:
       # eip155:84532 = Base Sepolia (free test USDC); eip155:8453 = Base mainnet (needs CDP_API_KEY_ID/SECRET and a CDP facilitator URL).
       X402_NETWORK: "eip155:84532"
       X402_FACILITATOR_URL: "https://x402.org/facilitator"
-      # public = Receita open data via BrasilAPI / CNPJ.ws; kyb = a KYB Brasil at KYB_URL with KYB_INTERNAL_KEY.
-      REGISTRATION_SOURCE: "public"
-      # KYB_URL: "http://kyb:8788"
-      # KYB_INTERNAL_KEY: ""
+      # CNPJ_API_URL: "http://brasilapi:3000/api/cnpj/v1/{cnpj}"   # own source in BrasilAPI format, tried first
       # INTERNAL_API_KEY: ""          # fiat channel (/internal/v1/*), bypasses x402
       # ATTEST_PRIVATE_KEY: ""        # leave empty: generated once into the volume
       # EVM_RPC_URLS: '{"8453":"https://..."}'   # extra RPCs for ERC-8004 lookups

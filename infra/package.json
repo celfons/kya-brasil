@@ -2,7 +2,7 @@
   "name": "@kya-br/infra",
   "version": "0.0.1",
   "private": true,
-  "description": "Pulumi program (TypeScript): Cloudflare KV, D1 + migrations, Worker script with the KYB service binding, cron trigger, secrets.",
+  "description": "Pulumi program (TypeScript): Cloudflare KV, D1 + migrations, Worker script, cron trigger, secrets.",
   "main": "index.ts",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

@@ -24,9 +24,7 @@ fi
 {
   echo "PAY_TO=${PAY_TO:-0x0000000000000000000000000000000000000001}"
   echo "ATTEST_PRIVATE_KEY=$ATTEST_PRIVATE_KEY"
-  echo "REGISTRATION_SOURCE=${REGISTRATION_SOURCE:-public}"
-  [ -n "${KYB_URL:-}" ] && echo "KYB_URL=$KYB_URL"
-  [ -n "${KYB_INTERNAL_KEY:-}" ] && echo "KYB_INTERNAL_KEY=$KYB_INTERNAL_KEY"
+  [ -n "${CNPJ_API_URL:-}" ] && echo "CNPJ_API_URL=$CNPJ_API_URL"
   [ -n "${INTERNAL_API_KEY:-}" ] && echo "INTERNAL_API_KEY=$INTERNAL_API_KEY"
   [ -n "${EVM_RPC_URLS:-}" ] && echo "EVM_RPC_URLS=$EVM_RPC_URLS"
   [ -n "${CDP_API_KEY_ID:-}" ] && echo "CDP_API_KEY_ID=$CDP_API_KEY_ID"
@@ -36,7 +34,7 @@ fi
 } > .dev.vars
 
 pnpm exec wrangler d1 migrations apply kya-br --local --persist-to "$STATE" >/dev/null
-echo "KYA Brasil issuer on http://0.0.0.0:${PORT} (issuer url ${ISSUER_URL:-http://localhost:8787}, network ${X402_NETWORK:-eip155:84532}, registration ${REGISTRATION_SOURCE:-public})"
+echo "KYA Brasil issuer on http://0.0.0.0:${PORT} (issuer url ${ISSUER_URL:-http://localhost:8787}, network ${X402_NETWORK:-eip155:84532}, registration ${CNPJ_API_URL:+custom, }brasilapi, cnpjws)"
 exec pnpm exec wrangler dev --ip 0.0.0.0 --port "${PORT}" --persist-to "$STATE" \
   --var "ISSUER_URL:${ISSUER_URL:-http://localhost:8787}" \
   --var "X402_NETWORK:${X402_NETWORK:-eip155:84532}" \

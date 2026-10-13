@@ -11,7 +11,7 @@ import { attachSettlement, decodeSettlementHeader, logCall } from "../call-log";
 import type { AppEnv } from "../env";
 import { facilitatorConfig } from "../facilitator";
 import { SERVICE_DESCRIPTION, SERVICE_NAME, SERVICE_TAGS, TOOLS, VERSION, type ToolName } from "../pricing";
-import { registrationSource } from "../registration";
+import { registrationSources } from "../registration";
 import { companyAgents, setCompanyWebhook } from "../company";
 import * as service from "../service";
 import { Store } from "../store";
@@ -90,7 +90,7 @@ export function buildHttpApp(env: AppEnv) {
   const resourceServer = new x402ResourceServer(facilitator).registerExtension(bazaarResourceServerExtension);
   registerExactEvmScheme(resourceServer);
 
-  // The facilitator handshake must run inside a request context on Workers (see KYB Brasil): lazy, on the first /v1 request.
+  // The facilitator handshake must run inside a request context on Workers: lazy, on the first /v1 request.
   const SYNC_FACILITATOR_ON_START = false;
   let facilitatorReady = false;
   app.use("/v1/*", async (_c, next) => {
@@ -260,7 +260,7 @@ export function buildHttpApp(env: AppEnv) {
     // D-21: when the daily review (e-CNPJ CRL, registration) last ran and what it found; null before the first run.
     const dailyReview = await c.env.CACHE.get("status:daily_review", "json").catch(() => null);
     const anchors = await icpAnchors(c.env).then((a) => a.length).catch(() => 0);
-    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, kyb_channel: c.env.KYB ? "service-binding" : c.env.KYB_URL ? "http-dev" : "missing", registration_source: registrationSource(c.env), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
+    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, registration_sources: (() => { try { return registrationSources(c.env).map((s) => s.name); } catch { return []; } })(), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
   });
   app.get("/", (c) => {
     const origin = originOf(c);

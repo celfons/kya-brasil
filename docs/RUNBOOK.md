@@ -2,9 +2,8 @@
 
 ## Segredos por ambiente (GitHub environments `dev` e `prod`)
 `PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Opcionais:
-`KYB_INTERNAL_KEY` (o `INTERNAL_API_KEY` do Worker KYB Brasil do mesmo ambiente; sem ele não há binding e a
-situação cadastral vem da BrasilAPI / CNPJ.ws, D-17), `INTERNAL_API_KEY`, `CDP_API_KEY_ID`,
-`CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `KYB_WORKER_NAME`, `REGISTRATION_SOURCE`,
+`INTERNAL_API_KEY`, `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `CNPJ_API_URL`
+(fonte própria da situação cadastral no formato BrasilAPI, tentada antes da BrasilAPI e do CNPJ.ws, D-23),
 `X402_NETWORK`, `FACILITATOR_URL`, `ISSUER_URL`.
 
 ## Âncoras ICP-Brasil
@@ -29,5 +28,5 @@ pela revisão mais antiga: LCR do e-CNPJ (D-16) e situação cadastral (D-15). O
 `daily review {"reviewed","suspended","reinstated","revoked","errors"}`.
 
 ## Teste local
-`pnpm dev` com `.dev.vars` (ver `.dev.vars.example`). Para o KYB: `wrangler dev --port 8788` no repositório
-do KYB Brasil e `KYB_URL=http://localhost:8788`.
+`pnpm dev` com `.dev.vars` (ver `.dev.vars.example`). A situação cadastral vem da BrasilAPI / CNPJ.ws sem chave;
+para testar uma fonte própria, `CNPJ_API_URL=http://localhost:3000/api/cnpj/v1/{cnpj}`.
