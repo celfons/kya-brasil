@@ -169,9 +169,7 @@ export async function allowed(env: AppEnv, origin: string, id: string, q: { acti
     checked_at: now.toISOString()
   };
   const attestation = await signAnswer(env, out, issuerOf(env, origin));
-  const answer = attestation ? { ...out, attestation } : out;
-  if (!e.allowed && v.status === "active") await notifyCompany(env, issuerOf(env, origin), v.principal.cnpj, "verdict.denied", { credential_id: id, reason: e.reason, query: out.query });
-  return answer;
+  return attestation ? { ...out, attestation } : out;
 }
 
 /** Renewal: new challenge (company re-signs), then the same issuance path. Two steps like registration. */

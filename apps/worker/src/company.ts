@@ -2,8 +2,8 @@
  * What a company sees and hears about the agents that act in its name (D-20), both authorized by its e-CNPJ:
  *   - inventory: every credential ever registered for its CNPJ, whoever held the certificate (an accountant,
  *     another employee), so nothing acts in its name unseen;
- *   - webhook: one https URL that receives signed events (issued, renewed, suspended, reinstated, revoked,
- *     verdict.denied), so a leaked agent key or a misbehaving agent is noticed, not discovered later.
+ *   - webhook: one https URL that receives signed events (issued, renewed, suspended, reinstated, revoked),
+ *     so an agent credentialed in its name, or one that stopped working, is noticed, not discovered later.
  * Requests are e-CNPJ-signed texts with an `at:` timestamp: accepted within 10 minutes, and for the webhook
  * only if newer than the last accepted one, so a captured request cannot be replayed.
  */
@@ -17,7 +17,7 @@ import { Store } from "./store";
 const MAX_SKEW_MS = 10 * 60_000;
 const WEBHOOK_TIMEOUT_MS = 5_000;
 
-export type CompanyEvent = "credential.issued" | "credential.renewed" | "credential.suspended" | "credential.reinstated" | "credential.revoked" | "verdict.denied";
+export type CompanyEvent = "credential.issued" | "credential.renewed" | "credential.suspended" | "credential.reinstated" | "credential.revoked";
 
 /** The exact text a company signs: `KYA Brasil: <verb> <cnpj>`, optional extra lines, then `at: <ISO time>`. */
 export function companyText(verb: "agents" | "webhook", cnpj: string, at: string, extra: string[] = []): string {
@@ -81,7 +81,7 @@ export async function setCompanyWebhook(env: AppEnv, cnpjParam: string, body: { 
   const current = await store.webhook(cnpj);
   if (current && Date.parse(at) <= Date.parse(current.signed_at)) throw new KyaError("CONFLICT", "a newer webhook request was already accepted; sign a new one");
   await store.setWebhook(cnpj, url, at);
-  return { cnpj, webhook: url, signed_at: at, events: ["credential.issued", "credential.renewed", "credential.suspended", "credential.reinstated", "credential.revoked", "verdict.denied"] };
+  return { cnpj, webhook: url, signed_at: at, events: ["credential.issued", "credential.renewed", "credential.suspended", "credential.reinstated", "credential.revoked"] };
 }
 
 /**
