@@ -55,16 +55,16 @@ The company signs the challenge text with its e-CNPJ certificate as a **detached
 
 1. Parse the CMS, require exactly one `SignerInfo`, and verify the signature over the challenge bytes.
 2. Take the signer certificate from the CMS and read the CNPJ from the Subject Alternative Name
-   `otherName` with OID `2.16.76.1.3.3` (ICP-Brasil DOC-ICP-04: 8 octets of CNPJ ... see note), or from
-   the subject CN suffix `:<cnpj>` as a fallback. The CNPJ MUST equal the one in the challenge.
+   `otherName` with OID `2.16.76.1.3.3` (ICP-Brasil DOC-ICP-04), or from the subject CN suffix
+   `:<cnpj>` as a fallback. The CNPJ MUST equal the one in the challenge.
 3. Validate the chain from the signer certificate to a trusted ICP-Brasil root (the issuer's anchor set),
    including validity dates at verification time. Issuers SHOULD check revocation (CRL or OCSP) when
    the AC publishes it; the reference implementation does not yet.
 4. Record only the certificate SHA-256, subject, issuer and the signing time. The signer's CPF and any
    other personal field in the certificate MUST NOT be stored or published.
 
-Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string inside an OCTET STRING
-(or PrintableString in older certificates); implementations SHOULD accept both encodings.
+Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
+PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.
 
 ## 5. Mandate
 
