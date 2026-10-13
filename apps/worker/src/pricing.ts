@@ -3,7 +3,7 @@ export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "kyb", "attestat
 export const VERSION = "0.4.1";
 export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
 /** MCP Registry entry (≤100 chars). */
-export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, revocation checked daily, signed verdicts";
+export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, revocation-checked, signed verdicts";
 export const HOMEPAGE = "https://kya-br-agents.marcelfons.workers.dev";
 export const CONTACT_EMAIL = "marcelfons@gmail.com";
 export const SERVICE_DESCRIPTION =
