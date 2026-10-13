@@ -167,7 +167,43 @@ the ones that no longer clear, and reinstate suspended ones that clear again, re
 Only legal-entity data is processed. The credential and the issuer's records MUST NOT contain the CPF or
 the name of the natural person who holds the e-CNPJ; the certificate hash identifies the authorization.
 
-## 13. Test vectors
+## 13. Acts (registered actions)
+
+An **act** records what the agent did next to what it was allowed to do. The party that accepted the
+action (the counterparty) SHOULD register it; the agent MAY register its own acts.
+
+`POST /v1/agents/{id}/acts` with `{ action, amount?, currency?, counterparty?, reference?, content_sha256?,
+registered_by?, registrant?, agent_signature? }`. The issuer MUST:
+
+1. Validate the act (section 5 vocabulary for `action`; `currency` required with `amount`; `content_sha256` is a
+   SHA-256 hex and the only trace of the document, which MUST NOT be sent or stored).
+2. If `agent_signature` is present, verify it over the act text below with the agent key (section 2) and record
+   `agent_signed: true`; reject the act when the signature is present but invalid.
+3. Evaluate the mandate (section 5) with `spent_today` set to the sum of the amounts of the acts already
+   registered today (UTC) with `allowed: true` in the currency of `max_per_day`. Daily ceilings therefore hold
+   across every counterparty, not only the one asking.
+4. Store the act with its verdict, denied or not, and return a signed receipt (section 7) containing the act,
+   the verdict, the registered totals before and after, `registered_at` and `receipt_url`.
+
+Denied acts are evidence and MUST NOT count toward the daily total. Receipts are readable by anyone who holds
+the `act_id` (`GET /v1/acts/{act_id}`). The full trail of an agent is readable only by its company:
+`POST /v1/agents/{id}/acts/export` with the e-CNPJ signature (section 4) over `KYA Brasil: acts <credential_id>\n<nonce>`.
+
+Act text (the agent's optional signature covers it; empty fields are `-`):
+
+```
+KYA Brasil: act
+issuer: <issuer origin>
+credential: <credential_id>
+agent: <kind>:<id>
+action: <action>
+amount: <amount> <currency> | -
+counterparty: <counterparty> | -
+reference: <reference> | -
+content_sha256: <hex> | -
+```
+
+## 14. Test vectors
 
 `docs/vectors/credential-v1.json` contains an issuer key, a challenge with its text, a signed credential,
 a signed verdict and a tampered copy of the credential that MUST fail verification. An implementation is

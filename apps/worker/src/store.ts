@@ -25,6 +25,24 @@ export interface AgentRow {
   updated_at: string;
 }
 
+export interface ActRow {
+  id: string;
+  agent_row: string;
+  ts: string;
+  day: string;
+  action: string;
+  amount: number | null;
+  currency: string | null;
+  counterparty: string | null;
+  reference: string | null;
+  content_sha256: string | null;
+  registered_by: "counterparty" | "agent";
+  registrant: string | null;
+  agent_signed: number;
+  allowed: number;
+  receipt: string;
+}
+
 export interface ChallengeRow {
   id: string;
   agent_row: string;
@@ -108,6 +126,27 @@ export class Store {
       .prepare("SELECT e.agent_row AS credential_id, e.ts AS revoked_at, e.reason FROM credential_events e WHERE e.event = 'revoked' AND e.ts >= ?1 ORDER BY e.ts DESC")
       .bind(sinceIso)
       .all<{ credential_id: string; revoked_at: string; reason: string | null }>();
+    return results;
+  }
+
+  async createAct(a: Omit<ActRow, "ts">): Promise<void> {
+    await this.db
+      .prepare("INSERT INTO acts (id, agent_row, day, action, amount, currency, counterparty, reference, content_sha256, registered_by, registrant, agent_signed, allowed, receipt) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)")
+      .bind(a.id, a.agent_row, a.day, a.action, a.amount, a.currency, a.counterparty, a.reference, a.content_sha256, a.registered_by, a.registrant, a.agent_signed, a.allowed, a.receipt)
+      .run();
+  }
+
+  async getAct(id: string): Promise<ActRow | null> {
+    return (await this.db.prepare("SELECT * FROM acts WHERE id = ?1").bind(id).first<ActRow>()) ?? null;
+  }
+
+  async actsOfDay(agent_row: string, day: string): Promise<Pick<ActRow, "amount" | "currency" | "allowed">[]> {
+    const { results } = await this.db.prepare("SELECT amount, currency, allowed FROM acts WHERE agent_row = ?1 AND day = ?2").bind(agent_row, day).all<Pick<ActRow, "amount" | "currency" | "allowed">>();
+    return results;
+  }
+
+  async acts(agent_row: string, sinceIso: string, limit = 500): Promise<ActRow[]> {
+    const { results } = await this.db.prepare("SELECT * FROM acts WHERE agent_row = ?1 AND ts >= ?2 ORDER BY ts DESC LIMIT ?3").bind(agent_row, sinceIso, limit).all<ActRow>();
     return results;
   }
 

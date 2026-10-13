@@ -127,6 +127,23 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
         )
     );
     this.server.paidTool(
+      "kya_register_act", TOOLS.kya_register_act.description, TOOLS.kya_register_act.priceUsd,
+      {
+        credential_id: ID,
+        action: z.string().max(32).describe("What the agent did: pay, order, sign, quote..."),
+        amount: z.number().nonnegative().optional(),
+        currency: z.string().max(10).optional(),
+        counterparty: z.string().max(128).optional().describe("Who accepted it: CNPJ, domain or wallet address."),
+        reference: z.string().max(200).optional().describe("Order number, invoice, URL."),
+        content_sha256: z.string().length(64).optional().describe("SHA-256 hex of the document; only the hash is stored."),
+        registered_by: z.enum(["counterparty", "agent"]).optional(),
+        registrant: z.string().max(128).optional(),
+        agent_signature: z.string().max(400).optional().describe("Optional: the agent's signature over the act text (kya_act_text).")
+      },
+      { openWorldHint: true },
+      async (i, extra) => this.logged("kya_register_act", paymentInfo(extra), () => service.registerAct(this.env, origin, i.credential_id, i as Record<string, unknown>))
+    );
+    this.server.paidTool(
       "kya_renew", TOOLS.kya_renew.description, TOOLS.kya_renew.priceUsd, { credential_id: ID }, { openWorldHint: true },
       async ({ credential_id }, extra) => this.logged("kya_renew", paymentInfo(extra), () => service.renewChallenge(this.env, origin, credential_id))
     );
@@ -172,6 +189,21 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
       async (i) => this.logged("kya_revoke", null, () => service.revoke(this.env, i.credential_id, i))
     );
     this.server.registerTool(
+      "kya_act",
+      { description: TOOLS.kya_act.description, inputSchema: { act_id: z.string().uuid() }, annotations: { readOnlyHint: true, idempotentHint: true } },
+      async ({ act_id }) => this.logged("kya_act", null, () => service.getAct(this.env, act_id))
+    );
+    this.server.registerTool(
+      "kya_act_text",
+      { description: "Free. The exact text an agent signs to show it intended an act (optional agent_signature of kya_register_act).", inputSchema: { credential_id: ID, action: z.string().max(32), amount: z.number().optional(), currency: z.string().max(10).optional(), counterparty: z.string().max(128).optional(), reference: z.string().max(200).optional(), content_sha256: z.string().length(64).optional() }, annotations: ro },
+      async (i) => this.logged("kya_act", null, () => service.actTextFor(this.env, origin, i.credential_id, i as Record<string, unknown>))
+    );
+    this.server.registerTool(
+      "kya_acts_export",
+      { description: TOOLS.kya_acts_export.description, inputSchema: { credential_id: ID, signed_text: z.string().describe('Exactly "KYA Brasil: acts <credential_id>" followed by a newline and a nonce.'), ecnpj_signature: z.string(), since: z.string().datetime().optional() }, annotations: ro },
+      async (i) => this.logged("kya_acts_export", null, () => service.exportActs(this.env, i.credential_id, i))
+    );
+    this.server.registerTool(
       "kya_revocations",
       { description: "Free. Credentials revoked since a date (default: last 30 days), for verifiers that cache credentials.", inputSchema: { since: z.string().datetime().optional() }, annotations: { readOnlyHint: true, idempotentHint: true } },
       async ({ since }) => {
@@ -190,7 +222,7 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
       async () =>
         toolResult({
           service: SERVICE_NAME, version: VERSION, description: SERVICE_DESCRIPTION,
-          flow: ["kya_register (paid) returns a challenge", "the agent signs it with its key, the company with its e-CNPJ", "kya_prove (free) issues the credential", "anyone calls kya_verify (free) or kya_check_action (paid) before accepting the agent's action", "kya_renew every 90 days, kya_revoke at once"],
+          flow: ["kya_register (paid) returns a challenge", "the agent signs it with its key, the company with its e-CNPJ", "kya_prove (free) issues the credential", "anyone calls kya_verify (free) or kya_check_action (paid) before accepting the agent's action", "whoever accepted the action calls kya_register_act (paid): mandate re-checked with today's registered acts, signed receipt", "kya_renew every 90 days, kya_revoke at once"],
           prices_usd: Object.fromEntries(Object.entries(TOOLS).map(([k, t]) => [k, t.priceUsd])),
           mandate_schema: `${origin}/.well-known/kya-mandate.schema.json`, signing_keys: `${origin}/.well-known/kya.json`, http_api: `${origin}/openapi.json`, llms: `${origin}/llms.txt`, terms: `${origin}/terms`
         })

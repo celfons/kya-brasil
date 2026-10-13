@@ -29,11 +29,15 @@ const verdict = await kya.allowed(credentialId, {         // $0.01, signed
 if (!verdict.allowed) reject(verdict.reason);
 
 await verifyAttestation(verdict);                          // local Ed25519 check of the issuer's signature
+
+const receipt = await kya.registerAct(credentialId, {       // $0.02 once you accept it: signed receipt,
+  action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1"
+});                                                          // daily ceilings enforced across counterparties
 ```
 
 Also check that the key that signed the agent's request is `v.agent.id`; the credential_id alone proves nothing.
 
-Agent frameworks (verifier tools `kya_verify`, `kya_check_action`, `kya_verify_paid`):
+Agent frameworks (verifier tools `kya_verify`, `kya_check_action`, `kya_register_act`, `kya_verify_paid`):
 
 ```ts
 import { toOpenAI, toVercelAI, toLangChain, toAnthropic } from "@kya-brasil/agent-tools";
@@ -84,6 +88,7 @@ Renew every 90 days (`kya.renew` then `kya.renewProve`), revoke at once (`kya.re
 |---|---|
 | verify, verifyByKey, prove, renewProve, revoke, revocations | free |
 | verified (signed receipt, no limit), allowed (signed verdict) | 0.01 |
+| registerAct (signed receipt of what the agent did) | 0.02 |
 | renew | 0.10 |
 | register | 0.50 |
 

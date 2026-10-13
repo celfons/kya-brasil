@@ -76,6 +76,7 @@ async function run(c: Ctx, tool: ToolName, cnpjRoot: string | null, paid: { netw
 
 const EXAMPLE_REGISTER = { credential_id: "6d0b…", agent: { kind: "evm", id: "0xAbC…" }, principal: { cnpj: "00000000000191" }, challenge: { id: "…", text: "KYA Brasil: prove this agent key acts for a company\n…", expires_at: "…" }, next: { en: "Sign challenge.text with the agent key and with the e-CNPJ, then POST /v1/agents/{id}/prove" } };
 const EXAMPLE_VERIFIED = { credential_id: "6d0b…", status: "active", agent: { kind: "evm", id: "0xAbC…" }, principal: { cnpj: "00000000000191", legal_name: "ACME LTDA" }, credential: { mandate: { actions: ["pay"], max_per_operation: { amount: 100, currency: "USDC" } }, expires_at: "…", attestation: { key_id: "…", signature: "…" } }, verification: { checked_at: "…" }, attestation: { key_id: "…", signature: "…" } };
+const EXAMPLE_ACT = { act_id: "9c1e…", credential_id: "6d0b…", status: "active", allowed: true, reason: "inside the mandate", act: { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1", registered_by: "counterparty", agent_signed: false }, checks: [{ rule: "max_per_day", ok: true }], spent_today_registered_after: { currency: "BRL", amount: 4200 }, registered_at: "…", receipt_url: "…/v1/acts/9c1e…", attestation: { key_id: "…", signature: "…" } };
 const EXAMPLE_ALLOWED = { credential_id: "6d0b…", status: "active", allowed: true, reason: "inside the mandate", checks: [{ field: "actions", ok: true }], not_evaluated: [], attestation: { key_id: "…", signature: "…" } };
 
 const ID_PARAM = { pathParams: { id: "6d0b1c2e-…" }, pathParamsSchema: { properties: { id: { type: "string", description: "credential_id returned by POST /v1/agents" } }, required: ["id"] } };
@@ -129,6 +130,16 @@ export function buildHttpApp(env: AppEnv) {
           accepts: accepts(TOOLS.kya_verify_paid.priceUsd), description: TOOLS.kya_verify_paid.description, ...resource,
           extensions: declareDiscoveryExtension({ input: {}, inputSchema: { properties: {}, required: [] }, ...ID_PARAM, output: { example: EXAMPLE_VERIFIED, schema: { type: "object" } } })
         },
+        "POST /v1/agents/:id/acts": {
+          accepts: accepts(TOOLS.kya_register_act.priceUsd), description: TOOLS.kya_register_act.description, ...resource,
+          extensions: declareDiscoveryExtension({
+            bodyType: "json",
+            input: { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1" },
+            inputSchema: { properties: { action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "CNPJ, domain or wallet address" }, reference: { type: "string" }, content_sha256: { type: "string", description: "SHA-256 of the document, hex" }, registered_by: { type: "string", enum: ["counterparty", "agent"] }, registrant: { type: "string" }, agent_signature: { type: "string", description: "optional: the agent's signature over the act text (POST /v1/agents/{id}/acts/text)" } }, required: ["action"] },
+            ...ID_PARAM,
+            output: { example: EXAMPLE_ACT, schema: { type: "object" } }
+          })
+        },
         "GET /v1/agents/:id/allowed": {
           accepts: accepts(TOOLS.kya_check_action.priceUsd), description: TOOLS.kya_check_action.description, ...resource,
           extensions: declareDiscoveryExtension({
@@ -162,6 +173,7 @@ export function buildHttpApp(env: AppEnv) {
         const attestation = await signAnswer(c.env, out, originOf(c));
         return attestation ? { ...out, attestation } : out;
       }),
+    registerAct: (c: Ctx, paid: { network: string; payer: string }) => run(c, "kya_register_act", null, paid, async () => service.registerAct(c.env, originOf(c), idOf(c), await jsonBody(c))),
     allowed: (c: Ctx, paid: { network: string; payer: string }) =>
       run(c, "kya_check_action", null, paid, () => service.allowed(c.env, originOf(c), idOf(c), { action: c.req.query("action"), amount: c.req.query("amount"), currency: c.req.query("currency"), counterparty: c.req.query("counterparty"), spent_today: c.req.query("spent_today") }))
   };
@@ -172,6 +184,7 @@ export function buildHttpApp(env: AppEnv) {
   app.post("/v1/agents/:id/renew", (c) => handlers.renew(c, x402));
   app.get("/v1/agents/:id/verified", (c) => handlers.verified(c, x402));
   app.get("/v1/agents/:id/allowed", (c) => handlers.allowed(c, x402));
+  app.post("/v1/agents/:id/acts", (c) => handlers.registerAct(c, x402));
 
   // Fiat channel: billed by invoice through a shared key, never through x402.
   const internal = new Hono<{ Bindings: AppEnv; Variables: Vars }>();
@@ -186,12 +199,18 @@ export function buildHttpApp(env: AppEnv) {
   internal.post("/agents/:id/renew", (c) => handlers.renew(c, fiat));
   internal.get("/agents/:id/verified", (c) => handlers.verified(c, fiat));
   internal.get("/agents/:id/allowed", (c) => handlers.allowed(c, fiat));
+  internal.post("/agents/:id/acts", (c) => handlers.registerAct(c, fiat));
   app.route("/internal/v1", internal);
 
   // ---- free routes ----
   app.post("/v1/agents/:id/prove", (c) => run(c, "kya_prove", null, null, async () => service.prove(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/renew/prove", (c) => run(c, "kya_renew", null, null, async () => service.renewProve(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/revoke", (c) => run(c, "kya_revoke", null, null, async () => service.revoke(c.env, idOf(c), await jsonBody(c))));
+
+  // Acts: the text the agent signs (free), a receipt by id (free), the company's trail (free, e-CNPJ-signed).
+  app.post("/v1/agents/:id/acts/text", (c) => run(c, "kya_act", null, null, async () => service.actTextFor(c.env, originOf(c), idOf(c), await jsonBody(c))));
+  app.post("/v1/agents/:id/acts/export", (c) => run(c, "kya_acts_export", null, null, async () => service.exportActs(c.env, idOf(c), await jsonBody(c))));
+  app.get("/v1/acts/:act_id", (c) => run(c, "kya_act", null, null, () => service.getAct(c.env, c.req.param("act_id") ?? "")));
 
   // /by-key before /:id so Hono does not treat "by-key" as an id.
   app.get("/v1/agents/by-key", async (c) => {

@@ -49,6 +49,12 @@ await check("paid verification and verdict answer 402", async () => {
     expect(r.status === 402, `${p} status ${r.status}`);
   }
 });
+await check("act registration answers 402; unknown act is 404", async () => {
+  const r = await fetch(`${base}/v1/agents/00000000-0000-0000-0000-000000000000/acts`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "pay" }) });
+  expect(r.status === 402, `status ${r.status}`);
+  const a = await fetch(`${base}/v1/acts/00000000-0000-0000-0000-000000000000`);
+  expect(a.status === 404, `act status ${a.status}`);
+});
 await check("free verification of an unknown id is 404 (never charged)", async () => {
   const r = await fetch(`${base}/v1/agents/00000000-0000-0000-0000-000000000000`);
   expect(r.status === 404, `status ${r.status}`);

@@ -6,3 +6,4 @@ export * from "./challenge";
 export * from "./credential";
 export * from "./icp-brasil";
 export * from "./erc8004";
+export * from "./acts";

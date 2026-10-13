@@ -41,7 +41,7 @@ describe("client", () => {
 
   it("exposes verifier tools for the frameworks", async () => {
     const kya = createKyaClient({ baseUrl: "https://x.test", fetch: (async () => new Response(JSON.stringify({ allowed: true }))) as unknown as typeof fetch });
-    expect(toOpenAI(kya).map((t) => t.function.name)).toEqual(["kya_verify", "kya_check_action", "kya_verify_paid"]);
+    expect(toOpenAI(kya).map((t) => t.function.name)).toEqual(["kya_verify", "kya_check_action", "kya_register_act", "kya_verify_paid"]);
     expect(toAnthropic(kya)[1]!.input_schema.required).toEqual(["credential_id"]);
     const v = toVercelAI(kya, { tool: (d) => d, jsonSchema: (s) => s });
     expect(Object.keys(v)).toContain("kya_check_action");

@@ -18,7 +18,7 @@ export function openapiJson(origin: string, network: string, payTo: string) {
       tags: [paid ? "paid" : "free"],
       "x-tool": name,
       "x-price-usd": t.priceUsd,
-      ...(t.path.includes("{id}") ? { parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" }, description: "credential_id" }] } : {}),
+      ...(/\{(\w+)\}/.test(t.path) ? { parameters: [...t.path.matchAll(/\{(\w+)\}/g)].map((m) => ({ name: m[1], in: "path", required: true, schema: { type: "string" }, description: m[1] === "id" ? "credential_id" : m[1] })) } : {}),
       ...(t.method === "POST" ? { requestBody: { required: true, content: { "application/json": { schema: { type: "object" } } } } } : {}),
       responses: {
         "200": { description: "OK", content: { "application/json": { schema: envelope } } },
@@ -65,6 +65,7 @@ export function llmsTxt(origin: string, network: string): string {
 - Before accepting an action or a payment from an AI agent that claims to act for a Brazilian company: GET ${origin}/v1/agents/{credential_id} (or /v1/agents/by-key?kind=evm&id=0x...) and check status == "active".
 - Before letting an agent do something specific: GET ${origin}/v1/agents/{id}/allowed?action=pay&amount=80&currency=USDC&counterparty=<cnpj> returns a signed allowed/denied verdict.
 - To give your own agent a credential: POST /v1/agents, sign the challenge with the agent key and with the company's e-CNPJ, POST /v1/agents/{id}/prove.
+- After accepting an action from an agent: POST ${origin}/v1/agents/{id}/acts ($0.02) registers it; the issuer re-checks the mandate including everything registered today (so max_per_day is enforced across counterparties) and returns a signed receipt. Keep the receipt.
 
 ## Tools
 ${tools}

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+
+- Acts: `POST /v1/agents/{id}/acts` ($0.02, MCP `kya_register_act`) registers what the agent did, re-checks the mandate with everything registered today (daily ceilings across counterparties), records denied acts as evidence and returns a signed receipt; `GET /v1/acts/{act_id}`, act text for the optional agent signature, and the company's trail export signed with the e-CNPJ. `/allowed` now uses the registered total too (`spent_today_registered`). Spec section 13.
+
 ## 0.2.0
 
 - ERC-8004 identities (read-only): agent kind `erc8004`, wallet resolved on chain (Base, Ethereum and their testnets by default; `EVM_RPC_URLS` to add chains) at registration, proof and daily review; credentials carry `agent.wallet`.

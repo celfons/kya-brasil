@@ -106,6 +106,35 @@ export interface Registration {
 
 export interface Proof { challenge_id: string; agent_signature: string; ecnpj_signature: string }
 
+export interface ActInput {
+  action: string;
+  amount?: number;
+  currency?: string;
+  counterparty?: string;
+  reference?: string;
+  content_sha256?: string;
+  registered_by?: "counterparty" | "agent";
+  registrant?: string;
+  agent_signature?: string;
+}
+
+export interface ActReceipt {
+  act_id: string;
+  credential_id: string;
+  status: CredentialStatus;
+  allowed: boolean;
+  reason: string;
+  act: ActInput & { agent_signed: boolean };
+  checks: { rule: string; ok: boolean; detail?: string }[];
+  not_evaluated: string[];
+  spent_today_registered_before: { currency: string; amount: number } | null;
+  spent_today_registered_after: { currency: string; amount: number } | null;
+  registered_at: string;
+  receipt_url: string;
+  attestation?: Attestation;
+  [k: string]: unknown;
+}
+
 export class KyaError extends Error {
   constructor(
     public readonly code: string,
@@ -144,6 +173,14 @@ export interface KyaClient {
   renewProve(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
   /** Free: the company revokes at once. signed_text must be "KYA Brasil: revoke <id>\n<nonce>", signed with the e-CNPJ. */
   revoke(credentialId: string, input: { signed_text: string; ecnpj_signature: string; reason?: string }): Promise<{ credential_id: string; status: "revoked" }>;
+  /** $0.02: register what the agent did (you accepted it); mandate re-checked with today's registered acts; signed receipt. */
+  registerAct(credentialId: string, act: ActInput): Promise<ActReceipt>;
+  /** Free: a registered act and its receipt, by act_id. */
+  act(actId: string): Promise<ActReceipt>;
+  /** Free: the exact text the agent signs for an act (optional agent_signature). */
+  actText(credentialId: string, act: ActInput): Promise<{ credential_id: string; agent: AgentKey; text: string }>;
+  /** Free, company only: the trail of an agent's acts, request signed with the e-CNPJ over actsExportText(id). */
+  exportActs(credentialId: string, input: { signed_text: string; ecnpj_signature: string; since?: string }): Promise<{ credential_id: string; since: string; count: number; acts: Record<string, unknown>[] }>;
   /** Free: credentials revoked since a date (default 30 days). */
   revocations(since?: string): Promise<{ since: string; count: number; revocations: { credential_id: string; revoked_at: string; reason: string | null }[] }>;
   /** Tool definitions for agent frameworks (verifier side). */
@@ -190,6 +227,10 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     renewProve: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew/prove`, proof),
     revoke: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/revoke`, input),
     revocations: (since) => call("GET", `/v1/revocations${q({ since })}`),
+    registerAct: (id, act) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts`, act, true, 0.02),
+    act: (actId) => call("GET", `/v1/acts/${encodeURIComponent(actId)}`),
+    actText: (id, act) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts/text`, act),
+    exportActs: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts/export`, input),
     tools: [],
     execute: async (name, args) => {
       const t = client.tools.find((x) => x.name === name);
@@ -211,6 +252,12 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
       description: "Signed verdict ($0.01): may this agent perform this action (action, amount, currency, counterparty) under its company mandate, and is the credential active right now? Use before accepting an order, a payment or a signature from an agent.",
       parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "Your CNPJ, domain or wallet address" }, spent_today: { type: "number" } }, required: ["credential_id"], additionalProperties: false },
       execute: async (a) => client.allowed(String(a.credential_id), { action: a.action as string, amount: a.amount as number, currency: a.currency as string, counterparty: a.counterparty as string, spent_today: a.spent_today as number }) as Promise<Record<string, unknown>>
+    },
+    {
+      name: "kya_register_act", priceUsd: 0.02,
+      description: "Register an action you accepted from an agent ($0.02): the issuer re-checks the mandate including everything registered today by anyone (so daily ceilings hold across counterparties) and returns a signed receipt, your proof of what the agent could and did do. Denied acts are recorded too.",
+      parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "You: CNPJ, domain or wallet" }, reference: { type: "string" }, content_sha256: { type: "string" } }, required: ["credential_id", "action"], additionalProperties: false },
+      execute: async (a) => { const { credential_id, ...act } = a; return client.registerAct(String(credential_id), act as unknown as ActInput) as unknown as Promise<Record<string, unknown>>; }
     },
     {
       name: "kya_verify_paid", priceUsd: 0.01,
@@ -287,6 +334,11 @@ export async function signWithECnpj(material: ECnpjMaterial, text: string): Prom
   let s = "";
   for (const b of bytes) s += String.fromCharCode(b);
   return btoa(s);
+}
+
+/** The text the company signs to read its agent's trail of acts. */
+export function actsExportText(credentialId: string, nonce: string = crypto.randomUUID()): string {
+  return `KYA Brasil: acts ${credentialId}\n${nonce}`;
 }
 
 /** The text the company signs to revoke a credential. */

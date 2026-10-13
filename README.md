@@ -28,6 +28,7 @@ live status at a stable URL, revocable at once. Every per-action verdict is sign
 | Company checked | no | no | **yes, at issuance and daily (KYB)** |
 | Mandate (what the agent may do) | no | operator policy | **declared and signed by the company** |
 | Verdict per action | score | allow / deny | **signed allow / deny with the checks listed** |
+| Record of what the agent did | no | hash-chained ledger, self-declared | **signed receipt per act, daily ceilings enforced across counterparties, trail readable by the company** |
 | Verifiable offline | sometimes | no | **yes, Ed25519 + published keys** |
 | Open specification and code | rarely | no | **yes** |
 
@@ -51,6 +52,15 @@ await verifyAttestation(verdict);                                 // the issuer'
 
 Also check that the key that signed the agent's request is `v.agent.id` (or `v.agent.wallet` for ERC-8004):
 a credential id alone proves nothing about who is talking.
+
+Once you accept the action, **register it** ($0.02): the issuer re-checks the mandate including everything
+registered today by anyone, so a daily ceiling holds across all the agent's counterparties, and signs a receipt
+that is your proof of what the agent could and did do. The company reads the trail of its agents with its e-CNPJ.
+
+```ts
+const receipt = await kya.registerAct(credentialId, { action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190", reference: "PO-1" });
+// receipt.allowed, receipt.spent_today_registered_after, receipt.receipt_url, receipt.attestation
+```
 
 Over MCP, the same three tools are `kya_verify`, `kya_check_action` and `kya_verify_paid`. Claude Desktop,
 Cursor and friends: add the remote server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
@@ -88,6 +98,8 @@ The npm package signs the challenge for you (`signChallengeWithEvmKey`, `signCha
 | `kya_verify` | `GET /v1/agents/{id}`, `GET /v1/agents/by-key` | free, 50/day per IP |
 | `kya_verify_paid` | `GET /v1/agents/{id}/verified` | 0.01 |
 | `kya_check_action` | `GET /v1/agents/{id}/allowed` | 0.01 |
+| `kya_register_act` | `POST /v1/agents/{id}/acts` | 0.02 |
+| `kya_act`, `kya_act_text`, `kya_acts_export` | `GET /v1/acts/{act_id}`; `POST /v1/agents/{id}/acts/text`, `/acts/export` | free |
 | `kya_renew` | `POST /v1/agents/{id}/renew` | 0.10 |
 | `kya_register` | `POST /v1/agents` | 0.50 |
 

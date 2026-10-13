@@ -47,6 +47,10 @@ describe("free routes", () => {
     const o = (await (await call(app, env, "/openapi.json")).json()) as { paths: Record<string, Record<string, unknown>> };
     expect(o.paths["/v1/agents"]!.post).toBeDefined();
     expect(o.paths["/v1/agents/{id}/allowed"]!.get).toBeDefined();
+    const act = o.paths["/v1/acts/{act_id}"]!.get as { parameters: { name: string; in: string }[] };
+    expect(act.parameters).toEqual([{ name: "act_id", in: "path", required: true, schema: { type: "string" }, description: "act_id" }]);
+    const reg = o.paths["/v1/agents/{id}/acts"]!.post as { "x-price-usd": number };
+    expect(reg["x-price-usd"]).toBe(0.02);
     const t = await (await call(app, env, "/llms.txt")).text();
     expect(t).toContain("kya_check_action");
   });
