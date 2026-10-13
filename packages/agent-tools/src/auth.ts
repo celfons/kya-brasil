@@ -28,13 +28,14 @@
 import { verifyMessage } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index";
+import { fromBase64Url, toBase64Url } from "./base64url";
 
 export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256" } as const;
 
 const enc = new TextEncoder();
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-const b64u = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-const unb64u = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+const b64u = toBase64Url;
+const unb64u = fromBase64Url;
 
 export async function sha256Hex(data: string | ArrayBuffer | Uint8Array): Promise<string> {
   const bytes = typeof data === "string" ? enc.encode(data) : data instanceof Uint8Array ? data : new Uint8Array(data);
@@ -122,7 +123,10 @@ function normalizeCounterparty(c: string): string {
   const digits = t.replace(/\D/g, "");
   if (digits.length === 14 && /^[\d./-]+$/.test(t)) return digits;
   if (/^0x[0-9a-fA-F]{40}$/.test(t)) return t.toLowerCase();
-  return t.toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  // Domain or URL: drop the scheme, then everything from the first "/" (indexOf, no backtracking regex).
+  const host = t.toLowerCase().replace(/^https?:\/\//, "");
+  const slash = host.indexOf("/");
+  return slash === -1 ? host : host.slice(0, slash);
 }
 
 /**

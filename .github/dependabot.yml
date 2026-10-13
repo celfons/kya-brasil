@@ -1,0 +1,14 @@
+# Keeps the GitHub Actions pinned by commit SHA up to date: Dependabot updates the SHA and the
+# "# vX.Y.Z" comment together, in one grouped PR per week. npm security updates stay on (repo settings).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"

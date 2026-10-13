@@ -18,9 +18,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
@@ -60,18 +60,18 @@ jobs:
           if [ -z "$PAY_TO" ] || [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$PULUMI_ACCESS_TOKEN" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"; echo "::notice::environment '${{ matrix.stack }}' lacks PAY_TO/CLOUDFLARE_API_TOKEN/PULUMI_ACCESS_TOKEN; skipping"
           else echo "ready=true" >> "$GITHUB_OUTPUT"; fi
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         if: steps.cfg.outputs.ready == 'true'
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
         if: steps.cfg.outputs.ready == 'true'
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         if: steps.cfg.outputs.ready == 'true'
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
         if: steps.cfg.outputs.ready == 'true'
       - name: Install Pulumi CLI
         if: steps.cfg.outputs.ready == 'true'
-        run: curl -fsSL https://get.pulumi.com | sh -s && echo "$HOME/.pulumi/bin" >> "$GITHUB_PATH"
+        run: bash scripts/install-pulumi.sh # pinned version, SHA-256 verified
       - name: Stack config from GitHub secrets
         if: steps.cfg.outputs.ready == 'true'
         working-directory: infra
@@ -116,8 +116,10 @@ jobs:
         run: |
           SCRIPT=$(pulumi stack output scriptName --stack ${{ matrix.stack }})
           KV=$(pulumi stack output kvNamespaceId --stack ${{ matrix.stack }})
-          SUB=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | node -pe 'JSON.parse(require("fs").readFileSync(0)).result.subdomain')
+          curl --proto '=https' --tlsv1.2 -fsS -o "$RUNNER_TEMP/subdomain.json" -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain"
+          SUB=$(node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).result.subdomain; if(!/^[a-z0-9-]+$/.test(s)) process.exit(1); console.log(s)' "$RUNNER_TEMP/subdomain.json")
           echo "base=https://$SCRIPT.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
+          echo "host=$SCRIPT.$SUB.workers.dev" >> "$GITHUB_OUTPUT"
           echo "kv=$KV" >> "$GITHUB_OUTPUT"
           echo "::notice::${{ matrix.stack }} → https://$SCRIPT.$SUB.workers.dev"
       - name: ICP-Brasil trust anchors (ITI → KV icp:anchors)
@@ -130,19 +132,26 @@ jobs:
       - name: Smoke test
         if: steps.cfg.outputs.ready == 'true'
         id: smoke
+        env:
+          SMOKE_ALLOWED_HOSTS: ${{ steps.url.outputs.host }}
         run: node scripts/smoke.mjs "${{ steps.url.outputs.base }}"
       # Prod only: publishes io.github.celfons/kya-brasil when the remote URL or description changed.
       - name: Publish to MCP Registry (prod, only when changed)
         if: steps.cfg.outputs.ready == 'true' && steps.smoke.outcome == 'success' && matrix.stack == 'prod'
         run: |
-          curl -fsS "${{ steps.url.outputs.base }}/server.json" > server.json
+          curl --proto '=https' --tlsv1.2 -fsS "${{ steps.url.outputs.base }}/server.json" > server.json
           NAME=$(node -pe 'require("./server.json").name')
-          curl -fsS "https://registry.modelcontextprotocol.io/v0/servers?search=$NAME&version=latest" > latest.json || echo '{"servers":[]}' > latest.json
+          curl --proto '=https' --tlsv1.2 -fsS "https://registry.modelcontextprotocol.io/v0/servers?search=$NAME&version=latest" > latest.json || echo '{"servers":[]}' > latest.json
           NEXT=$(node scripts/registry-version.mjs server.json latest.json)
           if [ "$NEXT" = "unchanged" ]; then echo "registry already up to date"; exit 0; fi
           node -e 'const f="server.json",j=require("./"+f);j.version=process.argv[1];require("fs").writeFileSync(f,JSON.stringify(j))' "$NEXT"
           cat server.json
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          # Pinned mcp-publisher, HTTPS only, SHA-256 from the release's registry_<version>_checksums.txt.
+          MCP_PUBLISHER_VERSION=1.8.1
+          MCP_PUBLISHER_SHA256=a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+          curl --proto '=https' --tlsv1.2 -fsSL -o mcp-publisher_linux_amd64.tar.gz "https://github.com/modelcontextprotocol/registry/releases/download/v${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz"
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher_linux_amd64.tar.gz" | sha256sum -c -
+          tar -xzf mcp-publisher_linux_amd64.tar.gz mcp-publisher
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
       - name: Rollback on smoke failure

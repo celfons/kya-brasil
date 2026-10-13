@@ -32,3 +32,14 @@ describe("agent key challenge", () => {
     expect(() => normalizeAgentKey({ kind: "solana", id: "x" })).toThrow(/kind/);
   });
 });
+
+describe("base64url padding (no backtracking regex)", () => {
+  it("never leaves '=' and round-trips every length", () => {
+    for (let n = 0; n < 40; n++) {
+      const bytes = Uint8Array.from({ length: n }, (_, i) => (i * 37 + n) & 255);
+      const s = base64url.encode(bytes);
+      expect(s).not.toMatch(/[=+/]/);
+      expect([...base64url.decode(s)]).toEqual([...bytes]);
+    }
+  });
+});
