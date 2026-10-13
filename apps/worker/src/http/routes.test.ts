@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildHttpApp } from "./routes";
 import type { AppEnv } from "../env";
-import { MAX_DESCRIPTION, TOOLS } from "../pricing";
+import { MAX_DESCRIPTION, REGISTRY_DESCRIPTION, TOOLS } from "../pricing";
 
 /** Minimal env: KV and D1 as in-memory fakes, enough for the free routes that do not issue anything. */
 function fakeEnv(): AppEnv {
@@ -91,5 +91,7 @@ describe("free routes", () => {
 describe("pricing", () => {
   it("keeps every description inside the facilitator limit", () => {
     for (const [name, t] of Object.entries(TOOLS)) expect(t.description.length, name).toBeLessThanOrEqual(MAX_DESCRIPTION);
+    // The MCP Registry rejects a server.json description over 100 characters (422 on publish).
+    expect(REGISTRY_DESCRIPTION.length).toBeLessThanOrEqual(100);
   });
 });

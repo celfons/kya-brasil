@@ -17,7 +17,7 @@ config:
     default: kya-br-agents
   kybWorkerName:
     type: string
-    description: Script name of the KYB Brasil Worker in the same account, bound as the KYB service binding.
+    description: Script name of the KYB Brasil Worker in the same account, bound as the KYB service binding when kybInternalKey is set.
     default: kyb-br-agents
   x402Network:
     type: string
@@ -35,11 +35,10 @@ config:
     type: string
     description: Receiving wallet address (0x...). Secret.
     secret: true
-  kybInternalKey:
-    type: string
-    description: Shared key accepted by KYB Brasil's /internal/v1/* channel (its INTERNAL_API_KEY). Secret.
-    secret: true
 # Optional, read with cfg.get/getSecret() (a declared key without default is required by Pulumi):
+#   kya-br-agents:kybInternalKey       KYB Brasil's INTERNAL_API_KEY; set = KYB service binding, unset = public
+#                                      registration sources (BrasilAPI, CNPJ.ws; D-17). Secret.
+#   kya-br-agents:registrationSource   auto (default) | kyb | public
 #   kya-br-agents:issuerUrl            public base URL written into credentials (defaults to the request origin)
 #   kya-br-agents:internalApiKey       shared key for the fiat channel (/internal/v1/*)
 #   kya-br-agents:cdpApiKeyId          Coinbase Developer Platform key id (mainnet facilitator)
