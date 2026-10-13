@@ -108,33 +108,16 @@ export interface Registration {
 
 export interface Proof { challenge_id: string; agent_signature: string; ecnpj_signature: string }
 
-export interface ActInput {
-  action: string;
-  amount?: number;
-  currency?: string;
-  counterparty?: string;
-  reference?: string;
-  content_sha256?: string;
-  registered_by?: "counterparty" | "agent";
-  registrant?: string;
-  agent_signature?: string;
-}
+export type CompanyEvent = "credential.issued" | "credential.renewed" | "credential.suspended" | "credential.reinstated" | "credential.revoked" | "verdict.denied";
 
-export interface ActReceipt {
-  act_id: string;
-  credential_id: string;
-  status: CredentialStatus;
-  allowed: boolean;
-  reason: string;
-  act: ActInput & { agent_signed: boolean };
-  checks: { rule: string; ok: boolean; detail?: string }[];
-  not_evaluated: string[];
-  spent_today_registered_before: { currency: string; amount: number } | null;
-  spent_today_registered_after: { currency: string; amount: number } | null;
-  registered_at: string;
-  receipt_url: string;
-  attestation?: Attestation;
-  [k: string]: unknown;
+/** Body POSTed to the company's webhook. Check it with verifyAttestation(event) before trusting it. */
+export interface CompanyWebhookEvent { event: CompanyEvent; cnpj: string; at: string; data: Record<string, unknown>; attestation?: Attestation }
+
+export interface CompanyInventory {
+  cnpj: string;
+  cnpj_formatted: string;
+  count: number;
+  agents: { credential_id: string; agent: AgentKey; status: CredentialStatus | "pending"; status_reason: string | null; mandate: Mandate; certificate_sha256: string | null; created_at: string; issued_at: string | null; expires_at: string | null }[];
 }
 
 export class KyaError extends Error {
@@ -175,14 +158,10 @@ export interface KyaClient {
   renewProve(credentialId: string, proof: Proof): Promise<{ credential: Credential; kyb_warnings: string[] }>;
   /** Free: the company revokes at once. signed_text must be "KYA Brasil: revoke <id>\n<nonce>", signed with the e-CNPJ. */
   revoke(credentialId: string, input: { signed_text: string; ecnpj_signature: string; reason?: string }): Promise<{ credential_id: string; status: "revoked" }>;
-  /** $0.02: register what the agent did (you accepted it); mandate re-checked with today's registered acts; signed receipt. */
-  registerAct(credentialId: string, act: ActInput): Promise<ActReceipt>;
-  /** Free: a registered act and its receipt, by act_id. */
-  act(actId: string): Promise<ActReceipt>;
-  /** Free: the exact text the agent signs for an act (optional agent_signature). */
-  actText(credentialId: string, act: ActInput): Promise<{ credential_id: string; agent: AgentKey; text: string }>;
-  /** Free, company only: the trail of an agent's acts, request signed with the e-CNPJ over actsExportText(id). */
-  exportActs(credentialId: string, input: { signed_text: string; ecnpj_signature: string; since?: string }): Promise<{ credential_id: string; since: string; count: number; acts: Record<string, unknown>[] }>;
+  /** Free, company only: every credential registered for the CNPJ, any status. signed_text = companyText("agents", cnpj), signed with the e-CNPJ. */
+  companyAgents(cnpj: string, input: { signed_text: string; ecnpj_signature: string }): Promise<CompanyInventory>;
+  /** Free, company only: sets (or removes, with "-") the https URL that receives signed CompanyWebhookEvent. signed_text = companyText("webhook", cnpj, { url }). */
+  setCompanyWebhook(cnpj: string, input: { signed_text: string; ecnpj_signature: string }): Promise<{ cnpj: string; webhook: string | null; signed_at: string; events: CompanyEvent[] }>;
   /** Free: credentials revoked since a date (default 30 days). */
   revocations(since?: string): Promise<{ since: string; count: number; revocations: { credential_id: string; revoked_at: string; reason: string | null }[] }>;
   /** Tool definitions for agent frameworks (verifier side). */
@@ -229,10 +208,8 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     renewProve: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew/prove`, proof),
     revoke: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/revoke`, input),
     revocations: (since) => call("GET", `/v1/revocations${q({ since })}`),
-    registerAct: (id, act) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts`, act, true, 0.02),
-    act: (actId) => call("GET", `/v1/acts/${encodeURIComponent(actId)}`),
-    actText: (id, act) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts/text`, act),
-    exportActs: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/acts/export`, input),
+    companyAgents: (cnpj, input) => call("POST", `/v1/companies/${encodeURIComponent(cnpj)}/agents`, input),
+    setCompanyWebhook: (cnpj, input) => call("POST", `/v1/companies/${encodeURIComponent(cnpj)}/webhook`, input),
     tools: [],
     execute: async (name, args) => {
       const t = client.tools.find((x) => x.name === name);
@@ -254,12 +231,6 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
       description: "Signed verdict ($0.01): may this agent perform this action (action, amount, currency, counterparty) under its company mandate, and is the credential active right now? Use before accepting an order, a payment or a signature from an agent.",
       parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "Your CNPJ, domain or wallet address" }, spent_today: { type: "number" } }, required: ["credential_id"], additionalProperties: false },
       execute: async (a) => client.allowed(String(a.credential_id), { action: a.action as string, amount: a.amount as number, currency: a.currency as string, counterparty: a.counterparty as string, spent_today: a.spent_today as number }) as Promise<Record<string, unknown>>
-    },
-    {
-      name: "kya_register_act", priceUsd: 0.02,
-      description: "Register an action you accepted from an agent ($0.02): the issuer re-checks the mandate including everything registered today by anyone (so daily ceilings hold across counterparties) and returns a signed receipt, your proof of what the agent could and did do. Denied acts are recorded too.",
-      parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "You: CNPJ, domain or wallet" }, reference: { type: "string" }, content_sha256: { type: "string" } }, required: ["credential_id", "action"], additionalProperties: false },
-      execute: async (a) => { const { credential_id, ...act } = a; return client.registerAct(String(credential_id), act as unknown as ActInput) as unknown as Promise<Record<string, unknown>>; }
     },
     {
       name: "kya_verify_paid", priceUsd: 0.01,
@@ -339,9 +310,14 @@ export async function signWithECnpj(material: ECnpjMaterial, text: string): Prom
   return btoa(s);
 }
 
-/** The text the company signs to read its agent's trail of acts. */
-export function actsExportText(credentialId: string, nonce: string = crypto.randomUUID()): string {
-  return `KYA Brasil: acts ${credentialId}\n${nonce}`;
+/**
+ * The text the company signs for its inventory or its webhook. The issuer accepts it for 10 minutes after `at`
+ * (and a webhook change only if newer than the last accepted one). For the webhook, url "-" removes it.
+ */
+export function companyText(verb: "agents" | "webhook", cnpj: string, opts: { url?: string; at?: Date } = {}): string {
+  const digits = cnpj.replace(/\D/g, "");
+  const extra = verb === "webhook" ? [`url: ${opts.url ?? "-"}`] : [];
+  return [`KYA Brasil: ${verb} ${digits}`, ...extra, `at: ${(opts.at ?? new Date()).toISOString()}`].join("\n");
 }
 
 /** The text the company signs to revoke a credential. */
@@ -400,4 +376,24 @@ export async function verifyAttestation(doc: Record<string, unknown>, opts: { ba
   const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, sig, new TextEncoder().encode(`${hex}\n${att.signed_at}`));
   return ok ? { valid: true, key_id: att.key_id, signed_at: att.signed_at } : { valid: false, reason: "signature does not verify", key_id: att.key_id, signed_at: att.signed_at };
 }
+export interface OfflineCheck {
+  /** Issuer signature over the credential: proves what was issued and that it was not modified. */
+  signature: VerifyResult;
+  /** expires_at is in the future (the credential's own deadline). */
+  within_validity: boolean;
+  /**
+   * Always "unknown": a signature cannot say whether the credential was suspended or revoked after it was issued.
+   * Check verify() (or /v1/revocations) when you can; accepting an offline-only check is your risk until expires_at.
+   */
+  live_status: "unknown";
+  usable_offline: boolean;
+}
+
+/** Checks a credential with no call to the issuer's API (only the published key, unless publicJwk is given). */
+export async function verifyCredentialOffline(credential: Credential, opts: { baseUrl?: string; publicJwk?: JsonWebKey; fetch?: typeof fetch; now?: Date } = {}): Promise<OfflineCheck> {
+  const signature = await verifyAttestation(credential as unknown as Record<string, unknown>, opts);
+  const within_validity = Date.parse(credential.expires_at) > (opts.now ?? new Date()).getTime();
+  return { signature, within_validity, live_status: "unknown", usable_offline: signature.valid && within_validity && credential.status === "active" };
+}
+
 export * from "./auth";

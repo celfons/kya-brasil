@@ -65,7 +65,9 @@ export function llmsTxt(origin: string, network: string): string {
 - Before accepting an action or a payment from an AI agent that claims to act for a Brazilian company: GET ${origin}/v1/agents/{credential_id} (or /v1/agents/by-key?kind=evm&id=0x...) and check status == "active".
 - Before letting an agent do something specific: GET ${origin}/v1/agents/{id}/allowed?action=pay&amount=80&currency=USDC&counterparty=<cnpj> returns a signed allowed/denied verdict.
 - To give your own agent a credential: POST /v1/agents, sign the challenge with the agent key and with the company's e-CNPJ, POST /v1/agents/{id}/prove.
-- After accepting an action from an agent: POST ${origin}/v1/agents/{id}/acts ($0.02) registers it; the issuer re-checks the mandate including everything registered today (so max_per_day is enforced across counterparties) and returns a signed receipt. Keep the receipt.
+- max_per_day is checked against the spent_today you pass to /allowed: the issuer does not record what agents do. Keep your own records of accepted actions.
+- A company sees every agent registered in its name with POST ${origin}/v1/companies/{cnpj}/agents and gets signed events (issued, renewed, suspended, reinstated, revoked, verdict.denied) at the webhook it sets with POST ${origin}/v1/companies/{cnpj}/webhook; both free and signed with its e-CNPJ.
+- Offline verification (issuer signature on the credential) proves what was issued, not that it is still active: check status online, or accept the risk until expires_at.
 
 ## Tools
 ${tools}
@@ -89,8 +91,9 @@ export function termsText(): string {
 2. The company that signs the mandate answers for the agent's actions inside it. The issuer answers only for the verification it performed.
 3. Credentials expire in 90 days, are suspended while the company is not ATIVA, are revoked when the e-CNPJ that authorized them is revoked at its AC, and are revoked at once on the company's signed request.
 4. Personal data: only legal-entity data and the certificate hash are stored. No CPF, no signer identity.
-5. Errors are never charged. Best effort, no SLA.
-6. Contact: ${CONTACT_EMAIL}`;
+5. Errors are never charged. Best effort, no SLA. Live state is published at /status (including the last daily review); while the issuer is unreachable, a verifier decides whether to accept a credential checked only offline, until its expires_at.
+6. The issuer does not record what agents do. A company may watch its agents through the inventory and the signed webhook events.
+7. Contact: ${CONTACT_EMAIL}`;
 }
 
 /** MCP Registry entry (published by the CD on prod; see .github/workflows/cd.yml). */

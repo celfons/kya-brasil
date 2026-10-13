@@ -1,6 +1,6 @@
 export const SERVICE_NAME = "KYA Brasil";
 export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "kyb", "attestation"];
-export const VERSION = "0.4.1";
+export const VERSION = "0.5.0";
 export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
 /** MCP Registry entry (≤100 chars). */
 export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, revocation-checked, signed verdicts";
@@ -17,9 +17,8 @@ export const TOOLS = {
   kya_verify_paid: { priceUsd: 0.01, method: "GET", path: "/v1/agents/{id}/verified", description: "Same as the free verification, without daily limit, plus a signed receipt of the verification itself (what was checked, when). Pay per call with x402." },
   kya_check_action: { priceUsd: 0.01, method: "GET", path: "/v1/agents/{id}/allowed", description: "Signed verdict: is this action (action, amount, currency, counterparty) inside the agent's mandate and is the credential active? Evaluates the reserved mandate fields; lists the fields it did not evaluate." },
   kya_renew: { priceUsd: 0.1, method: "POST", path: "/v1/agents/{id}/renew", description: "Re-issue the credential for 90 more days. The company signs the renewal challenge with an e-CNPJ in force (not revoked); the company must still be ATIVA at the Receita." },
-  kya_register_act: { priceUsd: 0.02, method: "POST", path: "/v1/agents/{id}/acts", description: "Register what the agent did (action, amount, currency, counterparty, reference, optional document hash and agent signature), usually by the party that accepted it. The issuer checks it against the mandate, adding what was already registered today, and returns a signed receipt. Denied acts are recorded too. The receipt is the proof of what the agent could and did do at that moment." },
-  kya_act: { priceUsd: 0, method: "GET", path: "/v1/acts/{act_id}", description: "Free. A registered act and its signed receipt, by act_id (the receipt holder has it)." },
-  kya_acts_export: { priceUsd: 0, method: "POST", path: "/v1/agents/{id}/acts/export", description: "Free. The company's trail of everything registered for one of its agents (default 30 days). The request is signed with the company's e-CNPJ, so only the principal reads it." },
+  kya_company_agents: { priceUsd: 0, method: "POST", path: "/v1/companies/{cnpj}/agents", description: "Free, company only. Every credential ever registered for your CNPJ, any status, whoever held the certificate (an accountant, another employee). Request signed with your e-CNPJ over \"KYA Brasil: agents <cnpj>\" + \"at: <ISO time>\"." },
+  kya_company_webhook: { priceUsd: 0, method: "POST", path: "/v1/companies/{cnpj}/webhook", description: "Free, company only. Sets the https URL that receives signed events about your agents: credential issued, renewed, suspended, reinstated, revoked, and denied verdicts. Request signed with your e-CNPJ; url \"-\" removes it." },
   kya_revoke: { priceUsd: 0, method: "POST", path: "/v1/agents/{id}/revoke", description: "Free. The company revokes the credential at once (e-CNPJ-signed request). Revocations are listed at /v1/revocations." }
 } as const;
 export type ToolName = keyof typeof TOOLS;
