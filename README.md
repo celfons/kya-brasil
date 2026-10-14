@@ -2,57 +2,56 @@
 
 ![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused; a new credential in the company's name reaches its webhook as a signed event](docs/assets/demo.gif)
 
-**Know-your-agent, backed by a real company.** Most "KYA" tools prove that an agent holds a key and give it
-a score. KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **which legal
-entity answers for this agent, and what is it allowed to do?**
+**Know-your-agent backed by ICP-Brasil.** Most "KYA" tools prove that an agent holds a key and give it a score.
+KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **who answers for this agent,
+and what is it allowed to do?**
 
-A Brazilian company signs with its **e-CNPJ** (the ICP-Brasil certificate every company already uses for
-invoices) that an AI agent key acts on its behalf, within a declared **mandate**. Before issuance and every
-day after, the issuer checks that the e-CNPJ is not revoked (the AC's CRL) and that the company is still
-active at the Receita Federal: the link between agent and company stays true or the credential stops working.
-The credential is Ed25519-signed JSON: verifiable offline, live status at a stable URL, revocable at once.
-Every per-action verdict is signed too.
+A Brazilian **company** signs with its **e-CNPJ**, or a **person** with their **e-CPF**, that an AI agent key acts on
+their behalf within a declared **mandate** (actions, amounts, currencies, counterparties, payment instruments,
+validity). The issuer validates the ICP-Brasil chain and the certificate's revocation (CRL), checks that the
+company is active at the Receita Federal, and re-checks every day. The result is an Ed25519-signed credential:
+verifiable offline, live status at a stable URL, revocable at once. Every per-action verdict is signed too.
 
-KYA Brasil answers *who speaks for whom*, not *whether the company is a good risk*. Sanctions, forced
-labour, debt and litigation are your call as the verifier, with whatever screening you trust and the CNPJ
-the credential gives you.
+- **Open source and self-contained.** No closed service, no API key, no contract: Receita open data (BrasilAPI,
+  CNPJ.ws, or your own source), each AC's public CRL, the ITI trust anchors in this repository.
+- **Three ways to use it.** The hosted service (HTTP and MCP, pay per call with x402), the library
+  `@kya-brasil/core` inside your own systems, or your own issuer from this repository.
+- **Signing without friction.** A1 `.pfx` in the browser, A3 token or card (PKCS#11 or any ICP-Brasil signer),
+  cloud certificates through a provider interface; the agent prepares, a person signs.
+- **Privacy by design.** Companies: no CPF or name of the certificate holder. Persons: no name, no CPF, only a
+  keyed hash, deleted when the credential ends.
 
-Self-contained: no closed service, no API key, no contract. The company's registration status comes from the
-Receita Federal's open data (BrasilAPI, CNPJ.ws as fallback, or your own source in `CNPJ_API_URL`), the
-revocation check from each AC's public CRL, the trust anchors from the ITI bundle in this repository.
+KYA Brasil answers *who speaks for whom*, not *whether they are a good risk*. Sanctions, debt and litigation are
+the verifier's call, with whatever screening it trusts.
 
 | | |
 | --- | --- |
-| Service | `https://kya-br-agents.marcelfons.workers.dev` |
-| MCP (streamable HTTP) | `https://kya-br-agents.marcelfons.workers.dev/mcp` |
-| MCP Registry | `io.github.celfons/kya-brasil` |
-| npm | [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client), [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (library: verify or issue with no hosted service) |
-| Registration data | Receita Federal open data via BrasilAPI / CNPJ.ws, or your own `CNPJ_API_URL` (D-23) |
+| Service | `https://kya-br-agents.marcelfons.workers.dev` (landing, `/docs` Swagger, `/status`) |
+| MCP (streamable HTTP) | `https://kya-br-agents.marcelfons.workers.dev/mcp`, Registry `io.github.celfons/kya-brasil` |
+| npm | [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (the library), [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client, middleware, `kya-sign`) |
 | Payments | [x402](https://x402.org), USDC on Base, no signup. Free verification up to 50/day per IP. Errors are never charged. |
-| Spec | [docs/SPEC.md](docs/SPEC.md) with [test vectors](docs/vectors/credential-v1.json) |
+| Spec | [docs/SPEC.md](docs/SPEC.md), [test vectors](docs/vectors/credential-v1.json), [decisions](docs/DECISOES.md), [examples](examples) |
 | License | MIT |
 
 ## Why this is different
 
-| | Key-only KYA (DID, score, bonds) | Policy gateways (release tokens, provenance) | **KYA Brasil** |
+| | Key-only KYA (DID, score, bonds) | Policy gateways | **KYA Brasil** |
 | --- | --- | --- | --- |
-| Who answers for the agent | nobody, a key | the agent's own operator | **a legal entity, proven by e-CNPJ** |
-| Link kept true | no | no | **e-CNPJ revocation (CRL) and company registration checked at issuance and daily** |
-| Mandate (what the agent may do) | no | operator policy | **declared and signed by the company** |
-| Verdict per action | score | allow / deny | **signed allow / deny with the checks listed** |
-| The company sees its agents | no | operator dashboard | **inventory and signed webhook events, both authorized by e-CNPJ** |
-| Verifiable offline | sometimes | no | **yes, Ed25519 + published keys** |
-| Open specification and code | rarely | no | **yes** |
+| Who answers for the agent | nobody, a key | the agent's operator | **a company (e-CNPJ) or a person (e-CPF), ICP-Brasil** |
+| Link kept true | no | no | **certificate revocation and company registration, at issuance and daily** |
+| Mandate | no | operator policy | **declared and signed by whoever answers for the agent** |
+| Verdict per action | score | allow / deny | **signed allow / deny with every check listed, usable as evidence** |
+| Payment instruments | no | no | **card tokens / PARs bound to the mandate, as hashes** |
+| Whoever answers sees its agents | no | dashboard | **inventory (and webhooks for companies), signed with their certificate** |
+| Verifiable offline, open spec and code | rarely | no | **yes** |
 
 ## For verifiers: you receive an action from someone else's agent
-
-Three calls, no account:
 
 ```ts
 import { createKyaClient, verifyAttestation } from "@kya-brasil/agent-tools";
 
 const kya = createKyaClient();                                    // add { privateKey } for paid calls
-const v = await kya.verify(credentialId);                         // free: company, mandate, live status
+const v = await kya.verify(credentialId);                         // free: principal, mandate, live status
 if (v.status !== "active") reject();
 
 const verdict = await kya.allowed(credentialId, {                 // $0.01, signed
@@ -62,228 +61,178 @@ if (!verdict.allowed) reject(verdict.reason);
 await verifyAttestation(verdict);                                 // the issuer's signature, checked locally
 ```
 
-Also check that the key that signed the agent's request is `v.agent.id` (or `v.agent.wallet` for ERC-8004):
-a credential id alone proves nothing about who is talking.
+- Check that the key that signed the agent's request is `v.agent.id` (or `v.agent.wallet` for ERC-8004).
+- Check `principal.kind` before reading `principal.cnpj`: `"person"` credentials carry no CNPJ and nothing personal.
+- `max_per_day` uses the `spent_today` you pass: the issuer does not record what agents do.
+- Offline (issuer unreachable): `verifyCredentialOffline(credential)` checks signature and expiry, with
+  `live_status: "unknown"`.
 
-`max_per_day` is checked against the `spent_today` you pass: the issuer does not record what agents do (D-19),
-so keep your own record of what you accepted.
+Over MCP: `kya_verify`, `kya_check_action`, `kya_verify_paid`. Claude Desktop, Cursor and others: add the remote
+server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
 
-**Offline** (issuer unreachable): `verifyCredentialOffline(credential)` checks the issuer's signature and
-`expires_at` with the published key only. It returns `live_status: "unknown"`: a signature cannot tell that the
-credential was suspended or revoked since. Accepting it is your risk until `expires_at`; `/status` shows whether
-the issuer and its daily review are up.
+### Sign in with KYA (one middleware)
 
-Over MCP, the same three tools are `kya_verify`, `kya_check_action` and `kya_verify_paid`. Claude Desktop,
-Cursor and friends: add the remote server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
-
-### Sign in with KYA (one middleware instead of three calls)
-
-The agent signs every request with its key and sends four `KYA-*` headers; your server verifies the signature,
-fetches and caches the credential, and gets who the agent is, which company answers for it and its mandate.
-Hono, Express, Workers, Next, Bun, Deno: anything with a Web-standard `Request`.
+The agent signs every request with its key (four `KYA-*` headers); your server verifies it and gets who the agent
+is, who answers for it and its mandate. Hono, Express, Workers, Next, Bun, Deno.
 
 ```ts
 import { createKyaAuth } from "@kya-brasil/agent-tools";
 const auth = createKyaAuth();
-
-app.use("/api/*", auth.hono());                                  // or auth.express(), or auth.fetchHandler(handler)
+app.use("/api/*", auth.hono());                                   // or auth.express(), auth.fetchHandler(handler)
 app.post("/api/orders", (c) => {
   const kya = c.get("kya");                                       // { credential_id, agent, principal, mandate, check(), allowed() }
-  if (!kya.check({ action: "order", amount: 4200, currency: "BRL", counterparty: "12345678000190" }).allowed) return c.json({ error: "outside the mandate" }, 403);
-  // ... accept
+  if (!kya.check({ action: "order", amount: 4200, currency: "BRL" }).allowed) return c.json({ error: "outside the mandate" }, 403);
 });
 ```
 
-On the agent side, `signRequest({ credentialId, key, method, url, body })` returns the headers. Profile in
+Agent to agent, both sides verified: `createKyaAgent(...).fetch(url)` and `signResponse`. Profile in
 [docs/SPEC.md](docs/SPEC.md) section 14.
 
-**Agent to agent (mutual):** the callee signs its response too (`signResponse`, bound to the request), and the
-caller's `createKyaAgent(...).fetch(url)` signs the request and verifies who answered:
+## Give your agent a credential
 
-```ts
-const alfa = createKyaAgent({ credentialId, key: { kind: "evm", privateKey } });
-const { response, callee } = await alfa.fetch("https://beta.com.br/orders", { method: "POST", body });
-if (callee?.ok) console.log("answered by", callee.kya.principal.legal_name);   // BETA SA, credential active
-```
+1. **Register** (`POST /v1/agents`, $0.25, or MCP `kya_register`): the agent key, the mandate, and either the
+   company's `cnpj` or `principal: "person"`. Returns a one-time challenge and a `sign_url`.
+2. **The agent signs** the challenge with its key and sends `sign_url` + `&agent_signature=…` (also from the free
+   `kya_sign_link`) to whoever holds the certificate: the owner or the accountant, or the person themselves.
+3. **A person signs** with the certificate, in whichever way fits:
 
-## For companies: give your own agent a credential
+   | Certificate | Browser (`/sign`) | Terminal (`kya-sign`) | Code (`@kya-brasil/core`) |
+   | --- | --- | --- | --- |
+   | A1 file (`.pfx`/`.p12`) | sign in the page; the file never leaves the computer | `kya-sign --pfx empresa.pfx --link "<url>"` | `openPfx(bytes, password)` |
+   | A3 token or card | download the challenge, sign it in your usual signer, upload the `.p7s` | `kya-sign --pkcs11 <vendor library> --link "<url>"` | `ecnpjSigner({ certificates, sign })` |
+   | Cloud (PSC) | "Certificado em nuvem" tab on an issuer with a provider configured | `kya-sign --cloud ./my-psc.mjs --link "<url>"` | `cloudSigner(session)` |
 
-1. `POST /v1/agents` ($0.25) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
-2. The agent signs the challenge with its key and sends `sign_url` (from step 1, plus `&agent_signature=…`) to
-   whoever holds the company's e-CNPJ, usually the owner or the accountant. They open it, see which agent and
-   mandate they are authorizing, and sign in the browser with the `.pfx` (the file never leaves the computer)
-   or upload a `.p7s` from the signer they already use (A3 token or card, cloud certificate). No code needed.
-3. `POST /v1/agents/{id}/prove` (free). The issuer validates both signatures, the certificate chain against
-   the ICP-Brasil roots, the certificate's revocation (CRL), the CNPJ inside the certificate and that the
-   company is ATIVA at the Receita Federal. Credential issued for 90 days.
-4. `POST /v1/agents/{id}/renew` ($0.10) every 90 days; `POST /v1/agents/{id}/revoke` (free, e-CNPJ-signed) at once.
+   Cloud certificates go through one interface, `CloudSignatureProvider`; no PSC is implemented here because each
+   has its own contract ([template](examples/cloud-provider)).
+4. **Issued** (`/prove`, free): agent signature, ICP-Brasil chain, CRL, the CNPJ in the certificate (or the e-CPF),
+   company ATIVA. Valid 90 days; renew for $0.10; revoke at once, free, signed with the same certificate.
 
-Agent keys: `evm` (wallet address, EIP-191), `web-bot-auth` (Ed25519, RFC 9421) or `erc8004`
-(`eip155:<chainId>:<registry>:<agentId>`, an [ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) agent whose
-on-chain `agentWallet` signs; re-read daily, a wallet change suspends the credential).
+The page shows exactly what is being authorized (agent, company or person, mandate) before anything is signed.
+An agent should not hold the certificate to sign for itself: that signature is the consent of whoever answers.
 
-Mandate example (validated by `/.well-known/kya-mandate.schema.json`; free-form fields are kept, listed as not evaluated):
+Agent keys: `evm` (EIP-191), `web-bot-auth` (Ed25519, RFC 9421) or `erc8004` (an
+[ERC-8004](https://eips.ethereum.org/EIPS/eip-8004) agent whose on-chain wallet signs). Mandate example:
 
 ```json
 { "actions": ["quote", "order", "pay"],
-  "max_per_operation": { "amount": 5000, "currency": "BRL" },
-  "max_per_day": { "amount": 20000, "currency": "BRL" },
+  "max_per_operation": { "amount": 5000, "currency": "BRL" }, "max_per_day": { "amount": 20000, "currency": "BRL" },
   "currencies": ["BRL"], "counterparties": ["12345678000190", "*.beta.com.br"],
+  "payment_instruments": [{ "network": "visa", "ref_sha256": "9f2c…" }],
   "valid_until": "2027-01-01T00:00:00Z" }
 ```
 
-In code, the npm package signs for you: `signChallengeWithEvmKey`, `signChallengeWithEd25519`,
-`signWithECnpjPfx(pfxBytes, password, text)` straight from the `.pfx`, and `signingLink(...)` to build the link.
-On a terminal: `npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link "<sign_url>"` signs and issues
-(A3 token: `--pkcs11 <vendor library>` instead of `--pfx`). Agents get the link from the free `kya_sign_link`
-(MCP) or `GET /v1/agents/{id}/sign-link?challenge_id=…&agent_signature=…`. The signing code itself is in
-`@kya-brasil/core` (`openPfx` for A1, `ecnpjSigner` for any token, HSM or cloud signer), so no page or route is needed.
-Cloud certificates (PSC): one interface, `CloudSignatureProvider`, used by the library, `kya-sign --cloud` and the
-`/sign` page of a self-hosted issuer; no PSC is implemented here, each has its own contract
-([template](examples/cloud-provider)).
-See [packages/agent-tools](packages/agent-tools/README.md).
+**Companies** see every agent in their name and get signed lifecycle events at a webhook
+(`kya_company_agents`, `kya_company_webhook`, signed with the e-CNPJ).
 
-**Can an agent do the e-CNPJ step itself?** Technically, with an A1 file and its password, yes. It should not:
-the e-CNPJ signature is the company's consent, and an agent holding the company's certificate can authorize
-itself and sign anything else in the company's name (tax filings, contracts). The intended split is: the agent
-prepares everything and sends the link; a person with the e-CNPJ reads it and signs. A3 tokens, cards and
-cloud certificates (approval on the phone) keep that person in the loop by design.
+## For people: an agent that acts for you
+
+With `principal: "person"` the person signs with their **e-CPF**. The credential publishes nothing personal
+(`principal: { kind: "person", verified_by: "icp-brasil-e-cpf" }`). The issuer keeps only an HMAC of the CPF with a
+secret key, never the name or the CPF, and deletes it when the credential is revoked or expires.
+
+A verifier that already has the person's CPF asks `POST /v1/agents/{id}/principal-match` ($0.01, signed): it learns
+only whether it matches, plus a `subject_ref` of its own for that person, different for every verifier so services
+cannot link the person across them. Three wrong answers stop its checks. The person sees every check in their
+inventory (`POST /v1/people/agents`, signed with the e-CPF).
+
+## For payment networks, acquirers and issuers
+
+The mandate can list the payment instruments the agent may use: the network and the SHA-256 of a reference the
+network already gives (token reference, PAR), never a card number. At authorization time, hash what you received
+and ask whether that instrument belongs to an agent authorized within its limits. The signed verdict records the
+instrument, the amount and the time: evidence for a later dispute ([examples/evidence](examples/evidence)).
+
+```ts
+import { checkAction, hashPaymentRef } from "@kya-brasil/core";
+const verdict = checkAction(credential.mandate, {
+  action: "buy", amount: 4200, currency: "BRL", payment_network: "visa", payment_ref_sha256: await hashPaymentRef(tokenRef)
+});
+```
+
+## As a library: no hosted service in the path
+
+`@kya-brasil/core` is the code the issuer runs, as pure functions: e-CNPJ and e-CPF signatures with the ICP-Brasil
+chain, CRL revocation, agent signatures, mandate evaluation (payment instruments included), credential build,
+signing and verification, holder-side signing (A1, tokens, cloud), and the person hashing. A bank, a network or a
+platform can verify credentials from any issuer offline, or issue its own with its own keys, storage and audit.
+Storage and network stay yours: see [packages/core/README.md](packages/core/README.md).
 
 ## Tools and prices
 
 | Tool | HTTP | USDC |
 | --- | --- | --- |
-| `kya_about`, `kya_prove`, `kya_renew_prove`, `kya_revoke`, `kya_revocations` | `POST /v1/agents/{id}/prove`, `/renew/prove`, `/revoke`; `GET /v1/revocations` | free |
 | `kya_verify` | `GET /v1/agents/{id}`, `GET /v1/agents/by-key` | free, 50/day per IP |
+| `kya_prove`, `kya_revoke`, `kya_sign_link`, `kya_company_agents`, `kya_company_webhook`, `kya_person_agents` | `POST /v1/agents/{id}/prove`, `/revoke`; `GET /v1/agents/{id}/sign-link`; `POST /v1/companies/{cnpj}/agents`, `/webhook`; `POST /v1/people/agents` | free |
 | `kya_verify_paid` | `GET /v1/agents/{id}/verified` | 0.01 |
 | `kya_check_action` | `GET /v1/agents/{id}/allowed` | 0.01 |
-| `kya_company_agents`, `kya_company_webhook` | `POST /v1/companies/{cnpj}/agents`, `/webhook` (e-CNPJ-signed) | free |
+| `kya_principal_match` | `POST /v1/agents/{id}/principal-match` | 0.01 |
 | `kya_renew` | `POST /v1/agents/{id}/renew` | 0.10 |
 | `kya_register` | `POST /v1/agents` | 0.25 |
 
-Discovery: `/docs` (Swagger UI), `/llms.txt`, `/openapi.json`, `/server.json`, `/.well-known/kya.json` (signing keys, active and
-retired), `/.well-known/kya-mandate.schema.json`, `/.well-known/x402`, `/status`, `/terms`.
+Discovery: `/docs` (Swagger UI), `/llms.txt`, `/openapi.json`, `/server.json`, `/.well-known/kya.json` (signing keys,
+active and retired), `/.well-known/kya-mandate.schema.json`, `/.well-known/x402`, `/status`, `/terms`, `/sign`.
 Verifier for any signed document: `POST /v1/verify`.
 
-## What the credential looks like
+## What a credential looks like
 
 ```json
 { "credential_id": "6d0b…", "version": 1,
   "agent": { "kind": "evm", "id": "0x7099…" },
-  "principal": { "cnpj": "11222333000181", "legal_name": "ACME LTDA", "registration_status": "ATIVA" },
-  "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "3b7a…", "certificate_subject": "CN=ACME LTDA:11222333000181, …", "signed_at": "…" },
-  "mandate": { "…": "…" },
-  "kyb_snapshot": null,
+  "principal": { "cnpj": "11222333000181", "cnpj_formatted": "11.222.333/0001-81", "legal_name": "ACME LTDA", "registration_status": "ATIVA" },
+  "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "3b7a…", "certificate_subject": "CN=ACME LTDA:11222333000181, …", "issuer": "CN=AC …", "signed_at": "…" },
+  "mandate": { "…": "…" }, "kyb_snapshot": null,
   "status": "active", "issued_at": "…", "expires_at": "…",
   "verify_url": "https://kya-br-agents.marcelfons.workers.dev/v1/agents/6d0b…",
   "attestation": { "algorithm": "ed25519", "key_id": "35bb864a2e87c8fd", "sha256": "…", "signed_at": "…", "signature": "…" } }
 ```
 
-The signature covers the credential as issued. Suspension (company not ATIVA, certificate on hold),
-revocation (by the company, or because its e-CNPJ was revoked at the AC) and expiry are
-reported live at `verify_url` and in `/v1/revocations`. Only legal-entity data is processed: no CPF, no
-name of the certificate holder, only the certificate hash.
+A person's credential has `"principal": { "kind": "person", "verified_by": "icp-brasil-e-cpf" }` and
+`"authorized_by": { "method": "icp-brasil-e-cpf", … }` without a subject. The signature covers the credential as
+issued; suspension, revocation and expiry are reported live at `verify_url` and `/v1/revocations`.
+`registration_status` is `ATIVA`, or `UNVERIFIED` / `NOT_CHECKED` when the Receita sources were down or the check is
+off (issued anyway, with a warning: availability never depends on a third party).
 
 ## Architecture
 
 ```
-agent / verifier ──x402──▶ kya-br-agents (Cloudflare Worker: Hono HTTP + MCP Durable Object)
-                              │  D1 (agents, challenges, events, call_log)   KV (cache, limits, ICP anchors)
-                              │  cron 03:17 UTC: daily review (e-CNPJ CRL, registration status)
-                              └──HTTPS──▶ [CNPJ_API_URL] → BrasilAPI → CNPJ.ws (Receita open data, no key)
+agent / verifier ──x402 or MCP──▶ kya-br-agents (Cloudflare Worker: Hono HTTP + MCP Durable Object)
+                                     │  D1: agents, challenges, events, webhooks, person checks, call log
+                                     │  KV: cache, limits, ICP-Brasil anchors, cloud signing state
+                                     │  cron 03:17 UTC: certificate CRLs, company registration, person data retention
+                                     ├──HTTPS──▶ [CNPJ_API_URL] → BrasilAPI → CNPJ.ws (Receita open data, no key)
+                                     └──HTTPS──▶ each AC's CRL (from the certificate)
 ```
-
-The issuer acts on one company fact only, the registration status (D-15), read from the Receita's open
-data: BrasilAPI with CNPJ.ws as fallback, both free and keyless (`apps/worker/src/registration.ts`, D-23).
-To depend on no third party at all, point `CNPJ_API_URL` at your own endpoint in the BrasilAPI format
-(a self-hosted BrasilAPI, or your own import of the Receita dataset); it is tried first. `kyb_snapshot`
-stays in the credential for /v1 compatibility and is always `null`.
-The check never takes the service down (D-24): verifications never call it, issuance only refuses a confirmed
-status other than ATIVA, and when no source answers the credential is issued as `UNVERIFIED` with a warning
-in the response (`REGISTRATION_CHECK=off` skips it entirely: `NOT_CHECKED`). CRLs are fetched from the URLs in each certificate
-(`apps/worker/src/revocation.ts`).
 
 | Path | What |
 | --- | --- |
-| `packages/core` | npm `@kya-brasil/core`, the library. Pure logic: CNPJ, mandate schema and checks (incl. payment instruments), challenge, agent signatures (EVM, Ed25519, ERC-8004 wallet resolution), e-CNPJ CMS + ICP-Brasil chain validation, credential build and signing, attestation. |
-| `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, signing helpers, local attestation check, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
-| `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, registration sources (Receita open data), CRL checks, daily review. |
-| `infra` | Pulumi: KV, D1 + migrations, Worker, cron. |
+| `packages/core` | npm `@kya-brasil/core`: the library (pure functions, no storage, no platform bindings). |
+| `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, middleware, signing helpers, PKCS#11 tokens, the `kya-sign` command, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
+| `apps/worker` | The issuer: HTTP routes, MCP server, `/sign` page, D1 store and migrations, registration sources, CRL checks, daily review, cloud provider registry. |
+| `infra` | Pulumi: KV, D1 + migrations, Worker, cron, secrets. |
 | `anchors` | ICP-Brasil trust anchors (PEM) uploaded to KV by the CD. No anchors, no issuance. |
-| `docs` | Specification, test vectors, decisions, runbook. |
+| `examples` | Signed evidence JSONs, the cloud provider template. |
+| `docs` | Specification, test vectors, decisions, runbook, self-hosting. |
 
-## Try it in a container
+## Run it
 
 ```sh
-docker compose up --build      # http://localhost:8787, no Cloudflare account needed
+docker compose up --build                       # whole issuer in a container, http://localhost:8787
+pnpm install && pnpm typecheck && pnpm test     # development (CI also runs the A3 path on a SoftHSM2 token)
+cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev
 ```
 
-Same runtime as production with D1, KV and the Durable Object emulated and kept in a volume; registration
-status from the Receita's open data, payments on Base Sepolia, signing key generated once into the volume.
-For evaluation and integration work; production runs on Cloudflare ([docs/SELF-HOSTING.md](docs/SELF-HOSTING.md)).
+Push to `main` deploys `dev` and `prod` from the GitHub environments of the same name (`PULUMI_ACCESS_TOKEN`,
+`CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`; optional `INTERNAL_API_KEY`, `CDP_API_KEY_ID` /
+`CDP_API_KEY_SECRET`, `CNPJ_API_URL`, `REGISTRATION_CHECK`). The CD applies the D1 migrations, generates the
+signing key and the person HMAC key once per stack, uploads the anchors, runs the smoke test and rolls back on
+failure. [docs/RUNBOOK.md](docs/RUNBOOK.md), [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).
 
-## Develop and deploy
-
-```
-pnpm install && pnpm typecheck && pnpm test
-cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev      # no keys needed: Receita open data
-```
-
-Push to `main` deploys: the CD creates the Pulumi stacks `dev` and `prod` from the GitHub environments of
-the same name (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`; optional
-`INTERNAL_API_KEY`, `CDP_API_KEY_ID` / `CDP_API_KEY_SECRET`), uploads the
-anchors, runs the smoke test and publishes the MCP Registry entry when it changed. The signing key is
-generated once per stack and kept in the encrypted stack config; rotations keep the old public key
-published as retired. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [docs/DECISOES.md](docs/DECISOES.md).
-
-## For people: an agent that acts for you
-
-An agent can also act for a natural person who signs with an **e-CPF** (D-29): register with
-`principal: "person"`, sign the challenge with the e-CPF (same `/sign` page, `kya-sign`, library). Privacy by design:
-
-- the credential publishes nothing personal: `principal: { kind: "person", verified_by: "icp-brasil-e-cpf" }`;
-- the issuer keeps only a keyed hash (HMAC) of the CPF, never the name or the CPF, and deletes it when the
-  credential is revoked or expires;
-- a verifier that already has the person's CPF asks `POST /v1/agents/{id}/principal-match` ($0.01, signed answer):
-  it learns only whether it matches, plus a `subject_ref` of its own for that person (different for every
-  verifier, so services cannot link the person across them); 3 wrong answers stop its checks;
-- the person sees every check in their inventory (`POST /v1/people/agents`, signed with the e-CPF).
-
-## For payment networks, acquirers and issuers
-
-The mandate can list the payment instruments the agent may use (`payment_instruments`, D-25): the network and
-the SHA-256 of a reference the network already gives (token reference, PAR), never a card number. At
-authorization time, hash the reference you received and ask whether that instrument belongs to an agent the
-company authorized, within its limits:
-
-```ts
-import { checkAction, hashPaymentRef, verifyCredentialSignature } from "@kya-brasil/core";
-
-const verdict = checkAction(credential.mandate, {
-  action: "buy", amount: 4200, currency: "BRL",
-  payment_network: "visa", payment_ref_sha256: await hashPaymentRef(tokenRef)
-});
-```
-
-**As a library, no hosted service in the path.** `@kya-brasil/core` is the same code the issuer runs, as pure
-functions: e-CNPJ signature and ICP-Brasil chain, CRL revocation, agent signatures, mandate evaluation,
-credential build, signing and verification. A network or acquirer can verify credentials from any issuer
-offline, or become its own issuer with its own key, storage and audit. Or call the hosted
-`/v1/agents/{id}/allowed?payment_network=visa&payment_ref_sha256=…` and keep the signed verdict as dispute
-evidence. Details: [packages/core/README.md](packages/core/README.md).
-
-## Run your own issuer
-
-The code is MIT and needs nothing closed: fork it, set a Cloudflare account, a Pulumi token and a receiving
-wallet, and push. Your issuer signs with its own key. Step by step: [docs/SELF-HOSTING.md](docs/SELF-HOSTING.md).
-
-**Code and service.** The MIT license covers this code. The hosted issuer at
-`kya-br-agents.marcelfons.workers.dev` is a service with its own [terms](https://kya-br-agents.marcelfons.workers.dev/terms),
-and the name KYA Brasil identifies it; a fork is a different issuer with a different key, and verifiers
-choose which issuers they trust.
+**Code and service.** The MIT license covers this code. The hosted issuer at `kya-br-agents.marcelfons.workers.dev`
+is a service with its own [terms](https://kya-br-agents.marcelfons.workers.dev/terms), and the name KYA Brasil
+identifies it; a fork is a different issuer with a different key, and verifiers choose which issuers they trust.
 
 ## Contributing and security
 
-[CONTRIBUTING.md](CONTRIBUTING.md), [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md)
-(report vulnerabilities privately). Changes to the format are changes to the spec first; `/v1` fields are
-only added, never renamed or removed.
+Contributions are welcome, in Portuguese or English: [CONTRIBUTING.md](CONTRIBUTING.md),
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), [SECURITY.md](SECURITY.md) (report vulnerabilities privately). Changes to
+the format are changes to the spec first; `/v1` fields are only added, never renamed or removed.
