@@ -5,6 +5,7 @@ import * as x509 from "@peculiar/x509";
 import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import * as pkijs from "pkijs";
+import * as asn1js from "asn1js";
 import { OID_ICP_CNPJ, cnpjFromCertificate, verifyIcpSignature } from "./icp-brasil.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
@@ -21,17 +22,18 @@ async function testPki(cnpj = "11222333000181") {
   return { ca, leaf, leafKeys };
 }
 
-async function cmsSign(leaf: x509.X509Certificate, ca: x509.X509Certificate, key: CryptoKey, text: string): Promise<string> {
+async function cmsSign(leaf: x509.X509Certificate, ca: x509.X509Certificate, key: CryptoKey, text: string, attached?: string): Promise<string> {
   pkijs.setEngine("test", new pkijs.CryptoEngine({ name: "test", crypto: globalThis.crypto as Crypto }));
   const leafP = pkijs.Certificate.fromBER(leaf.rawData);
   const caP = pkijs.Certificate.fromBER(ca.rawData);
   const signed = new pkijs.SignedData({
     version: 1,
-    encapContentInfo: new pkijs.EncapsulatedContentInfo({ eContentType: "1.2.840.113549.1.7.1" }),
+    encapContentInfo: new pkijs.EncapsulatedContentInfo(attached === undefined ? { eContentType: "1.2.840.113549.1.7.1" } : { eContentType: "1.2.840.113549.1.7.1", eContent: new asn1js.OctetString({ valueHex: new TextEncoder().encode(attached).buffer as ArrayBuffer }) }),
     signerInfos: [new pkijs.SignerInfo({ version: 1, sid: new pkijs.IssuerAndSerialNumber({ issuer: leafP.issuer, serialNumber: leafP.serialNumber }) })],
     certificates: [leafP, caP]
   });
-  await signed.sign(key, 0, "SHA-256", new TextEncoder().encode(text).buffer as ArrayBuffer);
+  if (attached === undefined) await signed.sign(key, 0, "SHA-256", new TextEncoder().encode(text).buffer as ArrayBuffer);
+  else await signed.sign(key, 0, "SHA-256");
   const ci = new pkijs.ContentInfo({ contentType: "1.2.840.113549.1.7.2", content: signed.toSchema(true) });
   return b64(ci.toSchema().toBER(false));
 }
@@ -65,5 +67,18 @@ describe("ICP-Brasil e-CNPJ proof", () => {
     const text = "challenge";
     const cms = await cmsSign(leaf, ca, leafKeys.privateKey, text);
     await expect(verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: "11222333000181", anchors: [b64(otherCa.rawData)], now: new Date("2026-10-12T00:00:00Z") })).rejects.toThrow(/chain/);
+  });
+
+  it("accepts an attached signature only when it carries exactly the challenge", async () => {
+    const { ca, leaf, leafKeys } = await testPki();
+    const text = "KYA Brasil: prove this agent key acts for a company\nchallenge: c2";
+    const opts = { expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-12T00:00:00Z") };
+    const same = await cmsSign(leaf, ca, leafKeys.privateKey, text, text);
+    expect((await verifyIcpSignature({ cmsBase64: same, challenge: text, ...opts })).cnpj).toBe("11222333000181");
+    // Any other document the company signed (a contract, an invoice) must not pass as consent to this challenge.
+    const other = await cmsSign(leaf, ca, leafKeys.privateKey, text, "Contrato de prestacao de servicos");
+    await expect(verifyIcpSignature({ cmsBase64: other, challenge: text, ...opts })).rejects.toThrow(/not the challenge/);
+    const trailing = await cmsSign(leaf, ca, leafKeys.privateKey, text, text + "\n");
+    await expect(verifyIcpSignature({ cmsBase64: trailing, challenge: text, ...opts })).rejects.toThrow(/not the challenge/);
   });
 });

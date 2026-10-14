@@ -100,6 +100,15 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
   const trusted = p.anchors.map((a) => pkijs.Certificate.fromBER(unb64(a.replace(/-----[^-]+-----/g, ""))));
 
   const data = new TextEncoder().encode(p.challenge);
+  // An attached CMS (the .p7s carries the signed text) is verified over its own content by pkijs, whatever
+  // `data` says: it MUST carry exactly the challenge, or any document the company ever signed would pass.
+  const embedded = signed.encapContentInfo.eContent;
+  if (embedded) {
+    const content = new Uint8Array(embedded.getValue());
+    if (content.length !== data.length || !content.every((b, i) => b === data[i])) {
+      throw new KyaError("CHALLENGE_FAILED", "the signed content is not the challenge text (sign exactly the challenge, without extra line breaks)");
+    }
+  }
   let ok = false;
   try {
     ok = await signed.verify({ signer: 0, data: data.buffer as ArrayBuffer, trustedCerts: trusted, checkChain: false, checkDate: now });
