@@ -15,6 +15,7 @@ import { registrationCheckEnabled, registrationSources } from "../registration";
 import { companyAgents, setCompanyWebhook } from "../company";
 import * as service from "../service";
 import { Store } from "../store";
+import { signHtml, signPageCsp } from "./sign-page";
 import { ICON_SVG, docsHtml, landingHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
 
 type Vars = { callLogId: number | null };
@@ -249,6 +250,15 @@ export function buildHttpApp(env: AppEnv) {
   app.get("/llms.txt", (c) => c.text(llmsTxt(originOf(c), c.env.X402_NETWORK)));
   app.get("/openapi.json", (c) => c.json(openapiJson(originOf(c), c.env.X402_NETWORK, c.env.PAY_TO)));
   app.get("/docs", (c) => c.html(docsHtml(originOf(c))));
+  // Signing page for the e-CNPJ holder: everything runs in the browser, strict CSP, no referrer (the link carries the challenge).
+  app.get("/sign", (c) => {
+    const nonce = crypto.randomUUID().replace(/-/g, "");
+    c.header("content-security-policy", signPageCsp(nonce));
+    c.header("referrer-policy", "no-referrer");
+    c.header("x-content-type-options", "nosniff");
+    c.header("cache-control", "no-store");
+    return c.html(signHtml(originOf(c), nonce));
+  });
   app.get("/health", (c) => c.json({ ok: true }));
   app.get("/server.json", (c) => c.json(serverJson(originOf(c))));
   app.get("/icon.svg", (c) => c.body(ICON_SVG, 200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }));

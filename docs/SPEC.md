@@ -58,10 +58,14 @@ The challenge MUST expire within 15 minutes and MUST be consumed on first use, s
 
 ## 4. Company proof (e-CNPJ)
 
-The company signs the challenge text with its e-CNPJ certificate as a **detached CMS/PKCS#7 SignedData**
-(RFC 5652), DER, base64. The issuer MUST:
+The company signs the challenge text with its e-CNPJ certificate as a **CMS/PKCS#7 SignedData** (RFC 5652),
+DER, base64, preferably detached. Signed attributes (content type, message digest, signing time) MAY be
+present. The issuer MUST:
 
-1. Parse the CMS, require exactly one `SignerInfo`, and verify the signature over the challenge bytes.
+1. Parse the CMS, require exactly one `SignerInfo`, and verify the signature over the challenge bytes. When the
+   CMS is attached (carries `eContent`, as many desktop signers produce), the embedded content MUST equal the
+   challenge text byte for byte (UTF-8, no added line break); otherwise any document the company ever signed
+   would pass as consent.
 2. Take the signer certificate from the CMS and read the CNPJ from the Subject Alternative Name
    `otherName` with OID `2.16.76.1.3.3` (ICP-Brasil DOC-ICP-04), or from the subject CN suffix
    `:<cnpj>` as a fallback. The CNPJ MUST equal the one in the challenge.
@@ -75,6 +79,14 @@ The company signs the challenge text with its e-CNPJ certificate as a **detached
 5. Record only the certificate SHA-256, subject, issuer, serial number, the issuing AC's certificate, the
    CRL URLs and the signing time. The signer's CPF and any other personal field in the certificate MUST
    NOT be stored or published.
+
+**Signing in practice (D-26).** The issuer serves `GET /sign`, a page for the e-CNPJ holder (owner or
+accountant) opened from the `sign_url` returned by registration, with `&agent_signature=` appended by the
+agent. It shows the CNPJ, the agent, the issuer, the expiry and the requested mandate, warns when the challenge
+names another issuer or has expired, and signs in the browser: an A1 `.pfx`/`.p12` (the file and password never
+leave the browser), or a `.p7s` produced by any ICP-Brasil signer over the downloaded challenge file (A3 token or
+card, cloud certificates). With both signatures it calls `/prove`. The same signing is available as code
+(`signWithECnpjPfx`) and as a command (`kya-sign`) in `@kya-brasil/agent-tools`.
 
 Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
 PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.

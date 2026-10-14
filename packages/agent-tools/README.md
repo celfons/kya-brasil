@@ -103,7 +103,7 @@ if (!callee?.ok) throw new Error("unsigned or invalid callee");       // callee.
 ## Company: give your own agent a credential
 
 ```ts
-import { createKyaClient, signChallengeWithEvmKey, signWithECnpj } from "@kya-brasil/agent-tools";
+import { createKyaClient, signChallengeWithEvmKey, signingLink, signWithECnpjPfx } from "@kya-brasil/agent-tools";
 import { readFileSync } from "node:fs";
 
 const kya = createKyaClient({ privateKey: payerPk });
@@ -120,19 +120,29 @@ const reg = await kya.register({                                           // $0
 });
 
 const agent_signature = await signChallengeWithEvmKey(agentPk, reg.challenge.text);
-const ecnpj_signature = await signWithECnpj({
-  certificatePem: readFileSync("ecnpj.crt.pem", "utf8"),
-  privateKeyPem: readFileSync("ecnpj.key.pem", "utf8"),
-  chainPem: [readFileSync("ecnpj.chain.pem", "utf8")]
-}, reg.challenge.text);
 
-const { credential } = await kya.prove(reg.credential_id, { challenge_id: reg.challenge.id, agent_signature, ecnpj_signature }); // free
+// Usual case: a person holds the e-CNPJ (owner, accountant). Send them the link; they sign in the browser
+// (.pfx, or a .p7s from any ICP-Brasil signer for A3 tokens and cloud certificates) and the credential is issued.
+const link = signingLink({ credentialId: reg.credential_id, challenge: reg.challenge, agentSignature: agent_signature });
+// (reg.sign_url is the same link without the agent signature)
+
+// Or in code, when you hold the A1 file yourself:
+const ecnpj_signature = signWithECnpjPfx(readFileSync("empresa.pfx"), process.env.PFX_PASSWORD!, reg.challenge.text);
+const { credential, warnings } = await kya.prove(reg.credential_id, { challenge_id: reg.challenge.id, agent_signature, ecnpj_signature }); // free
 ```
 
-From an A1 `.pfx`: `openssl pkcs12 -in cert.pfx -clcerts -nokeys > ecnpj.crt.pem`,
-`openssl pkcs12 -in cert.pfx -nocerts -nodes | openssl pkcs8 -topk8 -nocrypt > ecnpj.key.pem`,
-`openssl pkcs12 -in cert.pfx -cacerts -nokeys > ecnpj.chain.pem`. A3 certificates (token, card) sign through the vendor's software;
-pass the resulting detached CMS as `ecnpj_signature`.
+`signWithECnpjPfx` reads the `.pfx`/`.p12` directly, including the legacy 3DES/RC2 encryption many Brazilian A1
+files use; `signWithECnpj` still takes PEM. On a terminal, the `kya-sign` command does the same without code:
+
+```sh
+npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link "<sign_url>&agent_signature=…"   # signs and issues
+npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --text-file desafio.txt               # prints the signature
+```
+
+The password comes from `KYA_PFX_PASSWORD` or is asked for without echo. Everything runs locally.
+
+An agent should not hold the company's e-CNPJ to sign for itself: that signature is the company's consent.
+Let the agent prepare and send the link, and a person sign.
 
 Renew every 90 days (`kya.renew` then `kya.renewProve`), revoke at once (`kya.revoke` with `revocationText(id)` signed by the e-CNPJ).
 

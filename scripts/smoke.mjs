@@ -63,6 +63,12 @@ await check("status: a registration source configured, signing key present", asy
   expect(Array.isArray(s) && s.includes("brasilapi") && s.includes("cnpjws"), `registration_sources ${JSON.stringify(s)}`);
   expect(typeof j.attestation_key === "string" && j.attestation_key.length === 16, "no attestation key");
 });
+await check("signing page: served with a nonce CSP and the pinned signer", async () => {
+  const r = await fetch(at("/sign"));
+  const csp = r.headers.get("content-security-policy") ?? "";
+  expect(r.status === 200 && /script-src 'nonce-[0-9a-f]{32}'/.test(csp) && /frame-ancestors 'none'/.test(csp), `status ${r.status}, csp ${csp}`);
+  expect((await r.text()).includes('integrity="sha512-'), "signing page without SRI");
+});
 await check("register answers 402 with PAYMENT-REQUIRED (bazaar)", async () => {
   const r = await fetch(at("/v1/agents"), { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
   expect(r.status === 402, `status ${r.status}`);

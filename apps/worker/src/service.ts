@@ -43,10 +43,12 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
     challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at },
     ...(agent.wallet ? { agent_wallet: agent.wallet } : {}),
     next: {
-      en: `Sign challenge.text twice: with the agent key (evm: EIP-191 personal_sign hex; web-bot-auth: Ed25519 raw signature, base64url; erc8004: EIP-191 by the on-chain agentWallet ${agent.wallet ?? ""}) and with the company's e-CNPJ (CMS/PKCS#7 SignedData, detached, base64 DER). Then POST ${issuer}/v1/agents/${id}/prove with {challenge_id, agent_signature, ecnpj_signature}.`,
-      pt: `Assine challenge.text duas vezes: com a chave do agente (evm: EIP-191 personal_sign em hex; web-bot-auth: assinatura Ed25519 bruta em base64url) e com o e-CNPJ da empresa (CMS/PKCS#7 SignedData, destacado, base64 DER). Depois envie POST ${issuer}/v1/agents/${id}/prove com {challenge_id, agent_signature, ecnpj_signature}.`
+      en: `Sign challenge.text twice: with the agent key (evm: EIP-191 personal_sign hex; web-bot-auth: Ed25519 raw signature, base64url; erc8004: EIP-191 by the on-chain agentWallet ${agent.wallet ?? ""}) and with the company's e-CNPJ (CMS/PKCS#7 SignedData, detached, base64 DER). Then POST ${issuer}/v1/agents/${id}/prove with {challenge_id, agent_signature, ecnpj_signature}. Easiest for the person with the e-CNPJ: sign_url with &agent_signature=<the agent's signature> appended; they sign in the browser (.pfx, or a .p7s from any ICP-Brasil signer) and the credential is issued.`,
+      pt: `Assine challenge.text duas vezes: com a chave do agente (evm: EIP-191 personal_sign em hex; web-bot-auth: assinatura Ed25519 bruta em base64url) e com o e-CNPJ da empresa (CMS/PKCS#7 SignedData, destacado, base64 DER). Depois envie POST ${issuer}/v1/agents/${id}/prove com {challenge_id, agent_signature, ecnpj_signature}. Mais fácil para quem tem o e-CNPJ: abrir sign_url com &agent_signature=<assinatura do agente> no final; assina no navegador (.pfx, ou .p7s de qualquer assinador ICP-Brasil) e a credencial é emitida.`
     },
-    mandate_schema: `${issuer}/.well-known/kya-mandate.schema.json`
+    mandate_schema: `${issuer}/.well-known/kya-mandate.schema.json`,
+    /** Page for the e-CNPJ holder (owner or accountant): signs in the browser and issues. Append &agent_signature=… once the agent signed. */
+    sign_url: signUrl(issuer, id, ch.challenge_id, ch.text)
   };
 }
 
@@ -114,6 +116,17 @@ export async function verify(env: AppEnv, id: string) {
   return present(row, await store.events(id));
 }
 
+/** <issuer>/sign link for the e-CNPJ holder (same format as signingLink in @kya-brasil/agent-tools). */
+function signUrl(issuer: string, id: string, challengeId: string, text: string): string {
+  const u = new URL("/sign", issuer);
+  u.searchParams.set("id", id);
+  u.searchParams.set("challenge_id", challengeId);
+  let bin = "";
+  for (const b of new TextEncoder().encode(text)) bin += String.fromCharCode(b);
+  u.searchParams.set("text", btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""));
+  return u.toString();
+}
+
 export async function verifyByKey(env: AppEnv, kind: unknown, keyId: unknown) {
   const agent = normalizeAgentKey({ kind, id: keyId });
   const store = new Store(env.DB);
@@ -131,6 +144,8 @@ function present(row: AgentRow, events: { ts: string; event: string; reason: str
     agent: { kind: row.agent_kind, id: row.agent_id, ...(row.agent_wallet ? { wallet: row.agent_wallet as `0x${string}` } : {}) } as AgentKey,
     principal: { cnpj: row.cnpj, cnpj_formatted: formatCnpj(row.cnpj), legal_name: row.legal_name },
     credential: credential ? { ...credential, status, status_reason: row.status_reason } : null,
+    /** While pending: the mandate the company is being asked to sign (shown on the /sign page). */
+    ...(credential ? {} : { requested_mandate: JSON.parse(row.mandate) as Mandate }),
     /** The signature covers the credential as issued; a later status change is reported here and at revocation_url, not re-signed. */
     signature_covers: credential ? "the credential object as issued (status at issuance); check `status` here for the live state" : null,
     events

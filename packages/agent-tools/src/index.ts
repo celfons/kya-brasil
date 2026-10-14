@@ -420,3 +420,19 @@ export async function verifyCredentialOffline(credential: Credential, opts: { ba
 }
 
 export * from "./auth.js";
+export * from "./pfx.js";
+
+/**
+ * Link to the issuer's signing page (<issuer>/sign) for the person who holds the company's e-CNPJ, usually the
+ * owner or the accountant. The agent registers, signs its half and sends this link; the person opens it, sees
+ * which agent, company and mandate they are authorizing, signs with the .pfx in the browser (the file never
+ * leaves the computer) or uploads a .p7s from any ICP-Brasil signer, and the credential is issued.
+ */
+export function signingLink(p: { credentialId: string; challenge: { id: string; text: string }; agentSignature?: string; baseUrl?: string }): string {
+  const u = new URL("/sign", p.baseUrl ?? DEFAULT_BASE_URL);
+  u.searchParams.set("id", p.credentialId);
+  u.searchParams.set("challenge_id", p.challenge.id);
+  u.searchParams.set("text", toBase64Url(new TextEncoder().encode(p.challenge.text)));
+  if (p.agentSignature) u.searchParams.set("agent_signature", p.agentSignature);
+  return u.toString();
+}

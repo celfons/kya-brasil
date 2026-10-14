@@ -109,7 +109,10 @@ if (callee?.ok) console.log("answered by", callee.kya.principal.legal_name);   /
 ## For companies: give your own agent a credential
 
 1. `POST /v1/agents` ($0.25) with the agent key, your CNPJ and a mandate. Returns a one-time challenge.
-2. The agent signs the challenge with its key; you sign it with the e-CNPJ (detached CMS/PKCS#7).
+2. The agent signs the challenge with its key and sends `sign_url` (from step 1, plus `&agent_signature=…`) to
+   whoever holds the company's e-CNPJ, usually the owner or the accountant. They open it, see which agent and
+   mandate they are authorizing, and sign in the browser with the `.pfx` (the file never leaves the computer)
+   or upload a `.p7s` from the signer they already use (A3 token or card, cloud certificate). No code needed.
 3. `POST /v1/agents/{id}/prove` (free). The issuer validates both signatures, the certificate chain against
    the ICP-Brasil roots, the certificate's revocation (CRL), the CNPJ inside the certificate and that the
    company is ATIVA at the Receita Federal. Credential issued for 90 days.
@@ -129,8 +132,16 @@ Mandate example (validated by `/.well-known/kya-mandate.schema.json`; free-form 
   "valid_until": "2027-01-01T00:00:00Z" }
 ```
 
-The npm package signs the challenge for you (`signChallengeWithEvmKey`, `signChallengeWithEd25519`,
-`signWithECnpj` from an A1 certificate in PEM); see [packages/agent-tools](packages/agent-tools/README.md).
+In code, the npm package signs for you: `signChallengeWithEvmKey`, `signChallengeWithEd25519`,
+`signWithECnpjPfx(pfxBytes, password, text)` straight from the `.pfx`, and `signingLink(...)` to build the link.
+On a terminal: `npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link "<sign_url>"` signs and issues.
+See [packages/agent-tools](packages/agent-tools/README.md).
+
+**Can an agent do the e-CNPJ step itself?** Technically, with an A1 file and its password, yes. It should not:
+the e-CNPJ signature is the company's consent, and an agent holding the company's certificate can authorize
+itself and sign anything else in the company's name (tax filings, contracts). The intended split is: the agent
+prepares everything and sends the link; a person with the e-CNPJ reads it and signs. A3 tokens, cards and
+cloud certificates (approval on the phone) keep that person in the loop by design.
 
 ## Tools and prices
 

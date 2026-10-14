@@ -1,6 +1,6 @@
 export const SERVICE_NAME = "KYA Brasil";
 export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "e-cnpj", "attestation"];
-export const VERSION = "0.7.1";
+export const VERSION = "0.8.0";
 export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
 /** MCP Registry entry (≤100 chars). */
 export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, revocation-checked, signed verdicts";
