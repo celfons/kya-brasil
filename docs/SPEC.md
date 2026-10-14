@@ -91,6 +91,13 @@ The same signing is available as code in `@kya-brasil/core` (`openPfx` for A1 fi
 that produces RSA PKCS#1 v1.5 SHA-256 signatures: PKCS#11 tokens, HSMs, cloud certificates) and as a command
 (`kya-sign --pfx` or `kya-sign --pkcs11`) in `@kya-brasil/agent-tools`; none of them needs the page.
 
+**Cloud certificates (D-28).** A provider implements `CloudSignatureProvider` (OAuth 2.0 authorization code with PKCE
+S256; a session that returns the certificate and signs a SHA-256 hash with RSA PKCS#1 v1.5). The issuer's flow:
+`GET /sign/cloud/{provider}/start?id=&challenge_id=&agent_signature=` stores the PKCE verifier and the request
+under a random `state` for at most 10 minutes and redirects to the provider; `GET /sign/cloud/callback?code=&state=`
+consumes the state (single use), exchanges the code, signs only the stored challenge, discards the session and
+calls `/prove`. `/status` lists `cloud_providers`. The reference issuer configures none.
+
 Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
 PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.
 

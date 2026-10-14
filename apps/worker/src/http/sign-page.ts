@@ -25,7 +25,23 @@ export function signPageCsp(nonce: string): string {
   ].join("; ");
 }
 
-export function signHtml(origin: string, nonce: string): string {
+const escHtml = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/** Cloud providers configured on this deployment (D-28); empty on the reference issuer. */
+export interface CloudOption {
+  id: string;
+  name: string;
+}
+
+export function signHtml(origin: string, nonce: string, cloud: CloudOption[] = []): string {
+  const cloudTab = cloud.length ? `<button role="tab" aria-selected="false" data-tab="cloud">Certificado em nuvem</button>` : "";
+  const cloudPanel = cloud.length
+    ? `<div id="tab-cloud" hidden>
+      <p>Você será levado ao provedor do certificado para entrar e aprovar a assinatura (em geral no celular). Depois volta aqui com a credencial emitida. O provedor só assina este desafio.</p>
+      <p>${cloud.map((c) => `<a class="btn" data-cloud="${escHtml(c.id)}" href="#">Assinar com ${escHtml(c.name)}</a>`).join(" ")}</p>
+      <p id="cloud-msg" class="muted"></p>
+    </div>`
+    : "";
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -83,6 +99,7 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="a1">Arquivo .pfx (certificado A1)</button>
       <button role="tab" aria-selected="false" data-tab="a3">Token, cartão ou outro assinador (A3)</button>
+      ${cloudTab}
     </div>
     <div id="tab-a1" class="grid">
       <label>Arquivo do certificado (.pfx ou .p12)<input type="file" id="pfx" accept=".pfx,.p12,application/x-pkcs12"></label>
@@ -94,6 +111,7 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       <p><a class="btn alt" id="dl" download="desafio-kya.txt" href="#">Baixar desafio-kya.txt</a></p>
       <label>2. Envie a assinatura gerada (.p7s)<input type="file" id="p7s" accept=".p7s,.p7m,.pem,.txt,application/pkcs7-signature"></label>
     </div>
+    ${cloudPanel}
     <p id="sign-msg" class="muted"></p>
   </section>
 
@@ -147,7 +165,17 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
 
   document.querySelectorAll("[data-tab]").forEach((b) => b.onclick = () => {
     document.querySelectorAll("[data-tab]").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
-    $("tab-a1").hidden = b.dataset.tab !== "a1"; $("tab-a3").hidden = b.dataset.tab !== "a3";
+    ["a1", "a3", "cloud"].forEach((t) => { const el = $("tab-" + t); if (el) el.hidden = b.dataset.tab !== t; });
+  });
+
+  // Cloud certificate: the issuer runs the provider flow and signs only the stored challenge (needs the agent's signature in the link).
+  document.querySelectorAll("[data-cloud]").forEach((a) => {
+    if (state.id && state.challengeId && state.agentSig) {
+      a.href = "/sign/cloud/" + encodeURIComponent(a.dataset.cloud) + "/start?id=" + encodeURIComponent(state.id) + "&challenge_id=" + encodeURIComponent(state.challengeId) + "&agent_signature=" + encodeURIComponent(state.agentSig);
+    } else {
+      a.removeAttribute("href"); a.setAttribute("aria-disabled", "true");
+      if ($("cloud-msg")) $("cloud-msg").textContent = "Para usar o certificado em nuvem, abra esta página pelo link completo enviado pelo agente (com a assinatura do agente).";
+    }
   });
 
   function ready(signature) {
@@ -228,3 +256,27 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
 </body>
 </html>`;
 }
+
+/** Outcome page after the cloud provider redirected back (no script, strict CSP). */
+export function cloudResultHtml(origin: string, ok: boolean, title: string, lines: string[]): string {
+  return `<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>${escHtml(title)} | KYA Brasil</title>
+<style>
+:root{--bg:#f7f7f4;--fg:#1d2129;--muted:#5d6470;--line:#d4d8de;--panel:#fff;--accent:#0b6e4f;--bad:#b42318}
+@media(prefers-color-scheme:dark){:root{--bg:#14171c;--fg:#e8eaee;--muted:#a0a7b2;--line:#3a414b;--panel:#1c2128;--accent:#4fc69a;--bad:#f97066;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px 16px}
+main{max-width:640px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px}
+h1{font-size:1.3rem;margin:0 0 10px;color:${ok ? "var(--accent)" : "var(--bad)"}}p{margin:6px 0;word-break:break-word}a{color:var(--accent)}
+</style>
+</head>
+<body><main><h1>${escHtml(title)}</h1>${lines.map((l) => `<p>${escHtml(l)}</p>`).join("")}<p><a href="${origin}/">KYA Brasil</a></p></main></body>
+</html>`;
+}
+
+/** CSP for the outcome page: no script at all. */
+export const CLOUD_RESULT_CSP = "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";

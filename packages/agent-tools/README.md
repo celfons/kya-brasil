@@ -159,6 +159,10 @@ The PIN comes from `KYA_TOKEN_PIN` or is asked for. The key never leaves the tok
 software PKCS#11 token) in CI. The signing code is in `@kya-brasil/core` (`openPfx`, `ecnpjSigner`,
 `buildDetachedCms`), re-exported here; any other token or cloud signer plugs into `ecnpjSigner`.
 
+**Cloud certificate (PSC).** `kya-sign --cloud ./my-psc.mjs --link "<sign_url>"` with a module that implements
+`CloudSignatureProvider` for your PSC ([template](https://github.com/celfons/kya-brasil/tree/main/examples/cloud-provider));
+the browser opens for the approval and the terminal receives the redirect on `127.0.0.1`.
+
 **From the agent's side**, `kya.signLink(credentialId, { challenge_id, agent_signature })` (free) returns the
 `sign_url` to send, the same as `signingLink(...)` offline and the MCP tool `kya_sign_link`.
 

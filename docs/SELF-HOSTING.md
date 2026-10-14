@@ -12,6 +12,11 @@ Your issuer is a different issuer: its credentials are signed by your key and ve
 `/.well-known/kya.json`. Verifiers decide which issuers they trust; the name "KYA Brasil" and the hosted
 service at `kya-br-agents.marcelfons.workers.dev` identify this project's own issuer.
 
+**Cloud certificates.** To offer e-CNPJ held by a PSC on your `/sign` page, implement `CloudSignatureProvider`
+for each PSC you have an agreement with ([examples/cloud-provider](../examples/cloud-provider)) and return them
+from `apps/worker/src/cloud-providers.ts`; keep their secrets in your environment's secrets. Register
+`<your issuer>/sign/cloud/callback` as the redirect URI at the PSC.
+
 **Two ways to run it.** As a service (this page: the Worker in `apps/worker`, on Cloudflare or in a
 container), or as a library inside your own systems: `npm install @kya-brasil/core` gives the same e-CNPJ,
 revocation, mandate and credential functions with your storage, keys and network (D-25). Banks, card

@@ -138,6 +138,9 @@ On a terminal: `npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link
 (A3 token: `--pkcs11 <vendor library>` instead of `--pfx`). Agents get the link from the free `kya_sign_link`
 (MCP) or `GET /v1/agents/{id}/sign-link?challenge_id=…&agent_signature=…`. The signing code itself is in
 `@kya-brasil/core` (`openPfx` for A1, `ecnpjSigner` for any token, HSM or cloud signer), so no page or route is needed.
+Cloud certificates (PSC): one interface, `CloudSignatureProvider`, used by the library, `kya-sign --cloud` and the
+`/sign` page of a self-hosted issuer; no PSC is implemented here, each has its own contract
+([template](examples/cloud-provider)).
 See [packages/agent-tools](packages/agent-tools/README.md).
 
 **Can an agent do the e-CNPJ step itself?** Technically, with an A1 file and its password, yes. It should not:

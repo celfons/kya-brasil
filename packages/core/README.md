@@ -87,6 +87,22 @@ const sig = await a3.sign(readSigningLink(link).text);       // the text from a 
 `openToken({ library, pin })` in `@kya-brasil/agent-tools` (and the `kya-sign --pkcs11` command) already wires
 `C_Sign` into `ecnpjSigner`.
 
+### Cloud certificates (PSC)
+
+`CloudSignatureProvider` is the interface for an e-CNPJ held by an ICP-Brasil PSC: `authorizationUrl` (OAuth with
+PKCE), `exchangeCode` returning a session with `certificates()` and `signHash(sha256)`. No PSC is implemented here
+(each has its own contract); implement it for yours from
+[examples/cloud-provider](https://github.com/celfons/kya-brasil/tree/main/examples/cloud-provider) and then:
+
+```ts
+import { cloudSigner, pkcePair, newState } from "@kya-brasil/core";
+const { verifier, challenge } = await pkcePair();
+const url = await provider.authorizationUrl({ redirectUri, state: newState(), codeChallenge: challenge });
+// … the person approves, your redirect URI gets ?code=…&state=…
+const signer = await cloudSigner(await provider.exchangeCode({ code, redirectUri, codeVerifier: verifier }));
+const ecnpj_signature = await signer.sign(challengeText);
+```
+
 ## Run your own issuer
 
 ```ts

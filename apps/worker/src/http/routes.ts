@@ -15,7 +15,10 @@ import { registrationCheckEnabled, registrationSources } from "../registration";
 import { companyAgents, setCompanyWebhook } from "../company";
 import * as service from "../service";
 import { Store } from "../store";
-import { signHtml, signPageCsp } from "./sign-page";
+import { CLOUD_RESULT_CSP, cloudResultHtml, signHtml, signPageCsp } from "./sign-page";
+import { cloudProviders } from "../cloud-providers";
+import { finishCloudSigning, startCloudSigning } from "../cloud";
+import type { CloudSignatureProvider } from "@kya-brasil/core";
 import { ICON_SVG, docsHtml, landingHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
 
 type Vars = { callLogId: number | null };
@@ -84,7 +87,9 @@ const EXAMPLE_ALLOWED = { credential_id: "6d0b…", status: "active", allowed: t
 
 const ID_PARAM = { pathParams: { id: "6d0b1c2e-…" }, pathParamsSchema: { properties: { id: { type: "string", description: "credential_id returned by POST /v1/agents" } }, required: ["id"] } };
 
-export function buildHttpApp(env: AppEnv) {
+export function buildHttpApp(env: AppEnv, opts: { cloudProviders?: CloudSignatureProvider[] } = {}) {
+  // Cloud e-CNPJ providers of this deployment (D-28): none in the repository; tests and self-hosters pass their own.
+  const cloud = opts.cloudProviders ?? cloudProviders(env);
   const app = new Hono<{ Bindings: AppEnv; Variables: Vars }>();
 
   const facilitator = new HTTPFacilitatorClient(facilitatorConfig(env));
@@ -258,7 +263,37 @@ export function buildHttpApp(env: AppEnv) {
     c.header("referrer-policy", "no-referrer");
     c.header("x-content-type-options", "nosniff");
     c.header("cache-control", "no-store");
-    return c.html(signHtml(originOf(c), nonce));
+    return c.html(signHtml(originOf(c), nonce, cloud.map((p) => ({ id: p.id, name: p.name }))));
+  });
+  // Cloud certificate (D-28): start = redirect to the provider with state + PKCE; callback = sign the stored challenge, issue.
+  const cloudPage = (c: Ctx, ok: boolean, title: string, lines: string[], status: 200 | 400 | 404 | 422 | 502 = 200) => {
+    c.header("content-security-policy", CLOUD_RESULT_CSP);
+    c.header("referrer-policy", "no-referrer");
+    c.header("cache-control", "no-store");
+    return c.html(cloudResultHtml(originOf(c), ok, title, lines), status);
+  };
+  const failPage = (c: Ctx, e: unknown) => {
+    const { status, body } = errorResponse(e);
+    return cloudPage(c, false, "Credencial não emitida", [String((body as { message?: string }).message ?? "erro"), "Peça um novo link a quem está registrando o agente, se for preciso."], (status === 402 ? 400 : status) as 400);
+  };
+  app.get("/sign/cloud/callback", async (c) => {
+    try {
+      const r = await finishCloudSigning(c.env, originOf(c), cloud, { code: c.req.query("code"), state: c.req.query("state"), error: c.req.query("error"), error_description: c.req.query("error_description") });
+      const cr = r.credential as { credential_id?: string; expires_at?: string; principal?: { legal_name?: string } };
+      return cloudPage(c, true, "Credencial emitida", [`Credencial ${cr.credential_id ?? ""} para ${cr.principal?.legal_name ?? "a empresa"}, válida até ${cr.expires_at ? new Date(cr.expires_at).toLocaleDateString("pt-BR") : "-"}.`, ...(r.warnings ?? []).map((w) => `Aviso: ${w}`)]);
+    } catch (e) {
+      return failPage(c, e);
+    }
+  });
+  app.get("/sign/cloud/:provider/start", async (c) => {
+    try {
+      const url = await startCloudSigning(c.env, originOf(c), cloud, c.req.param("provider") ?? "", { id: c.req.query("id"), challenge_id: c.req.query("challenge_id"), agent_signature: c.req.query("agent_signature"), login_hint: c.req.query("login_hint") });
+      c.header("referrer-policy", "no-referrer");
+      c.header("cache-control", "no-store");
+      return c.redirect(url, 302);
+    } catch (e) {
+      return failPage(c, e);
+    }
   });
   app.get("/health", (c) => c.json({ ok: true }));
   app.get("/server.json", (c) => c.json(serverJson(originOf(c))));
@@ -271,7 +306,7 @@ export function buildHttpApp(env: AppEnv) {
     // D-21: when the daily review (e-CNPJ CRL, registration) last ran and what it found; null before the first run.
     const dailyReview = await c.env.CACHE.get("status:daily_review", "json").catch(() => null);
     const anchors = await icpAnchors(c.env).then((a) => a.length).catch(() => 0);
-    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, registration_check: registrationCheckEnabled(c.env) ? "on" : "off", registration_sources: (() => { try { return registrationSources(c.env).map((s) => s.name); } catch { return []; } })(), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
+    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, cloud_providers: cloud.map((p) => ({ id: p.id, name: p.name })), registration_check: registrationCheckEnabled(c.env) ? "on" : "off", registration_sources: (() => { try { return registrationSources(c.env).map((s) => s.name); } catch { return []; } })(), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
   });
   app.get("/", (c) => {
     const origin = originOf(c);
