@@ -1,0 +1,67 @@
+{
+  "credential_id": "6d0b1c2e-1111-4222-8333-444455556666",
+  "status": "active",
+  "allowed": false,
+  "reason": "instrument visa b31c533bcf14… is not in the mandate",
+  "query": {
+    "action": "buy",
+    "amount": 4200,
+    "currency": "BRL",
+    "counterparty": null,
+    "spent_today": 9000,
+    "payment_network": "visa",
+    "payment_ref_sha256": "b31c533bcf14999f4b5c373911113938c57d41ef6c5043c02626cb546bf7bd91"
+  },
+  "checks": [
+    {
+      "rule": "valid_until",
+      "ok": true,
+      "detail": "mandate ends 2026-12-31T23:59:59Z"
+    },
+    {
+      "rule": "actions",
+      "ok": true,
+      "detail": "action \"buy\" is in [buy, quote]"
+    },
+    {
+      "rule": "currencies",
+      "ok": true,
+      "detail": "currency BRL allowed [BRL]"
+    },
+    {
+      "rule": "max_per_operation",
+      "ok": true,
+      "detail": "4200 vs ceiling 5000 BRL"
+    },
+    {
+      "rule": "max_per_day",
+      "ok": true,
+      "detail": "13200 today (incl. this one) vs ceiling 20000 BRL"
+    },
+    {
+      "rule": "payment_instruments",
+      "ok": false,
+      "detail": "instrument visa b31c533bcf14… is not in the mandate"
+    }
+  ],
+  "not_evaluated": [],
+  "spent_today_registered": null,
+  "principal": {
+    "cnpj": "11222333000181",
+    "cnpj_formatted": "11.222.333/0001-81",
+    "legal_name": "ACME LTDA"
+  },
+  "agent": {
+    "kind": "evm",
+    "id": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  },
+  "checked_at": "2026-10-14T13:31:00.000Z",
+  "attestation": {
+    "algorithm": "ed25519",
+    "key_id": "22663271288422d0",
+    "sha256": "ade3c884bc8d5604ba500e9c75fe4fb3d0118398b781957986fa0b83818bdaf7",
+    "signed_at": "2026-10-14T13:31:00.000Z",
+    "signature": "JN6TEvgfVwvvGub307+w9jF0NersFUGhBBIQK+KtpGvqMyBjWPuApkWKSbQfNnGjy8i5s680jbbryt5WZIHzDw==",
+    "verify_url": "https://issuer.example/v1/verify"
+  }
+}

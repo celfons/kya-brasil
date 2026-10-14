@@ -1,0 +1,20 @@
+{
+  "issuer": "https://issuer.example",
+  "algorithm": "ed25519",
+  "keys": [
+    {
+      "key_id": "22663271288422d0",
+      "jwk": {
+        "key_ops": [
+          "verify"
+        ],
+        "ext": true,
+        "alg": "Ed25519",
+        "crv": "Ed25519",
+        "x": "_61UFhl5rZ1Oj49A0uQy_Tt-xwraluauVGjoUg556yk",
+        "kty": "OKP"
+      },
+      "status": "active"
+    }
+  ]
+}
