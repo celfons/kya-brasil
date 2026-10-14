@@ -4,6 +4,8 @@
 export type AppEnv = Env & {
   /** Optional (D-23): BrasilAPI-format endpoint for the registration status, tried before the public mirrors; "{cnpj}" is replaced. */
   CNPJ_API_URL?: string;
+  /** D-24: "off" skips the registration status check; default on. Failures never block issuance, they become warnings. */
+  REGISTRATION_CHECK?: string;
   /** Secret. Receiving wallet address. */
   PAY_TO: `0x${string}`;
   /** Public base URL of this deployment, used inside credentials (issuer, verify_url). */

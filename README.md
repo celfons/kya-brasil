@@ -180,7 +180,10 @@ The issuer acts on one company fact only, the registration status (D-15), read f
 data: BrasilAPI with CNPJ.ws as fallback, both free and keyless (`apps/worker/src/registration.ts`, D-23).
 To depend on no third party at all, point `CNPJ_API_URL` at your own endpoint in the BrasilAPI format
 (a self-hosted BrasilAPI, or your own import of the Receita dataset); it is tried first. `kyb_snapshot`
-stays in the credential for /v1 compatibility and is always `null`. CRLs are fetched from the URLs in each certificate
+stays in the credential for /v1 compatibility and is always `null`.
+The check never takes the service down (D-24): verifications never call it, issuance only refuses a confirmed
+status other than ATIVA, and when no source answers the credential is issued as `UNVERIFIED` with a warning
+in the response (`REGISTRATION_CHECK=off` skips it entirely: `NOT_CHECKED`). CRLs are fetched from the URLs in each certificate
 (`apps/worker/src/revocation.ts`).
 
 | Path | What |

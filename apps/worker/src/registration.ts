@@ -42,6 +42,35 @@ export function registrationSources(env: AppEnv): PublicSource[] {
   return [{ name: "custom", url: (c) => custom.replace("{cnpj}", c), read: brasilApiShape }, ...PUBLIC_SOURCES];
 }
 
+/** Whether this issuer checks the registration status at all (REGISTRATION_CHECK, default on; D-24). */
+export const registrationCheckEnabled = (env: AppEnv) => (env.REGISTRATION_CHECK ?? "on").trim().toLowerCase() !== "off";
+
+export interface RegistrationOutcome {
+  /** null when unknown: use the name in the e-CNPJ certificate. */
+  legal_name: string | null;
+  /** ATIVA, BAIXADA, ... from the Receita, or UNVERIFIED (no source answered) / NOT_CHECKED (check off). */
+  registration_status: string;
+  checked_at: string | null;
+  warning: string | null;
+}
+
+/**
+ * D-24: the registration check never blocks the service. Off, or with every source down, the status is
+ * UNVERIFIED / NOT_CHECKED with a warning; only a confirmed status other than ATIVA refuses issuance.
+ */
+export async function registrationOrWarning(env: AppEnv, cnpj: string): Promise<RegistrationOutcome> {
+  if (!registrationCheckEnabled(env)) {
+    return { legal_name: null, registration_status: "NOT_CHECKED", checked_at: null, warning: "registration status not checked: the check is off on this issuer (REGISTRATION_CHECK=off)" };
+  }
+  try {
+    const r = await companyRegistration(env, cnpj);
+    return { legal_name: r.legal_name, registration_status: r.registration_status, checked_at: r.checked_at, warning: null };
+  } catch (e) {
+    const why = e instanceof KyaError && e.code === "NOT_FOUND" ? "CNPJ not found in the open-data source" : (e as Error).message;
+    return { legal_name: null, registration_status: "UNVERIFIED", checked_at: null, warning: `registration status could not be confirmed (${why}); the daily review checks it again` };
+  }
+}
+
 export async function companyRegistration(env: AppEnv, cnpj: string): Promise<Registration> {
   const c = normalizeCnpj(cnpj);
   const failures: string[] = [];

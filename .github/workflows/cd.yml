@@ -5,7 +5,7 @@
 #
 # Required secrets per environment: PULUMI_ACCESS_TOKEN, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
 # PAY_TO. Optional: INTERNAL_API_KEY (fiat channel), CDP_API_KEY_ID / CDP_API_KEY_SECRET (mainnet facilitator).
-# Optional vars: WORKER_NAME, CNPJ_API_URL (own registration endpoint, D-23), X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
+# Optional vars: WORKER_NAME, CNPJ_API_URL (own registration endpoint, D-23), REGISTRATION_CHECK (off to skip it, D-24), X402_NETWORK, FACILITATOR_URL, ISSUER_URL, GLAMA_CLAIM.
 name: CD
 on:
   push:
@@ -49,6 +49,7 @@ jobs:
       ISSUER_URL: ${{ vars.ISSUER_URL }}
       GLAMA_CLAIM: ${{ vars.GLAMA_CLAIM }}
       CNPJ_API_URL: ${{ vars.CNPJ_API_URL }}
+      REGISTRATION_CHECK: ${{ vars.REGISTRATION_CHECK }}
     steps:
       - name: Environment configured?
         id: cfg
@@ -84,6 +85,7 @@ jobs:
           pulumi config set --secret kya-br-agents:payTo "$PAY_TO"
           # Leftovers of the optional KYB source (removed in D-23).
           for k in kybWorkerName kybInternalKey registrationSource; do pulumi config rm "kya-br-agents:$k" 2>/dev/null || true; done
+          if [ -n "$REGISTRATION_CHECK" ]; then pulumi config set kya-br-agents:registrationCheck "$REGISTRATION_CHECK"; else pulumi config rm kya-br-agents:registrationCheck 2>/dev/null || true; fi
           if [ -n "$CNPJ_API_URL" ]; then pulumi config set kya-br-agents:cnpjApiUrl "$CNPJ_API_URL"; else pulumi config rm kya-br-agents:cnpjApiUrl 2>/dev/null || true; fi
           if [ -n "$ISSUER_URL" ]; then pulumi config set kya-br-agents:issuerUrl "$ISSUER_URL"; else pulumi config rm kya-br-agents:issuerUrl 2>/dev/null || true; fi
           if [ -n "$GLAMA_CLAIM" ]; then pulumi config set kya-br-agents:glamaClaim "$GLAMA_CLAIM"; else pulumi config rm kya-br-agents:glamaClaim 2>/dev/null || true; fi

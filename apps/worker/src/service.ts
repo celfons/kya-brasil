@@ -11,7 +11,7 @@ import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
 import type { AppEnv } from "./env";
 import { notifyCompany } from "./company";
-import { companyRegistration } from "./registration";
+import { registrationOrWarning } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 
@@ -50,6 +50,9 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
   };
 }
 
+/** The company name in an e-CNPJ subject ("CN=ACME LTDA:11222333000181, ..."), used when the registration is unknown. */
+const certificateName = (subject: string) => /CN=([^:,]+)/.exec(subject)?.[1]?.trim() ?? "";
+
 async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { challenge_id: string; agent_signature: string; ecnpj_signature: string }, event: "issued" | "renewed") {
   const store = new Store(env.DB);
   // erc8004: the wallet is read again now, so a transfer between registration and proof is caught.
@@ -62,12 +65,13 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
   const revocation = await certificateRevocation(env, icp);
   if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}${revocation.reason ? ` (${revocation.reason})` : ""}`);
-  // D-15: only the registration status decides; it comes from the Receita's open data (D-23). The /v1 credential
-  // keeps its kyb_snapshot field, always null since D-23.
-  const reg = await companyRegistration(env, row.cnpj);
+  // D-15: only the registration status decides; it comes from the Receita's open data (D-23). D-24: the check is
+  // optional and never blocks on its own failure: unknown becomes UNVERIFIED / NOT_CHECKED plus a warning.
+  // The /v1 credential keeps its kyb_snapshot field, always null since D-23.
+  const reg = await registrationOrWarning(env, row.cnpj);
   const decision = principalDecision(reg.registration_status);
   if (!decision.ok) {
-    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: reg.checked_at });
+    await store.setStatus({ id: row.id, status: "suspended", reason: decision.reason, actor: "issuer", cause: "registration", last_kyb_at: reg.checked_at ?? undefined });
     // Error code kept for /v1 compatibility: it means "company not ATIVA at the Receita".
     throw new KyaError("KYB_BLOCKED", `credential not issued: ${decision.reason}`);
   }
@@ -76,14 +80,16 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const issuer = issuerOf(env, origin);
   const mandate = JSON.parse(row.mandate) as Mandate;
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
-  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: reg.legal_name, registration_status: reg.registration_status, certificate, mandate, kyb: null, issuer });
+  const legalName = reg.legal_name ?? certificateName(icp.certificate_subject);
+  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: legalName, registration_status: reg.registration_status, certificate, mandate, kyb: null, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
-  await store.issue({ id: row.id, legal_name: reg.legal_name, credential, certificate: record, mandate, event });
+  await store.issue({ id: row.id, legal_name: legalName, credential, certificate: record, mandate, event });
   if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
   await notifyCompany(env, issuer, row.cnpj, event === "issued" ? "credential.issued" : "credential.renewed", { credential_id: row.id, agent, expires_at: credential.expires_at, certificate_sha256: icp.certificate_sha256 });
-  // kyb_warnings kept for /v1 compatibility (always empty since D-23).
-  return { credential, kyb_warnings: [] as string[] };
+  // warnings (D-24); kyb_warnings repeats them for /v1 compatibility.
+  const warnings = reg.warning ? [reg.warning] : [];
+  return { credential, warnings, kyb_warnings: warnings };
 }
 
 export async function prove(env: AppEnv, origin: string, id: string, body: { challenge_id?: unknown; agent_signature?: unknown; ecnpj_signature?: unknown }) {
@@ -252,23 +258,25 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
         revoked++;
         continue;
       }
-      const reg = await companyRegistration(env, row.cnpj);
+      // D-24: an unknown status (check off, sources down) changes nothing; only a confirmed one does.
+      const reg = await registrationOrWarning(env, row.cnpj);
       const d = principalDecision(reg.registration_status);
+      const regUnknown = reg.registration_status === "UNVERIFIED" || reg.registration_status === "NOT_CHECKED";
       const hold: { cause: "certificate" | "registration"; reason: string } | null =
         certificate === "suspend" ? { cause: "certificate", reason: certificateReason ?? "e-CNPJ certificate on hold at its AC" } : !d.ok ? { cause: "registration", reason: d.reason ?? "registration not ATIVA" } : null;
       // Reinstate only what this review suspended, and only when the cause is known to be gone.
-      const canLift = row.suspension_cause !== "wallet" && !(row.suspension_cause === "certificate" && certificate === "unknown");
+      const canLift = row.suspension_cause !== "wallet" && !(row.suspension_cause === "certificate" && certificate === "unknown") && !(row.suspension_cause === "registration" && regUnknown);
       if (row.status === "active" && hold) {
-        await store.setStatus({ id: row.id, status: "suspended", reason: hold.reason, actor: "cron", cause: hold.cause, last_kyb_at: reg.checked_at });
+        await store.setStatus({ id: row.id, status: "suspended", reason: hold.reason, actor: "cron", cause: hold.cause, last_kyb_at: reg.checked_at ?? undefined });
         await notifyCompany(env, issuer, row.cnpj, "credential.suspended", { credential_id: row.id, reason: hold.reason });
         suspended++;
       } else if (row.status === "suspended" && !hold && canLift) {
         // Also lifts suspensions made under the old rules (sanctions, risk), which no longer apply (D-15).
-        await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: reg.checked_at });
+        await store.setStatus({ id: row.id, status: "active", reason: null, actor: "cron", last_kyb_at: reg.checked_at ?? undefined });
         await notifyCompany(env, issuer, row.cnpj, "credential.reinstated", { credential_id: row.id });
         reinstated++;
       } else {
-        await store.markReviewed(row.id, { last_kyb_at: reg.checked_at });
+        await store.markReviewed(row.id, { last_kyb_at: reg.checked_at ?? undefined });
       }
     } catch (e) {
       errors++;

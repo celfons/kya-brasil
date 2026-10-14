@@ -59,6 +59,7 @@ await check("status: a registration source configured, signing key present", asy
   const j = await (await fetch(at("/status"))).json();
   // D-23: the Receita's open data through public mirrors, optionally after an own endpoint.
   const s = j.registration_sources;
+  expect(j.registration_check === "on" || j.registration_check === "off", `registration_check ${j.registration_check}`);
   expect(Array.isArray(s) && s.includes("brasilapi") && s.includes("cnpjws"), `registration_sources ${JSON.stringify(s)}`);
   expect(typeof j.attestation_key === "string" && j.attestation_key.length === 16, "no attestation key");
 });

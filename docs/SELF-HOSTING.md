@@ -5,6 +5,8 @@ Nothing closed, paid or keyed is required. The issuer reads the company's regist
 Receita Federal's open data through BrasilAPI, with CNPJ.ws as fallback (D-23). To depend on neither, run
 your own source in the BrasilAPI format (a self-hosted BrasilAPI, or an import of the Receita dataset) and
 set `CNPJ_API_URL` to it, e.g. `https://cnpj.example/api/cnpj/v1/{cnpj}`; it is tried first.
+The check is optional (`REGISTRATION_CHECK=off`) and never blocks: when no source answers, the credential
+is issued as `UNVERIFIED` with a warning in the response, and the daily review checks again (D-24).
 
 Your issuer is a different issuer: its credentials are signed by your key and verified against your
 `/.well-known/kya.json`. Verifiers decide which issuers they trust; the name "KYA Brasil" and the hosted

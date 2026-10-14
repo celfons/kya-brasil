@@ -32,6 +32,7 @@ config:
     description: Receiving wallet address (0x...). Secret.
     secret: true
 # Optional, read with cfg.get/getSecret() (a declared key without default is required by Pulumi):
+#   kya-br-agents:registrationCheck    "off" skips the registration status check (default on; failures only warn, D-24)
 #   kya-br-agents:cnpjApiUrl           own registration endpoint with {cnpj} in BrasilAPI format, tried before
 #                                      BrasilAPI and CNPJ.ws (D-23), e.g. a self-hosted BrasilAPI
 #   kya-br-agents:issuerUrl            public base URL written into credentials (defaults to the request origin)

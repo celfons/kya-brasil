@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { companyRegistration, registrationSources } from "./registration";
+import { companyRegistration, registrationOrWarning, registrationSources } from "./registration";
 import type { AppEnv } from "./env";
 
 const env = (vars: Record<string, unknown> = {}) => vars as unknown as AppEnv;
@@ -47,5 +47,19 @@ describe("registration status from open data (D-17, D-23)", () => {
     await expect(companyRegistration(env(), "11222333000181")).rejects.toMatchObject({ code: "NOT_FOUND" });
     vi.stubGlobal("fetch", async () => { throw new Error("network"); });
     await expect(companyRegistration(env(), "11222333000181")).rejects.toMatchObject({ code: "REGISTRY_UNAVAILABLE" });
+  });
+
+  it("never blocks: sources down → UNVERIFIED with a warning; check off → NOT_CHECKED, no request (D-24)", async () => {
+    let calls = 0;
+    vi.stubGlobal("fetch", async () => { calls++; return new Response("down", { status: 503 }); });
+    const down = await registrationOrWarning(env(), "11222333000181");
+    expect(down).toMatchObject({ registration_status: "UNVERIFIED", legal_name: null });
+    expect(down.warning).toMatch(/could not be confirmed/);
+    calls = 0;
+    const off = await registrationOrWarning(env({ REGISTRATION_CHECK: "off" }), "11222333000181");
+    expect(off).toMatchObject({ registration_status: "NOT_CHECKED", warning: expect.stringMatching(/REGISTRATION_CHECK=off/) });
+    expect(calls).toBe(0);
+    vi.stubGlobal("fetch", async () => json({ razao_social: "ACME LTDA", descricao_situacao_cadastral: "Baixada" }));
+    expect(await registrationOrWarning(env(), "11222333000181")).toMatchObject({ registration_status: "BAIXADA", warning: null });
   });
 });

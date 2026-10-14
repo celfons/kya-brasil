@@ -29,6 +29,7 @@ const facilitatorUrl = cfg.get("facilitatorUrl") ?? "https://x402.org/facilitato
 const freeTierDailyLimit = cfg.get("freeTierDailyLimit") ?? "50";
 const issuerUrl = cfg.get("issuerUrl"); // optional; defaults to the request origin
 const payTo = cfg.requireSecret("payTo");
+const registrationCheck = cfg.get("registrationCheck"); // optional: "off" skips the registration check (D-24)
 const cnpjApiUrl = cfg.get("cnpjApiUrl"); // optional: own registration endpoint with {cnpj}, BrasilAPI format (D-23)
 const internalApiKey = cfg.getSecret("internalApiKey");
 const cdpApiKeyId = cfg.getSecret("cdpApiKeyId");
@@ -146,6 +147,7 @@ const bindings: pulumi.Input<cloudflare.types.input.WorkersScriptBinding>[] = [
   { type: "plain_text", name: "FREE_TIER_DAILY_LIMIT", text: freeTierDailyLimit },
   { type: "secret_text", name: "PAY_TO", text: payTo }
 ];
+if (registrationCheck) bindings.push({ type: "plain_text", name: "REGISTRATION_CHECK", text: registrationCheck });
 if (cnpjApiUrl) bindings.push({ type: "plain_text", name: "CNPJ_API_URL", text: cnpjApiUrl });
 if (issuerUrl) bindings.push({ type: "plain_text", name: "ISSUER_URL", text: issuerUrl });
 if (internalApiKey) bindings.push({ type: "secret_text", name: "INTERNAL_API_KEY", text: internalApiKey });

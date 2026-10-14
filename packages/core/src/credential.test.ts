@@ -19,6 +19,9 @@ describe("credential", () => {
   it("only the registration status decides (D-15): sanctions and risk are the verifier's call", () => {
     expect(principalDecision("ATIVA")).toEqual({ ok: true, reason: null });
     expect(principalDecision("BAIXADA").reason).toMatch(/BAIXADA/);
+    // D-24: unknown is not "not active"
+    expect(principalDecision("UNVERIFIED")).toEqual({ ok: true, reason: null });
+    expect(principalDecision("NOT_CHECKED")).toEqual({ ok: true, reason: null });
     expect(principalDecision("INAPTA").ok).toBe(false);
   });
 

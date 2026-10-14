@@ -120,7 +120,8 @@ mandate MUST NOT exceed 8192 bytes.
 ```
 
 - `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
-- Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is not `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
+- Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is confirmed as other than `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
+- The registration check is optional and never blocks on its own failure (D-24). When the issuer has it off, `principal.registration_status` is `NOT_CHECKED`; when no source answers, `UNVERIFIED`. In both cases the credential is issued, `legal_name` comes from the e-CNPJ certificate, and the issuance response carries the reason in `warnings` (and in `kyb_warnings`, kept for v1). The daily review checks again and suspends if a later answer is not `ATIVA`. Verifiers that require a confirmed status MUST check for `ATIVA`.
 - `kyb_snapshot` is kept in v1 for compatibility and is `null` in credentials issued by the reference issuer since D-23. Older credentials may carry a risk screen taken at issuance (an object with `risk_level`, `active_sanctions`, `checked_at` and similar); it never affected status and verifiers MUST NOT read it as a current assessment.
 - `status` is the status **at issuance**. Later changes (suspension by the daily review, revocation, expiry) are not re-signed; they are published at `verify_url` and in the revocation list.
 

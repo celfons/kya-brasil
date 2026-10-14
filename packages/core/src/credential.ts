@@ -68,7 +68,12 @@ export async function credentialDigest(c: Credential): Promise<string> {
  * i.e. registration ATIVA at the Receita Federal. Sanctions, debt and risk are facts about the company
  * for the verifier to weigh with its own screening, never a reason to deny or suspend the credential.
  */
+/** D-24: statuses that mean "not known", not "not active": the check was off or no source answered. */
+export const UNKNOWN_REGISTRATION = ["UNVERIFIED", "NOT_CHECKED"];
+
 export function principalDecision(registration_status: string): { ok: boolean; reason: string | null } {
+  // Only a confirmed status other than ATIVA blocks; an unknown one is carried as a warning (D-24).
+  if (UNKNOWN_REGISTRATION.includes(registration_status)) return { ok: true, reason: null };
   if (registration_status !== "ATIVA") return { ok: false, reason: `company is ${registration_status} at the Receita Federal` };
   return { ok: true, reason: null };
 }

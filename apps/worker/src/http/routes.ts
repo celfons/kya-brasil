@@ -11,7 +11,7 @@ import { attachSettlement, decodeSettlementHeader, logCall } from "../call-log";
 import type { AppEnv } from "../env";
 import { facilitatorConfig } from "../facilitator";
 import { SERVICE_DESCRIPTION, SERVICE_NAME, SERVICE_TAGS, TOOLS, VERSION, type ToolName } from "../pricing";
-import { registrationSources } from "../registration";
+import { registrationCheckEnabled, registrationSources } from "../registration";
 import { companyAgents, setCompanyWebhook } from "../company";
 import * as service from "../service";
 import { Store } from "../store";
@@ -260,7 +260,7 @@ export function buildHttpApp(env: AppEnv) {
     // D-21: when the daily review (e-CNPJ CRL, registration) last ran and what it found; null before the first run.
     const dailyReview = await c.env.CACHE.get("status:daily_review", "json").catch(() => null);
     const anchors = await icpAnchors(c.env).then((a) => a.length).catch(() => 0);
-    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, registration_sources: (() => { try { return registrationSources(c.env).map((s) => s.name); } catch { return []; } })(), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
+    return c.json({ service: SERVICE_NAME, version: VERSION, network: c.env.X402_NETWORK, daily_review: dailyReview, anchors, registration_check: registrationCheckEnabled(c.env) ? "on" : "off", registration_sources: (() => { try { return registrationSources(c.env).map((s) => s.name); } catch { return []; } })(), attestation_key: keys[0]?.key_id ?? null, credentials: counts, checked_at: new Date().toISOString() });
   });
   app.get("/", (c) => {
     const origin = originOf(c);

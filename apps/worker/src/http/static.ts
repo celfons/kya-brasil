@@ -73,7 +73,7 @@ export function llmsTxt(origin: string, network: string): string {
 ${tools}
 
 ## Credential
-JSON signed with Ed25519 (attestation.key_id, public keys at ${origin}/.well-known/kya.json). Fields: credential_id, agent {kind, id}, principal {cnpj, legal_name, registration_status}, authorized_by {method, certificate_sha256, certificate_subject, issuer, signed_at}, mandate (JSON validated by ${origin}/.well-known/kya-mandate.schema.json; reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until), kyb_snapshot (always null; kept for /v1 compatibility), status, issued_at, expires_at (90 days or the mandate's end), verify_url, revocation_url. Status changes after issuance (daily review: revoked when the e-CNPJ is revoked at its AC, suspended while the company is not ATIVA or the certificate is on hold; revoked by the company) are reported live at verify_url and in ${origin}/v1/revocations; the signature covers the credential as issued.
+JSON signed with Ed25519 (attestation.key_id, public keys at ${origin}/.well-known/kya.json). Fields: credential_id, agent {kind, id}, principal {cnpj, legal_name, registration_status (ATIVA; UNVERIFIED or NOT_CHECKED when the check was unavailable or off, with the reason in the issuance response's warnings)}, authorized_by {method, certificate_sha256, certificate_subject, issuer, signed_at}, mandate (JSON validated by ${origin}/.well-known/kya-mandate.schema.json; reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until), kyb_snapshot (always null; kept for /v1 compatibility), status, issued_at, expires_at (90 days or the mandate's end), verify_url, revocation_url. Status changes after issuance (daily review: revoked when the e-CNPJ is revoked at its AC, suspended while the company is not ATIVA or the certificate is on hold; revoked by the company) are reported live at verify_url and in ${origin}/v1/revocations; the signature covers the credential as issued.
 
 ## Rules
 - Legal entities only: no CPF is stored or returned; the signer of the e-CNPJ is identified by the certificate hash.
@@ -209,7 +209,7 @@ curl "${origin}/v1/agents/&lt;credential_id&gt;/allowed?action=pay&amp;amount=80
 (async()=>{try{const s=await (await fetch("${origin}/status")).json();const q=(i)=>document.getElementById(i);
 q("v").textContent=s.version;q("k").textContent=s.attestation_key||"none";q("k").className=s.attestation_key?"ok":"";
 const c=s.credentials||{};q("c").textContent=Object.keys(c).length?Object.entries(c).map(([k,v])=>k+" "+v).join(", "):"none yet";
-q("r").textContent=s.registration_source||"-";const d=s.daily_review;q("d").textContent=d&&d.ran_at?new Date(d.ran_at).toISOString().slice(0,16).replace("T"," ")+" UTC":d&&d.at?new Date(d.at).toISOString().slice(0,16).replace("T"," ")+" UTC":"not yet";}
+q("r").textContent=s.registration_check==="off"?"off":(s.registration_sources||[]).join(", ")||"-";const d=s.daily_review;q("d").textContent=d&&d.ran_at?new Date(d.ran_at).toISOString().slice(0,16).replace("T"," ")+" UTC":d&&d.at?new Date(d.at).toISOString().slice(0,16).replace("T"," ")+" UTC":"not yet";}
 catch(e){for(const i of["k","c","r","d"])document.getElementById(i).textContent="unavailable"}})();
 </script>
 </body>
