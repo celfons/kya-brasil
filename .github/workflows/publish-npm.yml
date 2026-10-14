@@ -1,8 +1,9 @@
 # Publish @kya-brasil/core (the library, D-25) and @kya-brasil/agent-tools (the client) to npm. Manual: needs the
 # NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
 # them first. A version already on npm is skipped, so publishing one package never fails on the other.
-# Then mirrors the same build to GitHub Packages as @celfons/kya-agent-tools (GitHub requires the scope to be
-# the repository owner), so it shows under the repository's Packages. npmjs.com stays the install channel.
+# Then mirrors the same builds to GitHub Packages as @celfons/kya-core and @celfons/kya-agent-tools (GitHub
+# requires the scope to be the repository owner), so both show under the repository's Packages. npmjs.com stays
+# the install channel.
 name: Publish npm package
 on:
   workflow_dispatch:
@@ -57,7 +58,20 @@ jobs:
           fi
           # Placeholder npm left from the first publish (scope did not exist yet); unpublish is allowed within 72 h, ignore otherwise.
           npm unpublish @kya-brasil/agent-tools@0.0.0-stage 2>/dev/null || true
-      - name: Mirror to GitHub Packages
+      - name: Mirror the core to GitHub Packages
+        working-directory: packages/core
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm pkg set name=@celfons/kya-core
+          npm config set //npm.pkg.github.com/:_authToken "$GH_PACKAGES_TOKEN" --location project
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@celfons/kya-core@$VERSION" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "::notice::@celfons/kya-core@$VERSION is already on GitHub Packages"
+          else
+            npm publish --registry https://npm.pkg.github.com
+          fi
+      - name: Mirror the client to GitHub Packages
         working-directory: packages/agent-tools
         env:
           GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
