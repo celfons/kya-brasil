@@ -85,8 +85,11 @@ accountant) opened from the `sign_url` returned by registration, with `&agent_si
 agent. It shows the CNPJ, the agent, the issuer, the expiry and the requested mandate, warns when the challenge
 names another issuer or has expired, and signs in the browser: an A1 `.pfx`/`.p12` (the file and password never
 leave the browser), or a `.p7s` produced by any ICP-Brasil signer over the downloaded challenge file (A3 token or
-card, cloud certificates). With both signatures it calls `/prove`. The same signing is available as code
-(`signWithECnpjPfx`) and as a command (`kya-sign`) in `@kya-brasil/agent-tools`.
+card, cloud certificates). With both signatures it calls `/prove`. `GET /v1/agents/{id}/sign-link?challenge_id=&agent_signature=` (free; MCP
+`kya_sign_link`) returns the same link with the agent's signature, from the stored challenge, without consuming it.
+The same signing is available as code in `@kya-brasil/core` (`openPfx` for A1 files, `ecnpjSigner` for any signer
+that produces RSA PKCS#1 v1.5 SHA-256 signatures: PKCS#11 tokens, HSMs, cloud certificates) and as a command
+(`kya-sign --pfx` or `kya-sign --pkcs11`) in `@kya-brasil/agent-tools`; none of them needs the page.
 
 Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
 PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.

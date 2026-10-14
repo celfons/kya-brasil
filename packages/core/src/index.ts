@@ -7,3 +7,4 @@ export * from "./credential.js";
 export * from "./icp-brasil.js";
 export * from "./revocation.js";
 export * from "./erc8004.js";
+export * from "./ecnpj-sign.js";

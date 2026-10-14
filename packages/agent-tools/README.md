@@ -141,6 +141,27 @@ npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --text-file desafio.tx
 
 The password comes from `KYA_PFX_PASSWORD` or is asked for without echo. Everything runs locally.
 
+**A3 (token or smart card).** Through PKCS#11, the interface every ICP-Brasil token driver ships. Install the
+optional `pkcs11js` and point to the vendor's library (e.g. SafeNet eToken `libeTPkcs11.so` / `eTPKCS11.dll`):
+
+```sh
+npm install pkcs11js
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --list                       # certificates on the token
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --link "<sign_url>&agent_signature=…"
+```
+
+```ts
+const token = await openToken({ library: "/usr/lib/libeTPkcs11.so", pin: process.env.TOKEN_PIN! });
+try { ecnpj_signature = await token.sign(reg.challenge.text); } finally { token.close(); }
+```
+
+The PIN comes from `KYA_TOKEN_PIN` or is asked for. The key never leaves the token. Tested against SoftHSM2 (a
+software PKCS#11 token) in CI. The signing code is in `@kya-brasil/core` (`openPfx`, `ecnpjSigner`,
+`buildDetachedCms`), re-exported here; any other token or cloud signer plugs into `ecnpjSigner`.
+
+**From the agent's side**, `kya.signLink(credentialId, { challenge_id, agent_signature })` (free) returns the
+`sign_url` to send, the same as `signingLink(...)` offline and the MCP tool `kya_sign_link`.
+
 An agent should not hold the company's e-CNPJ to sign for itself: that signature is the company's consent.
 Let the agent prepare and send the link, and a person sign.
 

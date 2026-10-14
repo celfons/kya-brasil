@@ -44,6 +44,9 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
+          # The client depends on the core published just before it: replace the workspace range with the real version.
+          CORE=$(node -p "require('../core/package.json').version")
+          node -e 'const f="package.json",p=JSON.parse(require("fs").readFileSync(f));p.dependencies["@kya-brasil/core"]="^"+process.argv[1];require("fs").writeFileSync(f,JSON.stringify(p,null,2)+"\n")' "$CORE"
           VERSION=$(node -p "require('./package.json').version")
           # A published version can never be replaced: skip (and still mirror below) instead of failing.
           if npm view "@kya-brasil/agent-tools@$VERSION" version >/dev/null 2>&1; then

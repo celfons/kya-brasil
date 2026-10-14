@@ -193,6 +193,7 @@ export function buildHttpApp(env: AppEnv) {
   app.route("/internal/v1", internal);
 
   // ---- free routes ----
+  app.get("/v1/agents/:id/sign-link", (c) => run(c, "kya_sign_link", null, null, () => service.signLink(c.env, originOf(c), idOf(c), { challenge_id: c.req.query("challenge_id"), agent_signature: c.req.query("agent_signature") })));
   app.post("/v1/agents/:id/prove", (c) => run(c, "kya_prove", null, null, async () => service.prove(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/renew/prove", (c) => run(c, "kya_renew", null, null, async () => service.renewProve(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/revoke", (c) => run(c, "kya_revoke", null, null, async () => service.revoke(c.env, originOf(c), idOf(c), await jsonBody(c))));

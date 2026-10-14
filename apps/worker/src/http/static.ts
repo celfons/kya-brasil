@@ -31,6 +31,16 @@ export function openapiJson(origin: string, network: string, payTo: string) {
     };
     paths[t.path] = { ...(paths[t.path] as object), [t.method.toLowerCase()]: op };
   }
+  paths["/v1/agents/{id}/sign-link"] = {
+    get: {
+      ...(paths["/v1/agents/{id}/sign-link"] as { get: object }).get,
+      parameters: [
+        { name: "id", in: "path", required: true, schema: { type: "string" } },
+        { name: "challenge_id", in: "query", required: true, schema: { type: "string" } },
+        { name: "agent_signature", in: "query", schema: { type: "string" }, description: "The agent's signature of challenge.text" }
+      ]
+    }
+  };
   paths["/v1/agents/{id}/allowed"] = {
     get: {
       ...(paths["/v1/agents/{id}/allowed"] as { get: object }).get,

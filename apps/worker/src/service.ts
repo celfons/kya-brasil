@@ -4,7 +4,7 @@
  */
 import {
   type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
-  normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
+  normalizeAgentKey, normalizeCnpj, signCredential, signingLink, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
 } from "@kya-brasil/core";
 import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
@@ -116,15 +116,29 @@ export async function verify(env: AppEnv, id: string) {
   return present(row, await store.events(id));
 }
 
-/** <issuer>/sign link for the e-CNPJ holder (same format as signingLink in @kya-brasil/agent-tools). */
-function signUrl(issuer: string, id: string, challengeId: string, text: string): string {
-  const u = new URL("/sign", issuer);
-  u.searchParams.set("id", id);
-  u.searchParams.set("challenge_id", challengeId);
-  let bin = "";
-  for (const b of new TextEncoder().encode(text)) bin += String.fromCharCode(b);
-  u.searchParams.set("text", btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""));
-  return u.toString();
+/** <issuer>/sign link for the e-CNPJ holder: signingLink from @kya-brasil/core, the same the npm client uses. */
+function signUrl(issuer: string, id: string, challengeId: string, text: string, agentSignature?: string): string {
+  return signingLink({ issuer, credentialId: id, challenge: { id: challengeId, text }, agentSignature });
+}
+
+/** kya_sign_link: the signing link with the agent's signature, from the stored challenge (not consumed). */
+export async function signLink(env: AppEnv, origin: string, id: string, q: { challenge_id?: string; agent_signature?: string }) {
+  const store = new Store(env.DB);
+  const row = await store.get(id);
+  if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
+  if (!q.challenge_id) throw new KyaError("INVALID_INPUT", "challenge_id is required");
+  const ch = await store.peekChallenge(q.challenge_id, row.id);
+  if (!ch) throw new KyaError("CHALLENGE_FAILED", "challenge unknown, expired (15 minutes) or already used; register or renew again");
+  const agentSignature = q.agent_signature?.trim() || undefined;
+  if (agentSignature && agentSignature.length > 600) throw new KyaError("INVALID_INPUT", "agent_signature too long");
+  return {
+    credential_id: row.id,
+    challenge_id: ch.id,
+    expires_at: ch.expires_at,
+    sign_url: signUrl(issuerOf(env, origin), row.id, ch.id, ch.text, agentSignature),
+    for_whom: "the person holding the company's e-CNPJ (owner or accountant); never ask for the certificate or its password yourself",
+    terminal: "npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link '<sign_url>'   (A3 token: --pkcs11 <vendor library>)"
+  };
 }
 
 export async function verifyByKey(env: AppEnv, kind: unknown, keyId: unknown) {

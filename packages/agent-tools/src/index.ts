@@ -127,6 +127,8 @@ export interface Registration {
   challenge: { id: string; text: string; expires_at: string };
   next: { en: string; pt: string };
   mandate_schema: string;
+  /** Link for the e-CNPJ holder; append &agent_signature=… (or use signingLink / signLink). */
+  sign_url?: string;
 }
 
 export interface Proof { challenge_id: string; agent_signature: string; ecnpj_signature: string }
@@ -176,6 +178,8 @@ export interface KyaClient {
   register(input: { agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<Registration>;
   /** Free: send both signatures; the credential is issued if the e-CNPJ is valid and not revoked, the CNPJ matches and the company is ATIVA. */
   prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; /** D-24: e.g. registration status not confirmed (issued anyway). */ warnings?: string[]; /** /v1 compatibility, same as warnings. */ kyb_warnings: string[] }>;
+  /** Free: the link for the e-CNPJ holder (owner, accountant), with the agent's signature already in it. */
+  signLink(credentialId: string, q: { challenge_id: string; agent_signature?: string }): Promise<{ credential_id: string; challenge_id: string; expires_at: string; sign_url: string }>;
   /** $0.10: renewal challenge (then renewProve). */
   renew(credentialId: string): Promise<{ credential_id: string; challenge: { id: string; text: string; expires_at: string } }>;
   renewProve(credentialId: string, proof: Proof): Promise<{ credential: Credential; /** D-24: e.g. registration status not confirmed (issued anyway). */ warnings?: string[]; /** /v1 compatibility, same as warnings. */ kyb_warnings: string[] }>;
@@ -227,6 +231,7 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     allowed: (id, a) => call("GET", `/v1/agents/${encodeURIComponent(id)}/allowed${q(a as Record<string, unknown>)}`, undefined, true, 0.01),
     register: (input) => call("POST", "/v1/agents", input, true, 0.25),
     prove: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/prove`, proof),
+    signLink: (id, a) => call("GET", `/v1/agents/${encodeURIComponent(id)}/sign-link${q(a as Record<string, unknown>)}`),
     renew: (id) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew`, {}, true, 0.1),
     renewProve: (id, proof) => call("POST", `/v1/agents/${encodeURIComponent(id)}/renew/prove`, proof),
     revoke: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/revoke`, input),
@@ -420,7 +425,10 @@ export async function verifyCredentialOffline(credential: Credential, opts: { ba
 }
 
 export * from "./auth.js";
-export * from "./pfx.js";
+// e-CNPJ signing (D-26, D-27): the implementation lives in @kya-brasil/core, shared with anyone using the library.
+export { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, type ECnpjSigner, type RawSigner } from "@kya-brasil/core";
+export { listTokenCertificates, openToken, type TokenCertificate, type TokenOptions } from "./pkcs11.js";
+import { signingLink as coreSigningLink } from "@kya-brasil/core";
 
 /**
  * Link to the issuer's signing page (<issuer>/sign) for the person who holds the company's e-CNPJ, usually the
@@ -429,10 +437,5 @@ export * from "./pfx.js";
  * leaves the computer) or uploads a .p7s from any ICP-Brasil signer, and the credential is issued.
  */
 export function signingLink(p: { credentialId: string; challenge: { id: string; text: string }; agentSignature?: string; baseUrl?: string }): string {
-  const u = new URL("/sign", p.baseUrl ?? DEFAULT_BASE_URL);
-  u.searchParams.set("id", p.credentialId);
-  u.searchParams.set("challenge_id", p.challenge.id);
-  u.searchParams.set("text", toBase64Url(new TextEncoder().encode(p.challenge.text)));
-  if (p.agentSignature) u.searchParams.set("agent_signature", p.agentSignature);
-  return u.toString();
+  return coreSigningLink({ issuer: p.baseUrl ?? DEFAULT_BASE_URL, credentialId: p.credentialId, challenge: p.challenge, agentSignature: p.agentSignature });
 }

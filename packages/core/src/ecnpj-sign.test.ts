@@ -5,8 +5,8 @@ import forge from "node-forge";
 import * as x509 from "@peculiar/x509";
 import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
-import { OID_ICP_CNPJ, verifyIcpSignature } from "@kya-brasil/core";
-import { openPfx, signWithECnpjPfx } from "./pfx";
+import { OID_ICP_CNPJ, verifyIcpSignature } from "./icp-brasil.js";
+import { buildDetachedCms, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, signingLink } from "./ecnpj-sign.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };
@@ -24,7 +24,7 @@ async function a1File(algorithm: "3des" | "aes256", cnpj = "11222333000181") {
   const key = forge.pki.privateKeyFromPem(pem(await crypto.subtle.exportKey("pkcs8", leafKeys.privateKey), "PRIVATE KEY"));
   const certs = [leaf, ca].map((c) => forge.pki.certificateFromPem(pem(c.rawData, "CERTIFICATE")));
   const p12 = forge.pkcs12.toPkcs12Asn1(key, certs, "senha-teste", { algorithm: algorithm });
-  return { pfx: new Uint8Array(Buffer.from(forge.asn1.toDer(p12).getBytes(), "binary")), ca };
+  return { pfx: new Uint8Array(Buffer.from(forge.asn1.toDer(p12).getBytes(), "binary")), ca, leaf, leafKeys };
 }
 
 describe("e-CNPJ signing from a .pfx (A1)", () => {
@@ -32,10 +32,10 @@ describe("e-CNPJ signing from a .pfx (A1)", () => {
     it(`signs a detached CMS the issuer accepts (${algorithm} PKCS#12)`, async () => {
       const { pfx, ca } = await a1File(algorithm);
       const text = "KYA Brasil: prove this agent key acts for a company\nchallenge: c1\ncnpj: 11222333000181";
-      const signer = openPfx(pfx, "senha-teste");
+      const signer = await openPfx(pfx, "senha-teste");
       expect(signer.cnpj).toBe("11222333000181");
       expect(signer.subject).toContain("ACME LTDA");
-      const cms = signer.sign(text);
+      const cms = await signer.sign(text);
       const proof = await verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-14T00:00:00Z") });
       expect(proof.cnpj).toBe("11222333000181");
       await expect(verifyIcpSignature({ cmsBase64: cms, challenge: text + "\n", expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-14T00:00:00Z") })).rejects.toThrow();
@@ -44,6 +44,33 @@ describe("e-CNPJ signing from a .pfx (A1)", () => {
 
   it("says so on a wrong password", async () => {
     const { pfx } = await a1File("3des");
-    expect(() => signWithECnpjPfx(pfx, "errada", "x")).toThrow(/wrong password/);
+    await expect(signWithECnpjPfx(pfx, "errada", "x")).rejects.toThrow(/wrong password/);
+  });
+
+  it("refuses to sign a text for another CNPJ", async () => {
+    const { pfx } = await a1File("aes256");
+    await expect(signWithECnpjPfx(pfx, "senha-teste", "cnpj: 33000167000101")).rejects.toThrow(/CNPJ 11222333000181/);
+  });
+});
+
+describe("any signer: token, HSM, cloud (A3)", () => {
+  it("builds a CMS the issuer accepts from a raw RSA signer and the certificate chain", async () => {
+    const { ca, leaf, leafKeys } = await a1File("aes256");
+    // Stand-in for a PKCS#11 token: the key never leaves the "device", only C_Sign-like calls go out.
+    const token = async (data: Uint8Array) => new Uint8Array(await crypto.subtle.sign({ name: "RSASSA-PKCS1-v1_5" }, leafKeys.privateKey, data as Uint8Array<ArrayBuffer>));
+    const signer = ecnpjSigner({ certificates: [new Uint8Array(leaf.rawData), new Uint8Array(ca.rawData)], sign: token });
+    expect(signer.cnpj).toBe("11222333000181");
+    const text = "KYA Brasil: prove this agent key acts for a company\ncnpj: 11222333000181";
+    const cms = await signer.sign(text);
+    const proof = await verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-14T00:00:00Z") });
+    expect(proof.cnpj).toBe("11222333000181");
+    // A signer that signs the wrong bytes is caught by the issuer.
+    const bad = await buildDetachedCms({ text, certificates: [new Uint8Array(leaf.rawData)], sign: () => token(new Uint8Array([1, 2, 3])) });
+    await expect(verifyIcpSignature({ cmsBase64: bad, challenge: text, expectedCnpj: "11222333000181", anchors: [b64(ca.rawData)], now: new Date("2026-10-14T00:00:00Z") })).rejects.toThrow();
+  });
+
+  it("signing links round-trip", () => {
+    const link = signingLink({ issuer: "https://kya.example", credentialId: "c1", challenge: { id: "ch1", text: "olá\ncnpj: 11222333000181" }, agentSignature: "0xab" });
+    expect(readSigningLink(link)).toEqual({ issuer: "https://kya.example", credentialId: "c1", challengeId: "ch1", agentSignature: "0xab", text: "olá\ncnpj: 11222333000181" });
   });
 });

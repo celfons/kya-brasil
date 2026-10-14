@@ -1,7 +1,7 @@
 {
   "name": "@kya-brasil/core",
-  "version": "0.7.1",
-  "description": "KYA Brasil as a library: verify and issue know-your-agent credentials for Brazilian companies without any hosted service. e-CNPJ (ICP-Brasil) CMS signature and chain validation, CRL revocation, CNPJ, agent key challenges (EVM, Ed25519 / Web Bot Auth, ERC-8004), mandate schema and evaluation (including payment instruments for card networks and acquirers), credential build, Ed25519 signing and verification. Pure functions: storage and network are yours.",
+  "version": "0.8.0",
+  "description": "KYA Brasil as a library: verify and issue know-your-agent credentials for Brazilian companies without any hosted service. e-CNPJ (ICP-Brasil) CMS signature and chain validation, CRL revocation, CNPJ, agent key challenges (EVM, Ed25519 / Web Bot Auth, ERC-8004), mandate schema and evaluation (including payment instruments for card networks and acquirers), credential build, Ed25519 signing and verification, and e-CNPJ signing for the holder (A1 .pfx, or any token/HSM/cloud signer through a raw-sign callback). Pure functions: storage and network are yours.",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -54,12 +54,14 @@
     "@peculiar/asn1-x509": "^2.3.15",
     "@peculiar/x509": "^2.1.0",
     "asn1js": "^3.0.6",
+    "node-forge": "1.4.0",
     "pkijs": "^3.4.1",
     "reflect-metadata": "^0.2.2",
     "viem": "^2.57.5"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
+    "@types/node-forge": "^1.3.14",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11"
   }

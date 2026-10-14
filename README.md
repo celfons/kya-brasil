@@ -134,7 +134,10 @@ Mandate example (validated by `/.well-known/kya-mandate.schema.json`; free-form 
 
 In code, the npm package signs for you: `signChallengeWithEvmKey`, `signChallengeWithEd25519`,
 `signWithECnpjPfx(pfxBytes, password, text)` straight from the `.pfx`, and `signingLink(...)` to build the link.
-On a terminal: `npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link "<sign_url>"` signs and issues.
+On a terminal: `npx -p @kya-brasil/agent-tools kya-sign --pfx empresa.pfx --link "<sign_url>"` signs and issues
+(A3 token: `--pkcs11 <vendor library>` instead of `--pfx`). Agents get the link from the free `kya_sign_link`
+(MCP) or `GET /v1/agents/{id}/sign-link?challenge_id=…&agent_signature=…`. The signing code itself is in
+`@kya-brasil/core` (`openPfx` for A1, `ecnpjSigner` for any token, HSM or cloud signer), so no page or route is needed.
 See [packages/agent-tools](packages/agent-tools/README.md).
 
 **Can an agent do the e-CNPJ step itself?** Technically, with an A1 file and its password, yes. It should not:

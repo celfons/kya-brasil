@@ -88,6 +88,12 @@ export class Store {
     await this.db.prepare("INSERT INTO challenges (id, agent_row, text, expires_at) VALUES (?1, ?2, ?3, ?4)").bind(c.id, c.agent_row, c.text, c.expires_at).run();
   }
 
+  /** Reads a challenge without consuming it (for the signing link); null when unknown or expired. */
+  async peekChallenge(id: string, agent_row: string): Promise<ChallengeRow | null> {
+    const row = await this.db.prepare("SELECT * FROM challenges WHERE id = ?1 AND agent_row = ?2").bind(id, agent_row).first<ChallengeRow>();
+    return row && Date.parse(row.expires_at) > Date.now() ? row : null;
+  }
+
   async takeChallenge(id: string, agent_row: string): Promise<ChallengeRow | null> {
     const row = await this.db.prepare("SELECT * FROM challenges WHERE id = ?1 AND agent_row = ?2").bind(id, agent_row).first<ChallengeRow>();
     if (!row || row.used_at || Date.parse(row.expires_at) < Date.now()) return null;

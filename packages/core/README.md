@@ -66,6 +66,27 @@ the network already gives (network token reference, Payment Account Reference), 
 With the hosted issuer, the same check comes back signed from
 `GET /v1/agents/{id}/allowed?payment_network=visa&payment_ref_sha256=…`, which is evidence for a later dispute.
 
+## Sign as the e-CNPJ holder (A1 and A3)
+
+The company's side of the challenge, without the hosted page. The issuer only ever receives the signature.
+
+```ts
+import { openPfx, ecnpjSigner, readSigningLink } from "@kya-brasil/core";
+
+// A1: the .pfx / .p12 file (legacy 3DES/RC2 PKCS#12 included)
+const a1 = await openPfx(pfxBytes, password);
+const ecnpj_signature = await a1.sign(challengeText);       // detached CMS, base64: POST it to /v1/agents/{id}/prove
+
+// A3 token, smart card, HSM or cloud certificate: anything that signs bytes with the certificate's RSA key
+// (PKCS#1 v1.5 over SHA-256), plus the certificate chain in DER.
+const a3 = ecnpjSigner({ certificates: [certDer, ...chainDer], sign: (bytes) => myToken.sign("SHA256withRSA", bytes) });
+const sig = await a3.sign(readSigningLink(link).text);       // the text from a /sign link the agent sent
+```
+
+`sign` refuses a text whose `cnpj:` line names another company. For PKCS#11 tokens on Node,
+`openToken({ library, pin })` in `@kya-brasil/agent-tools` (and the `kya-sign --pkcs11` command) already wires
+`C_Sign` into `ecnpjSigner`.
+
 ## Run your own issuer
 
 ```ts

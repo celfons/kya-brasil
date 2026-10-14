@@ -145,6 +145,15 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
       async (i) => this.logged("kya_prove", null, () => service.prove(this.env, origin, i.credential_id, i))
     );
     this.server.registerTool(
+      "kya_sign_link",
+      {
+        description: TOOLS.kya_sign_link.description,
+        inputSchema: { credential_id: ID, challenge_id: z.string().describe("challenge.id from kya_register or kya_renew."), agent_signature: z.string().max(600).optional().describe("The agent's signature of challenge.text, so the person only signs with the e-CNPJ.") },
+        annotations: ro
+      },
+      async (i) => this.logged("kya_sign_link", null, () => service.signLink(this.env, origin, i.credential_id, i))
+    );
+    this.server.registerTool(
       "kya_verify",
       { description: TOOLS.kya_verify.description, inputSchema: { credential_id: ID.optional(), agent: AGENT.optional().describe("Alternative to credential_id: look up active credentials by agent key.") }, annotations: ro },
       async (i) =>
