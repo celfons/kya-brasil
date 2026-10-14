@@ -77,12 +77,13 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
   <section class="box" id="summary">
     <h2>O que você está autorizando</h2>
     <dl>
-      <dt>Empresa (CNPJ)</dt><dd id="s-cnpj">-</dd>
+      <dt id="s-who-label">Empresa (CNPJ)</dt><dd id="s-cnpj">-</dd>
       <dt>Agente</dt><dd id="s-agent">-</dd>
       <dt>Emissor</dt><dd id="s-issuer">-</dd>
       <dt>Válido até</dt><dd id="s-exp">-</dd>
     </dl>
     <div id="s-mandate-wrap" hidden><b>Mandato (o que o agente poderá fazer)</b><pre id="s-mandate"></pre></div>
+    <div id="s-consent" hidden><b>Consentimento (faz parte do texto assinado)</b><p id="s-consent-text" class="muted"></p></div>
     <p id="s-alert" class="bad" hidden></p>
     <details><summary class="muted">Texto exato que será assinado</summary><pre id="s-text"></pre></details>
   </section>
@@ -132,7 +133,7 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
 (() => {
   const $ = (id) => document.getElementById(id);
   const q = new URLSearchParams(location.search);
-  const state = { id: q.get("id"), challengeId: q.get("challenge_id"), agentSig: q.get("agent_signature"), text: null, cnpj: null, signature: null };
+  const state = { id: q.get("id"), challengeId: q.get("challenge_id"), agentSig: q.get("agent_signature"), text: null, cnpj: null, person: false, signature: null };
   const fromB64u = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
   const alertBad = (msg) => { $("s-alert").textContent = msg; $("s-alert").hidden = false; };
 
@@ -140,7 +141,15 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
     state.text = text;
     const field = (k) => (new RegExp("^" + k + ": (.*)$", "m").exec(text) || [])[1] || "";
     state.cnpj = field("cnpj").replace(/\\D/g, "");
+    state.person = /^principal: person/m.test(text);
     $("s-cnpj").textContent = state.cnpj ? state.cnpj.replace(/^(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})$/, "$1.$2.$3/$4-$5") : "-";
+    if (state.person) {
+      // D-29: the agent acts for the person who signs; sign with your e-CPF. Name and CPF are never published.
+      $("s-who-label").textContent = "Titular";
+      $("s-cnpj").textContent = "Você, pessoa física (assine com o seu e-CPF)";
+      $("s-consent-text").textContent = field("consent");
+      $("s-consent").hidden = false;
+    }
     $("s-agent").textContent = field("agent") || "-";
     $("s-issuer").textContent = field("issuer") || "-";
     const exp = field("expires");
@@ -206,6 +215,9 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       if (!leaf) throw new Error("nenhum certificado do arquivo corresponde à chave");
       const cn = String((leaf.subject.getField("CN") || {}).value || "");
       const certCnpj = (/:(\\d{14})\\s*$/.exec(cn) || [])[1];
+      const certCpf = !certCnpj && /:(\\d{11})\\s*$/.test(cn);
+      if (state.person && certCnpj) throw new Error("este é o certificado de uma empresa (e-CNPJ); para um agente pessoal, use o seu e-CPF");
+      if (!state.person && certCpf) throw new Error("este é um certificado de pessoa física (e-CPF); use o e-CNPJ da empresa");
       if (certCnpj && state.cnpj && certCnpj !== state.cnpj) throw new Error("este certificado é do CNPJ " + certCnpj + ", o desafio é do CNPJ " + state.cnpj);
       if (leaf.validity.notAfter < new Date()) throw new Error("o certificado venceu em " + leaf.validity.notAfter.toLocaleDateString("pt-BR"));
       const p7 = forge.pkcs7.createSignedData();

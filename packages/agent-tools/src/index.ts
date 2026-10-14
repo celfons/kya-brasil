@@ -58,7 +58,8 @@ export interface Credential {
   credential_id: string;
   version: number;
   agent: AgentKey;
-  principal: { cnpj: string; legal_name?: string; registration_status?: string };
+  /** A company, or (D-29) a person: { kind: "person", verified_by: "icp-brasil-e-cpf" } with nothing personal. */
+  principal: { kind?: "company" | "person"; cnpj?: string; legal_name?: string; registration_status?: string; verified_by?: string };
   authorized_by: { method: string; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
   /** Kept for /v1 compatibility; always null from this issuer since D-23. */
@@ -78,7 +79,7 @@ export interface Verification {
   status: CredentialStatus;
   status_reason: string | null;
   agent: AgentKey;
-  principal: { cnpj: string; cnpj_formatted: string; legal_name: string | null };
+  principal: { kind?: "person"; verified_by?: string; cnpj?: string; cnpj_formatted?: string; legal_name?: string | null };
   credential: Credential | null;
   events: { ts: string; event: string; reason: string | null; actor: string }[];
   attestation?: Attestation;
@@ -122,7 +123,7 @@ export interface Verdict {
 export interface Registration {
   credential_id: string;
   agent: AgentKey;
-  principal: { cnpj: string; cnpj_formatted: string };
+  principal: { kind?: "person"; cnpj?: string; cnpj_formatted?: string };
   mandate: Mandate;
   challenge: { id: string; text: string; expires_at: string };
   next: { en: string; pt: string };
@@ -175,7 +176,12 @@ export interface KyaClient {
   /** $0.01: signed verdict, is this action inside the mandate and is the credential active? */
   allowed(credentialId: string, q: ActionQuery): Promise<Verdict>;
   /** $0.25: register an agent for a company; returns the challenge both parties sign. */
-  register(input: { agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<Registration>;
+  /** $0.25: register an agent for a company (cnpj) or, with principal "person", for a natural person who signs with an e-CPF (D-29). */
+  register(input: { agent: AgentKey; cnpj?: string; principal?: "company" | "person"; mandate: Mandate }): Promise<Registration>;
+  /** $0.01 (D-29): does the CPF you already have match the person behind this credential? On a match, your own subject_ref for that person. Never reveals the CPF. */
+  principalMatch(credentialId: string, cpf: string): Promise<{ credential_id: string; match: boolean; subject_ref?: string; verifier: string; checked_at: string; attestation?: Attestation }>;
+  /** Free (D-29): the person's own credentials and the CPF checks made on each; sign personAgentsText() with the e-CPF. */
+  personAgents(input: { signed_text: string; ecpf_signature: string }): Promise<{ agents: { credential_id: string; agent: AgentKey; status: string; expires_at: string | null; checks: { verifier: string; matched: boolean; at: string }[] }[] }>;
   /** Free: send both signatures; the credential is issued if the e-CNPJ is valid and not revoked, the CNPJ matches and the company is ATIVA. */
   prove(credentialId: string, proof: Proof): Promise<{ credential: Credential; /** D-24: e.g. registration status not confirmed (issued anyway). */ warnings?: string[]; /** /v1 compatibility, same as warnings. */ kyb_warnings: string[] }>;
   /** Free: the link for the e-CNPJ holder (owner, accountant), with the agent's signature already in it. */
@@ -237,6 +243,8 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     revoke: (id, input) => call("POST", `/v1/agents/${encodeURIComponent(id)}/revoke`, input),
     revocations: (since) => call("GET", `/v1/revocations${q({ since })}`),
     companyAgents: (cnpj, input) => call("POST", `/v1/companies/${encodeURIComponent(cnpj)}/agents`, input),
+    principalMatch: (id, cpf) => call("POST", `/v1/agents/${encodeURIComponent(id)}/principal-match`, { cpf }, true, 0.01),
+    personAgents: (input) => call("POST", "/v1/people/agents", input),
     setCompanyWebhook: (cnpj, input) => call("POST", `/v1/companies/${encodeURIComponent(cnpj)}/webhook`, input),
     tools: [],
     execute: async (name, args) => {
@@ -426,6 +434,7 @@ export async function verifyCredentialOffline(credential: Credential, opts: { ba
 
 export * from "./auth.js";
 // e-CNPJ signing (D-26, D-27): the implementation lives in @kya-brasil/core, shared with anyone using the library.
+export { isValidCpf, personAgentsText } from "@kya-brasil/core";
 export { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, type ECnpjSigner, type RawSigner } from "@kya-brasil/core";
 export { listTokenCertificates, openToken, type TokenCertificate, type TokenOptions } from "./pkcs11.js";
 import { signingLink as coreSigningLink } from "@kya-brasil/core";

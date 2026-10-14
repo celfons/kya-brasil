@@ -9,3 +9,4 @@ export * from "./revocation.js";
 export * from "./erc8004.js";
 export * from "./ecnpj-sign.js";
 export * from "./cloud-sign.js";
+export * from "./person.js";

@@ -47,6 +47,37 @@ export function buildCredential(p: {
   };
 }
 
+/** D-29: credential of a natural person. Nothing personal: no name, no CPF, no certificate subject. */
+export function buildPersonCredential(p: {
+  credential_id: string;
+  agent: AgentKey;
+  certificate: { sha256: string; issuer: string; signed_at: string };
+  mandate: Mandate;
+  issuer: string;
+  now?: Date;
+}): Credential {
+  const now = p.now ?? new Date();
+  const ttl = new Date(now.getTime() + CREDENTIAL_TTL_DAYS * 86400000);
+  const mandateEnd = p.mandate.valid_until ? new Date(p.mandate.valid_until) : null;
+  const expires = mandateEnd && mandateEnd < ttl ? mandateEnd : ttl;
+  return {
+    credential_id: p.credential_id,
+    version: 1,
+    agent: p.agent,
+    principal: { kind: "person", verified_by: "icp-brasil-e-cpf" },
+    authorized_by: { method: "icp-brasil-e-cpf", certificate_sha256: p.certificate.sha256, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at },
+    mandate: p.mandate,
+    kyb_snapshot: null,
+    status: "active",
+    status_reason: null,
+    issued_at: now.toISOString(),
+    expires_at: expires.toISOString(),
+    issuer: p.issuer,
+    verify_url: `${p.issuer}/v1/agents/${p.credential_id}`,
+    revocation_url: `${p.issuer}/v1/agents/${p.credential_id}/status`
+  };
+}
+
 export async function signCredential(c: Credential, privateKey: CryptoKey, keyId: string, now = new Date()): Promise<Credential> {
   const { attestation: _a, ...payload } = c;
   const attestation = await signAttestation(payload as unknown as Record<string, unknown>, privateKey, keyId, `${c.issuer}/v1/verify`, now);

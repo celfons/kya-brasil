@@ -17,6 +17,11 @@ for each PSC you have an agreement with ([examples/cloud-provider](../examples/c
 from `apps/worker/src/cloud-providers.ts`; keep their secrets in your environment's secrets. Register
 `<your issuer>/sign/cloud/callback` as the redirect URI at the PSC.
 
+**Person credentials (e-CPF, D-29).** They need `PERSON_HMAC_KEYS`, a JSON of versioned HMAC keys
+(`{"1": "<base64, 32 bytes>"}`). The included CD and the container generate it once and keep it; without it the
+issuer refuses person registrations. Losing the key makes existing person credentials unmatchable; to rotate, add
+a higher version and keep the old ones.
+
 **Two ways to run it.** As a service (this page: the Worker in `apps/worker`, on Cloudflare or in a
 container), or as a library inside your own systems: `npm install @kya-brasil/core` gives the same e-CNPJ,
 revocation, mandate and credential functions with your storage, keys and network (D-25). Banks, card

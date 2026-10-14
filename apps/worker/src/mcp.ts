@@ -8,6 +8,7 @@ import { checkFreeTier, checkRegistrations } from "./cache";
 import { logCall } from "./call-log";
 import type { AppEnv } from "./env";
 import { facilitatorConfig } from "./facilitator";
+import { personAgents, principalMatch } from "./person";
 import { HOMEPAGE, SERVICE_DESCRIPTION, SERVICE_NAME, TOOLS, VERSION, type ToolName } from "./pricing";
 import { companyAgents, setCompanyWebhook } from "./company";
 import * as service from "./service";
@@ -92,13 +93,13 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
     // ---- paid ----
     this.server.paidTool(
       "kya_register", TOOLS.kya_register.description, TOOLS.kya_register.priceUsd,
-      { agent: AGENT, cnpj: CNPJ, mandate: z.record(z.string(), z.unknown()).describe(`Mandate JSON validated by ${origin}/.well-known/kya-mandate.schema.json. Reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until.`) },
+      { agent: AGENT, cnpj: CNPJ.optional().describe("The company's CNPJ (company agents). Leave out with principal \"person\"."), principal: z.enum(["company", "person"]).optional().describe("\"person\": the agent acts for a natural person who signs with an e-CPF (no CNPJ; no name or CPF is ever published)."), mandate: z.record(z.string(), z.unknown()).describe(`Mandate JSON validated by ${origin}/.well-known/kya-mandate.schema.json. Reserved fields: actions, max_per_operation, max_per_day, currencies, counterparties, valid_from, valid_until.`) },
       { openWorldHint: true },
       async (input, extra) =>
         this.logged("kya_register", paymentInfo(extra), async () => {
           const rl = await checkRegistrations(this.env, this.props?.ip ?? "unknown");
           if (!rl.allowed) throw new KyaError("RATE_LIMITED", `too many registrations today; retry in ${rl.retryAfter}s`);
-          return service.register(this.env, origin, input as { agent: unknown; cnpj: unknown; mandate: unknown });
+          return service.register(this.env, origin, input as { agent: unknown; cnpj?: unknown; mandate: unknown; principal?: unknown });
         })
     );
     this.server.paidTool(
@@ -143,6 +144,24 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
       "kya_prove",
       { description: TOOLS.kya_prove.description, inputSchema: PROOF, annotations: { openWorldHint: true } },
       async (i) => this.logged("kya_prove", null, () => service.prove(this.env, origin, i.credential_id, i))
+    );
+    this.server.paidTool(
+      "kya_principal_match", TOOLS.kya_principal_match.description, TOOLS.kya_principal_match.priceUsd,
+      { credential_id: ID, cpf: z.string().min(11).max(14).describe("The CPF you already have for this person; used for the comparison only, never stored.") },
+      ro,
+      async (i, extra) => {
+        const pay = paymentInfo(extra);
+        return this.logged("kya_principal_match", pay, () => principalMatch(this.env, origin, i.credential_id, { cpf: i.cpf }, pay.payer ?? "mcp"));
+      }
+    );
+    this.server.registerTool(
+      "kya_person_agents",
+      {
+        description: TOOLS.kya_person_agents.description,
+        inputSchema: { signed_text: z.string().describe('"KYA Brasil: my agents\\nat: <ISO time>"'), ecpf_signature: z.string().describe("CMS/PKCS#7 of signed_text with the person's e-CPF, base64 DER.") },
+        annotations: ro
+      },
+      async (i) => this.logged("kya_person_agents", null, () => personAgents(this.env, i))
     );
     this.server.registerTool(
       "kya_sign_link",

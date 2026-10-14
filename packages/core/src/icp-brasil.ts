@@ -50,7 +50,8 @@ export interface IcpProof {
 }
 
 /** CNPJ carried by the certificate's ICP-Brasil otherName, or null when it is not a PJ certificate. */
-export function cnpjFromCertificate(cert: X509Certificate): string | null {
+/** Digits of an ICP-Brasil otherName in the Subject Alternative Name (OID 2.16.76.1.3.<n>), or null. */
+function otherNameDigits(cert: X509Certificate, oidSuffix: string): string | null {
   const san = cert.extensions.find((e) => e.type === OID_SAN);
   if (!san) return null;
   const parsed = asn1js.fromBER(san.value);
@@ -63,26 +64,54 @@ export function cnpjFromCertificate(cert: X509Certificate): string | null {
     const inner = block.valueBlock.value;
     const oid = inner[0] as asn1js.ObjectIdentifier | undefined;
     const oidStr = oid?.valueBlock?.toString?.() ?? "";
-    if (!/2\.16\.76\.1\.3\.3$/.test(oidStr)) continue;
+    if (oidStr !== `2.16.76.1.3.${oidSuffix}`) continue;
     const explicit = inner[1] as asn1js.Constructed | undefined;
     const valueBlock = explicit?.valueBlock?.value?.[0] as asn1js.OctetString | asn1js.PrintableString | undefined;
     if (!valueBlock) continue;
     const raw = "valueBlock" in valueBlock && "valueHexView" in valueBlock.valueBlock ? new TextDecoder().decode(valueBlock.valueBlock.valueHexView) : String((valueBlock as { valueBlock: { value: string } }).valueBlock.value);
-    const digits = raw.replace(/\D/g, "");
-    if (digits.length === 14) return digits;
+    return raw.replace(/\D/g, "");
   }
   return null;
+}
+
+export function cnpjFromCertificate(cert: X509Certificate): string | null {
+  const digits = otherNameDigits(cert, "3");
+  return digits && digits.length === 14 ? digits : null;
+}
+
+/** OID 2.16.76.1.3.1: data of the e-CPF holder, "ddmmaaaa" birth date followed by the 11-digit CPF (DOC-ICP-04). */
+export const OID_ICP_PERSON = "2.16.76.1.3.1";
+
+/**
+ * CPF of an e-CPF (natural person) certificate: from the 2.16.76.1.3.1 otherName (positions 9 to 19), or the
+ * common name suffix ":<11 digits>" as a fallback. Null for an e-CNPJ or any other certificate.
+ */
+export function cpfFromCertificate(cert: X509Certificate): string | null {
+  if (cnpjFromCertificate(cert)) return null;
+  const data = otherNameDigits(cert, "1");
+  if (data && data.length >= 19) return data.slice(8, 19);
+  const cn = /CN=([^,]+)/.exec(cert.subject)?.[1] ?? "";
+  return /:(\d{11})\s*$/.exec(cn)?.[1] ?? null;
 }
 
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
   return hex(await crypto.subtle.digest("SHA-256", bytes.slice().buffer as ArrayBuffer));
 }
 
+/** What every ICP-Brasil signature check yields before the identity (CNPJ or CPF) is read. */
+interface CheckedCms {
+  x: X509Certificate;
+  der: ArrayBuffer;
+  certs: pkijs.Certificate[];
+  trusted: pkijs.Certificate[];
+  now: Date;
+}
+
 /**
- * Verifies a CMS SignedData (base64 DER) over `challenge` and returns the proof. Throws KyaError
- * CERTIFICATE_INVALID / CHALLENGE_FAILED / CNPJ_MISMATCH. `anchors` are PEM or DER (base64) roots.
+ * Shared steps: parse the CMS, require attached content to equal the text, verify the signature, pick the signer
+ * certificate, check its dates, run `identify` (which throws for the wrong kind of certificate), then the chain.
  */
-export async function verifyIcpSignature(p: { cmsBase64: string; challenge: string; expectedCnpj: string; anchors: string[]; now?: Date; requireChain?: boolean }): Promise<IcpProof> {
+async function checkCms(p: { cmsBase64: string; challenge: string; anchors: string[]; now?: Date; requireChain?: boolean }, identify: (x: X509Certificate) => void): Promise<CheckedCms> {
   ensureEngine();
   const now = p.now ?? new Date();
   let cms: pkijs.ContentInfo;
@@ -101,7 +130,7 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
 
   const data = new TextEncoder().encode(p.challenge);
   // An attached CMS (the .p7s carries the signed text) is verified over its own content by pkijs, whatever
-  // `data` says: it MUST carry exactly the challenge, or any document the company ever signed would pass.
+  // `data` says: it MUST carry exactly the challenge, or any document ever signed would pass.
   const embedded = signed.encapContentInfo.eContent;
   if (embedded) {
     const content = new Uint8Array(embedded.getValue());
@@ -115,7 +144,7 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
   } catch (e) {
     throw new KyaError("CHALLENGE_FAILED", `signature verification failed: ${(e as Error).message}`);
   }
-  if (!ok) throw new KyaError("CHALLENGE_FAILED", "e-CNPJ signature does not match the challenge");
+  if (!ok) throw new KyaError("CHALLENGE_FAILED", "the ICP-Brasil signature does not match the challenge");
 
   // The signer: match SignerInfo's issuerAndSerialNumber against the carried certificates.
   const si = signed.signerInfos[0]!;
@@ -125,9 +154,7 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
   const x = new X509Certificate(der);
   if (x.notBefore > now || x.notAfter < now) throw new KyaError("CERTIFICATE_INVALID", `certificate valid from ${x.notBefore.toISOString()} to ${x.notAfter.toISOString()}`);
 
-  const cnpj = cnpjFromCertificate(x);
-  if (!cnpj) throw new KyaError("CERTIFICATE_INVALID", "certificate has no ICP-Brasil CNPJ (not an e-CNPJ)");
-  if (cnpj !== normalizeCnpj(p.expectedCnpj)) throw new KyaError("CNPJ_MISMATCH", `certificate belongs to CNPJ ${cnpj}, not ${normalizeCnpj(p.expectedCnpj)}`);
+  identify(x);
 
   if (p.requireChain !== false) {
     if (!trusted.length) throw new KyaError("CERTIFICATE_INVALID", "no ICP-Brasil trust anchors configured");
@@ -135,20 +162,72 @@ export async function verifyIcpSignature(p: { cmsBase64: string; challenge: stri
     const chain = await engine.verify();
     if (!chain.result) throw new KyaError("CERTIFICATE_INVALID", `certificate chain not trusted: ${chain.resultMessage}`);
   }
+  return { x, der, certs, trusted, now };
+}
 
-  // The issuing AC: carried in the CMS or among the anchors (the bundle includes the intermediate ACs).
-  const issuerCert = [...certs, ...trusted].map((c) => new X509Certificate(c.toSchema().toBER(false))).find((c) => c.subject === x.issuer) ?? null;
+/** The issuing AC: carried in the CMS or among the anchors (the bundle includes the intermediate ACs). */
+function issuerCertificateOf(c: CheckedCms): string | null {
+  const issuerCert = [...c.certs, ...c.trusted].map((k) => new X509Certificate(k.toSchema().toBER(false))).find((k) => k.subject === c.x.issuer) ?? null;
+  return issuerCert ? b64(issuerCert.rawData) : null;
+}
 
+/**
+ * Verifies a CMS SignedData (base64 DER) over `challenge` by an e-CNPJ and returns the proof. Throws KyaError
+ * CERTIFICATE_INVALID / CHALLENGE_FAILED / CNPJ_MISMATCH. `anchors` are PEM or DER (base64) roots.
+ */
+export async function verifyIcpSignature(p: { cmsBase64: string; challenge: string; expectedCnpj: string; anchors: string[]; now?: Date; requireChain?: boolean }): Promise<IcpProof> {
+  let cnpj = "";
+  const c = await checkCms(p, (x) => {
+    const found = cnpjFromCertificate(x);
+    if (!found) throw new KyaError("CERTIFICATE_INVALID", cpfFromCertificate(x) ? "this is a natural person's certificate (e-CPF); sign with the company's e-CNPJ" : "certificate has no ICP-Brasil CNPJ (not an e-CNPJ)");
+    if (found !== normalizeCnpj(p.expectedCnpj)) throw new KyaError("CNPJ_MISMATCH", `certificate belongs to CNPJ ${found}, not ${normalizeCnpj(p.expectedCnpj)}`);
+    cnpj = found;
+  });
   return {
     cnpj,
-    certificate_sha256: await sha256Hex(new Uint8Array(der)),
-    certificate_subject: x.subject,
-    issuer: x.issuer,
-    not_before: x.notBefore.toISOString(),
-    not_after: x.notAfter.toISOString(),
-    signed_at: now.toISOString(),
-    serial_number: normalizeSerial(x.serialNumber),
-    crl_urls: crlUrlsOf(x),
-    issuer_certificate: issuerCert ? b64(issuerCert.rawData) : null
+    certificate_sha256: await sha256Hex(new Uint8Array(c.der)),
+    certificate_subject: c.x.subject,
+    issuer: c.x.issuer,
+    not_before: c.x.notBefore.toISOString(),
+    not_after: c.x.notAfter.toISOString(),
+    signed_at: c.now.toISOString(),
+    serial_number: normalizeSerial(c.x.serialNumber),
+    crl_urls: crlUrlsOf(c.x),
+    issuer_certificate: issuerCertificateOf(c)
+  };
+}
+
+/** e-CPF proof (D-29). `cpf` is for the caller to key-hash at once and forget: never store or return it. No subject (name). */
+export interface IcpPersonProof {
+  cpf: string;
+  certificate_sha256: string;
+  issuer: string;
+  not_before: string;
+  not_after: string;
+  signed_at: string;
+  serial_number: string;
+  crl_urls: string[];
+  issuer_certificate: string | null;
+}
+
+/** Verifies a CMS over `challenge` by a natural person's e-CPF (D-29). Refuses an e-CNPJ. */
+export async function verifyIcpPersonSignature(p: { cmsBase64: string; challenge: string; anchors: string[]; now?: Date; requireChain?: boolean }): Promise<IcpPersonProof> {
+  let cpf = "";
+  const c = await checkCms(p, (x) => {
+    if (cnpjFromCertificate(x)) throw new KyaError("CERTIFICATE_INVALID", "this is a company certificate (e-CNPJ); a person signs with their e-CPF");
+    const found = cpfFromCertificate(x);
+    if (!found) throw new KyaError("CERTIFICATE_INVALID", "certificate has no ICP-Brasil CPF (not an e-CPF)");
+    cpf = found;
+  });
+  return {
+    cpf,
+    certificate_sha256: await sha256Hex(new Uint8Array(c.der)),
+    issuer: c.x.issuer,
+    not_before: c.x.notBefore.toISOString(),
+    not_after: c.x.notAfter.toISOString(),
+    signed_at: c.now.toISOString(),
+    serial_number: normalizeSerial(c.x.serialNumber),
+    crl_urls: crlUrlsOf(c.x),
+    issuer_certificate: issuerCertificateOf(c)
   };
 }

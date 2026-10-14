@@ -14,12 +14,15 @@ import { notifyCompany } from "./company";
 import { registrationOrWarning } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
+import { issuePerson, keysOf, personChallenge, revokePerson } from "./person";
 
 const issuerOf = (env: AppEnv, origin: string) => (env.ISSUER_URL ?? origin).replace(/\/$/, "");
 
-export async function register(env: AppEnv, origin: string, body: { agent?: unknown; cnpj?: unknown; mandate?: unknown }) {
+export async function register(env: AppEnv, origin: string, body: { agent?: unknown; cnpj?: unknown; mandate?: unknown; principal?: unknown }) {
   // erc8004: the token must exist and its wallet is recorded now (and re-read at proof time).
   const agent = await withWallet(env, normalizeAgentKey((body.agent ?? {}) as { kind?: unknown; id?: unknown }));
+  if (body.principal === "person") return registerPerson(env, origin, agent, body);
+  if (body.principal !== undefined && body.principal !== "company") throw new KyaError("INVALID_INPUT", 'principal must be "company" (default) or "person"');
   if (typeof body.cnpj !== "string" || !isValidCnpj(body.cnpj)) throw new KyaError("INVALID_CNPJ", "cnpj must be a valid Brazilian CNPJ");
   const cnpj = normalizeCnpj(body.cnpj);
   const mandate = validateMandate(body.mandate ?? {});
@@ -52,6 +55,35 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
   };
 }
 
+/** D-29: a natural person registers an agent; the CPF comes later, from the e-CPF that signs the challenge. */
+async function registerPerson(env: AppEnv, origin: string, agent: AgentKey, body: { cnpj?: unknown; mandate?: unknown }) {
+  keysOf(env); // fail closed before taking anything when this issuer has no person keys
+  if (body.cnpj !== undefined) throw new KyaError("INVALID_INPUT", "a person registration has no cnpj");
+  const mandate = validateMandate(body.mandate ?? {});
+  const store = new Store(env.DB);
+  const issuer = issuerOf(env, origin);
+  const row = await store.findByKey(agent, "");
+  if (row && row.status === "active") throw new KyaError("CONFLICT", `this agent key already holds an active person credential (${row.id}); renew or revoke it instead`);
+  const id = row?.id ?? crypto.randomUUID();
+  if (!row) await store.createAgent({ id, agent, cnpj: "", mandate, principal_kind: "person" });
+  else await env.DB.prepare("UPDATE agents SET mandate = ?2, status = 'pending', status_reason = NULL, updated_at = ?3 WHERE id = ?1").bind(id, JSON.stringify(mandate), new Date().toISOString()).run();
+  const ch = personChallenge(issuer, agent);
+  await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at });
+  return {
+    credential_id: id,
+    agent,
+    principal: { kind: "person" },
+    mandate,
+    challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at },
+    next: {
+      en: `Sign challenge.text twice: with the agent key and with the person's e-CPF (CMS/PKCS#7, base64 DER; the text includes the consent to keep a keyed hash of the CPF). Then POST ${issuer}/v1/agents/${id}/prove with {challenge_id, agent_signature, ecnpj_signature: <the e-CPF signature>}, or send sign_url with &agent_signature=… to the person.`,
+      pt: `Assine challenge.text duas vezes: com a chave do agente e com o e-CPF da pessoa (CMS/PKCS#7, base64 DER; o texto inclui o consentimento para guardar um hash com chave do CPF). Depois POST ${issuer}/v1/agents/${id}/prove com {challenge_id, agent_signature, ecnpj_signature: <assinatura do e-CPF>}, ou envie sign_url com &agent_signature=… para a pessoa.`
+    },
+    mandate_schema: `${issuer}/.well-known/kya-mandate.schema.json`,
+    sign_url: signUrl(issuer, id, ch.challenge_id, ch.text)
+  };
+}
+
 /** The company name in an e-CNPJ subject ("CN=ACME LTDA:11222333000181, ..."), used when the registration is unknown. */
 const certificateName = (subject: string) => /CN=([^:,]+)/.exec(subject)?.[1]?.trim() ?? "";
 
@@ -62,6 +94,11 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const ch = await store.takeChallenge(proof.challenge_id, row.id);
   if (!ch) throw new KyaError("CHALLENGE_FAILED", "challenge unknown, expired (15 minutes) or already used; register again");
   if (!(await verifyAgentSignature(agent, ch.text, proof.agent_signature))) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over challenge.text");
+  if (row.principal_kind === "person") {
+    const issued = await issuePerson(env, issuerOf(env, origin), row, agent, ch.text, proof.ecnpj_signature, event);
+    if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
+    return issued;
+  }
   const anchors = await icpAnchors(env);
   const icp = await verifyIcpSignature({ cmsBase64: proof.ecnpj_signature, challenge: ch.text, expectedCnpj: row.cnpj, anchors });
   // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
@@ -156,7 +193,7 @@ function present(row: AgentRow, events: { ts: string; event: string; reason: str
     status,
     status_reason: row.status_reason,
     agent: { kind: row.agent_kind, id: row.agent_id, ...(row.agent_wallet ? { wallet: row.agent_wallet as `0x${string}` } : {}) } as AgentKey,
-    principal: { cnpj: row.cnpj, cnpj_formatted: formatCnpj(row.cnpj), legal_name: row.legal_name },
+    principal: row.principal_kind === "person" ? { kind: "person" as const, verified_by: "icp-brasil-e-cpf" as const } : { cnpj: row.cnpj, cnpj_formatted: formatCnpj(row.cnpj), legal_name: row.legal_name },
     credential: credential ? { ...credential, status, status_reason: row.status_reason } : null,
     /** While pending: the mandate the company is being asked to sign (shown on the /sign page). */
     ...(credential ? {} : { requested_mandate: JSON.parse(row.mandate) as Mandate }),
@@ -220,7 +257,7 @@ export async function renewChallenge(env: AppEnv, origin: string, id: string) {
   if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
   if (row.status === "revoked") throw new KyaError("CONFLICT", "revoked credentials cannot be renewed; register again");
   const agent: AgentKey = await withWallet(env, { kind: row.agent_kind, id: row.agent_id });
-  const ch = newChallenge({ issuer: issuerOf(env, origin), agent, cnpj: row.cnpj });
+  const ch = row.principal_kind === "person" ? personChallenge(issuerOf(env, origin), agent) : newChallenge({ issuer: issuerOf(env, origin), agent, cnpj: row.cnpj });
   await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at });
   return { credential_id: id, challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at }, next: `POST ${issuerOf(env, origin)}/v1/agents/${id}/renew/prove with {challenge_id, agent_signature, ecnpj_signature}` };
 }
@@ -241,6 +278,7 @@ export async function revoke(env: AppEnv, origin: string, id: string, body: { re
   if (row.status === "revoked") return { credential_id: id, status: "revoked", already: true };
   if (typeof body.ecnpj_signature !== "string" || typeof body.signed_text !== "string") throw new KyaError("INVALID_INPUT", "signed_text and ecnpj_signature are required");
   if (!new RegExp(`^KYA Brasil: revoke ${id}\\n`).test(body.signed_text)) throw new KyaError("INVALID_INPUT", `signed_text must start with "KYA Brasil: revoke ${id}" followed by a newline and a nonce`);
+  if (row.principal_kind === "person") return revokePerson(env, row, body.signed_text, body.ecnpj_signature, typeof body.reason === "string" ? body.reason.slice(0, 200) : "revoked by the person");
   await verifyIcpSignature({ cmsBase64: body.ecnpj_signature, challenge: body.signed_text, expectedCnpj: row.cnpj, anchors: await icpAnchors(env) });
   const reason = typeof body.reason === "string" ? body.reason.slice(0, 200) : "revoked by the company";
   await store.setStatus({ id, status: "revoked", reason, actor: "company" });
@@ -256,7 +294,7 @@ export async function revoke(env: AppEnv, origin: string, id: string, body: { re
  * ERC-8004 credentials are also suspended when the on-chain wallet changes (register again).
  * An unreachable CRL or registration source changes nothing; it is counted in `errors` and retried the next day.
  */
-export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; revoked: number; errors: number }> {
+export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; suspended: number; reinstated: number; revoked: number; errors: number; persons_purged: number }> {
   const store = new Store(env.DB);
   const issuer = (env.ISSUER_URL ?? "").replace(/\/$/, "");
   const rows = await store.dueForReview();
@@ -294,7 +332,8 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
         continue;
       }
       // D-24: an unknown status (check off, sources down) changes nothing; only a confirmed one does.
-      const reg = await registrationOrWarning(env, row.cnpj);
+      // Persons (D-29): no public registry to check; only the e-CPF's revocation above applies.
+      const reg = row.principal_kind === "person" ? { legal_name: null, registration_status: "NOT_CHECKED", checked_at: null, warning: null } : await registrationOrWarning(env, row.cnpj);
       const d = principalDecision(reg.registration_status);
       const regUnknown = reg.registration_status === "UNVERIFIED" || reg.registration_status === "NOT_CHECKED";
       const hold: { cause: "certificate" | "registration"; reason: string } | null =
@@ -318,7 +357,13 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
       console.error("review failed", row.id, e);
     }
   }
-  const summary = { reviewed: rows.length, suspended, reinstated, revoked, errors };
+  // Retention (D-29): the keyed CPF hash and its checks go away with revoked or expired person credentials.
+  const purged = await store.purgeDeadPersons().catch((e: unknown) => {
+    errors++;
+    console.error("person purge failed", e);
+    return 0;
+  });
+  const summary = { reviewed: rows.length, suspended, reinstated, revoked, errors, persons_purged: purged };
   // Shown at /status (D-21): when the review last ran and what it found.
   await env.CACHE.put("status:daily_review", JSON.stringify({ ...summary, finished_at: new Date().toISOString() })).catch(() => undefined);
   return summary;

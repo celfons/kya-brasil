@@ -3,5 +3,6 @@ PAY_TO=0x0000000000000000000000000000000000000001
 ATTEST_PRIVATE_KEY=            # node ../../scripts/gen-attest-key.mjs
 REGISTRATION_CHECK=on           # off = skip the registration check (NOT_CHECKED + warning); failures never block
 CNPJ_API_URL=                  # optional: own registration endpoint with {cnpj}, BrasilAPI format; empty = BrasilAPI, CNPJ.ws
+PERSON_HMAC_KEYS=               # optional (D-29): {"1":"<openssl rand -base64 32>"}; empty = no person credentials
 INTERNAL_API_KEY=              # optional: fiat channel of this worker
 ICP_ANCHORS_PEM=               # optional: PEM bundle (node ../../scripts/icp-anchors.mjs --dry-run)

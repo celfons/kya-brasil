@@ -103,6 +103,12 @@ jobs:
             node ../scripts/gen-attest-key.mjs | pulumi config set --secret kya-br-agents:attestPrivateKey
             echo "::warning::generated a NEW signing key for ${{ matrix.stack }}: credentials signed before this deploy no longer verify"
           fi
+          # D-29: HMAC key for CPFs of person credentials, generated once per stack (versioned JSON); losing it
+          # makes existing person credentials unmatchable, so it is only ever created when absent.
+          if ! pulumi config get kya-br-agents:personHmacKeys >/dev/null 2>&1; then
+            node -e 'console.log(JSON.stringify({ "1": require("crypto").randomBytes(32).toString("base64") }))' | pulumi config set --secret kya-br-agents:personHmacKeys
+            echo "::notice::generated the person HMAC key for ${{ matrix.stack }}"
+          fi
           if [ "${{ matrix.stack }}" = "prod" ] && [ "$X402_NETWORK" = "eip155:8453" ] && [ -z "$CDP_API_KEY_ID" ]; then
             echo "::error::prod on mainnet needs CDP_API_KEY_ID/CDP_API_KEY_SECRET"; exit 1; fi
       - name: Pulumi up

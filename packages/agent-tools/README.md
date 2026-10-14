@@ -100,6 +100,22 @@ const { response, callee } = await me.fetch("https://beta.com.br/orders", { meth
 if (!callee?.ok) throw new Error("unsigned or invalid callee");       // callee.kya: principal, mandate, status
 ```
 
+## Person: an agent that acts for you (e-CPF)
+
+```ts
+const reg = await kya.register({ agent: { kind: "evm", id: agentAddress }, principal: "person", mandate }); // $0.25
+// agent signs reg.challenge.text; you sign it with your e-CPF (reg.sign_url, kya-sign or signWithECnpjPfx: same code)
+const { credential } = await kya.prove(reg.credential_id, { challenge_id: reg.challenge.id, agent_signature, ecnpj_signature: ecpfSignature });
+// credential.principal = { kind: "person", verified_by: "icp-brasil-e-cpf" }: nothing personal
+
+// A verifier that already has the person's CPF:
+const m = await kya.principalMatch(credentialId, "529.982.247-25");   // $0.01, signed: { match, subject_ref? }
+
+// The person, to see their agents and every check made on them:
+const text = personAgentsText();                                        // sign it with the e-CPF
+const mine = await kya.personAgents({ signed_text: text, ecpf_signature });
+```
+
 ## Company: give your own agent a credential
 
 ```ts

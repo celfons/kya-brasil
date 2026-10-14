@@ -18,6 +18,7 @@ import { Store } from "../store";
 import { CLOUD_RESULT_CSP, cloudResultHtml, signHtml, signPageCsp } from "./sign-page";
 import { cloudProviders } from "../cloud-providers";
 import { finishCloudSigning, startCloudSigning } from "../cloud";
+import { personAgents, principalMatch } from "../person";
 import type { CloudSignatureProvider } from "@kya-brasil/core";
 import { ICON_SVG, docsHtml, landingHtml, llmsTxt, mandateSchema, openapiJson, serverJson, termsText } from "./static";
 
@@ -138,6 +139,10 @@ export function buildHttpApp(env: AppEnv, opts: { cloudProviders?: CloudSignatur
           accepts: accepts(TOOLS.kya_verify_paid.priceUsd), description: TOOLS.kya_verify_paid.description, ...resource,
           extensions: declareDiscoveryExtension({ input: {}, inputSchema: { properties: {}, required: [] }, ...ID_PARAM, output: { example: EXAMPLE_VERIFIED, schema: { type: "object" } } })
         },
+        "POST /v1/agents/:id/principal-match": {
+          accepts: accepts(TOOLS.kya_principal_match.priceUsd), description: TOOLS.kya_principal_match.description, ...resource,
+          extensions: declareDiscoveryExtension({ bodyType: "json", input: { cpf: "52998224725" }, inputSchema: { properties: { cpf: { type: "string", description: "The CPF you already have for this person (never stored)" } }, required: ["cpf"] }, ...ID_PARAM, output: { example: { credential_id: "6d0b…", match: true, subject_ref: "q8…", checked_at: "…" }, schema: { type: "object" } } })
+        },
         "GET /v1/agents/:id/allowed": {
           accepts: accepts(TOOLS.kya_check_action.priceUsd), description: TOOLS.kya_check_action.description, ...resource,
           extensions: declareDiscoveryExtension({
@@ -156,7 +161,19 @@ export function buildHttpApp(env: AppEnv, opts: { cloudProviders?: CloudSignatur
   );
 
   // ---- handlers shared by the paid (x402) and the internal (fiat, shared key) channels ----
+  /** Who pays: the x402 payer wallet from PAYMENT-SIGNATURE (verified by the middleware before handlers run). */
+  const payerOf = (c: Ctx) => {
+    try {
+      const h = c.req.header("PAYMENT-SIGNATURE") ?? c.req.header("X-PAYMENT") ?? "";
+      const p = JSON.parse(atob(h)) as { payload?: { authorization?: { from?: string } } };
+      return p.payload?.authorization?.from?.toLowerCase() ?? "x402";
+    } catch {
+      return "x402";
+    }
+  };
   const handlers = {
+    principalMatch: (c: Ctx, paid: { network: string; payer: string }, verifier: string) =>
+      run(c, "kya_principal_match", null, paid, async () => principalMatch(c.env, originOf(c), idOf(c), await jsonBody(c), verifier)),
     register: (c: Ctx, paid: { network: string; payer: string }) =>
       run(c, "kya_register", null, paid, async () => {
         const rl = await checkRegistrations(c.env, ipOf(c));
@@ -178,6 +195,7 @@ export function buildHttpApp(env: AppEnv, opts: { cloudProviders?: CloudSignatur
   // Paid channel (x402 verified the payment before these run).
   const x402 = { network: env.X402_NETWORK, payer: "x402" };
   app.post("/v1/agents", (c) => handlers.register(c, x402));
+  app.post("/v1/agents/:id/principal-match", (c) => handlers.principalMatch(c, x402, payerOf(c)));
   app.post("/v1/agents/:id/renew", (c) => handlers.renew(c, x402));
   app.get("/v1/agents/:id/verified", (c) => handlers.verified(c, x402));
   app.get("/v1/agents/:id/allowed", (c) => handlers.allowed(c, x402));
@@ -195,10 +213,12 @@ export function buildHttpApp(env: AppEnv, opts: { cloudProviders?: CloudSignatur
   internal.post("/agents/:id/renew", (c) => handlers.renew(c, fiat));
   internal.get("/agents/:id/verified", (c) => handlers.verified(c, fiat));
   internal.get("/agents/:id/allowed", (c) => handlers.allowed(c, fiat));
+  internal.post("/agents/:id/principal-match", (c) => handlers.principalMatch(c, fiat, `internal:${c.req.header("x-verifier") ?? "default"}`.slice(0, 80)));
   app.route("/internal/v1", internal);
 
   // ---- free routes ----
   app.get("/v1/agents/:id/sign-link", (c) => run(c, "kya_sign_link", null, null, () => service.signLink(c.env, originOf(c), idOf(c), { challenge_id: c.req.query("challenge_id"), agent_signature: c.req.query("agent_signature") })));
+  app.post("/v1/people/agents", (c) => run(c, "kya_person_agents", null, null, async () => personAgents(c.env, await jsonBody(c))));
   app.post("/v1/agents/:id/prove", (c) => run(c, "kya_prove", null, null, async () => service.prove(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/renew/prove", (c) => run(c, "kya_renew", null, null, async () => service.renewProve(c.env, originOf(c), idOf(c), await jsonBody(c))));
   app.post("/v1/agents/:id/revoke", (c) => run(c, "kya_revoke", null, null, async () => service.revoke(c.env, originOf(c), idOf(c), await jsonBody(c))));

@@ -70,14 +70,20 @@ export interface KybSnapshot {
   checked_at: string;
 }
 
+export interface CompanyPrincipal { kind?: "company"; cnpj: string; cnpj_formatted: string; legal_name: string; registration_status: string }
+/** D-29: a person who signed with an e-CPF. Never a name, a CPF or a hash of it; verifiers check a CPF they know through the issuer. */
+export interface PersonPrincipal { kind: "person"; verified_by: "icp-brasil-e-cpf" }
+export const isPersonPrincipal = (p: CompanyPrincipal | PersonPrincipal): p is PersonPrincipal => (p as PersonPrincipal).kind === "person";
+
 /** The credential: "this agent key acts for this company, within this mandate, verified on this date". */
 export interface Credential {
   credential_id: string;
   version: 1;
   agent: AgentKey;
-  principal: { cnpj: string; cnpj_formatted: string; legal_name: string; registration_status: string };
-  /** How the company authorized it: hash of the e-CNPJ certificate that signed the challenge (never the CPF of the signer). */
-  authorized_by: { method: "icp-brasil-e-cnpj"; certificate_sha256: string; certificate_subject: string; issuer: string; signed_at: string };
+  /** A company (e-CNPJ) or, since D-29, a natural person (e-CPF) with no personal data: tell them apart by `kind`. */
+  principal: CompanyPrincipal | PersonPrincipal;
+  /** How the principal authorized it: hash of the ICP-Brasil certificate that signed the challenge. No subject for persons. */
+  authorized_by: { method: "icp-brasil-e-cnpj" | "icp-brasil-e-cpf"; certificate_sha256: string; certificate_subject?: string; issuer: string; signed_at: string };
   mandate: Mandate;
   /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Always null from the reference issuer since D-23 (no KYB dependency); kept in /v1. Null when the issuer has no KYB source (D-17). */
   kyb_snapshot: KybSnapshot | null;

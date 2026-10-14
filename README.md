@@ -236,6 +236,19 @@ anchors, runs the smoke test and publishes the MCP Registry entry when it change
 generated once per stack and kept in the encrypted stack config; rotations keep the old public key
 published as retired. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [docs/DECISOES.md](docs/DECISOES.md).
 
+## For people: an agent that acts for you
+
+An agent can also act for a natural person who signs with an **e-CPF** (D-29): register with
+`principal: "person"`, sign the challenge with the e-CPF (same `/sign` page, `kya-sign`, library). Privacy by design:
+
+- the credential publishes nothing personal: `principal: { kind: "person", verified_by: "icp-brasil-e-cpf" }`;
+- the issuer keeps only a keyed hash (HMAC) of the CPF, never the name or the CPF, and deletes it when the
+  credential is revoked or expires;
+- a verifier that already has the person's CPF asks `POST /v1/agents/{id}/principal-match` ($0.01, signed answer):
+  it learns only whether it matches, plus a `subject_ref` of its own for that person (different for every
+  verifier, so services cannot link the person across them); 3 wrong answers stop its checks;
+- the person sees every check in their inventory (`POST /v1/people/agents`, signed with the e-CPF).
+
 ## For payment networks, acquirers and issuers
 
 The mandate can list the payment instruments the agent may use (`payment_instruments`, D-25): the network and

@@ -16,6 +16,14 @@ if [ -z "${ATTEST_PRIVATE_KEY:-}" ]; then
   ATTEST_PRIVATE_KEY=$(cat /data/attest.key)
 fi
 
+# D-29: HMAC key for CPFs of person credentials, generated once and kept in the volume like the signing key.
+if [ -z "${PERSON_HMAC_KEYS:-}" ]; then
+  if [ ! -s /data/person.keys ]; then
+    node -e 'console.log(JSON.stringify({ "1": require("crypto").randomBytes(32).toString("base64") }))' > /data/person.keys
+  fi
+  PERSON_HMAC_KEYS=$(cat /data/person.keys)
+fi
+
 # ICP-Brasil anchors: the bundle shipped in the repository unless ICP_ANCHORS_PEM is given.
 if [ -z "${ICP_ANCHORS_PEM:-}" ] && [ -s /app/anchors/icp-brasil.pem ]; then
   ICP_ANCHORS_PEM=$(cat /app/anchors/icp-brasil.pem)
@@ -24,6 +32,7 @@ fi
 {
   echo "PAY_TO=${PAY_TO:-0x0000000000000000000000000000000000000001}"
   echo "ATTEST_PRIVATE_KEY=$ATTEST_PRIVATE_KEY"
+  echo "PERSON_HMAC_KEYS=$PERSON_HMAC_KEYS"
   [ -n "${REGISTRATION_CHECK:-}" ] && echo "REGISTRATION_CHECK=$REGISTRATION_CHECK"
   [ -n "${CNPJ_API_URL:-}" ] && echo "CNPJ_API_URL=$CNPJ_API_URL"
   [ -n "${INTERNAL_API_KEY:-}" ] && echo "INTERNAL_API_KEY=$INTERNAL_API_KEY"

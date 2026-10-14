@@ -21,6 +21,8 @@ export type AppEnv = Env & {
   EVM_RPC_URLS?: string;
   /** Optional: Glama connector claim token, served at /.well-known/glama.json. */
   GLAMA_CLAIM?: string;
+  /** D-29 secret: JSON {"1": "<base64, 32+ bytes>"} of HMAC keys for CPFs; highest version is current. Absent = no person credentials. */
+  PERSON_HMAC_KEYS?: string;
   CDP_API_KEY_ID?: string;
   CDP_API_KEY_SECRET?: string;
 };

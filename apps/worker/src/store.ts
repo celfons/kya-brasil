@@ -1,4 +1,4 @@
-/** D1 persistence for agents, challenges, events and company webhooks. Rows never carry personal data. */
+/** D1 persistence for agents, challenges, events and company webhooks. Rows never carry personal data in clear (persons: only a keyed hash of the CPF, D-29). */
 import type { AgentKey, Credential, CredentialStatus, Mandate } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
@@ -28,6 +28,10 @@ export interface AgentRow {
   certificate_crl_urls: string | null;
   last_revocation_check_at: string | null;
   suspension_cause: SuspensionCause | null;
+  /** D-29: 'company' or 'person'; for persons cnpj is '' and the CPF exists only as person_hash. */
+  principal_kind: "company" | "person";
+  person_hash: string | null;
+  person_key_version: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -60,11 +64,59 @@ const now = () => new Date().toISOString();
 export class Store {
   constructor(private db: D1Database) {}
 
-  async createAgent(p: { id: string; agent: AgentKey; cnpj: string; mandate: Mandate }): Promise<void> {
+  async createAgent(p: { id: string; agent: AgentKey; cnpj: string; mandate: Mandate; principal_kind?: "company" | "person" }): Promise<void> {
     await this.db
-      .prepare("INSERT INTO agents (id, agent_kind, agent_id, agent_wallet, cnpj, mandate, status) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending')")
-      .bind(p.id, p.agent.kind, p.agent.id, p.agent.wallet ?? null, p.cnpj, JSON.stringify(p.mandate))
+      .prepare("INSERT INTO agents (id, agent_kind, agent_id, agent_wallet, cnpj, mandate, status, principal_kind) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending', ?7)")
+      .bind(p.id, p.agent.kind, p.agent.id, p.agent.wallet ?? null, p.cnpj, JSON.stringify(p.mandate), p.principal_kind ?? "company")
       .run();
+  }
+
+  // --- D-29: persons ---
+
+  async setPersonHash(id: string, hash: string, version: number): Promise<void> {
+    await this.db.prepare("UPDATE agents SET person_hash = ?2, person_key_version = ?3 WHERE id = ?1").bind(id, hash, version).run();
+  }
+
+  /** Forget the person behind a credential: the keyed hash and every check made against it. */
+  async clearPerson(id: string): Promise<void> {
+    await this.db.batch([
+      this.db.prepare("UPDATE agents SET person_hash = NULL, person_key_version = NULL WHERE id = ?1").bind(id),
+      this.db.prepare("DELETE FROM person_checks WHERE agent_row = ?1").bind(id)
+    ]);
+  }
+
+  /** Retention: person data of revoked or expired credentials is deleted (run by the daily review). */
+  async purgeDeadPersons(): Promise<number> {
+    const { results } = await this.db
+      .prepare("SELECT id FROM agents WHERE principal_kind = 'person' AND person_hash IS NOT NULL AND (status = 'revoked' OR expires_at <= ?1)")
+      .bind(now())
+      .all<{ id: string }>();
+    for (const r of results) await this.clearPerson(r.id);
+    return results.length;
+  }
+
+  async recordPersonCheck(id: string, verifier: string, matched: boolean): Promise<void> {
+    await this.db.prepare("INSERT INTO person_checks (agent_row, verifier, matched) VALUES (?1, ?2, ?3)").bind(id, verifier, matched ? 1 : 0).run();
+  }
+
+  async negativePersonChecks(id: string, verifier: string): Promise<number> {
+    const r = await this.db.prepare("SELECT COUNT(*) AS n FROM person_checks WHERE agent_row = ?1 AND verifier = ?2 AND matched = 0").bind(id, verifier).first<{ n: number }>();
+    return Number(r?.n ?? 0);
+  }
+
+  async personChecks(id: string): Promise<{ verifier: string; matched: number; ts: string }[]> {
+    const { results } = await this.db.prepare("SELECT verifier, matched, ts FROM person_checks WHERE agent_row = ?1 ORDER BY ts DESC LIMIT 200").bind(id).all<{ verifier: string; matched: number; ts: string }>();
+    return results;
+  }
+
+  /** The person's own credentials: rows whose keyed hash matches under any key version. */
+  async byPersonHashes(hashes: { version: number; hash: string }[]): Promise<AgentRow[]> {
+    const out: AgentRow[] = [];
+    for (const h of hashes) {
+      const { results } = await this.db.prepare("SELECT * FROM agents WHERE principal_kind = 'person' AND person_hash = ?1 AND person_key_version = ?2 ORDER BY created_at DESC LIMIT 200").bind(h.hash, h.version).all<AgentRow>();
+      out.push(...results);
+    }
+    return out;
   }
 
   async setWallet(id: string, wallet: string | null): Promise<void> {
@@ -148,7 +200,7 @@ export class Store {
 
   /** Every credential registered for a CNPJ, newest first (the company's inventory, D-20). */
   async byCnpj(cnpj: string, limit = 500): Promise<AgentRow[]> {
-    const { results } = await this.db.prepare("SELECT * FROM agents WHERE cnpj = ?1 ORDER BY created_at DESC LIMIT ?2").bind(cnpj, limit).all<AgentRow>();
+    const { results } = await this.db.prepare("SELECT * FROM agents WHERE cnpj = ?1 AND principal_kind = 'company' ORDER BY created_at DESC LIMIT ?2").bind(cnpj, limit).all<AgentRow>();
     return results;
   }
 

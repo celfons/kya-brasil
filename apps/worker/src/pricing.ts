@@ -1,6 +1,6 @@
 export const SERVICE_NAME = "KYA Brasil";
 export const SERVICE_TAGS = ["brazil", "kya", "agent-identity", "e-cnpj", "attestation"];
-export const VERSION = "0.10.0";
+export const VERSION = "0.11.0";
 export const REGISTRY_NAME = "io.github.celfons/kya-brasil";
 /** MCP Registry entry (≤100 chars). */
 export const REGISTRY_DESCRIPTION = "KYA backed by a real company: e-CNPJ-signed agent mandates, revocation-checked, signed verdicts";
@@ -14,6 +14,8 @@ export const TOOLS = {
   kya_register: { priceUsd: 0.25, method: "POST", path: "/v1/agents", description: "Register an AI agent for a Brazilian company: agent key (EVM address or Web Bot Auth Ed25519 key), CNPJ and a mandate (JSON, validated against /.well-known/kya-mandate.schema.json). Returns a one-time challenge the agent signs with its key and the company signs with its e-CNPJ (CMS/PKCS#7). Price covers the checks at issuance." },
   kya_prove: { priceUsd: 0, method: "POST", path: "/v1/agents/{id}/prove", description: "Free. Send both signatures of the challenge. The e-CNPJ chain is validated against ICP-Brasil roots, the CNPJ must match, the certificate must not be revoked (CRL) and the company must be ATIVA; then the credential is issued (90 days, Ed25519-signed)." },
   kya_sign_link: { priceUsd: 0, method: "GET", path: "/v1/agents/{id}/sign-link", description: "Free. Link for whoever holds the company's e-CNPJ (owner, accountant): give challenge_id and the agent's signature, get the /sign URL. They see agent, company and mandate and sign in the browser (A1 .pfx) or with any ICP-Brasil signer (A3 token, cloud), or run kya-sign (npm @kya-brasil/agent-tools) with the link. The issuer never sees the certificate." },
+  kya_principal_match: { priceUsd: 0.01, method: "POST", path: "/v1/agents/{id}/principal-match", description: "Signed answer ($0.01) for a person's agent (principal.kind person): does the CPF you already have match the e-CPF holder behind it? On a match, a subject_ref of your own for that person (stable for you, different for every verifier). The CPF is never stored, published or revealed; 3 non-matching answers per credential stop your checks. The person sees every check." },
+  kya_person_agents: { priceUsd: 0, method: "POST", path: "/v1/people/agents", description: "Free, person only: every live credential behind your e-CPF and every CPF check made against each one. Sign \"KYA Brasil: my agents\\nat: <ISO time>\" with the e-CPF (valid 10 minutes)." },
   kya_verify: { priceUsd: 0, method: "GET", path: "/v1/agents/{id}", description: "Free (50/day per IP). The agent's current credential: principal company, mandate, status (active, suspended, revoked, expired) and signature. Also by key: /v1/agents/by-key?kind=&id=." },
   kya_verify_paid: { priceUsd: 0.01, method: "GET", path: "/v1/agents/{id}/verified", description: "Same as the free verification, without daily limit, plus a signed receipt of the verification itself (what was checked, when). Pay per call with x402." },
   kya_check_action: { priceUsd: 0.01, method: "GET", path: "/v1/agents/{id}/allowed", description: "Signed verdict: is this action (action, amount, currency, counterparty, payment instrument) inside the agent's mandate and is the credential active? Evaluates the reserved mandate fields; lists the fields it did not evaluate." },

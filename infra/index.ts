@@ -36,6 +36,8 @@ const cdpApiKeyId = cfg.getSecret("cdpApiKeyId");
 const cdpApiKeySecret = cfg.getSecret("cdpApiKeySecret");
 // Ed25519 key that signs credentials and verdicts; the CD generates it once per stack and keeps it in the stack config.
 const attestPrivateKey = cfg.getSecret("attestPrivateKey");
+// D-29: versioned HMAC keys for CPFs of person credentials ({"1": "<base64>"}), generated once by the CD.
+const personHmacKeys = cfg.getSecret("personHmacKeys");
 // Retired public keys (JSON array of { jwk, retired_at }), kept so old credentials still verify.
 const attestPreviousKeys = cfg.get("attestPreviousKeys");
 // Glama connector claim token for this domain (served at /.well-known/glama.json).
@@ -152,6 +154,7 @@ if (cnpjApiUrl) bindings.push({ type: "plain_text", name: "CNPJ_API_URL", text: 
 if (issuerUrl) bindings.push({ type: "plain_text", name: "ISSUER_URL", text: issuerUrl });
 if (internalApiKey) bindings.push({ type: "secret_text", name: "INTERNAL_API_KEY", text: internalApiKey });
 if (attestPrivateKey) bindings.push({ type: "secret_text", name: "ATTEST_PRIVATE_KEY", text: attestPrivateKey });
+if (personHmacKeys) bindings.push({ type: "secret_text", name: "PERSON_HMAC_KEYS", text: personHmacKeys });
 if (attestPreviousKeys) bindings.push({ type: "plain_text", name: "ATTEST_PREVIOUS_KEYS", text: attestPreviousKeys });
 if (glamaClaim) bindings.push({ type: "plain_text", name: "GLAMA_CLAIM", text: glamaClaim });
 if (cdpApiKeyId && cdpApiKeySecret) {

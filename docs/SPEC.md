@@ -219,8 +219,10 @@ not lifted by the review.
 
 ## 12. Privacy
 
-Only legal-entity data is processed. The credential and the issuer's records MUST NOT contain the CPF or
-the name of the natural person who holds the e-CNPJ; the certificate hash identifies the authorization.
+For companies only legal-entity data is processed. The credential and the issuer's records MUST NOT contain
+the CPF or the name of the natural person who holds the e-CNPJ; the certificate hash identifies the
+authorization. For person credentials (section 16) the issuer keeps only a keyed hash of the CPF, never the
+name, the CPF in clear or the certificate subject.
 
 ## 13. Company: inventory and events
 
@@ -306,3 +308,30 @@ as a request from the callee.
 a signed verdict and a tampered copy of the credential that MUST fail verification. An implementation is
 conformant with this document when it accepts the credential and the verdict, rejects the tampered copy,
 reproduces the challenge text from its fields, and reaches the same `allowed` result for the mandate.
+
+## 16. Natural persons (D-29)
+
+An agent MAY act for a natural person who signs with an ICP-Brasil **e-CPF**.
+
+- Registration: `POST /v1/agents` with `principal: "person"` and no `cnpj`. The challenge text starts with
+  `KYA Brasil: prove this agent key acts for me, a natural person`, carries `principal: person (e-CPF)` and a
+  `consent:` line in which the person authorizes the issuer to keep a keyed hash of the CPF while the credential is
+  valid and to answer paying verifiers whether a CPF they already have matches. Signing the text records consent.
+- Proof: the CMS is verified as in section 4, except that the signer certificate MUST be an e-CPF (CPF read from
+  the `2.16.76.1.3.1` otherName, characters 9 to 19, or the common name suffix `:<11 digits>`) and MUST NOT be an
+  e-CNPJ. The issuer computes `HMAC-SHA256(key, "kya:cpf:" || CPF)` with a secret, versioned key, stores that value
+  and the key version, and discards the CPF. It MUST NOT store the CPF, the name or the certificate subject.
+  A renewal MUST be signed by the same CPF.
+- Credential: `principal = { "kind": "person", "verified_by": "icp-brasil-e-cpf" }`,
+  `authorized_by.method = "icp-brasil-e-cpf"` without `certificate_subject`. Nothing personal is published.
+  Verifiers that only handle companies MUST check `principal.kind` before reading `principal.cnpj`.
+- Matching: `POST /v1/agents/{id}/principal-match` with `{ "cpf": "…" }` (paid, MCP `kya_principal_match`) answers,
+  signed, `{ match, subject_ref? }`. `subject_ref` is `HMAC(key, "kya:subject:" || hash || ":" || verifier)`:
+  stable for a verifier, different for each, so verifiers cannot link a person across services. The verifier is the
+  x402 payer address. After 3 non-matching answers for a credential, the issuer MUST refuse further checks from
+  that verifier for it (429, not charged). The CPF in the request is used for the comparison only.
+- The person's inventory: `POST /v1/people/agents` with `"KYA Brasil: my agents\nat: <ISO time>"` signed with the
+  e-CPF (within 10 minutes) lists their live credentials and every check made on each (verifier, result, time).
+- Revocation: as in section 10, with the revocation text signed by the same e-CPF.
+- Retention: the keyed hash and the check log MUST be deleted when the credential is revoked or expires. The daily
+  review checks only the e-CPF revocation (there is no public registry status for persons).
