@@ -92,9 +92,19 @@ verdicts.
 | `max_per_day` | `{ amount, currency }` | amount + `spent_today` (caller supplied) MUST be ≤ ceiling |
 | `currencies` | string[] (`^[A-Z0-9]{2,10}$`) | currency MUST be in the list |
 | `counterparties` | string[] (CNPJ digits, domain, `0x` address; `*.` prefix matches subdomains) | counterparty MUST match an entry; empty or absent = any |
+| `payment_instruments` | `{ network, ref_sha256, label? }[]` (up to 20) | the instrument given (`payment_ref_sha256`, optionally `payment_network`) MUST match an entry; empty or absent = any |
 | `valid_from`, `valid_until` | ISO 8601 | now MUST be inside the window |
 
-A check is only performed when both the mandate field and the query field are present. The serialized
+A check is only performed when both the mandate field and the query field are present.
+
+**Payment instruments (D-25).** For card networks, acquirers and issuers: each entry names a network or rail
+(`^[a-z][a-z0-9_-]{1,31}$`: `visa`, `mastercard`, `elo`, `amex`, `hipercard`, `pix`, `x402`, ...) and
+`ref_sha256`, the lowercase hex SHA-256 of a reference the network already gives for the instrument (network
+token reference, Payment Account Reference), computed over its UTF-8 bytes with whitespace removed and case
+kept. It MUST NOT be, contain or be derived from a card number in a reversible way; issuers MUST refuse a value
+that is not 64 hex characters and labels carrying runs of 12 or more digits. The verifier hashes the reference
+it received in the transaction and passes it to `/allowed` (or to `checkAction` in `@kya-brasil/core`); the
+signed verdict then states whether that instrument belongs to an agent the company authorized. The serialized
 mandate MUST NOT exceed 8192 bytes.
 
 ## 6. Credential
@@ -150,13 +160,17 @@ A verifier that receives a credential (or a `credential_id`) with an agent's req
 
 ## 9. Verdict
 
-`GET /v1/agents/{id}/allowed?action=&amount=&currency=&counterparty=&spent_today=` returns:
+`GET /v1/agents/{id}/allowed?action=&amount=&currency=&counterparty=&spent_today=&payment_network=&payment_ref_sha256=` returns:
 
 ```json
 { "credential_id": "...", "status": "active", "allowed": true, "reason": "inside the mandate",
   "query": { ... }, "checks": [{ "rule": "actions", "ok": true, "detail": "..." }, ...],
   "not_evaluated": ["notes"], "checked_at": "ISO 8601", "attestation": { ... } }
 ```
+
+Every query parameter is echoed in `query`, so the signed verdict records the instrument that was checked; it is
+evidence for a later dispute ("the company's mandate covered this agent, this instrument and this amount at
+`checked_at`").
 
 `allowed` is true only when the live status is `active` and every performed check passed. The verdict is signed as in section 7, so the verifier can keep it as proof of what the issuer said at `checked_at`.
 

@@ -9,7 +9,7 @@
  * review, so a credential never outlives a wallet change. Nothing is written on chain in this version.
  */
 import { createPublicClient, custom, getAddress, http, isAddress, type Transport } from "viem";
-import { KyaError } from "./types";
+import { KyaError } from "./types.js";
 
 /** Canonical registries (deterministic deployment, same address on every chain of its kind). */
 export const ERC8004_IDENTITY_REGISTRIES: Record<number, `0x${string}`> = {

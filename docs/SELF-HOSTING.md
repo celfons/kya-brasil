@@ -12,6 +12,11 @@ Your issuer is a different issuer: its credentials are signed by your key and ve
 `/.well-known/kya.json`. Verifiers decide which issuers they trust; the name "KYA Brasil" and the hosted
 service at `kya-br-agents.marcelfons.workers.dev` identify this project's own issuer.
 
+**Two ways to run it.** As a service (this page: the Worker in `apps/worker`, on Cloudflare or in a
+container), or as a library inside your own systems: `npm install @kya-brasil/core` gives the same e-CNPJ,
+revocation, mandate and credential functions with your storage, keys and network (D-25). Banks, card
+networks and acquirers usually want the second. See [packages/core/README.md](../packages/core/README.md).
+
 ## What you need
 
 | | |

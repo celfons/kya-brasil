@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canonicalize } from "./attestation";
+import { canonicalize } from "./attestation.js";
 
 describe("canonical JSON key order", () => {
   it("is UTF-16 code-unit order, the same as a comparator-less sort (signed bytes must not change)", () => {

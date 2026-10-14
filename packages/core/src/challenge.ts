@@ -8,8 +8,8 @@
  * for another company or another issuer.
  */
 import { verifyMessage, getAddress, isAddress } from "viem";
-import { type AgentKey, KyaError } from "./types";
-import { parseErc8004Id } from "./erc8004";
+import { type AgentKey, KyaError } from "./types.js";
+import { parseErc8004Id } from "./erc8004.js";
 
 export const CHALLENGE_TTL_SECONDS = 900;
 

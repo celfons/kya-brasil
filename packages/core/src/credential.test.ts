@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { generateAttestationKey, importPrivateKey } from "./attestation";
-import { buildCredential, effectiveStatus, principalDecision, signCredential, verifyCredentialSignature } from "./credential";
-import type { KybSnapshot } from "./types";
+import { generateAttestationKey, importPrivateKey } from "./attestation.js";
+import { buildCredential, effectiveStatus, principalDecision, signCredential, verifyCredentialSignature } from "./credential.js";
+import type { KybSnapshot } from "./types.js";
 
 const kyb: KybSnapshot = { risk_level: "low", risk_score: 5, registration_status: "ATIVA", active_sanctions: 0, forced_labor: false, federal_debt_brl: null, active_embargoes: 0, red_flags: [], checked_at: "2026-10-12T00:00:00Z" };
 

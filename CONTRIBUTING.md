@@ -7,6 +7,9 @@ Issues and pull requests are welcome, in Portuguese or English.
   procedure are changes to `docs/SPEC.md` first; keep the test vectors in sync (`GEN_VECTORS=1` on
   `packages/core/src/vectors.test.ts` regenerates them, with a new throwaway key).
 - Fields under `/v1` are only added, never renamed or removed.
+- `packages/core` is published as the library `@kya-brasil/core`: keep it free of platform bindings and network
+  calls (the caller fetches CRLs and registration data), keep relative imports with the `.js` extension, and
+  treat its exports as public API.
 - Never add personal data of natural persons to anything stored or returned.
 - Secrets never go in the repository: `.dev.vars` locally, GitHub environments for the cloud.
 

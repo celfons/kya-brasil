@@ -4,7 +4,7 @@
  * at 6 hours) and kept verified and indexed in memory for up to an hour, so the daily review downloads,
  * verifies and parses each AC's CRL once.
  */
-import { KyaError, type RevocationStatus, type VerifiedCrl, verifyCrl } from "@kya-br/core";
+import { KyaError, type RevocationStatus, type VerifiedCrl, verifyCrl } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
 const KV_MAX_BYTES = 25 * 1024 * 1024; // KV value limit; larger CRLs are downloaded on every miss

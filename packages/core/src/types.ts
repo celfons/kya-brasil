@@ -23,6 +23,16 @@ export interface AgentKey {
 export type CredentialStatus = "pending" | "active" | "suspended" | "revoked" | "expired";
 
 /** Reserved mandate fields the `check_action` evaluator understands. Anything else is carried, not evaluated. */
+/** One payment instrument in a mandate (D-25). */
+export interface PaymentInstrument {
+  /** Network or rail, lowercase: visa, mastercard, elo, amex, hipercard, pix, x402, ... */
+  network: string;
+  /** Lowercase hex SHA-256 of the network's reference (token reference, PAR, ...); see hashPaymentRef. */
+  ref_sha256: string;
+  /** Optional human label, e.g. "corporate card, purchasing". Never the card number. */
+  label?: string;
+}
+
 export interface MandateCore {
   /** Actions the agent may take on behalf of the company (free vocabulary, lowercase: buy, sell, quote, pay, sign, ...). */
   actions?: string[];
@@ -34,6 +44,12 @@ export interface MandateCore {
   currencies?: string[];
   /** Counterparties the agent may deal with (CNPJs, domains or wallet addresses); empty = any. */
   counterparties?: string[];
+  /**
+   * Payment instruments the agent may use (D-25): card network tokens, PARs or any reference a payment network
+   * gives, never a card number. `ref_sha256` is the lowercase hex SHA-256 of the reference (UTF-8, whitespace
+   * removed, case kept); empty or absent = any.
+   */
+  payment_instruments?: PaymentInstrument[];
   /** Mandate validity (ISO dates); the credential never outlives it. */
   valid_from?: string;
   valid_until?: string;

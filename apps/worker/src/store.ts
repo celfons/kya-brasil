@@ -1,5 +1,5 @@
 /** D1 persistence for agents, challenges, events and company webhooks. Rows never carry personal data. */
-import type { AgentKey, Credential, CredentialStatus, Mandate } from "@kya-br/core";
+import type { AgentKey, Credential, CredentialStatus, Mandate } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
 export interface AgentRow {

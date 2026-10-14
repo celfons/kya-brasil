@@ -1,13 +1,51 @@
 {
-  "name": "@kya-br/core",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@kya-brasil/core",
+  "version": "0.7.0",
+  "description": "KYA Brasil as a library: verify and issue know-your-agent credentials for Brazilian companies without any hosted service. e-CNPJ (ICP-Brasil) CMS signature and chain validation, CRL revocation, CNPJ, agent key challenges (EVM, Ed25519 / Web Bot Auth, ERC-8004), mandate schema and evaluation (including payment instruments for card networks and acquirers), credential build, Ed25519 signing and verification. Pure functions: storage and network are yours.",
+  "license": "MIT",
   "type": "module",
-  "description": "KYA domain logic: credential, mandate schema, key-possession challenges (EVM, Web Bot Auth), e-CNPJ (ICP-Brasil) signature validation, attestation. No Cloudflare bindings.",
   "exports": {
     ".": "./src/index.ts"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celfons/kya-brasil.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/celfons/kya-brasil/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/celfons/kya-brasil/issues"
+  },
+  "author": "Marcel Oliveira",
+  "keywords": [
+    "kya",
+    "know-your-agent",
+    "agent-identity",
+    "brazil",
+    "cnpj",
+    "e-cnpj",
+    "icp-brasil",
+    "pkcs7",
+    "cms",
+    "crl",
+    "mandate",
+    "payments",
+    "visa",
+    "mastercard",
+    "acquirer",
+    "web-bot-auth",
+    "erc-8004"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run"
   },

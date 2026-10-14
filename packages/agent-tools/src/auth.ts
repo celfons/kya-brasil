@@ -116,7 +116,7 @@ export type KyaAuthResult = { ok: true; kya: KyaContext } | { ok: false; status:
 
 export interface LocalVerdict { allowed: boolean; checks: { rule: string; ok: boolean; detail: string }[]; not_evaluated: string[] }
 
-const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "valid_from", "valid_until"];
+const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until"];
 
 function normalizeCounterparty(c: string): string {
   const t = c.trim();
@@ -131,8 +131,8 @@ function normalizeCounterparty(c: string): string {
 
 /**
  * Local evaluation of the reserved mandate fields: actions, max_per_operation, currencies, counterparties
- * (with `*.` wildcards), valid_from / valid_until. `max_per_day` is listed as not evaluated: only the issuer
- * knows nothing of it either: pass your own spent_today to ctx.allowed.
+ * (with `*.` wildcards), payment_instruments (when you pass payment_ref_sha256), valid_from / valid_until, and
+ * max_per_day when you pass spent_today (nobody else counts it: the issuer keeps no record of acts).
  */
 export function checkMandate(mandate: Mandate, q: ActionQuery, now = new Date()): LocalVerdict {
   const checks: LocalVerdict["checks"] = [];
@@ -156,8 +156,20 @@ export function checkMandate(mandate: Mandate, q: ActionQuery, now = new Date())
     });
     push("counterparties", ok, `${c} ${ok ? "is" : "is not"} an allowed counterparty`);
   }
+  if (mandate.max_per_day && q.amount !== undefined && q.spent_today !== undefined) {
+    const total = q.amount + q.spent_today;
+    const same = !q.currency || q.currency.toUpperCase() === mandate.max_per_day.currency;
+    push("max_per_day", same && total <= mandate.max_per_day.amount, same ? `${total} today (incl. this one) vs ceiling ${mandate.max_per_day.amount} ${mandate.max_per_day.currency}` : `ceiling is in ${mandate.max_per_day.currency}, operation in ${q.currency}`);
+  }
+  const instruments = Array.isArray(mandate.payment_instruments) ? mandate.payment_instruments : [];
+  if (instruments.length && q.payment_ref_sha256) {
+    const h = q.payment_ref_sha256.trim().toLowerCase();
+    const net = q.payment_network?.trim().toLowerCase();
+    const hit = instruments.find((p) => p.ref_sha256 === h && (!net || p.network === net));
+    push("payment_instruments", !!hit, hit ? `${hit.network} instrument ${h.slice(0, 12)}… is authorized` : `instrument ${net ? `${net} ` : ""}${h.slice(0, 12)}… is not in the mandate`);
+  }
   const not_evaluated = Object.keys(mandate).filter((k) => !RESERVED.includes(k));
-  if (mandate.max_per_day) not_evaluated.push("max_per_day (only the issuer knows today's registered total)");
+  if (mandate.max_per_day && q.spent_today === undefined) not_evaluated.push("max_per_day (pass spent_today: the issuer keeps no record of acts)");
   return { allowed: checks.every((c) => c.ok), checks, not_evaluated };
 }
 

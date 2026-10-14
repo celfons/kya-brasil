@@ -6,7 +6,7 @@ import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import { privateKeyToAccount } from "viem/accounts";
 import { verifyMessage } from "viem";
-import { generateAttestationKey, signAttestation, verifyIcpSignature } from "@kya-br/core";
+import { generateAttestationKey, signAttestation, verifyIcpSignature } from "@kya-brasil/core";
 import { KyaError, createKyaClient, revocationText, signChallengeWithEd25519, signChallengeWithEvmKey, signWithECnpj, toAnthropic, toLangChain, toOpenAI, toVercelAI, verifyAttestation } from "./index";
 
 describe("client", () => {

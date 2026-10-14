@@ -5,11 +5,11 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { generateAttestationKey, importPrivateKey, signAttestation, verifyAttestation } from "./attestation";
-import { challengeText } from "./challenge";
-import { buildCredential, signCredential, verifyCredentialSignature } from "./credential";
-import { checkAction } from "./mandate";
-import type { AgentKey, Credential, KybSnapshot, Mandate } from "./types";
+import { generateAttestationKey, importPrivateKey, signAttestation, verifyAttestation } from "./attestation.js";
+import { challengeText } from "./challenge.js";
+import { buildCredential, signCredential, verifyCredentialSignature } from "./credential.js";
+import { checkAction } from "./mandate.js";
+import type { AgentKey, Credential, KybSnapshot, Mandate } from "./types.js";
 
 const FILE = new URL("../../../docs/vectors/credential-v1.json", import.meta.url);
 

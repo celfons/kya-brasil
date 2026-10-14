@@ -2,7 +2,7 @@
  * On-chain lookup of an ERC-8004 agent's wallet. RPC endpoints come from EVM_RPC_URLS (JSON object
  * chainId → url) with public defaults for Base and Ethereum (core DEFAULT_RPC_URLS).
  */
-import { type AgentKey, parseErc8004Id, resolveAgentWallet } from "@kya-br/core";
+import { type AgentKey, parseErc8004Id, resolveAgentWallet } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
 function rpcUrl(env: AppEnv, chainId: number): string | undefined {

@@ -3,7 +3,7 @@
  * Ed25519 over the SHA-256 of the canonical JSON (keys sorted, no whitespace) of the answer
  * without `attestation` and `receipt`. WebCrypto only, so it runs on Workers and Node alike.
  */
-import type { Attestation } from "./types";
+import type { Attestation } from "./types.js";
 
 /**
  * Key order of the canonical JSON: UTF-16 code units, exactly what a comparator-less sort() does. Not

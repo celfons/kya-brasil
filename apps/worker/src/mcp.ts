@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { McpAgent } from "agents/mcp";
 import { type X402AugmentedServer, type X402Config, withX402 } from "agents/x402";
 import { z } from "zod";
-import { KyaError } from "@kya-br/core";
+import { KyaError } from "@kya-brasil/core";
 import { signAnswer } from "./attest";
 import { checkFreeTier, checkRegistrations } from "./cache";
 import { logCall } from "./call-log";
@@ -119,12 +119,14 @@ export class KyaMcp extends McpAgent<AppEnv, unknown, { ip?: string }> {
         amount: z.number().nonnegative().optional(),
         currency: z.string().max(12).optional().describe("BRL, USDC, ..."),
         counterparty: z.string().max(128).optional().describe("CNPJ, domain or wallet address of the other side."),
-        spent_today: z.number().nonnegative().optional().describe("What this agent already spent today, if you track it (used for max_per_day).")
+        spent_today: z.number().nonnegative().optional().describe("What this agent already spent today, if you track it (used for max_per_day)."),
+        payment_network: z.string().max(32).optional().describe("Payment network or rail of this operation: visa, mastercard, elo, pix, ..."),
+        payment_ref_sha256: z.string().regex(/^[0-9a-fA-F]{64}$/).optional().describe("SHA-256 hex of the payment token reference or PAR used (never a card number); checked against mandate.payment_instruments.")
       },
       ro,
       async (i, extra) =>
         this.logged("kya_check_action", paymentInfo(extra), () =>
-          service.allowed(this.env, origin, i.credential_id, { action: i.action, amount: i.amount?.toString(), currency: i.currency, counterparty: i.counterparty, spent_today: i.spent_today?.toString() })
+          service.allowed(this.env, origin, i.credential_id, { action: i.action, amount: i.amount?.toString(), currency: i.currency, counterparty: i.counterparty, spent_today: i.spent_today?.toString(), payment_network: i.payment_network, payment_ref_sha256: i.payment_ref_sha256 })
         )
     );
     this.server.paidTool(

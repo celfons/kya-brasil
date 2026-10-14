@@ -45,6 +45,8 @@ export interface Mandate {
   max_per_day?: { amount: number; currency: string };
   currencies?: string[];
   counterparties?: string[];
+  /** D-25: instruments the agent may use, as SHA-256 of the network's token reference or PAR (see hashPaymentRef). */
+  payment_instruments?: { network: string; ref_sha256: string; label?: string }[];
   valid_from?: string;
   valid_until?: string;
   [k: string]: unknown;
@@ -83,7 +85,28 @@ export interface Verification {
   [k: string]: unknown;
 }
 
-export interface ActionQuery { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number }
+export interface ActionQuery {
+  action?: string;
+  amount?: number;
+  currency?: string;
+  counterparty?: string;
+  spent_today?: number;
+  /** D-25: network of the payment instrument used (visa, mastercard, elo, pix, ...). */
+  payment_network?: string;
+  /** D-25: SHA-256 hex of its token reference or PAR (hashPaymentRef); never a card number. */
+  payment_ref_sha256?: string;
+}
+
+/**
+ * SHA-256 (lowercase hex) of a payment reference as mandates store it (D-25): UTF-8, whitespace removed, case
+ * kept. Use it on a network token reference or PAR, never on a card number.
+ */
+export async function hashPaymentRef(ref: string): Promise<string> {
+  const clean = ref.replace(/\s+/g, "");
+  if (!clean) throw new Error("empty payment reference");
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(clean)));
+  return Array.from(d, (b) => b.toString(16).padStart(2, "0")).join("");
+}
 
 export interface Verdict {
   credential_id: string;
@@ -229,8 +252,8 @@ export function createKyaClient(opts: KyaOptions = {}): KyaClient {
     {
       name: "kya_check_action", priceUsd: 0.01,
       description: "Signed verdict ($0.01): may this agent perform this action (action, amount, currency, counterparty) under its company mandate, and is the credential active right now? Use before accepting an order, a payment or a signature from an agent.",
-      parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "Your CNPJ, domain or wallet address" }, spent_today: { type: "number" } }, required: ["credential_id"], additionalProperties: false },
-      execute: async (a) => client.allowed(String(a.credential_id), { action: a.action as string, amount: a.amount as number, currency: a.currency as string, counterparty: a.counterparty as string, spent_today: a.spent_today as number }) as Promise<Record<string, unknown>>
+      parameters: { type: "object", properties: { credential_id: ID, action: { type: "string" }, amount: { type: "number" }, currency: { type: "string" }, counterparty: { type: "string", description: "Your CNPJ, domain or wallet address" }, spent_today: { type: "number" }, payment_network: { type: "string", description: "visa, mastercard, elo, pix, ..." }, payment_ref_sha256: { type: "string", description: "SHA-256 hex of the payment token reference or PAR used (never a card number)" } }, required: ["credential_id"], additionalProperties: false },
+      execute: async (a) => client.allowed(String(a.credential_id), { action: a.action as string, amount: a.amount as number, currency: a.currency as string, counterparty: a.counterparty as string, spent_today: a.spent_today as number, payment_network: a.payment_network as string, payment_ref_sha256: a.payment_ref_sha256 as string }) as Promise<Record<string, unknown>>
     },
     {
       name: "kya_verify_paid", priceUsd: 0.01,

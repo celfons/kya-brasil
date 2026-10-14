@@ -1,4 +1,4 @@
-import { MANDATE_SCHEMA } from "@kya-br/core";
+import { MANDATE_SCHEMA } from "@kya-brasil/core";
 import { CONTACT_EMAIL, REGISTRY_DESCRIPTION, REGISTRY_NAME, SERVICE_DESCRIPTION, SERVICE_NAME, TOOLS, VERSION, type ToolName } from "../pricing";
 
 export function mandateSchema(origin: string) {
@@ -40,7 +40,9 @@ export function openapiJson(origin: string, network: string, payTo: string) {
         { name: "amount", in: "query", schema: { type: "number" } },
         { name: "currency", in: "query", schema: { type: "string" } },
         { name: "counterparty", in: "query", schema: { type: "string" }, description: "CNPJ, domain or wallet address" },
-        { name: "spent_today", in: "query", schema: { type: "number" }, description: "What this agent already spent today, if you track it" }
+        { name: "spent_today", in: "query", schema: { type: "number" }, description: "What this agent already spent today, if you track it" },
+        { name: "payment_network", in: "query", schema: { type: "string" }, description: "Payment network or rail: visa, mastercard, elo, pix, ..." },
+        { name: "payment_ref_sha256", in: "query", schema: { type: "string", pattern: "^[0-9a-f]{64}$" }, description: "SHA-256 hex of the payment token reference or PAR (never a card number), checked against mandate.payment_instruments" }
       ]
     }
   };
@@ -65,6 +67,7 @@ export function llmsTxt(origin: string, network: string): string {
 - Before accepting an action or a payment from an AI agent that claims to act for a Brazilian company: GET ${origin}/v1/agents/{credential_id} (or /v1/agents/by-key?kind=evm&id=0x...) and check status == "active".
 - Before letting an agent do something specific: GET ${origin}/v1/agents/{id}/allowed?action=pay&amount=80&currency=USDC&counterparty=<cnpj> returns a signed allowed/denied verdict.
 - To give your own agent a credential: POST /v1/agents, sign the challenge with the agent key and with the company's e-CNPJ, POST /v1/agents/{id}/prove.
+- Payment networks, acquirers and issuers: mandate.payment_instruments lists the instruments the agent may use, as SHA-256 of the network's token reference or PAR (never a card number). Pass payment_network and payment_ref_sha256 to /allowed and the signed verdict says whether that instrument belongs to an agent authorized by that CNPJ. The same checks run offline with the npm library @kya-brasil/core (checkAction, hashPaymentRef).
 - max_per_day is checked against the spent_today you pass to /allowed: the issuer does not record what agents do. Keep your own records of accepted actions.
 - A company sees every agent registered in its name with POST ${origin}/v1/companies/{cnpj}/agents and gets signed events (issued, renewed, suspended, reinstated, revoked) at the webhook it sets with POST ${origin}/v1/companies/{cnpj}/webhook; both free and signed with its e-CNPJ.
 - Offline verification (issuer signature on the credential) proves what was issued, not that it is still active: check status online, or accept the risk until expires_at.

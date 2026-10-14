@@ -3,7 +3,7 @@ import { registerExactEvmScheme } from "@x402/evm/exact/server";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
 import { paymentMiddleware, x402ResourceServer } from "@x402/hono";
 import { Hono, type Context } from "hono";
-import { KyaError } from "@kya-br/core";
+import { KyaError } from "@kya-brasil/core";
 import { icpAnchors } from "../anchors";
 import { publishedKeys, signAnswer, verifyAnswer } from "../attest";
 import { checkFreeTier, checkRegistrations, type LimitResult } from "../cache";
@@ -136,7 +136,7 @@ export function buildHttpApp(env: AppEnv) {
           accepts: accepts(TOOLS.kya_check_action.priceUsd), description: TOOLS.kya_check_action.description, ...resource,
           extensions: declareDiscoveryExtension({
             input: { action: "pay", amount: "80", currency: "USDC", counterparty: "33000167000101" },
-            inputSchema: { properties: { action: { type: "string" }, amount: { type: "string" }, currency: { type: "string" }, counterparty: { type: "string", description: "CNPJ, domain or wallet address" }, spent_today: { type: "string" } }, required: [] },
+            inputSchema: { properties: { action: { type: "string" }, amount: { type: "string" }, currency: { type: "string" }, counterparty: { type: "string", description: "CNPJ, domain or wallet address" }, spent_today: { type: "string" }, payment_network: { type: "string", description: "visa, mastercard, elo, pix, ..." }, payment_ref_sha256: { type: "string", description: "SHA-256 hex of the payment token reference or PAR (never a card number)" } }, required: [] },
             ...ID_PARAM,
             output: { example: EXAMPLE_ALLOWED, schema: { type: "object" } }
           })
@@ -166,7 +166,7 @@ export function buildHttpApp(env: AppEnv) {
         return attestation ? { ...out, attestation } : out;
       }),
     allowed: (c: Ctx, paid: { network: string; payer: string }) =>
-      run(c, "kya_check_action", null, paid, () => service.allowed(c.env, originOf(c), idOf(c), { action: c.req.query("action"), amount: c.req.query("amount"), currency: c.req.query("currency"), counterparty: c.req.query("counterparty"), spent_today: c.req.query("spent_today") }))
+      run(c, "kya_check_action", null, paid, () => service.allowed(c.env, originOf(c), idOf(c), { action: c.req.query("action"), amount: c.req.query("amount"), currency: c.req.query("currency"), counterparty: c.req.query("counterparty"), spent_today: c.req.query("spent_today"), payment_network: c.req.query("payment_network"), payment_ref_sha256: c.req.query("payment_ref_sha256") }))
   };
 
   // Paid channel (x402 verified the payment before these run).

@@ -7,7 +7,7 @@
  */
 import "reflect-metadata"; // @peculiar/x509 (tsyringe) needs it before import
 import { CRLDistributionPointsExtension, X509Certificate, X509Crl, X509CrlReason } from "@peculiar/x509";
-import { KyaError } from "./types";
+import { KyaError } from "./types.js";
 
 /** Serial numbers compared as lowercase hex without leading zeros. */
 export const normalizeSerial = (hex: string) => hex.toLowerCase().replace(/^0+(?=.)/, "");

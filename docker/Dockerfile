@@ -10,7 +10,7 @@ COPY apps/worker/package.json apps/worker/
 COPY packages/core/package.json packages/core/
 COPY packages/agent-tools/package.json packages/agent-tools/
 COPY infra/package.json infra/
-RUN pnpm install --frozen-lockfile --filter @kya-br/worker... --filter @kya-br/core...
+RUN pnpm install --frozen-lockfile --filter @kya-br/worker... --filter @kya-brasil/core...
 COPY apps/worker apps/worker
 COPY packages/core packages/core
 COPY scripts scripts

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { encodeAbiParameters, encodeFunctionData } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { normalizeAgentKey, verifyAgentSignature } from "./challenge";
-import { ERC8004_IDENTITY_ABI, mockTransport, parseErc8004Id, resolveAgentWallet } from "./erc8004";
+import { normalizeAgentKey, verifyAgentSignature } from "./challenge.js";
+import { ERC8004_IDENTITY_ABI, mockTransport, parseErc8004Id, resolveAgentWallet } from "./erc8004.js";
 
 const OWNER = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 const WALLET_PK = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";

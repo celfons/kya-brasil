@@ -2,7 +2,7 @@
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
 import * as x509 from "@peculiar/x509";
-import { checkRevocation, crlUrlsOf, normalizeSerial, revocationEffect } from "./revocation";
+import { checkRevocation, crlUrlsOf, normalizeSerial, revocationEffect } from "./revocation.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };

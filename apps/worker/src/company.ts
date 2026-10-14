@@ -7,7 +7,7 @@
  * Requests are e-CNPJ-signed texts with an `at:` timestamp: accepted within 10 minutes, and for the webhook
  * only if newer than the last accepted one, so a captured request cannot be replayed.
  */
-import { KyaError, formatCnpj, isValidCnpj, normalizeCnpj, verifyIcpSignature } from "@kya-br/core";
+import { KyaError, formatCnpj, isValidCnpj, normalizeCnpj, verifyIcpSignature } from "@kya-brasil/core";
 import { icpAnchors } from "./anchors";
 import { signAnswer } from "./attest";
 import type { AppEnv } from "./env";

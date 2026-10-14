@@ -8,7 +8,7 @@
  *   3. CNPJ.ws public API (no key).
  * No key, no contract, no closed service: anyone running the issuer gets the same answer.
  */
-import { KyaError, normalizeCnpj } from "@kya-br/core";
+import { KyaError, normalizeCnpj } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
 export interface Registration {

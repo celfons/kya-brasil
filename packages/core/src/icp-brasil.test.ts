@@ -5,7 +5,7 @@ import * as x509 from "@peculiar/x509";
 import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import * as pkijs from "pkijs";
-import { OID_ICP_CNPJ, cnpjFromCertificate, verifyIcpSignature } from "./icp-brasil";
+import { OID_ICP_CNPJ, cnpjFromCertificate, verifyIcpSignature } from "./icp-brasil.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };

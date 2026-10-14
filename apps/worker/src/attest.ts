@@ -1,4 +1,4 @@
-import { type Attestation, importPrivateKey, keyIdOf, publicJwkFromPrivate, signAttestation, verifyAttestation } from "@kya-br/core";
+import { type Attestation, importPrivateKey, keyIdOf, publicJwkFromPrivate, signAttestation, verifyAttestation } from "@kya-brasil/core";
 import type { AppEnv } from "./env";
 
 let cache: { key: CryptoKey; jwk: JsonWebKey; keyId: string } | null | undefined;

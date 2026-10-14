@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
 import { KYA_HEADERS, checkMandate, createKyaAgent, createKyaAuth, requestText, signRequest, signResponse, verifyResponse } from "./auth";
+import { hashPaymentRef } from "./index";
 
 const EVM_PK = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
 const EVM = privateKeyToAccount(EVM_PK).address;
@@ -96,7 +97,18 @@ describe("sign in with KYA", () => {
     expect(v.allowed).toBe(false);
     expect(v.checks.find((c) => c.rule === "max_per_operation")?.ok).toBe(false);
     expect(v.checks.find((c) => c.rule === "counterparties")?.ok).toBe(true);
-    expect(v.not_evaluated).toEqual(["notes", "max_per_day (only the issuer knows today's registered total)"]);
+    expect(v.not_evaluated).toEqual(["notes", "max_per_day (pass spent_today: the issuer keeps no record of acts)"]);
+    const day = checkMandate(mandate, { action: "pay", amount: 3000, currency: "BRL", spent_today: 18000 });
+    expect(day.checks.find((c) => c.rule === "max_per_day")?.ok).toBe(false);
+  });
+
+  it("checks the payment instrument by hash and network (D-25)", async () => {
+    const ref = await hashPaymentRef("V0010013018123456789012345678");
+    expect(ref).toMatch(/^[0-9a-f]{64}$/);
+    const m = { actions: ["buy"], payment_instruments: [{ network: "visa", ref_sha256: ref }] };
+    expect(checkMandate(m, { action: "buy", payment_network: "visa", payment_ref_sha256: ref }).allowed).toBe(true);
+    expect(checkMandate(m, { action: "buy", payment_network: "elo", payment_ref_sha256: ref }).allowed).toBe(false);
+    expect(checkMandate(m, { action: "buy" }).not_evaluated).toEqual([]);
   });
 });
 

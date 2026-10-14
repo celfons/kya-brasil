@@ -14,9 +14,9 @@ import "reflect-metadata"; // @peculiar/x509 (tsyringe) needs it before import
 import * as asn1js from "asn1js";
 import * as pkijs from "pkijs";
 import { X509Certificate } from "@peculiar/x509";
-import { normalizeCnpj } from "./cnpj";
-import { crlUrlsOf, normalizeSerial } from "./revocation";
-import { KyaError } from "./types";
+import { normalizeCnpj } from "./cnpj.js";
+import { crlUrlsOf, normalizeSerial } from "./revocation.js";
+import { KyaError } from "./types.js";
 
 /** ICP-Brasil otherName: CNPJ of the legal entity (DOC-ICP-04, item 7.1.2). */
 export const OID_ICP_CNPJ = "2.16.76.1.3.3";

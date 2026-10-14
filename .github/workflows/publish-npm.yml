@@ -1,5 +1,6 @@
-# Publish @kya-brasil/agent-tools to npm. Manual: needs the NPM_TOKEN secret (npm "automation" token)
-# in the prod environment. Version comes from packages/agent-tools/package.json; bump it first.
+# Publish @kya-brasil/core (the library, D-25) and @kya-brasil/agent-tools (the client) to npm. Manual: needs the
+# NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
+# them first. A version already on npm is skipped, so publishing one package never fails on the other.
 # Then mirrors the same build to GitHub Packages as @celfons/kya-agent-tools (GitHub requires the scope to be
 # the repository owner), so it shows under the repository's Packages. npmjs.com stays the install channel.
 name: Publish npm package
@@ -19,7 +20,24 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with: { node-version: 22, cache: pnpm, registry-url: "https://registry.npmjs.org" }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @kya-brasil/core typecheck && pnpm --filter @kya-brasil/core test && pnpm --filter @kya-brasil/core build
       - run: pnpm --filter @kya-brasil/agent-tools typecheck && pnpm --filter @kya-brasil/agent-tools test && pnpm --filter @kya-brasil/agent-tools build
+      - name: Publish @kya-brasil/core
+        working-directory: packages/core
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
+          # In the workspace the package points at its TypeScript sources; the published one at the build.
+          node -e 'const f="package.json",p=JSON.parse(require("fs").readFileSync(f));p.main="./dist/index.js";p.types="./dist/index.d.ts";p.exports={".":{types:"./dist/index.d.ts",import:"./dist/index.js"}};require("fs").writeFileSync(f,JSON.stringify(p,null,2)+"\n")'
+          cp ../../LICENSE .
+          node --input-type=module -e 'const m=await import("./dist/index.js"); if(!m.checkAction||!m.verifyIcpSignature||!m.hashPaymentRef) process.exit(1)'
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@kya-brasil/core@$VERSION" version >/dev/null 2>&1; then
+            echo "::notice::@kya-brasil/core@$VERSION is already on npm; bump the version to publish a new one"
+          else
+            npm publish --access public --provenance
+          fi
       - name: Publish
         working-directory: packages/agent-tools
         env:

@@ -3,9 +3,9 @@
  * SHA-256 of the canonical JSON without `attestation`, so the public key document at
  * /.well-known/kya.json and the SDK's verifyAttestation() verify credentials and verdicts alike.
  */
-import { attestedPayload, canonicalize, signAttestation, verifyAttestation } from "./attestation";
-import { formatCnpj, normalizeCnpj } from "./cnpj";
-import type { Credential, CredentialStatus, KybSnapshot, Mandate, AgentKey } from "./types";
+import { attestedPayload, canonicalize, signAttestation, verifyAttestation } from "./attestation.js";
+import { formatCnpj, normalizeCnpj } from "./cnpj.js";
+import type { Credential, CredentialStatus, KybSnapshot, Mandate, AgentKey } from "./types.js";
 
 export const CREDENTIAL_TTL_DAYS = 90;
 
@@ -17,7 +17,8 @@ export function buildCredential(p: {
   registration_status: string;
   certificate: { sha256: string; subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
-  kyb: KybSnapshot | null;
+  /** /v1 compatibility only; leave out (null). */
+  kyb?: KybSnapshot | null;
   issuer: string;
   now?: Date;
   status?: CredentialStatus;
@@ -35,7 +36,7 @@ export function buildCredential(p: {
     principal: { cnpj, cnpj_formatted: formatCnpj(cnpj), legal_name: p.legal_name, registration_status: p.registration_status },
     authorized_by: { method: "icp-brasil-e-cnpj", certificate_sha256: p.certificate.sha256, certificate_subject: p.certificate.subject, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at },
     mandate: p.mandate,
-    kyb_snapshot: p.kyb,
+    kyb_snapshot: p.kyb ?? null,
     status: p.status ?? "active",
     status_reason: p.status_reason ?? null,
     issued_at: now.toISOString(),

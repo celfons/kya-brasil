@@ -19,7 +19,7 @@ Node 18+ (global `fetch`, WebCrypto). ESM.
 ## Verifier: you receive an action from someone else's agent
 
 ```ts
-import { createKyaClient, verifyAttestation, verifyCredentialOffline, companyText, signWithECnpj } from "@kya-brasil/agent-tools";
+import { createKyaClient, verifyAttestation, verifyCredentialOffline, companyText, signWithECnpj, hashPaymentRef } from "@kya-brasil/agent-tools";
 
 const kya = createKyaClient({ privateKey: process.env.KYA_PAYER_PK as `0x${string}` }); // wallet optional
 
@@ -34,6 +34,8 @@ if (!verdict.allowed) reject(verdict.reason);
 await verifyAttestation(verdict);                          // local Ed25519 check of the issuer's signature
 
 // max_per_day: pass your own spent_today; the issuer does not record acts.
+// Payment instrument (card networks, acquirers, D-25): pass the hash of the token reference or PAR you received,
+// never the card number: { payment_network: "visa", payment_ref_sha256: await hashPaymentRef(tokenRef) }
 
 const offline = await verifyCredentialOffline(credential);   // issuer down: signature + expires_at only,
                                                              // live_status "unknown" (your risk until expires_at)

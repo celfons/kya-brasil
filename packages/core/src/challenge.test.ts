@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
-import { base64url, challengeText, newChallenge, normalizeAgentKey, verifyAgentSignature } from "./challenge";
+import { base64url, challengeText, newChallenge, normalizeAgentKey, verifyAgentSignature } from "./challenge.js";
 
 describe("agent key challenge", () => {
   it("EVM: signs the challenge with the wallet and verifies by address", async () => {

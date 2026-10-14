@@ -26,7 +26,7 @@ revocation check from each AC's public CRL, the trust anchors from the ITI bundl
 | Service | `https://kya-br-agents.marcelfons.workers.dev` |
 | MCP (streamable HTTP) | `https://kya-br-agents.marcelfons.workers.dev/mcp` |
 | MCP Registry | `io.github.celfons/kya-brasil` |
-| npm | [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) |
+| npm | [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client), [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (library: verify or issue with no hosted service) |
 | Registration data | Receita Federal open data via BrasilAPI / CNPJ.ws, or your own `CNPJ_API_URL` (D-23) |
 | Payments | [x402](https://x402.org), USDC on Base, no signup. Free verification up to 50/day per IP. Errors are never charged. |
 | Spec | [docs/SPEC.md](docs/SPEC.md) with [test vectors](docs/vectors/credential-v1.json) |
@@ -188,7 +188,7 @@ in the response (`REGISTRATION_CHECK=off` skips it entirely: `NOT_CHECKED`). CRL
 
 | Path | What |
 | --- | --- |
-| `packages/core` | Pure logic: CNPJ, mandate schema and checks, challenge, agent signatures (EVM, Ed25519, ERC-8004 wallet resolution), e-CNPJ CMS + ICP-Brasil chain validation, credential build and signing, attestation. |
+| `packages/core` | npm `@kya-brasil/core`, the library. Pure logic: CNPJ, mandate schema and checks (incl. payment instruments), challenge, agent signatures (EVM, Ed25519, ERC-8004 wallet resolution), e-CNPJ CMS + ICP-Brasil chain validation, credential build and signing, attestation. |
 | `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, signing helpers, local attestation check, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
 | `apps/worker` | The issuer: HTTP routes, MCP server, D1 store, KV limits, registration sources (Receita open data), CRL checks, daily review. |
 | `infra` | Pulumi: KV, D1 + migrations, Worker, cron. |
@@ -218,6 +218,29 @@ the same name (`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUN
 anchors, runs the smoke test and publishes the MCP Registry entry when it changed. The signing key is
 generated once per stack and kept in the encrypted stack config; rotations keep the old public key
 published as retired. See [docs/RUNBOOK.md](docs/RUNBOOK.md) and [docs/DECISOES.md](docs/DECISOES.md).
+
+## For payment networks, acquirers and issuers
+
+The mandate can list the payment instruments the agent may use (`payment_instruments`, D-25): the network and
+the SHA-256 of a reference the network already gives (token reference, PAR), never a card number. At
+authorization time, hash the reference you received and ask whether that instrument belongs to an agent the
+company authorized, within its limits:
+
+```ts
+import { checkAction, hashPaymentRef, verifyCredentialSignature } from "@kya-brasil/core";
+
+const verdict = checkAction(credential.mandate, {
+  action: "buy", amount: 4200, currency: "BRL",
+  payment_network: "visa", payment_ref_sha256: await hashPaymentRef(tokenRef)
+});
+```
+
+**As a library, no hosted service in the path.** `@kya-brasil/core` is the same code the issuer runs, as pure
+functions: e-CNPJ signature and ICP-Brasil chain, CRL revocation, agent signatures, mandate evaluation,
+credential build, signing and verification. A network or acquirer can verify credentials from any issuer
+offline, or become its own issuer with its own key, storage and audit. Or call the hosted
+`/v1/agents/{id}/allowed?payment_network=visa&payment_ref_sha256=…` and keep the signed verdict as dispute
+evidence. Details: [packages/core/README.md](packages/core/README.md).
 
 ## Run your own issuer
 

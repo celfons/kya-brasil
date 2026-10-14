@@ -5,7 +5,7 @@
 import {
   type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
   normalizeAgentKey, normalizeCnpj, signCredential, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
-} from "@kya-br/core";
+} from "@kya-brasil/core";
 import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
 import { material, signAnswer } from "./attest";
@@ -142,30 +142,36 @@ function present(row: AgentRow, events: { ts: string; event: string; reason: str
  * issuer keeps no record of what agents do (D-19), so the daily ceiling is the verifier's or the agent
  * platform's count, never a guarantee across counterparties.
  */
-function evaluate(v: Awaited<ReturnType<typeof verify>>, q: { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number }, now: Date) {
+type EvalQuery = { action?: string; amount?: number; currency?: string; counterparty?: string; spent_today?: number; payment_network?: string; payment_ref_sha256?: string };
+
+function evaluate(v: Awaited<ReturnType<typeof verify>>, q: EvalQuery, now: Date) {
   const live = v.status === "active";
   const mandate = v.credential?.mandate ?? {};
-  const verdict = checkAction(mandate, { action: q.action, amount: q.amount, currency: q.currency, counterparty: q.counterparty, spent_today: q.spent_today, now });
+  const verdict = checkAction(mandate, { ...q, now });
   let reason = "inside the mandate";
   if (!live) reason = `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`;
   else if (!verdict.allowed) reason = verdict.checks.filter((c) => !c.ok).map((c) => c.detail).join("; ");
   return { live, verdict, allowed: live && verdict.allowed, reason };
 }
 
-export async function allowed(env: AppEnv, origin: string, id: string, q: { action?: string; amount?: string; currency?: string; counterparty?: string; spent_today?: string }) {
+export async function allowed(env: AppEnv, origin: string, id: string, q: { action?: string; amount?: string; currency?: string; counterparty?: string; spent_today?: string; payment_network?: string; payment_ref_sha256?: string }) {
   const v = await verify(env, id);
   const amount = q.amount !== undefined && q.amount !== "" ? Number(q.amount) : undefined;
   if (amount !== undefined && !Number.isFinite(amount)) throw new KyaError("INVALID_INPUT", "amount must be a number");
   const spent = q.spent_today !== undefined && q.spent_today !== "" ? Number(q.spent_today) : undefined;
   if (spent !== undefined && !Number.isFinite(spent)) throw new KyaError("INVALID_INPUT", "spent_today must be a number");
+  // D-25: only the hash of the payment reference ever reaches the issuer; a raw card number is refused.
+  const payRef = q.payment_ref_sha256?.trim().toLowerCase() || undefined;
+  if (payRef !== undefined && !/^[0-9a-f]{64}$/.test(payRef)) throw new KyaError("INVALID_INPUT", "payment_ref_sha256 must be the 64-hex SHA-256 of the payment reference (never a card number)");
+  const payNet = q.payment_network?.trim().toLowerCase() || undefined;
   const now = new Date();
-  const e = evaluate(v, { action: q.action, amount, currency: q.currency, counterparty: q.counterparty, spent_today: spent }, now);
+  const e = evaluate(v, { action: q.action, amount, currency: q.currency, counterparty: q.counterparty, spent_today: spent, payment_network: payNet, payment_ref_sha256: payRef }, now);
   const out: Record<string, unknown> = {
     credential_id: id,
     status: v.status,
     allowed: e.allowed,
     reason: e.reason,
-    query: { action: q.action ?? null, amount: amount ?? null, currency: q.currency ?? null, counterparty: q.counterparty ?? null, spent_today: spent ?? null },
+    query: { action: q.action ?? null, amount: amount ?? null, currency: q.currency ?? null, counterparty: q.counterparty ?? null, spent_today: spent ?? null, payment_network: payNet ?? null, payment_ref_sha256: payRef ?? null },
     checks: e.verdict.checks,
     not_evaluated: e.verdict.not_evaluated,
     /** Kept in /v1 for compatibility; always null since D-19 (the issuer no longer records acts). */

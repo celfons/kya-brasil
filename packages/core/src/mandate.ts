@@ -4,7 +4,7 @@
  * `checkAction`; extensions are carried in the credential untouched and never evaluated.
  * Validation is hand-written (no Ajv: `new Function` is blocked on Workers).
  */
-import { type Mandate, type MandateCore, KyaError } from "./types";
+import { type Mandate, type MandateCore, type PaymentInstrument, KyaError } from "./types.js";
 
 export const MANDATE_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -18,6 +18,21 @@ export const MANDATE_SCHEMA = {
     max_per_day: { $ref: "#/$defs/money", description: "Ceiling per calendar day (UTC)." },
     currencies: { type: "array", items: { type: "string", pattern: "^[A-Z0-9]{2,10}$" }, maxItems: 16 },
     counterparties: { type: "array", items: { type: "string", maxLength: 128 }, maxItems: 200, description: "CNPJs, domains or wallet addresses; empty or absent = any." },
+    payment_instruments: {
+      type: "array",
+      maxItems: 20,
+      description: "Payment instruments the agent may use: network tokens, PARs or other references a network gives, as SHA-256 (never a card number); empty or absent = any.",
+      items: {
+        type: "object",
+        properties: {
+          network: { type: "string", pattern: "^[a-z][a-z0-9_-]{1,31}$", description: "visa, mastercard, elo, amex, hipercard, pix, x402, ..." },
+          ref_sha256: { type: "string", pattern: "^[0-9a-f]{64}$", description: "Lowercase hex SHA-256 of the reference (UTF-8, whitespace removed, case kept)." },
+          label: { type: "string", maxLength: 64 }
+        },
+        required: ["network", "ref_sha256"],
+        additionalProperties: false
+      }
+    },
     valid_from: { type: "string", format: "date-time" },
     valid_until: { type: "string", format: "date-time" }
   },
@@ -48,9 +63,44 @@ export function validateMandate(input: unknown): Mandate {
     if (!Array.isArray(m.counterparties) || m.counterparties.length > 200 || !m.counterparties.every((c) => typeof c === "string" && c.length > 0 && c.length <= 128)) throw bad("counterparties", "array of up to 200 strings");
     m.counterparties = (m.counterparties as string[]).map(normalizeCounterparty);
   }
+  if (m.payment_instruments !== undefined) m.payment_instruments = validatePaymentInstruments(m.payment_instruments, bad);
   for (const k of ["valid_from", "valid_until"] as const) if (m[k] !== undefined && !isoDate(m[k])) throw bad(k, "ISO 8601 date-time");
   if (m.valid_from && m.valid_until && Date.parse(m.valid_from as string) >= Date.parse(m.valid_until as string)) throw bad("valid_until", "must be after valid_from");
   return m as Mandate;
+}
+
+const NETWORK = /^[a-z][a-z0-9_-]{1,31}$/;
+
+function validatePaymentInstruments(v: unknown, bad: (field: string, why: string) => KyaError): PaymentInstrument[] {
+  if (!Array.isArray(v) || v.length > 20) throw bad("payment_instruments", "array of up to 20 { network, ref_sha256, label? }");
+  const seen = new Set<string>();
+  return v.map((p, i) => {
+    const f = `payment_instruments[${i}]`;
+    if (!p || typeof p !== "object" || Array.isArray(p)) throw bad(f, "object { network, ref_sha256, label? }");
+    const { network, ref_sha256, label, ...rest } = p as Record<string, unknown>;
+    if (Object.keys(rest).length) throw bad(f, `unknown field(s): ${Object.keys(rest).join(", ")}`);
+    const n = typeof network === "string" ? network.trim().toLowerCase() : "";
+    if (!NETWORK.test(n)) throw bad(`${f}.network`, "lowercase identifier, e.g. visa, mastercard, elo, pix");
+    const h = typeof ref_sha256 === "string" ? ref_sha256.trim().toLowerCase() : "";
+    // A 13-19 digit value is a card number, not a hash: refuse it outright (PCI scope).
+    if (!/^[0-9a-f]{64}$/.test(h)) throw bad(`${f}.ref_sha256`, "64 hex chars (SHA-256 of the reference; never a card number)");
+    if (label !== undefined && (typeof label !== "string" || label.length > 64 || /\d{12,}/.test(label.replace(/[\s.-]/g, "")))) throw bad(`${f}.label`, "string up to 64 chars, without card numbers");
+    const key = `${n}:${h}`;
+    if (seen.has(key)) throw bad(f, "duplicate instrument");
+    seen.add(key);
+    return label === undefined ? { network: n, ref_sha256: h } : { network: n, ref_sha256: h, label: label as string };
+  });
+}
+
+/**
+ * SHA-256 (lowercase hex) of a payment reference as a mandate stores it (D-25): UTF-8, whitespace removed,
+ * case kept. Use it on the network's token reference or PAR, never on a card number.
+ */
+export async function hashPaymentRef(ref: string): Promise<string> {
+  const clean = ref.replace(/\s+/g, "");
+  if (!clean) throw new KyaError("INVALID_INPUT", "empty payment reference");
+  const d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(clean)));
+  return Array.from(d, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export function normalizeCounterparty(c: string): string {
@@ -68,6 +118,9 @@ export interface ActionQuery {
   counterparty?: string;
   /** Amount already spent today (UTC) by this agent, if the verifier tracks it; the issuer does not. */
   spent_today?: number;
+  /** Payment instrument used in this operation (D-25): its network and the SHA-256 of its reference. */
+  payment_network?: string;
+  payment_ref_sha256?: string;
   now?: Date;
 }
 
@@ -79,7 +132,7 @@ export interface ActionVerdict {
   not_evaluated: string[];
 }
 
-const RESERVED: (keyof MandateCore)[] = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "valid_from", "valid_until"];
+const RESERVED: (keyof MandateCore)[] = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until"];
 
 /** Deterministic evaluation of the reserved mandate fields against an intended action. */
 export function checkAction(mandate: Mandate, q: ActionQuery): ActionVerdict {
@@ -105,6 +158,12 @@ export function checkAction(mandate: Mandate, q: ActionQuery): ActionVerdict {
   if (mandate.counterparties && mandate.counterparties.length && q.counterparty) {
     const c = normalizeCounterparty(q.counterparty);
     push("counterparties", mandate.counterparties.includes(c), `${c} ${mandate.counterparties.includes(c) ? "is" : "is not"} an allowed counterparty`);
+  }
+  if (mandate.payment_instruments && mandate.payment_instruments.length && q.payment_ref_sha256) {
+    const h = q.payment_ref_sha256.trim().toLowerCase();
+    const net = q.payment_network?.trim().toLowerCase();
+    const hit = mandate.payment_instruments.find((p) => p.ref_sha256 === h && (!net || p.network === net));
+    push("payment_instruments", !!hit, hit ? `${hit.network} instrument ${h.slice(0, 12)}… is authorized${hit.label ? ` (${hit.label})` : ""}` : `instrument ${net ? `${net} ` : ""}${h.slice(0, 12)}… is not in the mandate`);
   }
   const not_evaluated = Object.keys(mandate).filter((k) => !RESERVED.includes(k as keyof MandateCore));
   return { allowed: checks.every((c) => c.ok), checks, not_evaluated };
