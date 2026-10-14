@@ -43,6 +43,21 @@ const verdict = checkAction(credential.mandate, {
 // verdict.allowed, verdict.checks (every rule evaluated, with its reason), verdict.not_evaluated (extensions)
 ```
 
+## Delegation chains (sub-agents)
+
+A mandate with `delegation: { max_depth, max_ttl_seconds }` lets the agent hand a narrower mandate to another key
+(SPEC section 17). Verify a chain received in `KYA-Delegation`, offline, then evaluate the action on every level:
+
+```ts
+import { checkDelegatedAction, decodeDelegationHeader, verifyDelegationChain } from "@kya-brasil/core";
+const r = await verifyDelegationChain({ credential, chain: decodeDelegationHeader(header) });
+if (!r.ok) reject(r.error);                         // r.delegate is the key that must sign the request
+const verdict = checkDelegatedAction(r.mandates, { action: "quote", amount: 80, currency: "BRL" });
+```
+
+To delegate, `prepareDelegation({ credential, chain, delegate, mandate, ttlSeconds })` returns the delegation and
+the text the delegator signs with its agent key; `mandateSubsetProblems(parent, child)` says why a mandate is broader.
+
 ## Payment instruments (card networks, acquirers, issuers)
 
 A mandate can list the instruments the agent may pay with. Each one is a network and the SHA-256 of a reference

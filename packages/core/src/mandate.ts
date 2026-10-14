@@ -4,7 +4,12 @@
  * `checkAction`; extensions are carried in the credential untouched and never evaluated.
  * Validation is hand-written (no Ajv: `new Function` is blocked on Workers).
  */
-import { type Mandate, type MandateCore, type PaymentInstrument, KyaError } from "./types.js";
+import { type DelegationPolicy, type Mandate, type MandateCore, type PaymentInstrument, KyaError } from "./types.js";
+
+/** Delegation bounds (D-30): how deep a chain may go and how long one link may live. */
+export const DELEGATION_MAX_DEPTH = 3;
+export const DELEGATION_MIN_TTL_SECONDS = 60;
+export const DELEGATION_MAX_TTL_SECONDS = 86_400;
 
 export const MANDATE_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
@@ -32,6 +37,16 @@ export const MANDATE_SCHEMA = {
         required: ["network", "ref_sha256"],
         additionalProperties: false
       }
+    },
+    delegation: {
+      type: "object",
+      description: "Allows the agent to hand a narrower mandate to other keys (sub-agents), without a new certificate signature. Absent = no delegation.",
+      properties: {
+        max_depth: { type: "integer", minimum: 1, maximum: 3, description: "How many levels of sub-agents below this agent." },
+        max_ttl_seconds: { type: "integer", minimum: 60, maximum: 86400, description: "Longest lifetime of one delegation." }
+      },
+      required: ["max_depth", "max_ttl_seconds"],
+      additionalProperties: false
     },
     valid_from: { type: "string", format: "date-time" },
     valid_until: { type: "string", format: "date-time" }
@@ -64,9 +79,21 @@ export function validateMandate(input: unknown): Mandate {
     m.counterparties = (m.counterparties as string[]).map(normalizeCounterparty);
   }
   if (m.payment_instruments !== undefined) m.payment_instruments = validatePaymentInstruments(m.payment_instruments, bad);
+  if (m.delegation !== undefined) m.delegation = validateDelegationPolicy(m.delegation);
   for (const k of ["valid_from", "valid_until"] as const) if (m[k] !== undefined && !isoDate(m[k])) throw bad(k, "ISO 8601 date-time");
   if (m.valid_from && m.valid_until && Date.parse(m.valid_from as string) >= Date.parse(m.valid_until as string)) throw bad("valid_until", "must be after valid_from");
   return m as Mandate;
+}
+
+/** Validates a `delegation` field of a mandate (used by validateMandate). */
+export function validateDelegationPolicy(v: unknown): DelegationPolicy {
+  const bad = (why: string) => new KyaError("INVALID_INPUT", `mandate.delegation: ${why}`);
+  if (!v || typeof v !== "object" || Array.isArray(v)) throw bad(`object { max_depth: 1..${DELEGATION_MAX_DEPTH}, max_ttl_seconds: ${DELEGATION_MIN_TTL_SECONDS}..${DELEGATION_MAX_TTL_SECONDS} }`);
+  const { max_depth, max_ttl_seconds, ...rest } = v as Record<string, unknown>;
+  if (Object.keys(rest).length) throw bad(`unknown field(s): ${Object.keys(rest).join(", ")}`);
+  if (!Number.isInteger(max_depth) || (max_depth as number) < 1 || (max_depth as number) > DELEGATION_MAX_DEPTH) throw bad(`max_depth must be an integer from 1 to ${DELEGATION_MAX_DEPTH}`);
+  if (!Number.isInteger(max_ttl_seconds) || (max_ttl_seconds as number) < DELEGATION_MIN_TTL_SECONDS || (max_ttl_seconds as number) > DELEGATION_MAX_TTL_SECONDS) throw bad(`max_ttl_seconds must be an integer from ${DELEGATION_MIN_TTL_SECONDS} to ${DELEGATION_MAX_TTL_SECONDS}`);
+  return { max_depth: max_depth as number, max_ttl_seconds: max_ttl_seconds as number };
 }
 
 const NETWORK = /^[a-z][a-z0-9_-]{1,31}$/;
@@ -111,6 +138,18 @@ export function normalizeCounterparty(c: string): string {
   return s.toLowerCase();
 }
 
+/**
+ * Whether a mandate entry matches a normalized counterparty: exactly, or for a `*.domain` entry the domain itself
+ * and any subdomain (SPEC section 5).
+ */
+export function counterpartyMatches(entry: string, counterparty: string): boolean {
+  const e = normalizeCounterparty(entry);
+  if (e === counterparty) return true;
+  if (!e.startsWith("*.")) return false;
+  const base = e.slice(2);
+  return counterparty === base || counterparty.endsWith(`.${base}`);
+}
+
 export interface ActionQuery {
   action?: string;
   amount?: number;
@@ -132,7 +171,9 @@ export interface ActionVerdict {
   not_evaluated: string[];
 }
 
-const RESERVED: (keyof MandateCore)[] = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until"];
+// `delegation` is reserved (validated, never listed as not evaluated) but is not a rule on actions: it is
+// enforced when a delegation chain is verified (delegation.ts).
+const RESERVED: (keyof MandateCore)[] = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until", "delegation"];
 
 /** Deterministic evaluation of the reserved mandate fields against an intended action. */
 export function checkAction(mandate: Mandate, q: ActionQuery): ActionVerdict {
@@ -157,7 +198,8 @@ export function checkAction(mandate: Mandate, q: ActionQuery): ActionVerdict {
   }
   if (mandate.counterparties && mandate.counterparties.length && q.counterparty) {
     const c = normalizeCounterparty(q.counterparty);
-    push("counterparties", mandate.counterparties.includes(c), `${c} ${mandate.counterparties.includes(c) ? "is" : "is not"} an allowed counterparty`);
+    const ok = mandate.counterparties.some((m) => counterpartyMatches(m, c));
+    push("counterparties", ok, `${c} ${ok ? "is" : "is not"} an allowed counterparty`);
   }
   if (mandate.payment_instruments && mandate.payment_instruments.length && q.payment_ref_sha256) {
     const h = q.payment_ref_sha256.trim().toLowerCase();

@@ -47,6 +47,8 @@ export interface Mandate {
   counterparties?: string[];
   /** D-25: instruments the agent may use, as SHA-256 of the network's token reference or PAR (see hashPaymentRef). */
   payment_instruments?: { network: string; ref_sha256: string; label?: string }[];
+  /** D-30: the agent may hand a narrower mandate to sub-agents (signDelegation), up to max_depth levels below it. */
+  delegation?: { max_depth: number; max_ttl_seconds: number };
   valid_from?: string;
   valid_until?: string;
   [k: string]: unknown;
@@ -435,6 +437,8 @@ export async function verifyCredentialOffline(credential: Credential, opts: { ba
 export * from "./auth.js";
 // e-CNPJ signing (D-26, D-27): the implementation lives in @kya-brasil/core, shared with anyone using the library.
 export { isValidCpf, personAgentsText } from "@kya-brasil/core";
+// Delegation to sub-agents (D-30): chain rules live in the core, signing and the middleware in ./auth.
+export { checkDelegatedAction, decodeDelegationHeader, encodeDelegationHeader, isMandateSubset, mandateSubsetProblems, verifyDelegationChain } from "@kya-brasil/core";
 export { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, type ECnpjSigner, type RawSigner } from "@kya-brasil/core";
 export { listTokenCertificates, openToken, type TokenCertificate, type TokenOptions } from "./pkcs11.js";
 import { signingLink as coreSigningLink } from "@kya-brasil/core";
