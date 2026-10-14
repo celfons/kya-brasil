@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
-import { KYA_HEADERS, checkMandate, createKyaAgent, createKyaAuth, requestText, signRequest, signResponse, verifyResponse } from "./auth";
+import { KYA_HEADERS, agentKeyOf, checkMandate, createKyaAgent, createKyaAuth, requestText, signDelegation, signRequest, signResponse, verifyResponse } from "./auth";
 import { hashPaymentRef } from "./index";
 
 const EVM_PK = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
@@ -167,5 +167,57 @@ describe("counterparty matching stays linear (ReDoS)", () => {
     const v = checkMandate(mandate, { action: "order", counterparty: evil });
     expect(v.allowed).toBe(false);
     expect(performance.now() - t0).toBeLessThan(500);
+  });
+});
+
+describe("delegation to sub-agents (D-30)", () => {
+  const SUB_PK = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+  const parent = { credential_id: CRED, agent: { kind: "evm" as const, id: EVM }, expires_at: "2099-01-01T00:00:00Z", mandate: { ...mandate, delegation: { max_depth: 2, max_ttl_seconds: 3600 } } };
+  const issuerFetch = (async (url: string) => {
+    if (url.includes("/allowed")) return new Response(JSON.stringify({ credential_id: CRED, status: "active", allowed: true, reason: "inside the mandate", checks: [], not_evaluated: [] }));
+    return new Response(JSON.stringify({ credential_id: CRED, status: "active", status_reason: null, agent: parent.agent, principal: { cnpj: "11222333000181", cnpj_formatted: "11.222.333/0001-81", legal_name: "ACME LTDA" }, credential: parent, events: [] }));
+  }) as unknown as typeof fetch;
+  const url = "https://shop.beta.com.br/quotes";
+
+  it("a sub-agent signs with its own key under a chain the credential's agent signed", async () => {
+    const kp = (await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"])) as CryptoKeyPair;
+    const leaf = await agentKeyOf({ kind: "web-bot-auth", privateKey: kp.privateKey });
+    const sub = await agentKeyOf({ kind: "evm", privateKey: SUB_PK });
+    const d1 = await signDelegation({ credential: parent, key: { kind: "evm", privateKey: EVM_PK }, delegate: { kind: "evm", id: sub.id }, mandate: { actions: ["order"], max_per_operation: { amount: 500, currency: "BRL" }, max_per_day: { amount: 1000, currency: "BRL" }, currencies: ["BRL"], counterparties: ["*.beta.com.br"], delegation: { max_depth: 1, max_ttl_seconds: 600 } }, ttlSeconds: 600 });
+    const chain = await signDelegation({ credential: parent, chain: d1, key: { kind: "evm", privateKey: SUB_PK }, delegate: { kind: "web-bot-auth", id: leaf.id }, mandate: { actions: ["order"], max_per_operation: { amount: 100, currency: "BRL" }, max_per_day: { amount: 300, currency: "BRL" }, currencies: ["BRL"], counterparties: ["shop.beta.com.br"] }, ttlSeconds: 300 });
+    expect(chain).toHaveLength(2);
+
+    const auth = createKyaAuth({ baseUrl: "https://kya.test", fetch: issuerFetch });
+    const body = JSON.stringify({ sku: "A1" });
+    const headers = await signRequest({ credentialId: CRED, key: { kind: "web-bot-auth", privateKey: kp.privateKey }, delegation: chain, method: "POST", url, body });
+    expect(headers[KYA_HEADERS.delegation]).toBeTruthy();
+    const r = await auth.authenticate(new Request(url, { method: "POST", headers, body }));
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.kya.agent.id).toBe(EVM);
+    expect(r.kya.signer).toBe(leaf.id);
+    expect(r.kya.delegation?.depth).toBe(2);
+    expect(r.kya.check({ action: "order", amount: 90, currency: "BRL", counterparty: "shop.beta.com.br" }).allowed).toBe(true);
+    // Inside the credential's mandate (5000) but above the leaf's (100).
+    expect(r.kya.check({ action: "order", amount: 400, currency: "BRL", counterparty: "shop.beta.com.br" }).allowed).toBe(false);
+    const refused = await r.kya.allowed({ action: "order", amount: 400, currency: "BRL" });
+    expect(refused).toMatchObject({ allowed: false, delegation_level: 2 });
+    expect(refused.attestation).toBeUndefined();
+    expect((await r.kya.allowed({ action: "order", amount: 90, currency: "BRL" })).allowed).toBe(true);
+
+    // The chain is bound to the request: stripping it, or signing with the parent key, fails.
+    const { [KYA_HEADERS.delegation]: _d, ...stripped } = headers;
+    expect(await auth.authenticate(new Request(url, { method: "POST", headers: stripped, body }))).toMatchObject({ ok: false, error: "KYA_BAD_SIGNATURE" });
+    const byParent = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: EVM_PK }, delegation: chain, method: "POST", url, body });
+    expect(await auth.authenticate(new Request(url, { method: "POST", headers: byParent, body }))).toMatchObject({ ok: false, error: "KYA_BAD_SIGNATURE" });
+    // Swapping in another chain breaks the request signature.
+    const swapped = { ...headers, [KYA_HEADERS.delegation]: (await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: SUB_PK }, delegation: d1, method: "GET", url }))[KYA_HEADERS.delegation]! };
+    expect(await auth.authenticate(new Request(url, { method: "POST", headers: swapped, body }))).toMatchObject({ ok: false, error: "KYA_BAD_SIGNATURE" });
+    expect(await auth.authenticate(new Request(url, { method: "POST", headers: { ...headers, [KYA_HEADERS.delegation]: "!!" }, body }))).toMatchObject({ ok: false, error: "KYA_DELEGATION_MALFORMED" });
+  });
+
+  it("refuses delegation when the credential's mandate does not allow it", async () => {
+    const plain = { ...parent, mandate };
+    await expect(signDelegation({ credential: plain, key: { kind: "evm", privateKey: EVM_PK }, delegate: { kind: "evm", id: EVM }, mandate: { actions: ["order"] }, ttlSeconds: 600 })).rejects.toThrow(/does not allow delegation/);
   });
 });

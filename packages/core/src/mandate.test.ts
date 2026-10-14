@@ -59,4 +59,17 @@ describe("mandate", () => {
       expect(none.not_evaluated).not.toContain("payment_instruments");
     });
   });
+
+  it("matches *. counterparties on the domain and its subdomains (SPEC section 5)", () => {
+    const m = validateMandate({ counterparties: ["*.beta.com.br", "12345678000190"] });
+    expect(checkAction(m, { counterparty: "shop.beta.com.br" }).allowed).toBe(true);
+    expect(checkAction(m, { counterparty: "beta.com.br" }).allowed).toBe(true);
+    expect(checkAction(m, { counterparty: "evilbeta.com.br" }).allowed).toBe(false);
+    expect(checkAction(m, { counterparty: "12.345.678/0001-90" }).allowed).toBe(true);
+  });
+
+  it("validates delegation as a reserved field, not listed as not evaluated", () => {
+    const m = validateMandate({ actions: ["quote"], delegation: { max_depth: 1, max_ttl_seconds: 600 } });
+    expect(checkAction(m, { action: "quote" }).not_evaluated).toEqual([]);
+  });
 });

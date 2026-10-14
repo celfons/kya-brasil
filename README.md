@@ -88,6 +88,23 @@ app.post("/api/orders", (c) => {
 Agent to agent, both sides verified: `createKyaAgent(...).fetch(url)` and `signResponse`. Profile in
 [docs/SPEC.md](docs/SPEC.md) section 14.
 
+### Sub-agents: one certificate signature for the whole tree
+
+When the mandate carries `delegation: { max_depth, max_ttl_seconds }`, the agent hands a narrower mandate to
+another key with its own signature, no new e-CNPJ or e-CPF signature. The sub-agent signs its requests with its own
+key and sends the chain; your middleware verifies it offline and `check()` / `allowed()` evaluate every mandate in it.
+
+```ts
+import { signDelegation, signRequest } from "@kya-brasil/agent-tools";
+const chain = await signDelegation({ credential, key: agentKey, delegate: { kind: "web-bot-auth", id: subPublicKey },
+  mandate: { actions: ["quote"], max_per_operation: { amount: 500, currency: "BRL" } }, ttlSeconds: 600 });
+const headers = await signRequest({ credentialId, key: subKey, delegation: chain, method: "GET", url });
+// server side: c.get("kya").delegation → { depth, delegate, mandates, expires_at, chain }
+```
+
+Short-lived (at most `max_ttl_seconds`, never past the credential), contained in the parent mandate, at most 3
+levels; revoking the credential ends the whole tree. The issuer stores nothing. [docs/SPEC.md](docs/SPEC.md) section 17.
+
 ## Give your agent a credential
 
 1. **Register** (`POST /v1/agents`, $0.25, or MCP `kya_register`): the agent key, the mandate, and either the

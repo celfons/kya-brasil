@@ -1,6 +1,6 @@
 {
   "name": "@kya-brasil/core",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "KYA Brasil as a library: verify and issue know-your-agent credentials for Brazilian companies without any hosted service. e-CNPJ (ICP-Brasil) CMS signature and chain validation, CRL revocation, CNPJ, agent key challenges (EVM, Ed25519 / Web Bot Auth, ERC-8004), mandate schema and evaluation (including payment instruments for card networks and acquirers), credential build, Ed25519 signing and verification, and e-CNPJ signing for the holder (A1 .pfx, or any token/HSM/cloud signer through a raw-sign callback). Pure functions: storage and network are yours.",
   "license": "MIT",
   "type": "module",

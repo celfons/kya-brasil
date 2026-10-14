@@ -10,3 +10,4 @@ export * from "./erc8004.js";
 export * from "./ecnpj-sign.js";
 export * from "./cloud-sign.js";
 export * from "./person.js";
+export * from "./delegation.js";

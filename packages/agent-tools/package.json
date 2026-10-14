@@ -1,6 +1,6 @@
 {
   "name": "@kya-brasil/agent-tools",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "KYA Brasil for AI agents: verify that an agent acts for a Brazilian company (e-CNPJ-signed credential, revocation and company registration checked daily against the Receita's open data, no third-party service), check an action against its mandate, or give your own agent a credential (sign with the company's e-CNPJ: A1 .pfx or A3 token via PKCS#11, in code or with the kya-sign command). Sign in with KYA middleware (Hono, Express, Workers) and request signing. x402 payments (USDC on Base) handled for you. Adapters for Vercel AI SDK, LangChain, OpenAI and Anthropic.",
   "license": "MIT",
   "type": "module",

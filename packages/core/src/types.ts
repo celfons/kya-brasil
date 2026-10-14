@@ -33,6 +33,12 @@ export interface PaymentInstrument {
   label?: string;
 }
 
+/** What a mandate allows its agent to delegate (D-30). */
+export interface DelegationPolicy {
+  max_depth: number;
+  max_ttl_seconds: number;
+}
+
 export interface MandateCore {
   /** Actions the agent may take on behalf of the company (free vocabulary, lowercase: buy, sell, quote, pay, sign, ...). */
   actions?: string[];
@@ -50,6 +56,11 @@ export interface MandateCore {
    * removed, case kept); empty or absent = any.
    */
   payment_instruments?: PaymentInstrument[];
+  /**
+   * Delegation to sub-agents (D-30): the agent may hand a narrower mandate to other keys, up to `max_depth`
+   * levels below it, each delegation living at most `max_ttl_seconds`. Absent = the agent cannot delegate.
+   */
+  delegation?: DelegationPolicy;
   /** Mandate validity (ISO dates); the credential never outlives it. */
   valid_from?: string;
   valid_until?: string;

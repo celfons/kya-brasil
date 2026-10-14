@@ -100,6 +100,23 @@ const { response, callee } = await me.fetch("https://beta.com.br/orders", { meth
 if (!callee?.ok) throw new Error("unsigned or invalid callee");       // callee.kya: principal, mandate, status
 ```
 
+### Sub-agents (delegation, D-30): one certificate signature for the whole tree
+
+When the mandate carries `delegation: { max_depth, max_ttl_seconds }`, the agent hands a narrower mandate to
+another key with its own signature, no new e-CNPJ or e-CPF signature. The sub-agent signs its requests with its own
+key and sends the chain; your middleware verifies it offline and `check()` / `allowed()` evaluate every mandate in it.
+
+```ts
+import { signDelegation, signRequest } from "@kya-brasil/agent-tools";
+const chain = await signDelegation({ credential, key: agentKey, delegate: { kind: "web-bot-auth", id: subPublicKey },
+  mandate: { actions: ["quote"], max_per_operation: { amount: 500, currency: "BRL" } }, ttlSeconds: 600 });
+const headers = await signRequest({ credentialId, key: subKey, delegation: chain, method: "GET", url });
+// server side: c.get("kya").delegation → { depth, delegate, mandates, expires_at, chain }
+```
+
+Short-lived (at most `max_ttl_seconds`, never past the credential), contained in the parent mandate, at most 3
+levels; revoking the credential ends the whole tree. The issuer stores nothing. [SPEC](https://github.com/celfons/kya-brasil/blob/main/docs/SPEC.md) section 17.
+
 ## Person: an agent that acts for you (e-CPF)
 
 ```ts

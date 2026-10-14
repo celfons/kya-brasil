@@ -116,6 +116,7 @@ verdicts.
 | `counterparties` | string[] (CNPJ digits, domain, `0x` address; `*.` prefix matches subdomains) | counterparty MUST match an entry; empty or absent = any |
 | `payment_instruments` | `{ network, ref_sha256, label? }[]` (up to 20) | the instrument given (`payment_ref_sha256`, optionally `payment_network`) MUST match an entry; empty or absent = any |
 | `valid_from`, `valid_until` | ISO 8601 | now MUST be inside the window |
+| `delegation` | `{ max_depth: 1..3, max_ttl_seconds: 60..86400 }` | not a rule on actions: allows sub-agents (section 17); absent = no delegation |
 
 A check is only performed when both the mandate field and the query field are present.
 
@@ -262,12 +263,14 @@ An agent presents its credential on every request by signing the request with it
 | `KYA-Expires` | Unix seconds after which it is invalid (at most 600 s after `KYA-Created`) |
 | `KYA-Signature` | EIP-191 hex (`evm`, `erc8004`) or raw Ed25519 base64url (`web-bot-auth`) over the request text |
 | `KYA-Content-SHA256` | hex SHA-256 of the body, present whenever the request has a body |
+| `KYA-Delegation` | only on a request signed by a sub-agent: base64url (no padding) of the JSON delegation chain (section 17) |
 
 Request text, lines joined by `\n`:
 
 ```
 KYA Brasil: request
 credential: <credential_id>
+[delegation: <hex SHA-256 of the KYA-Delegation header value>]   (only when that header is sent)
 method: <METHOD, upper case>
 url: <scheme>://<host, lower case>[:port if not default]<path>[?query]
 created: <KYA-Created>
@@ -277,7 +280,8 @@ content-sha256: <KYA-Content-SHA256 | ->
 
 The verifier MUST reject a signature whose `created` is more than 300 s in the future or whose `expires` has
 passed, MUST recompute the body hash when a body is present, MUST verify the signature with the credential's
-agent key (`agent.id`, or `agent.wallet` for `erc8004`), and MUST accept only `status == "active"`. It MAY
+agent key (`agent.id`, or `agent.wallet` for `erc8004`), or, when `KYA-Delegation` is present, with the key of
+the last delegate after verifying the chain (section 17), and MUST accept only `status == "active"`. It MAY
 cache the credential for a short time (60 s in the reference client) and SHOULD honour `/v1/revocations`.
 This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
 is planned and will carry the same `KYA-Credential` header.
@@ -335,3 +339,60 @@ An agent MAY act for a natural person who signs with an ICP-Brasil **e-CPF**.
 - Revocation: as in section 10, with the revocation text signed by the same e-CPF.
 - Retention: the keyed hash and the check log MUST be deleted when the credential is revoked or expires. The daily
   review checks only the e-CPF revocation (there is no public registry status for persons).
+
+## 17. Delegation to sub-agents (D-30)
+
+An agent MAY hand a narrower mandate to another key (a sub-agent) without a new certificate signature, when the
+mandate the principal signed allows it: `mandate.delegation = { max_depth, max_ttl_seconds }`. The issuer stores
+nothing: the chain travels with each request and any verifier checks it offline against the credential.
+
+A delegation:
+
+```json
+{ "version": 1, "credential_id": "6d0b…", "parent": null,
+  "delegate": { "kind": "web-bot-auth", "id": "…" }, "depth": 1,
+  "issued_at": "2026-10-14T12:00:00.000Z", "expires_at": "2026-10-14T12:10:00.000Z",
+  "mandate": { "actions": ["quote"], "max_per_operation": { "amount": 500, "currency": "BRL" } },
+  "signature": "…" }
+```
+
+Delegation text, signed by the delegator as in section 14 (EIP-191 for `evm`/`erc8004`, raw Ed25519 base64url for
+`web-bot-auth`):
+
+```
+KYA Brasil: delegation
+credential: <credential_id>
+parent: <parent | ->
+delegate: <kind>:<id>
+depth: <depth>
+issued: <issued_at>
+expires: <expires_at>
+mandate-sha256: <hex SHA-256 of the canonical JSON (section 7) of mandate>
+```
+
+- `delegate.kind` is `evm` (checksummed address) or `web-bot-auth`; `erc8004` is not accepted as a delegate.
+- `mandate` passes the schema of section 5, is at most 2048 bytes serialized, and is in normalized form.
+- Depth 1 is signed by the credential's agent key; depth n+1 by the delegate of depth n, with `parent` = hex
+  SHA-256 of the signature string of depth n. A chain is an array ordered by depth, at most 3 long.
+
+A verifier MUST, for each delegation i in order, with the credential as delegation 0:
+1. require `credential_id` to match, `depth == i`, and `parent` to reference delegation i-1 (null for i = 1);
+2. require the mandate of i-1 to carry `delegation`; require `expires_at - issued_at` at most its
+   `max_ttl_seconds`, `expires_at` not later than that of i-1 (the credential's `expires_at` for i = 1),
+   `issued_at` at most 300 s in the future, and `expires_at` not passed;
+3. require the mandate of i to be contained in the mandate of i-1: every reserved field the parent restricts is
+   present and at least as restrictive (actions, currencies and payment instruments subsets; ceilings in the same
+   currency and not higher; every counterparty covered by a parent entry, `*.` covering the domain and its
+   subdomains; validity window inside the parent's); a child `delegation` requires one in the parent, with
+   `max_depth` at most the parent's minus 1 and `max_ttl_seconds` not higher;
+4. verify the signature over the delegation text with the key of i-1's delegate (the credential's agent key for
+   i = 1).
+
+The request is then signed by the last delegate (section 14, with the `delegation:` line). An action is allowed only
+when **every** mandate in the chain allows it (credential first); `max_per_day` is evaluated on each level with the
+same `spent_today` the verifier supplies. Revoking or suspending the credential ends every delegation under it;
+there is no separate revocation of a delegation, which is why its lifetime is short. The issuer's `/allowed` evaluates
+the credential's mandate only; delegated mandates are evaluated by the verifier (`checkDelegatedAction` in
+`@kya-brasil/core`, `check()` and `allowed()` in the middleware). Error codes: `KYA_DELEGATION_MALFORMED`,
+`KYA_DELEGATION_MISMATCH`, `KYA_DELEGATION_NOT_ALLOWED`, `KYA_DELEGATION_TOO_DEEP`, `KYA_DELEGATION_TTL`,
+`KYA_DELEGATION_NOT_YET_VALID`, `KYA_DELEGATION_EXPIRED`, `KYA_DELEGATION_BROADER`, `KYA_DELEGATION_BAD_SIGNATURE`.

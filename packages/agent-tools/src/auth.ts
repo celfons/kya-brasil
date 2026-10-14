@@ -16,9 +16,14 @@
  *     const headers = await signRequest({ credentialId, key: { kind: "evm", privateKey }, method: "POST", url, body });
  *     await fetch(url, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body });
  *
- * Request text (what the agent signs; the profile is in docs/SPEC.md section 15):
+ *   Sub-agent (D-30, the credential's mandate allows delegation):
+ *     const chain = await signDelegation({ credential, key: parentKey, delegate: { kind: "evm", id: sub }, mandate: { actions: ["quote"] }, ttlSeconds: 600 });
+ *     const headers = await signRequest({ credentialId, key: subKey, delegation: chain, method: "GET", url });
+ *
+ * Request text (what the agent signs; the profile is in docs/SPEC.md section 14):
  *   KYA Brasil: request
  *   credential: <credential_id>
+ *   delegation: <sha256 hex of the KYA-Delegation header>      (only on delegated requests)
  *   method: <METHOD>
  *   url: <origin + path + query, lowercase host>
  *   created: <unix seconds>
@@ -26,11 +31,14 @@
  *   content-sha256: <hex of the body | ->
  */
 import { verifyMessage } from "viem";
+import { type Delegation, type DelegationAnchor, encodeDelegationHeader, decodeDelegationHeader, prepareDelegation, verifyDelegationChain } from "@kya-brasil/core";
 import { privateKeyToAccount } from "viem/accounts";
-import { type ActionQuery, type AgentKey, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index.js";
+import { type ActionQuery, type AgentKey, type Credential, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index.js";
 import { fromBase64Url, toBase64Url } from "./base64url.js";
 
-export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256" } as const;
+export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256", delegation: "kya-delegation" } as const;
+
+export type { Delegation } from "@kya-brasil/core";
 
 const enc = new TextEncoder();
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -48,10 +56,11 @@ export function canonicalUrl(url: string): string {
   return `${u.protocol}//${u.host.toLowerCase()}${u.pathname}${u.search}`;
 }
 
-export function requestText(p: { credentialId: string; method: string; url: string; created: number; expires: number; contentSha256?: string | null }): string {
+export function requestText(p: { credentialId: string; method: string; url: string; created: number; expires: number; contentSha256?: string | null; delegationSha256?: string | null }): string {
   return [
     "KYA Brasil: request",
     `credential: ${p.credentialId}`,
+    ...(p.delegationSha256 ? [`delegation: ${p.delegationSha256}`] : []),
     `method: ${p.method.toUpperCase()}`,
     `url: ${canonicalUrl(p.url)}`,
     `created: ${p.created}`,
@@ -62,24 +71,56 @@ export function requestText(p: { credentialId: string; method: string; url: stri
 
 // --- Agent side -------------------------------------------------------------------------------
 
+const importPkcs8 = (pem: string, extractable = false) => crypto.subtle.importKey("pkcs8", unb64u(pem.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "")), { name: "Ed25519" }, extractable, ["sign"]);
+
+async function signText(key: SigningKey, text: string): Promise<string> {
+  if (key.kind === "web-bot-auth") {
+    const k = typeof key.privateKey === "string" ? await importPkcs8(key.privateKey) : key.privateKey;
+    return b64u(new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, k, enc.encode(text))));
+  }
+  return privateKeyToAccount(key.privateKey).signMessage({ message: text });
+}
+
 export type SigningKey = { kind: "evm" | "erc8004"; privateKey: `0x${string}` } | { kind: "web-bot-auth"; privateKey: CryptoKey | string };
 
-/** Signs a request with the agent key and returns the KYA headers to send with it. */
-export async function signRequest(p: { credentialId: string; key: SigningKey; method: string; url: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date }): Promise<Record<string, string>> {
+/**
+ * Signs a request with the agent key and returns the KYA headers to send with it. A sub-agent passes its
+ * `delegation` chain (from signDelegation) and signs with its own key.
+ */
+export async function signRequest(p: { credentialId: string; key: SigningKey; method: string; url: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date; delegation?: Delegation[] }): Promise<Record<string, string>> {
   const created = Math.floor((p.now ?? new Date()).getTime() / 1000);
   const expires = created + (p.ttlSeconds ?? 60);
   const contentSha256 = p.body !== undefined && p.body !== null && (typeof p.body !== "string" || p.body.length > 0) ? await sha256Hex(p.body) : null;
-  const text = requestText({ credentialId: p.credentialId, method: p.method, url: p.url, created, expires, contentSha256 });
-  let signature: string;
-  if (p.key.kind === "web-bot-auth") {
-    const key = typeof p.key.privateKey === "string" ? await crypto.subtle.importKey("pkcs8", unb64u(p.key.privateKey.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "")), { name: "Ed25519" }, false, ["sign"]) : p.key.privateKey;
-    signature = b64u(new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, key, enc.encode(text))));
-  } else {
-    signature = await privateKeyToAccount(p.key.privateKey).signMessage({ message: text });
-  }
+  const delegationHeader = p.delegation && p.delegation.length ? encodeDelegationHeader(p.delegation) : null;
+  const delegationSha256 = delegationHeader ? await sha256Hex(delegationHeader) : null;
+  const text = requestText({ credentialId: p.credentialId, method: p.method, url: p.url, created, expires, contentSha256, delegationSha256 });
+  const signature = await signText(p.key, text);
   const headers: Record<string, string> = { [KYA_HEADERS.credential]: p.credentialId, [KYA_HEADERS.created]: String(created), [KYA_HEADERS.expires]: String(expires), [KYA_HEADERS.signature]: signature };
   if (contentSha256) headers[KYA_HEADERS.content] = contentSha256;
+  if (delegationHeader) headers[KYA_HEADERS.delegation] = delegationHeader;
   return headers;
+}
+
+/** The key a signing key verifies as, in the form a credential or a delegation names it. */
+export async function agentKeyOf(key: SigningKey): Promise<AgentKey> {
+  if (key.kind !== "web-bot-auth") return { kind: "evm", id: privateKeyToAccount(key.privateKey).address };
+  const k = typeof key.privateKey === "string" ? await importPkcs8(key.privateKey, true) : key.privateKey;
+  const jwk = (await crypto.subtle.exportKey("jwk", k)) as JsonWebKey;
+  if (!jwk.x) throw new Error("cannot derive the Ed25519 public key from this private key");
+  return { kind: "web-bot-auth", id: jwk.x };
+}
+
+/**
+ * Delegation to a sub-agent (D-30): hands `delegate` a mandate contained in the delegator's, for `ttlSeconds`
+ * (at most the mandate's `delegation.max_ttl_seconds`). `key` is the credential's agent key, or, to delegate
+ * again, the key of the last delegate in `chain`. Returns the new chain; the sub-agent sends it with
+ * signRequest({ delegation }). Nothing goes to the issuer.
+ */
+export async function signDelegation(p: { credential: DelegationAnchor | Credential; key: SigningKey; delegate: { kind: "evm" | "web-bot-auth"; id: string }; mandate: Mandate; ttlSeconds: number; chain?: Delegation[]; now?: Date }): Promise<Delegation[]> {
+  const chain = p.chain ?? [];
+  const { delegation, text } = await prepareDelegation({ credential: p.credential as DelegationAnchor, chain, delegate: p.delegate, mandate: p.mandate, ttlSeconds: p.ttlSeconds, now: p.now });
+  const signature = await signText(p.key, text);
+  return [...chain, { ...delegation, signature }];
 }
 
 // --- Server side ------------------------------------------------------------------------------
@@ -102,13 +143,22 @@ export interface KyaContext {
   status: CredentialStatus;
   mandate: Mandate;
   credential: Verification["credential"];
-  /** Which key verified the request signature. */
+  /** Which key verified the request signature (the sub-agent's key on a delegated request). */
   signer: string;
+  /**
+   * D-30: present when a sub-agent signed the request under a delegation chain. `agent` above stays the
+   * credential's agent; `delegate` is the sub-agent; every mandate in `mandates` must allow an action.
+   */
+  delegation: { depth: number; delegate: AgentKey; expires_at: string; chain: Delegation[]; mandates: Mandate[] } | null;
   /** Whether the body hash was checked ("verified"), absent from the signature ("none") or not checkable ("skipped"). */
   body: "verified" | "none" | "skipped";
-  /** Local evaluation of the mandate (no daily ceilings; those need the issuer). */
+  /** Local evaluation of the mandate (no daily ceilings; those need the issuer). On a delegated request, of every mandate in the chain. */
   check(q: ActionQuery): LocalVerdict;
-  /** Signed verdict from the issuer ($0.01, needs privateKey or internalKey in the options). */
+  /**
+   * Signed verdict from the issuer ($0.01, needs privateKey or internalKey in the options). The issuer evaluates
+   * the credential's mandate; on a delegated request the delegated mandates are evaluated here first, and when
+   * one refuses the answer is that local refusal (unsigned, `delegation_level` set, the issuer is not called).
+   */
   allowed(q: ActionQuery): Promise<Verdict>;
 }
 
@@ -116,7 +166,7 @@ export type KyaAuthResult = { ok: true; kya: KyaContext } | { ok: false; status:
 
 export interface LocalVerdict { allowed: boolean; checks: { rule: string; ok: boolean; detail: string }[]; not_evaluated: string[] }
 
-const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until"];
+const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until", "delegation"];
 
 function normalizeCounterparty(c: string): string {
   const t = c.trim();
@@ -171,6 +221,18 @@ export function checkMandate(mandate: Mandate, q: ActionQuery, now = new Date())
   const not_evaluated = Object.keys(mandate).filter((k) => !RESERVED.includes(k));
   if (mandate.max_per_day && q.spent_today === undefined) not_evaluated.push("max_per_day (pass spent_today: the issuer keeps no record of acts)");
   return { allowed: checks.every((c) => c.ok), checks, not_evaluated };
+}
+
+/** checkMandate over every mandate of a delegation chain (credential first): allowed only when all allow it. */
+export function checkMandates(mandates: Mandate[], q: ActionQuery, now = new Date()): LocalVerdict & { levels: LocalVerdict[] } {
+  const levels = mandates.map((m) => checkMandate(m, q, now));
+  const prefix = (i: number, s: string) => (i === 0 ? s : `delegation ${i}: ${s}`);
+  return {
+    allowed: levels.length > 0 && levels.every((l) => l.allowed),
+    checks: levels.flatMap((l, i) => l.checks.map((c) => ({ ...c, rule: prefix(i, c.rule) }))),
+    not_evaluated: [...new Set(levels.flatMap((l, i) => l.not_evaluated.map((n) => prefix(i, n))))],
+    levels
+  };
 }
 
 export interface KyaAuth {
@@ -240,6 +302,7 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
     const expires = Number(headerOf(p.headers, KYA_HEADERS.expires));
     const signature = headerOf(p.headers, KYA_HEADERS.signature);
     const contentHeader = headerOf(p.headers, KYA_HEADERS.content);
+    const delegationHeader = headerOf(p.headers, KYA_HEADERS.delegation);
     if (!credentialId || !signature || !Number.isFinite(created) || !Number.isFinite(expires)) return fail(401, "KYA_HEADERS_MISSING", `send ${KYA_HEADERS.credential}, ${KYA_HEADERS.created}, ${KYA_HEADERS.expires} and ${KYA_HEADERS.signature}`);
     const now = Math.floor(Date.now() / 1000);
     if (created > now + maxSkew) return fail(401, "KYA_SIGNATURE_NOT_YET_VALID", "created is in the future");
@@ -262,15 +325,39 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       const status = (e as { status?: number }).status;
       return status === 404 ? fail(401, "KYA_CREDENTIAL_UNKNOWN", "unknown credential_id") : fail(502, "KYA_ISSUER_UNAVAILABLE", (e as Error).message);
     }
-    const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader });
-    return finish(credentialId, v, text, signature, bodyState);
+    let delegation: KyaContext["delegation"] = null;
+    if (delegationHeader) {
+      const d = await delegationOf(credentialId, v, delegationHeader);
+      if (!d.ok) return d.result;
+      delegation = d.delegation;
+    }
+    const delegationSha256 = delegationHeader ? await sha256Hex(delegationHeader) : null;
+    const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader, delegationSha256 });
+    return finish(credentialId, v, text, signature, bodyState, delegation);
   }
 
-  async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"]): Promise<KyaAuthResult> {
-    const sig = await verifySignature(v.agent, text, signature);
-    if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", "signature does not match the credential's agent key over the signed text");
+  /** D-30: verifies a KYA-Delegation chain against the credential (offline, core rules). */
+  async function delegationOf(credentialId: string, v: Verification, header: string): Promise<{ ok: true; delegation: NonNullable<KyaContext["delegation"]> } | { ok: false; result: KyaAuthResult }> {
+    const no = (status: 401 | 403, error: string, message: string) => ({ ok: false as const, result: fail(status, error, message) });
+    if (!v.credential) return no(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}`);
+    let chain: unknown;
+    try {
+      chain = decodeDelegationHeader(header);
+    } catch (e) {
+      return no(401, "KYA_DELEGATION_MALFORMED", (e as Error).message);
+    }
+    const anchor: DelegationAnchor = { credential_id: credentialId, agent: v.agent as DelegationAnchor["agent"], mandate: v.credential.mandate as DelegationAnchor["mandate"], expires_at: v.credential.expires_at };
+    const r = await verifyDelegationChain({ credential: anchor, chain });
+    if (!r.ok) return no(r.error === "KYA_DELEGATION_NOT_ALLOWED" || r.error === "KYA_DELEGATION_BROADER" ? 403 : 401, r.error, r.message);
+    return { ok: true, delegation: { depth: r.depth, delegate: r.delegate, expires_at: r.expires_at, chain: chain as Delegation[], mandates: r.mandates as Mandate[] } };
+  }
+
+  async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"], delegation: KyaContext["delegation"] = null): Promise<KyaAuthResult> {
+    const sig = await verifySignature(delegation ? delegation.delegate : v.agent, text, signature);
+    if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", delegation ? "signature does not match the delegate's key over the signed text" : "signature does not match the credential's agent key over the signed text");
     if (v.status !== "active") return fail(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`);
     const mandate = v.credential?.mandate ?? {};
+    const mandates = delegation ? delegation.mandates : [mandate];
     const ctx: KyaContext = {
       credential_id: credentialId,
       agent: v.agent,
@@ -280,8 +367,19 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       credential: v.credential,
       signer: sig.signer,
       body: bodyState,
-      check: (q) => checkMandate(mandate, q),
-      allowed: (q) => client.allowed(credentialId, q)
+      delegation,
+      check: (q) => (delegation ? checkMandates(mandates, q) : checkMandate(mandate, q)),
+      allowed: async (q) => {
+        if (delegation) {
+          for (let i = 1; i < mandates.length; i++) {
+            const local = checkMandate(mandates[i]!, q);
+            if (!local.allowed) {
+              return { credential_id: credentialId, status: v.status, allowed: false, reason: `outside the mandate of delegation ${i}`, checks: local.checks.map((c) => ({ field: c.rule, ok: c.ok, detail: c.detail })), not_evaluated: local.not_evaluated, delegation_level: i };
+            }
+          }
+        }
+        return client.allowed(credentialId, q);
+      }
     };
     return { ok: true, kya: ctx };
   }
@@ -363,13 +461,6 @@ export function responseText(p: { credentialId: string; inReplyTo: string; creat
   return ["KYA Brasil: response", `credential: ${p.credentialId}`, `in-reply-to: ${p.inReplyTo}`, `created: ${p.created}`, `expires: ${p.expires}`, `content-sha256: ${p.contentSha256 ?? "-"}`].join("\n");
 }
 
-async function signText(key: SigningKey, text: string): Promise<string> {
-  if (key.kind === "web-bot-auth") {
-    const k = typeof key.privateKey === "string" ? await crypto.subtle.importKey("pkcs8", unb64u(key.privateKey.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "")), { name: "Ed25519" }, false, ["sign"]) : key.privateKey;
-    return b64u(new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, k, enc.encode(text))));
-  }
-  return privateKeyToAccount(key.privateKey).signMessage({ message: text });
-}
 
 /** Callee side: headers that prove who answered, bound to the request signature it replies to. */
 export async function signResponse(p: { credentialId: string; key: SigningKey; requestSignature: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date }): Promise<Record<string, string>> {
