@@ -39,7 +39,7 @@ the verifier's call, with whatever screening it trusts.
 | --- | --- | --- | --- |
 | Who answers for the agent | nobody, a key | the agent's operator | **a company (e-CNPJ) or a person (e-CPF), ICP-Brasil** |
 | Link kept true | no | no | **certificate revocation and company registration, at issuance and daily** |
-| Mandate | no | operator policy | **declared and signed by whoever answers for the agent** |
+| Mandate | no | operator policy | **declared by whoever answers for the agent, shown to them when they sign** |
 | Verdict per action | score | allow / deny | **signed allow / deny with every check listed, usable as evidence** |
 | Payment instruments | no | no | **card tokens / PARs bound to the mandate, as hashes** |
 | Whoever answers sees its agents | no | dashboard | **inventory (and webhooks for companies), signed with their certificate** |
