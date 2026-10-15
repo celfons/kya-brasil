@@ -1,7 +1,6 @@
 # KYA Brasil
 
 [![KYA-BRASIL MCP server – quality and maintenance score on Glama](https://glama.ai/mcp/servers/celfons/kya-brasil/badges/card.svg)](https://glama.ai/mcp/servers/celfons/kya-brasil)
-[![KYA-BRASIL MCP server – quality and maintenance score on Glama](https://glama.ai/mcp/servers/celfons/kya-brasil/badges/score.svg)](https://glama.ai/mcp/servers/celfons/kya-brasil)
 
 **Know-your-agent backed by ICP-Brasil.** Most "KYA" tools prove that an agent holds a key and give it a score.
 KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **who answers for this agent,
