@@ -29,8 +29,8 @@ the verifier's call, with whatever screening it trusts.
 | | |
 | --- | --- |
 | Service | `https://kya-br-agents.marcelfons.workers.dev` (landing, `/docs` Swagger, `/status`) |
-| MCP (streamable HTTP) | `https://kya-br-agents.marcelfons.workers.dev/mcp`, Registry `io.github.celfons/kya-brasil` |
-| npm | [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (the library), [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client, middleware, `kya-sign`) |
+| MCP | remote (streamable HTTP) `https://kya-br-agents.marcelfons.workers.dev/mcp`, Registry `io.github.celfons/kya-brasil`; local (stdio) `npx -y @kya-brasil/mcp` |
+| npm | [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (the library), [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client, middleware, `kya-sign`), [`@kya-brasil/mcp`](packages/mcp) (local MCP server) |
 | Payments | [x402](https://x402.org), USDC on Base, no signup. Free verification up to 50/day per IP. Errors are never charged. |
 | Spec | [docs/SPEC.md](docs/SPEC.md), [test vectors](docs/vectors/credential-v1.json), [decisions](docs/DECISOES.md), [examples](examples) |
 | License | MIT |
@@ -70,7 +70,8 @@ await verifyAttestation(verdict);                                 // the issuer'
   `live_status: "unknown"`.
 
 Over MCP: `kya_verify`, `kya_check_action`, `kya_verify_paid`. Claude Desktop, Cursor and others: add the remote
-server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth.
+server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth, or run it locally with `npx -y @kya-brasil/mcp`
+([packages/mcp](packages/mcp): offline mandate and delegation checks included).
 
 ### Sign in with KYA (one middleware)
 
@@ -225,6 +226,7 @@ agent / verifier ──x402 or MCP──▶ kya-br-agents (Cloudflare Worker: Ho
 | Path | What |
 | --- | --- |
 | `packages/core` | npm `@kya-brasil/core`: the library (pure functions, no storage, no platform bindings). |
+| `packages/mcp` | npm `@kya-brasil/mcp`: the local MCP server (stdio), with offline tools (mandate, delegation chains, credential signature) and the issuer's free and paid ones. |
 | `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, middleware, signing helpers, PKCS#11 tokens, the `kya-sign` command, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
 | `apps/worker` | The issuer: HTTP routes, MCP server, `/sign` page, D1 store and migrations, registration sources, CRL checks, daily review, cloud provider registry. |
 | `infra` | Pulumi: KV, D1 + migrations, Worker, cron, secrets. |

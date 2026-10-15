@@ -16,6 +16,8 @@ jobs:
       - run: pnpm test
       - name: Worker bundle builds
         run: pnpm --filter @kya-br/worker build
+      - name: MCP server builds and starts over stdio
+        run: pnpm --filter @kya-brasil/mcp build && pnpm --filter @kya-brasil/mcp smoke
   pulumi-preview:
     if: github.event_name == 'pull_request'
     needs: check
