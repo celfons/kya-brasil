@@ -1,0 +1,55 @@
+{
+  "name": "@kya-brasil/mcp",
+  "version": "0.1.0",
+  "description": "KYA Brasil as a local MCP server (stdio): verify that an AI agent acts for a Brazilian company (e-CNPJ) or person (e-CPF), check an action against its mandate, verify credentials and sub-agent delegation chains offline. No key needed for the free and offline tools; paid checks with a wallet key (x402, USDC on Base).",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "kya-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/celfons/kya-brasil.git",
+    "directory": "packages/mcp"
+  },
+  "homepage": "https://github.com/celfons/kya-brasil/tree/main/packages/mcp#readme",
+  "bugs": {
+    "url": "https://github.com/celfons/kya-brasil/issues"
+  },
+  "author": "Marcel Oliveira",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "kya",
+    "know-your-agent",
+    "agent-identity",
+    "brazil",
+    "e-cnpj",
+    "e-cpf",
+    "icp-brasil"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "smoke": "node smoke.mjs"
+  },
+  "devDependencies": {
+    "@kya-brasil/agent-tools": "workspace:^",
+    "@kya-brasil/core": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@types/node": "^22.20.5",
+    "esbuild": "0.28.2",
+    "typescript": "^5.9.3",
+    "viem": "^2.57.5",
+    "vitest": "^4.1.11",
+    "zod": "^4.6.7"
+  }
+}

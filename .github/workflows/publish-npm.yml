@@ -1,4 +1,5 @@
-# Publish @kya-brasil/core (the library, D-25) and @kya-brasil/agent-tools (the client) to npm. Manual: needs the
+# Publish @kya-brasil/core (the library, D-25), @kya-brasil/agent-tools (the client) and @kya-brasil/mcp (the local MCP
+# server, D-31) to npm. Manual: needs the
 # NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
 # them first. A version already on npm is skipped, so publishing one package never fails on the other.
 # Then mirrors the same builds to GitHub Packages as @celfons/kya-core and @celfons/kya-agent-tools (GitHub
@@ -23,6 +24,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @kya-brasil/core typecheck && pnpm --filter @kya-brasil/core test && pnpm --filter @kya-brasil/core build
       - run: pnpm --filter @kya-brasil/agent-tools typecheck && pnpm --filter @kya-brasil/agent-tools test && pnpm --filter @kya-brasil/agent-tools build
+      - run: pnpm --filter @kya-brasil/mcp typecheck && pnpm --filter @kya-brasil/mcp test && pnpm --filter @kya-brasil/mcp build && pnpm --filter @kya-brasil/mcp smoke
       - name: Publish @kya-brasil/core
         working-directory: packages/core
         env:
@@ -58,6 +60,19 @@ jobs:
           fi
           # Placeholder npm left from the first publish (scope did not exist yet); unpublish is allowed within 72 h, ignore otherwise.
           npm unpublish @kya-brasil/agent-tools@0.0.0-stage 2>/dev/null || true
+      - name: Publish the MCP server
+        working-directory: packages/mcp
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
+          # Self-contained bundle (dist/index.js): the workspace devDependencies are not installed by users.
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@kya-brasil/mcp@$VERSION" version >/dev/null 2>&1; then
+            echo "::notice::@kya-brasil/mcp@$VERSION is already on npm; bump the version to publish a new one"
+          else
+            npm publish --access public --provenance
+          fi
       - name: Mirror the core to GitHub Packages
         working-directory: packages/core
         env:
