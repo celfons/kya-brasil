@@ -42,6 +42,8 @@ export interface ChallengeRow {
   text: string;
   expires_at: string;
   used_at: string | null;
+  /** The mandate requested with this challenge (JSON); null for challenges older than migration 0007. */
+  mandate: string | null;
 }
 
 /** Why a credential is suspended: the review reinstates only what it suspended for a reason that can clear. */
@@ -136,8 +138,14 @@ export class Store {
     return (await this.db.prepare("SELECT * FROM agents WHERE id = ?1").bind(id).first<AgentRow>()) ?? null;
   }
 
-  async createChallenge(c: { id: string; agent_row: string; text: string; expires_at: string }): Promise<void> {
-    await this.db.prepare("INSERT INTO challenges (id, agent_row, text, expires_at) VALUES (?1, ?2, ?3, ?4)").bind(c.id, c.agent_row, c.text, c.expires_at).run();
+  /** Stores a challenge with the mandate requested at that moment; issuance uses this mandate, never the row's later one. */
+  async createChallenge(c: { id: string; agent_row: string; text: string; expires_at: string; mandate: Mandate }): Promise<void> {
+    await this.db.prepare("INSERT INTO challenges (id, agent_row, text, expires_at, mandate) VALUES (?1, ?2, ?3, ?4, ?5)").bind(c.id, c.agent_row, c.text, c.expires_at, JSON.stringify(c.mandate)).run();
+  }
+
+  /** Marks every unused challenge of a row as used: a new registration replaces the links already handed out. */
+  async voidChallenges(agent_row: string): Promise<void> {
+    await this.db.prepare("UPDATE challenges SET used_at = ?1 WHERE agent_row = ?2 AND used_at IS NULL").bind(now(), agent_row).run();
   }
 
   /** Reads a challenge without consuming it (for the signing link); null when unknown or expired. */

@@ -56,6 +56,12 @@ expires: <ISO 8601 UTC>
 
 The challenge MUST expire within 15 minutes and MUST be consumed on first use, successful or not.
 
+The issuer MUST keep, with each challenge, the mandate requested when it was created, and MUST issue that mandate
+when the challenge is proved, never a mandate changed later. A new registration for the same agent and principal
+MUST void the challenges still outstanding, so a signing link already handed to the certificate holder cannot issue a
+mandate other than the one it showed. The certificate signature covers the challenge text, which does not contain the
+mandate: the holder's consent to the mandate rests on what the signing page showed, and the issuer attests it.
+
 ## 4. Company proof (e-CNPJ)
 
 The company signs the challenge text with its e-CNPJ certificate as a **CMS/PKCS#7 SignedData** (RFC 5652),

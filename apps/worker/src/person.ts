@@ -43,7 +43,7 @@ export function personChallenge(issuer: string, agent: AgentKey) {
 }
 
 /** Issuance or renewal for a person: e-CPF proof, CRL, keyed hash; a renewal must be signed by the same person. */
-export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, agent: AgentKey, text: string, ecpfSignature: string, event: "issued" | "renewed") {
+export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, agent: AgentKey, text: string, ecpfSignature: string, event: "issued" | "renewed", mandate: Mandate) {
   const store = new Store(env.DB);
   const keys = keysOf(env);
   const anchors = await icpAnchors(env);
@@ -57,7 +57,6 @@ export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, ag
   const hash = await personHash(keys.current.key, icp.cpf);
   const m = await material(env);
   if (!m) throw new KyaError("UPSTREAM_ERROR", "issuer has no signing key");
-  const mandate = JSON.parse(row.mandate) as Mandate;
   const certificate = { sha256: icp.certificate_sha256, issuer: icp.issuer, signed_at: icp.signed_at };
   const credential = await signCredential(buildPersonCredential({ credential_id: row.id, agent, certificate, mandate, issuer }), m.key, m.keyId);
   // No subject, no name: the certificate record keeps only what the CRL checks need.
