@@ -1,8 +1,7 @@
 # KYA Brasil
 
+[![KYA-BRASIL MCP server – quality and maintenance score on Glama](https://glama.ai/mcp/servers/celfons/kya-brasil/badges/card.svg)](https://glama.ai/mcp/servers/celfons/kya-brasil)
 [![KYA-BRASIL MCP server – quality and maintenance score on Glama](https://glama.ai/mcp/servers/celfons/kya-brasil/badges/score.svg)](https://glama.ai/mcp/servers/celfons/kya-brasil)
-
-![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused; a new credential in the company's name reaches its webhook as a signed event](docs/assets/demo.gif)
 
 **Know-your-agent backed by ICP-Brasil.** Most "KYA" tools prove that an agent holds a key and give it a score.
 KYA Brasil answers the question a supplier, a bank or a marketplace actually asks: **who answers for this agent,
