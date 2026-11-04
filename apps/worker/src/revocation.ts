@@ -27,7 +27,7 @@ async function crlFor(env: AppEnv, url: string, issuerCertificate: string): Prom
   const hit = memory.get(key);
   if (hit && Date.now() - hit.at < MEMORY_TTL_MS && (!hit.crl.next_update || Date.parse(hit.crl.next_update) > Date.now())) return hit.crl;
   const { der, fresh } = await download(env, url);
-  const crl = await verifyCrl({ crlDer: der, issuerCertificate });
+  const crl = await verifyCrl({ crlDer: der, issuerCertificate, pastNextUpdate: "refuse" });
   memory.set(key, { crl, at: Date.now() });
   if (fresh && der.byteLength <= KV_MAX_BYTES) {
     const untilNext = crl.next_update ? Math.floor((Date.parse(crl.next_update) - Date.now()) / 1000) : MAX_TTL_S;

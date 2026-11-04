@@ -37,23 +37,26 @@ describe("e-CNPJ revocation (LCR)", () => {
   it("finds a revoked serial and passes a clean one", async () => {
     const a = await ac();
     const crl = await crlOf(a, [{ serialNumber: "0a1b", revocationDate: new Date("2026-10-10T12:00:00Z"), reason: x509.X509CrlReason.keyCompromise }]);
-    const revoked = await checkRevocation({ crlDer: crl.rawData, serial: "A1B", issuerCertificate: b64(a.cert.rawData), now });
+    const revoked = await checkRevocation({ crlDer: crl.rawData, serial: "A1B", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now });
     expect(revoked).toMatchObject({ revoked: true, revoked_at: "2026-10-10T12:00:00.000Z", reason: "keyCompromise" });
-    const clean = await checkRevocation({ crlDer: crl.rawData, serial: "0c0d", issuerCertificate: b64(a.cert.rawData), now });
+    const clean = await checkRevocation({ crlDer: crl.rawData, serial: "0c0d", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now });
     expect(clean).toMatchObject({ revoked: false, revoked_at: null, crl_next_update: "2026-10-13T00:00:00.000Z" });
   });
 
   it("refuses a CRL that is stale, from another AC or signed by another key", async () => {
     const a = await ac();
     const stale = await crlOf(a, [], new Date("2026-10-11T12:00:00Z"));
-    await expect(checkRevocation({ crlDer: stale.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), now })).rejects.toThrow(/stale/);
+    await expect(checkRevocation({ crlDer: stale.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/stale/);
+    const accepted = await checkRevocation({ crlDer: stale.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "accept", now });
+    expect(accepted).toMatchObject({ revoked: false, crl_next_update: expect.any(String) });
+    await expect(checkRevocation({ crlDer: stale.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "maybe" as "accept", now })).rejects.toThrow(/pastNextUpdate is required/);
     const other = await ac("CN=Outra AC, O=ICP-Brasil, C=BR");
     const foreign = await crlOf(other, []);
-    await expect(checkRevocation({ crlDer: foreign.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), now })).rejects.toThrow(/not by the certificate's AC/);
+    await expect(checkRevocation({ crlDer: foreign.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/not by the certificate's AC/);
     const impostor = await ac();
     const forged = await crlOf(impostor, []);
-    await expect(checkRevocation({ crlDer: forged.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), now })).rejects.toThrow(/signature/);
-    await expect(checkRevocation({ crlDer: new Uint8Array([1, 2, 3]), serial: "01", issuerCertificate: b64(a.cert.rawData), now })).rejects.toThrow(/not valid DER/);
+    await expect(checkRevocation({ crlDer: forged.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/signature/);
+    await expect(checkRevocation({ crlDer: new Uint8Array([1, 2, 3]), serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/not valid DER/);
   });
 
   it("normalizes serials", () => {

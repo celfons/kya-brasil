@@ -417,12 +417,17 @@ credential's status) or `certificate` (the ICP-Brasil certificate's status):
   verdict. `as_of` is `attestation.signed_at`; `in_force` is `status == "active"`. The agent MAY staple such an answer
   to its request, so the verifier needs no network;
 - certificate: a CRL lookup (section 10 of RFC 5280, `checkRevocation` in the core). `as_of` is the CRL's
-  `thisUpdate`, `valid_until` its `nextUpdate`, `in_force` is "serial not listed".
+  `thisUpdate`, `valid_until` its `nextUpdate`, `in_force` is "serial not listed". Reading a CRL whose nextUpdate has
+  passed is itself the caller's choice: `verifyCrl` and `checkRevocation` take `pastNextUpdate: "refuse" | "accept"`,
+  with no default (the reference issuer passes `"refuse"`).
 
-**Policy.** `max_expected_loss` *L* (amount and currency), `revocation_rate_per_hour` *λ* per kind, `require` (kinds
-needed, default `["credential"]`), `max_age_seconds` (ceiling, default 86400, at most 90 days),
-`max_clock_skew_seconds` (default 300, at most 3600), and optionally a function `max_age(amount, kind)` that replaces
-the formula. The maximum age for an action of amount *v* is
+**Policy.** The core holds no business values: every parameter that expresses a risk decision is required and comes
+from the verifier, and the core only checks that it is well formed. `max_expected_loss` *L* (amount and currency),
+`revocation_rate_per_hour` *λ* per kind, `require` (kinds needed), `max_age_seconds` (ceiling),
+`max_clock_skew_seconds`, `unvalued_action` (`"refuse"` or `"ceiling"`: what to do with an action of unknown value),
+`past_valid_until` (`"refuse"` or `"accept"`: what to do with evidence past its `valid_until`), and optionally
+`action_risk_value` and a function `max_age(amount, kind, action)` that replaces the formula. The verifier's clock is
+required too. The maximum age for an action of value *v* is
 
     max_age(v) = min( max_age_seconds, floor( L / (v × λ) × 3600 ) )   seconds
 
@@ -432,7 +437,7 @@ applies. A custom function's result is clamped to `[0, max_age_seconds]`; a resu
 **Any action.** The policy covers every action, not only payments. For an action with no amount (signing a
 document, reading data, calling an API), *v* is the risk value the verifier assigns to that action name in
 `action_risk_value` (in *L*'s currency); an amount, when present, takes precedence. An action with neither gets the
-ceiling, and the verdict says so, so a verifier lists every non-monetary action it accepts. A custom `max_age`
+ceiling or is refused, as `unvalued_action` says, and the verdict states which. A custom `max_age`
 receives the action name too.
 
 **Daily ceilings.** The mandate's `max_per_day` bounds what a stolen agent key can do inside the freshness window
@@ -441,14 +446,15 @@ receives the action name too.
 limiting the number of non-monetary actions per day are the verifier's decisions and risk.
 
 **Check.** For the action's value at risk (its amount, or else its risk value) and every required kind, take the evidence with the latest `as_of` (a newer statement supersedes an older
-one, whatever it says). The check passes when that evidence is in force, `valid_until` (if any) is not past, `as_of`
+one, whatever it says). The check passes when that evidence is in force, `valid_until` (if any) is not past unless `past_valid_until` is
+`"accept"` (then its age alone decides, as Li and Feigenbaum, FC 2001, propose), `as_of`
 is not later than the verifier's clock by more than `max_clock_skew_seconds`, and its age is at most `max_age(v)`.
 It fails closed on missing evidence, an amount that is not a finite number ≥ 0, an operation in a currency other than
-*L*'s, or an invalid clock. The verdict lists every check, the kinds for which fresher evidence would change the
+*L*'s, a missing or invalid clock, or an action of unknown value when `unvalued_action` is `"refuse"`. The verdict lists every check, the kinds for which fresher evidence would change the
 answer (`refresh`: fetch it, or ask the agent to staple it), and the policy and clock applied (`applied`), so the
 verifier can show later which risk it accepted. An action is allowed only when the mandate (section 5) and the
 freshness check both pass (`checkFreshAction` in `@kya-brasil/core`).
 
-The rate *λ* has no default: it is a property of the issuer's and of the ACs' revocation behaviour, and the verifier
+No parameter has a default. The rate *λ*, for instance, is a property of the issuer's and of the ACs' revocation behaviour, and the verifier
 states the one it assumes. The clock is the verifier's: a wrong clock makes stale evidence look fresh, which is why
 the clock used is recorded and evidence dated in the future is refused.
