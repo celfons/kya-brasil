@@ -197,6 +197,7 @@ A verifier that receives a credential (or a `credential_id`) with an agent's req
 1. **Binding**: confirm that the key that signed the agent's request equals `credential.agent.id` (same `kind`). A credential alone proves nothing about who is talking.
 2. **Signature**: fetch the issuer's keys, pick the one whose `key_id` equals `attestation.key_id`, and run section 7 in reverse. Reject on hash mismatch or bad signature.
    **Mandate authorization** (D-33): when `authorized_by.mandate_sha256` is present, it MUST equal the SHA-256 of the canonical JSON of `mandate` (`verifyMandateAuthorization` in the core); reject otherwise. When it is absent, the mandate rests on the issuer's attestation alone, and the verifier decides whether that is enough.
+   **Without trusting the issuer** (D-34): when the agent presents the principal's own proof (section 19), the verifier MAY check the binding and the mandate against ICP-Brasil itself, so that the issuer's key vouches only for the credential's status.
 3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily. When the issuer is unreachable, steps 2 and 4 still work offline but say nothing about a later suspension or revocation; accepting such a credential is the verifier's risk until `expires_at`. Section 18 lets the verifier bound that risk: it states how old the status evidence may be for the amount at stake.
 4. **Expiry**: `now < expires_at`.
 5. **Mandate**: either evaluate section 5 locally, or request a signed verdict from the issuer (section 9) and keep it as evidence.
@@ -472,3 +473,39 @@ freshness check both pass (`checkFreshAction` in `@kya-brasil/core`).
 No parameter has a default. The rate *λ*, for instance, is a property of the issuer's and of the ACs' revocation behaviour, and the verifier
 states the one it assumes. The clock is the verifier's: a wrong clock makes stale evidence look fresh, which is why
 the clock used is recorded and evidence dated in the future is refused.
+
+## 19. Proof without trusting the issuer (D-34)
+
+Steps 2 and 3 of section 8 rest on the issuer's key: a compromised or dishonest issuer could sign a credential the
+principal never authorized. Since D-33 the principal signs, with the e-CNPJ or e-CPF, a challenge that names the
+issuer, the agent, the principal and the mandate's hash, and keeps the signed text and the detached CMS (the
+`.p7s` offered by the signing page). When the principal chooses to hand them to its agent, any verifier can check
+the authorization against ICP-Brasil alone.
+
+**Presentation.** The agent sends, with the request, the header `KYA-Principal-Proof: <base64url of the JSON
+{ "text": <the signed challenge text>, "cms": <the detached CMS, base64 DER> }>`, or the same object in the request
+body when headers are too small (`encodePrincipalProofHeader` / `decodePrincipalProofHeader` in the core).
+
+**Check** (`verifyPrincipalProof` in the core), against the credential:
+
+1. the CMS verifies over the text up to the ICP-Brasil trust anchors the verifier holds, and the certificate is an
+   e-CNPJ of the credential's CNPJ (company) or an e-CPF (person), valid at the verifier's clock;
+2. its SHA-256 equals `authorized_by.certificate_sha256`;
+3. the text's `agent:` line equals the credential's agent, its `cnpj:` line the credential's CNPJ (or its `principal:`
+   line names a person), and its `issuer:` line the credential's issuer;
+4. its `mandate-sha256:` line equals the SHA-256 of the canonical JSON of the credential's `mandate` and, when
+   present, `authorized_by.mandate_sha256`.
+
+Every check is reported; the proof passes only when all pass. The verifier then checks the certificate's revocation
+with a CRL it trusts (section 18: `checkRevocation`, `evidenceFromRevocation`), using the serial number, issuing AC
+certificate and CRL addresses the check returns.
+
+**What is left to the issuer.** Only the credential's status after issuance (a revocation or suspension the principal
+asked the issuer for). A verifier that also wants to avoid that dependence relies on the certificate's CRL and on
+the expiry of the credential, and accepts that a revocation made only at the issuer goes unseen.
+
+**Privacy.** The CMS carries the signer's certificate: for an e-CPF the person's name and CPF, for an e-CNPJ the
+company's certificate, which identifies its legal representative. The principal decides when to share it, as it
+would show a power of attorney; the verifier MUST treat it as personal data (LGPD), use it for this check only and
+keep it no longer than the evidence of the transaction requires. `verifyPrincipalProof` returns nothing personal.
+

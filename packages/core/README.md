@@ -46,6 +46,25 @@ const verdict = checkAction(credential.mandate, {
 // verdict.allowed, verdict.checks (every rule evaluated, with its reason), verdict.not_evaluated (extensions)
 ```
 
+## Without trusting the issuer
+
+Since D-33 the e-CNPJ / e-CPF signs the agent and the mandate's hash, and the principal keeps the signed text and the
+`.p7s`. When the principal hands them to its agent, you can check the authorization against ICP-Brasil alone (SPEC
+section 19), and the issuer's key vouches only for the credential's status:
+
+```ts
+import { decodePrincipalProofHeader, verifyPrincipalProof, checkRevocation } from "@kya-brasil/core";
+
+const proof = decodePrincipalProofHeader(request.headers.get("KYA-Principal-Proof")!);
+const r = await verifyPrincipalProof({ credential, proof, anchors: icpBrasilAnchors, now: trustedClock() });
+// r.ok; r.checks: signature, certificate, agent, principal, issuer, mandate (each with its reason)
+// then the certificate's revocation, with a CRL you fetched from r.revocation.crl_urls:
+// await checkRevocation({ crlDer, serial: r.revocation!.serial_number, issuerCertificate: r.revocation!.issuer_certificate!, pastNextUpdate: "refuse" })
+```
+
+The CMS carries the signer's certificate (personal data): the principal decides when to share it, and you use it for
+this check only. The result carries nothing personal.
+
 ## Delegation chains (sub-agents)
 
 A mandate with `delegation: { max_depth, max_ttl_seconds }` lets the agent hand a narrower mandate to another key
