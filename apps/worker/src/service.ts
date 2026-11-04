@@ -15,7 +15,7 @@ import { notifyCompany } from "./company";
 import { registrationOrWarning } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
-import { issuePerson, keysOf, personChallenge, revokePerson } from "./person";
+import { CREDENTIAL_TTL_SECONDS, issuePerson, keysOf, personChallenge, revokePerson } from "./person";
 
 const issuerOf = (env: AppEnv, origin: string) => (env.ISSUER_URL ?? origin).replace(/\/$/, "");
 
@@ -131,7 +131,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const issuer = issuerOf(env, origin);
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
   const legalName = reg.legal_name ?? certificateName(icp.certificate_subject);
-  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: legalName, registration_status: reg.registration_status, certificate, mandate, mandate_sha256, kyb: null, issuer });
+  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: legalName, registration_status: reg.registration_status, certificate: { ...certificate, not_after: icp.not_after }, mandate, mandate_sha256, ttl_seconds: CREDENTIAL_TTL_SECONDS, kyb: null, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
   await store.issue({ id: row.id, legal_name: legalName, credential, certificate: record, mandate, event });

@@ -5,9 +5,22 @@
  */
 import { attestedPayload, canonicalize, signAttestation, verifyAttestation } from "./attestation.js";
 import { formatCnpj, normalizeCnpj } from "./cnpj.js";
-import type { Credential, CredentialStatus, KybSnapshot, Mandate, AgentKey } from "./types.js";
+import { type Credential, type CredentialStatus, type KybSnapshot, type Mandate, type AgentKey, KyaError } from "./types.js";
 
-export const CREDENTIAL_TTL_DAYS = 90;
+/**
+ * D-35: when a credential expires. The lifetime is the caller's (`ttl_seconds`, no default: it is a risk decision),
+ * and the credential never outlives the mandate nor the certificate that signed it, so a proof checked against
+ * ICP-Brasil (D-34) never fails while the credential still reads as active.
+ */
+export function credentialExpiry(p: { now: Date; ttl_seconds: number; mandate: Pick<Mandate, "valid_until">; certificate_not_after: string }): Date {
+  if (typeof p.ttl_seconds !== "number" || !Number.isFinite(p.ttl_seconds) || p.ttl_seconds <= 0) throw new KyaError("INVALID_INPUT", "ttl_seconds must be a positive number of seconds (the credential lifetime is the caller's decision)");
+  const notAfter = new Date(p.certificate_not_after);
+  if (Number.isNaN(notAfter.getTime())) throw new KyaError("INVALID_INPUT", "certificate.not_after must be an ISO 8601 date");
+  if (notAfter <= p.now) throw new KyaError("CERTIFICATE_INVALID", `certificate expired on ${notAfter.toISOString()}`);
+  const candidates = [new Date(p.now.getTime() + p.ttl_seconds * 1000), notAfter];
+  if (p.mandate.valid_until) candidates.push(new Date(p.mandate.valid_until));
+  return new Date(Math.min(...candidates.map((d) => d.getTime())));
+}
 
 export function buildCredential(p: {
   credential_id: string;
@@ -15,8 +28,11 @@ export function buildCredential(p: {
   cnpj: string;
   legal_name: string;
   registration_status: string;
-  certificate: { sha256: string; subject: string; issuer: string; signed_at: string };
+  /** not_after: the signing certificate's end of validity (IcpProof.not_after); the credential never outlives it. */
+  certificate: { sha256: string; subject: string; issuer: string; signed_at: string; not_after: string };
   mandate: Mandate;
+  /** D-35: the credential lifetime in seconds. Required, no default: how long a credential lives is the caller's risk. */
+  ttl_seconds: number;
   /** D-33: the mandate SHA-256 the signed challenge carried (mandateSha256OfChallenge). */
   mandate_sha256?: string;
   /** /v1 compatibility only; leave out (null). */
@@ -28,9 +44,7 @@ export function buildCredential(p: {
 }): Credential {
   const now = p.now ?? new Date();
   const cnpj = normalizeCnpj(p.cnpj);
-  const ttl = new Date(now.getTime() + CREDENTIAL_TTL_DAYS * 86400000);
-  const mandateEnd = p.mandate.valid_until ? new Date(p.mandate.valid_until) : null;
-  const expires = mandateEnd && mandateEnd < ttl ? mandateEnd : ttl;
+  const expires = credentialExpiry({ now, ttl_seconds: p.ttl_seconds, mandate: p.mandate, certificate_not_after: p.certificate.not_after });
   return {
     credential_id: p.credential_id,
     version: 1,
@@ -53,17 +67,18 @@ export function buildCredential(p: {
 export function buildPersonCredential(p: {
   credential_id: string;
   agent: AgentKey;
-  certificate: { sha256: string; issuer: string; signed_at: string };
+  /** not_after: the signing certificate's end of validity (IcpPersonProof.not_after); the credential never outlives it. */
+  certificate: { sha256: string; issuer: string; signed_at: string; not_after: string };
   mandate: Mandate;
+  /** D-35: the credential lifetime in seconds. Required, no default. */
+  ttl_seconds: number;
   /** D-33: the mandate SHA-256 the signed challenge carried (mandateSha256OfChallenge). */
   mandate_sha256?: string;
   issuer: string;
   now?: Date;
 }): Credential {
   const now = p.now ?? new Date();
-  const ttl = new Date(now.getTime() + CREDENTIAL_TTL_DAYS * 86400000);
-  const mandateEnd = p.mandate.valid_until ? new Date(p.mandate.valid_until) : null;
-  const expires = mandateEnd && mandateEnd < ttl ? mandateEnd : ttl;
+  const expires = credentialExpiry({ now, ttl_seconds: p.ttl_seconds, mandate: p.mandate, certificate_not_after: p.certificate.not_after });
   return {
     credential_id: p.credential_id,
     version: 1,

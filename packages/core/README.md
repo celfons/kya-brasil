@@ -186,25 +186,28 @@ const ecnpj_signature = await signer.sign(challengeText);
 ```ts
 import {
   newChallenge, verifyAgentSignature, verifyIcpSignature, checkRevocation,
-  validateMandate, buildCredential, signCredential, importPrivateKey, generateAttestationKey
+  validateMandate, mandateSha256, buildCredential, signCredential, importPrivateKey, generateAttestationKey
 } from "@kya-brasil/core";
 
 const key = await generateAttestationKey();               // once; keep privateKeyPkcs8 secret, publish publicJwk
-const ch = newChallenge({ issuer: "https://kya.acquirer.example", agent, cnpj });
+const m = validateMandate(mandate);
+const mandate_sha256 = await mandateSha256(m);            // the e-CNPJ signs this hash with the challenge (D-33)
+const ch = newChallenge({ issuer: "https://kya.acquirer.example", agent, cnpj, mandate_sha256 });
 // The agent signs ch.text with its key; the company signs ch.text with its e-CNPJ (detached CMS).
 if (!(await verifyAgentSignature(agent, ch.text, agentSignature))) throw new Error("agent signature");
 const icp = await verifyIcpSignature({ cmsBase64: ecnpjSignature, challenge: ch.text, expectedCnpj: cnpj, anchors });
 // anchors: the ICP-Brasil roots as PEM strings (bundle in the repository: anchors/icp-brasil.pem).
 const crlDer = await fetchCrl(icp.crl_urls);             // yours: HTTP + cache
-const rev = await checkRevocation({ crlDer, serial: icp.serial_number, issuerCertificate: icp.issuer_certificate! });
+const rev = await checkRevocation({ crlDer, serial: icp.serial_number, issuerCertificate: icp.issuer_certificate!, pastNextUpdate: "refuse" });
 if (rev.revoked) throw new Error("certificate revoked");
 
 const credential = await signCredential(
   buildCredential({
     credential_id: crypto.randomUUID(), agent, cnpj,
     legal_name, registration_status,                      // from your registration source; "UNVERIFIED" if none answered
-    certificate: { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at },
-    mandate: validateMandate(mandate),
+    certificate: { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at, not_after: icp.not_after },
+    mandate: m, mandate_sha256,
+    ttl_seconds: 30 * 86400,                              // your risk decision; capped by the certificate and the mandate (D-35)
     issuer: "https://kya.acquirer.example"
   }),
   await importPrivateKey(key.privateKeyPkcs8), key.keyId

@@ -168,7 +168,10 @@ mandate MUST NOT exceed 8192 bytes.
 }
 ```
 
-- `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
+- `expires_at` MUST NOT be later than `mandate.valid_until` nor than the `notAfter` of the certificate that signed the
+  challenge (D-35), so a proof checked against ICP-Brasil (section 19) never fails while the credential reads as
+  active. The lifetime itself is the issuer's risk decision: the core has no default (`ttl_seconds` is required) and
+  the reference issuer uses 90 days.
 - `authorized_by.mandate_sha256` (D-33) is the hash the signed challenge carried, and MUST equal the SHA-256 of the
   canonical JSON of `mandate`. Credentials issued before D-33 do not have it: their mandate rests on the issuer's
   attestation only.

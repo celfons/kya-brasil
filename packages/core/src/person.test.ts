@@ -79,7 +79,7 @@ describe("natural persons (D-29)", () => {
   });
 
   it("the person credential carries nothing personal", () => {
-    const c = buildPersonCredential({ credential_id: "c1", agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" }, certificate: { sha256: "ab".repeat(32), issuer: "CN=AC Teste", signed_at: now.toISOString() }, mandate: { actions: ["buy"] }, issuer: "https://kya.test", now });
+    const c = buildPersonCredential({ credential_id: "c1", agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" }, certificate: { sha256: "ab".repeat(32), issuer: "CN=AC Teste", signed_at: now.toISOString(), not_after: "2099-01-01T00:00:00Z" }, mandate: { actions: ["buy"] }, ttl_seconds: 90 * 86400, issuer: "https://kya.test", now });
     expect(c.principal).toEqual({ kind: "person", verified_by: "icp-brasil-e-cpf" });
     expect(c.authorized_by.method).toBe("icp-brasil-e-cpf");
     expect(c.authorized_by.certificate_subject).toBeUndefined();
