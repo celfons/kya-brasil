@@ -429,7 +429,18 @@ the formula. The maximum age for an action of amount *v* is
 which keeps the expected loss *v × λ × age* at or under *L*. With no amount, a zero amount or *λ* = 0 the ceiling
 applies. A custom function's result is clamped to `[0, max_age_seconds]`; a result that is not finite counts as 0.
 
-**Check.** For every required kind, take the evidence with the latest `as_of` (a newer statement supersedes an older
+**Any action.** The policy covers every action, not only payments. For an action with no amount (signing a
+document, reading data, calling an API), *v* is the risk value the verifier assigns to that action name in
+`action_risk_value` (in *L*'s currency); an amount, when present, takes precedence. An action with neither gets the
+ceiling, and the verdict says so, so a verifier lists every non-monetary action it accepts. A custom `max_age`
+receives the action name too.
+
+**Daily ceilings.** The mandate's `max_per_day` bounds what a stolen agent key can do inside the freshness window
+(at most the ceiling per calendar day the window spans), but the count behind it is the verifier's: it supplies
+`spent_today` (section 5), and nothing in the core keeps state. Counting, applying a stricter ceiling of its own, or
+limiting the number of non-monetary actions per day are the verifier's decisions and risk.
+
+**Check.** For the action's value at risk (its amount, or else its risk value) and every required kind, take the evidence with the latest `as_of` (a newer statement supersedes an older
 one, whatever it says). The check passes when that evidence is in force, `valid_until` (if any) is not past, `as_of`
 is not later than the verifier's clock by more than `max_clock_skew_seconds`, and its age is at most `max_age(v)`.
 It fails closed on missing evidence, an amount that is not a finite number ≥ 0, an operation in a currency other than

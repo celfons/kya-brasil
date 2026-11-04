@@ -114,3 +114,41 @@ describe("checkFreshAction", () => {
     expect(r.freshness.refresh).toEqual(["credential"]);
   });
 });
+
+describe("any action, not only payments", () => {
+  const p = freshnessPolicy({
+    max_expected_loss: { amount: 1, currency: "BRL" },
+    revocation_rate_per_hour: { credential: 1e-4 },
+    action_risk_value: { sign_contract: 100_000, read_data: 50 }
+  });
+  it("uses the risk value the verifier gives an action that has no amount", () => {
+    expect(maxStatusAgeSeconds(p, "credential", undefined, "sign_contract")).toBe(360);
+    expect(maxStatusAgeSeconds(p, "credential", undefined, "read_data")).toBe(86_400);
+    const v = checkFreshness(p, [credentialAt(600)], { action: "sign_contract", now: NOW });
+    expect(v.ok).toBe(false);
+    expect(v.checks[0]!.detail).toMatch(/for "sign_contract" \(risk value 100000 BRL\): at most 6 min/);
+    expect(v.applied).toMatchObject({ action: "sign_contract", amount: null, value_at_risk: 100_000 });
+  });
+  it("prefers the amount when the action has one", () => {
+    expect(maxStatusAgeSeconds(p, "credential", 50, "sign_contract")).toBe(86_400);
+  });
+  it("falls back to the ceiling, and says so, for an action with neither", () => {
+    const v = checkFreshness(p, [credentialAt(60)], { action: "call_api", now: NOW });
+    expect(v.checks[0]!.detail).toMatch(/no amount and no risk value for "call_api", ceiling applies/);
+    expect(v.applied.value_at_risk).toBeNull();
+  });
+  it("passes the action to a custom max_age", () => {
+    const custom = freshnessPolicy({ max_expected_loss: { amount: 1, currency: "BRL" }, revocation_rate_per_hour: {}, max_age: ({ action }) => (action === "sign_contract" ? 60 : 3600) });
+    expect(maxStatusAgeSeconds(custom, "credential", undefined, "SIGN_CONTRACT")).toBe(60);
+    expect(maxStatusAgeSeconds(custom, "credential", undefined, "read_data")).toBe(3600);
+  });
+  it("checkFreshAction evaluates a non-monetary action against the mandate and its risk value", () => {
+    const mandate = validateMandate({ actions: ["sign_contract", "read_data"] });
+    expect(checkFreshAction(mandate, { action: "sign_contract", now: NOW }, { policy: p, evidence: [credentialAt(60)] }).allowed).toBe(true);
+    expect(checkFreshAction(mandate, { action: "sign_contract", now: NOW }, { policy: p, evidence: [credentialAt(3600)] }).allowed).toBe(false);
+  });
+  it("refuses risk values that would fail open", () => {
+    expect(() => freshnessPolicy({ max_expected_loss: { amount: 1, currency: "BRL" }, revocation_rate_per_hour: { credential: 1e-4 }, action_risk_value: { sign: -1 } })).toThrow(/finite number >= 0/);
+    expect(() => freshnessPolicy({ max_expected_loss: { amount: 1, currency: "BRL" }, revocation_rate_per_hour: { credential: 1e-4 }, action_risk_value: { "Sign Contract": 1 } })).toThrow(/not a mandate action name/);
+  });
+});

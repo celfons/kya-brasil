@@ -84,6 +84,12 @@ const r = checkFreshAction(credential.mandate, { action: "buy", amount: 4200, cu
 // clock used, keep it with the verdict as the risk you accepted
 ```
 
+Actions without an amount (signing, reading data, calling an API) take the risk value you assign them:
+`action_risk_value: { sign_contract: 100_000, read_data: 50 }` in the policy's currency; an action with neither an
+amount nor a risk value gets the ceiling, and the verdict says so. A custom `max_age` also receives the action.
+The daily ceiling (`max_per_day` with your own `spent_today`) is what bounds a stolen key inside the window; the
+counting, and any stricter ceiling of your own, are yours.
+
 It fails closed: no evidence, another currency, an invalid amount or clock, evidence dated in the future beyond the
 skew, or a CRL past its `nextUpdate`. The freshest statement wins, so a later revocation beats an earlier "active".
 `checkFreshness` and `maxStatusAgeSeconds` are available on their own.

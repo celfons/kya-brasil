@@ -12,6 +12,9 @@
  *
  *     max_age(v) = L / (v × λ)   hours, capped by max_age_seconds.
  *
+ * Any action, not only payments: for an action with no amount (sign a document, read data, call an API) the
+ * verifier assigns a risk value per action (`action_risk_value`), or decides the age itself (`max_age`).
+ *
  * Pure functions, no network: the caller obtains the evidence (cache, CRL download, an issuer answer the
  * agent staples to its request) and passes the clock it trusts.
  */
@@ -53,10 +56,17 @@ export interface FreshnessPolicyInput {
   /** Tolerance for evidence dated after the verifier's clock. Default 300, at most 3600. */
   max_clock_skew_seconds?: number;
   /**
-   * Replaces the default formula. Receives the amount (undefined when the action has none) and the kind;
-   * returns seconds. The result is clamped to [0, max_age_seconds]; anything not finite counts as 0.
+   * Value at risk, in the policy's currency, of actions that carry no amount (`sign`, `read`, `call`...),
+   * keyed by action name. Used only when the action has no amount. An action with neither falls back to
+   * the ceiling, so list every non-monetary action you accept.
    */
-  max_age?: (p: { amount: number | undefined; currency: string; kind: EvidenceKind }) => number;
+  action_risk_value?: Record<string, number>;
+  /**
+   * Replaces the default formula. Receives the value at risk (the amount, or the action's risk value; undefined
+   * when there is neither), the action and the kind; returns seconds. The result is clamped to
+   * [0, max_age_seconds]; anything not finite counts as 0.
+   */
+  max_age?: (p: { amount: number | undefined; currency: string; kind: EvidenceKind; action?: string }) => number;
 }
 
 export interface FreshnessPolicy {
@@ -65,11 +75,13 @@ export interface FreshnessPolicy {
   require: EvidenceKind[];
   max_age_seconds: number;
   max_clock_skew_seconds: number;
+  action_risk_value: Record<string, number>;
   max_age?: FreshnessPolicyInput["max_age"];
 }
 
 const KINDS: EvidenceKind[] = ["credential", "certificate"];
 const CURRENCY = /^[A-Z0-9]{2,10}$/;
+const ACTION = /^[a-z][a-z0-9_-]{1,31}$/;
 
 function bad(message: string): never {
   throw new KyaError("INVALID_INPUT", `freshness policy: ${message}`);
@@ -99,20 +111,40 @@ export function freshnessPolicy(input: FreshnessPolicyInput): FreshnessPolicy {
   const skew = input.max_clock_skew_seconds ?? FRESHNESS_DEFAULT_CLOCK_SKEW_SECONDS;
   if (!Number.isInteger(skew) || skew < 0 || skew > 3600) bad("max_clock_skew_seconds must be an integer in 0..3600");
   if (input.max_age !== undefined && typeof input.max_age !== "function") bad("max_age must be a function");
+  const values: Record<string, number> = {};
+  if (input.action_risk_value !== undefined) {
+    if (!input.action_risk_value || typeof input.action_risk_value !== "object" || Array.isArray(input.action_risk_value)) bad("action_risk_value must be an object of action -> value");
+    for (const [a, v] of Object.entries(input.action_risk_value)) {
+      if (!ACTION.test(a)) bad(`action_risk_value: "${a}" is not a mandate action name (^[a-z][a-z0-9_-]{1,31}$)`);
+      if (typeof v !== "number" || !Number.isFinite(v) || v < 0) bad(`action_risk_value.${a} must be a finite number >= 0`);
+      values[a] = v;
+    }
+  }
 
-  return { max_expected_loss: { amount: loss.amount, currency }, revocation_rate_per_hour: rates, require: [...new Set(require)], max_age_seconds: ceiling, max_clock_skew_seconds: skew, max_age: input.max_age };
+  return { max_expected_loss: { amount: loss.amount, currency }, revocation_rate_per_hour: rates, require: [...new Set(require)], max_age_seconds: ceiling, max_clock_skew_seconds: skew, action_risk_value: values, max_age: input.max_age };
 }
 
-/** Maximum evidence age, in whole seconds, for an action of `amount` (in the policy's currency). */
-export function maxStatusAgeSeconds(policy: FreshnessPolicy, kind: EvidenceKind, amount?: number): number {
+/** The value at risk of an action: its amount, or else the risk value the policy gives its name. */
+export function valueAtRisk(policy: FreshnessPolicy, amount?: number, action?: string): number | undefined {
+  if (amount !== undefined) return amount;
+  const a = action?.trim().toLowerCase();
+  return a && Object.hasOwn(policy.action_risk_value, a) ? policy.action_risk_value[a] : undefined;
+}
+
+/**
+ * Maximum evidence age, in whole seconds, for an action of `amount` (in the policy's currency) or, with no
+ * amount, of the risk value the policy assigns to `action`.
+ */
+export function maxStatusAgeSeconds(policy: FreshnessPolicy, kind: EvidenceKind, amount?: number, action?: string): number {
   const ceiling = policy.max_age_seconds;
+  const value = valueAtRisk(policy, amount, action);
   let seconds: number;
   if (policy.max_age) {
-    seconds = policy.max_age({ amount, currency: policy.max_expected_loss.currency, kind });
+    seconds = policy.max_age({ amount: value, currency: policy.max_expected_loss.currency, kind, action: action?.trim().toLowerCase() || undefined });
   } else {
     const rate = policy.revocation_rate_per_hour[kind] ?? 0;
-    if (amount === undefined || amount <= 0 || rate === 0) return ceiling;
-    seconds = (policy.max_expected_loss.amount / (amount * rate)) * 3600;
+    if (value === undefined || value <= 0 || rate === 0) return ceiling;
+    seconds = (policy.max_expected_loss.amount / (value * rate)) * 3600;
   }
   if (!Number.isFinite(seconds) || seconds < 0) return seconds === Infinity ? ceiling : 0;
   // The epsilon keeps binary rounding (1 / (10000 × 1e-4) × 3600 = 3599.999…) from costing a whole second.
@@ -136,7 +168,10 @@ export interface FreshnessVerdict {
   /** The policy and clock actually applied, to keep with the verdict as proof of the risk accepted. */
   applied: {
     now: string;
+    action: string | null;
     amount: number | null;
+    /** The amount, or the risk value assigned to the action; null when there was neither (ceiling applied). */
+    value_at_risk: number | null;
     currency: string;
     max_expected_loss: { amount: number; currency: string };
     revocation_rate_per_hour: Partial<Record<EvidenceKind, number>>;
@@ -158,15 +193,20 @@ function human(seconds: number): string {
  * past its own validity, is not dated in the future beyond the clock skew, and is younger than the maximum
  * age for this amount. Fails closed: missing, malformed or foreign-currency input never passes.
  */
-export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence[], q: { amount?: number; currency?: string; now?: Date } = {}): FreshnessVerdict {
+export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence[], q: { action?: string; amount?: number; currency?: string; now?: Date } = {}): FreshnessVerdict {
   const now = q.now ?? new Date();
   const nowMs = now.getTime();
   const currency = policy.max_expected_loss.currency;
   const qCurrency = q.currency?.trim().toUpperCase();
   const amount = q.amount;
+  const action = q.action?.trim().toLowerCase() || undefined;
+  const amountValid = amount === undefined || (typeof amount === "number" && Number.isFinite(amount) && amount >= 0);
+  const value = amountValid ? valueAtRisk(policy, amount, action) : undefined;
   const applied: FreshnessVerdict["applied"] = {
     now: Number.isNaN(nowMs) ? "invalid" : now.toISOString(),
+    action: action ?? null,
     amount: amount ?? null,
+    value_at_risk: value ?? null,
     currency,
     max_expected_loss: policy.max_expected_loss,
     revocation_rate_per_hour: policy.revocation_rate_per_hour,
@@ -181,16 +221,16 @@ export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence
     for (const kind of policy.require) checks.push({ rule: "freshness", kind, ok: false, detail: "the verifier's clock is not a valid date", age_seconds: null, max_age_seconds: 0 });
     return { ok: false, checks, refresh, applied };
   }
-  const amountOk = amount === undefined || (typeof amount === "number" && Number.isFinite(amount) && amount >= 0);
-  if (!amountOk || (qCurrency && qCurrency !== currency)) {
-    const detail = !amountOk ? "amount is not a finite number >= 0" : `loss tolerance is in ${currency}, operation in ${qCurrency}`;
+  if (!amountValid || (qCurrency && qCurrency !== currency)) {
+    const detail = !amountValid ? "amount is not a finite number >= 0" : `loss tolerance is in ${currency}, operation in ${qCurrency}`;
     for (const kind of policy.require) checks.push({ rule: "freshness", kind, ok: false, detail, age_seconds: null, max_age_seconds: 0 });
     return { ok: false, checks, refresh, applied };
   }
 
   for (const kind of policy.require) {
-    const max = maxStatusAgeSeconds(policy, kind, amount);
-    const limit = `${amount === undefined ? "no amount given, ceiling applies" : `for ${amount} ${currency}`}: at most ${human(max)}`;
+    const max = maxStatusAgeSeconds(policy, kind, amount, action);
+    const what = amount !== undefined ? `for ${amount} ${currency}` : value !== undefined ? `for "${action}" (risk value ${value} ${currency})` : `no amount${action ? ` and no risk value for "${action}"` : ""}, ceiling applies`;
+    const limit = `${what}: at most ${human(max)}`;
     const usable = evidence.filter((e) => e && e.kind === kind && !Number.isNaN(Date.parse(e.as_of)));
     if (!usable.length) {
       checks.push({ rule: "freshness", kind, ok: false, detail: `no ${kind} status evidence; ${limit}`, age_seconds: null, max_age_seconds: max });
@@ -232,12 +272,12 @@ export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence
 
 /**
  * The mandate (checkAction) and the freshness of the status, in one answer: allowed only when both pass.
- * The freshness check uses the action's amount and currency and the same clock.
+ * The freshness check uses the action's name, amount and currency and the same clock.
  */
 export function checkFreshAction(mandate: Mandate, q: ActionQuery, p: { policy: FreshnessPolicy; evidence: StatusEvidence[] }): { allowed: boolean; mandate: ActionVerdict; freshness: FreshnessVerdict } {
   const now = q.now ?? new Date();
   const m = checkAction(mandate, { ...q, now });
-  const f = checkFreshness(p.policy, p.evidence, { amount: q.amount, currency: q.currency, now });
+  const f = checkFreshness(p.policy, p.evidence, { action: q.action, amount: q.amount, currency: q.currency, now });
   return { allowed: m.allowed && f.ok, mandate: m, freshness: f };
 }
 
