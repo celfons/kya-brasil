@@ -198,8 +198,15 @@ export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence
       continue;
     }
     // Freshest first: a newer statement supersedes an older one, whatever it says.
-    const e = usable.reduce((a, b) => (Date.parse(b.as_of) > Date.parse(a.as_of) ? b : a));
-    const asOf = Date.parse(e.as_of);
+    let e = usable[0]!;
+    let asOf = Date.parse(e.as_of);
+    for (const candidate of usable) {
+      const t = Date.parse(candidate.as_of);
+      if (t > asOf) {
+        e = candidate;
+        asOf = t;
+      }
+    }
     const age = Math.floor((nowMs - asOf) / 1000);
     const from = e.source ? ` (${e.source})` : "";
     if (asOf - nowMs > policy.max_clock_skew_seconds * 1000) {
