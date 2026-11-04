@@ -117,6 +117,47 @@ const headers = await signRequest({ credentialId, key: subKey, delegation: chain
 Short-lived (at most `max_ttl_seconds`, never past the credential), contained in the parent mandate, at most 3
 levels; revoking the credential ends the whole tree. The issuer stores nothing. [SPEC](https://github.com/celfons/kya-brasil/blob/main/docs/SPEC.md) section 17.
 
+### Verify without the issuer (offline)
+
+Opt-in. The agent sends its credential and the principal's proof with the request; the middleware checks them
+against ICP-Brasil alone and never calls the issuer (or any network: the certificate's status is your callback).
+Works with self-issued credentials (`issuer: "urn:kya-brasil:self"`, issued with `@kya-brasil/core`'s
+`assembleCredential`) and with credentials from an issuer whose public key you list.
+
+```ts
+import { createKyaAuth, signRequest } from "@kya-brasil/agent-tools";
+import { checkRevocation, evidenceFromRevocation } from "@kya-brasil/core";
+
+// agent: credential and proof as assembleCredential returned them (or the issuer's credential + your .p7s proof)
+const headers = await signRequest({ credentialId, key, method: "POST", url, body, present: { credential, proof } });
+
+// server: nothing has a default; construction throws without anchors, now or certificateStatus
+const auth = createKyaAuth({
+  offline: {
+    anchors: icpBrasilRoots,                         // base64 DER / PEM
+    now: () => new Date(),                           // your clock
+    certificateStatus: async ({ revocation }) =>     // you fetch and cache the CRL
+      evidenceFromRevocation(await checkRevocation({ crlDer: await myCrl(revocation.crl_urls), serial: revocation.serial_number,
+        issuerCertificate: revocation.issuer_certificate!, pastNextUpdate: "refuse", now: new Date() })),
+    // freshness: { ... },                         // optional, SPEC section 18 (freshnessPolicy): check() also runs checkFreshAction
+    issuerKeys: { "https://kya-br-agents.marcelfons.workers.dev": issuerJwk }, // optional; others are refused
+    issuerFallback: false                            // optional: true sends requests without the credential to the issuer
+  }
+});
+```
+
+Headers: `KYA-Credential-Document` (base64url of the credential's JSON) and `KYA-Principal-Proof`, plus
+`KYA-Delegation` for a sub-agent. The middleware verifies the request signature (agent or last delegate), the
+proof (`verifySelfIssuedCredential`, or `verifyPrincipalProof` and the issuer's attestation), the delegation
+chain at your clock, and the certificate's status; `kya.offline` holds the evidence, and `check()` / `allowed()`
+evaluate every mandate locally (`allowed()` returns an unsigned local verdict). New errors:
+`KYA_CREDENTIAL_MISSING`, `KYA_CREDENTIAL_MALFORMED`, `KYA_CREDENTIAL_MISMATCH`, `KYA_PRINCIPAL_PROOF_MISSING`,
+`KYA_PRINCIPAL_PROOF_MALFORMED`, `KYA_PRINCIPAL_PROOF_INVALID`, `KYA_ISSUER_NOT_TRUSTED`,
+`KYA_CREDENTIAL_SIGNATURE_INVALID`, `KYA_CERTIFICATE_REVOKED`, `KYA_CERTIFICATE_STATUS_UNKNOWN`,
+`KYA_CERTIFICATE_STATUS_STALE` (403), `KYA_CERTIFICATE_STATUS_UNAVAILABLE` (502), `KYA_CLOCK_INVALID` (502).
+What it cannot see: a revocation or suspension made only at an issuer; daily ceilings need your `spent_today`.
+The headers carry the principal's certificate (personal data for an e-CPF): treat them as such.
+
 ## Person: an agent that acts for you (e-CPF)
 
 ```ts

@@ -31,12 +31,19 @@
  *   content-sha256: <hex of the body | ->
  */
 import { verifyMessage } from "viem";
-import { type Delegation, type DelegationAnchor, encodeDelegationHeader, decodeDelegationHeader, prepareDelegation, verifyDelegationChain } from "@kya-brasil/core";
+import { type Delegation, type DelegationAnchor, type FreshnessVerdict, type PrincipalProof, type StatusEvidence, SELF_ISSUER, checkFreshAction, decodePrincipalProofHeader, encodeDelegationHeader, encodePrincipalProofHeader, decodeDelegationHeader, prepareDelegation, verifyDelegationChain } from "@kya-brasil/core";
 import { privateKeyToAccount } from "viem/accounts";
 import { type ActionQuery, type AgentKey, type Credential, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index.js";
 import { fromBase64Url, toBase64Url } from "./base64url.js";
+import { type KyaOfflineOptions, type ResolvedOffline, certificateStatusOf, decodeCredentialHeader, encodeCredentialHeader, resolveOffline, verifyPresentedCredential } from "./offline.js";
 
-export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256", delegation: "kya-delegation" } as const;
+export { type CertificateStatusQuery, type KyaOfflineOptions, decodeCredentialHeader, encodeCredentialHeader } from "./offline.js";
+
+/**
+ * Request headers. `credentialDocument` and `principalProof` are sent only to verifiers that work without the
+ * issuer (offline option): the credential's JSON and the principal's proof, both base64url.
+ */
+export const KYA_HEADERS = { credential: "kya-credential", created: "kya-created", expires: "kya-expires", signature: "kya-signature", content: "kya-content-sha256", delegation: "kya-delegation", credentialDocument: "kya-credential-document", principalProof: "kya-principal-proof" } as const;
 
 export type { Delegation } from "@kya-brasil/core";
 
@@ -85,9 +92,10 @@ export type SigningKey = { kind: "evm" | "erc8004"; privateKey: `0x${string}` } 
 
 /**
  * Signs a request with the agent key and returns the KYA headers to send with it. A sub-agent passes its
- * `delegation` chain (from signDelegation) and signs with its own key.
+ * `delegation` chain (from signDelegation) and signs with its own key. `present` adds the credential and the
+ * principal's proof (KYA-Credential-Document, KYA-Principal-Proof) for verifiers that work without the issuer.
  */
-export async function signRequest(p: { credentialId: string; key: SigningKey; method: string; url: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date; delegation?: Delegation[] }): Promise<Record<string, string>> {
+export async function signRequest(p: { credentialId: string; key: SigningKey; method: string; url: string; body?: string | ArrayBuffer | Uint8Array | null; ttlSeconds?: number; now?: Date; delegation?: Delegation[]; present?: { credential: Credential | object; proof: PrincipalProof } }): Promise<Record<string, string>> {
   const created = Math.floor((p.now ?? new Date()).getTime() / 1000);
   const expires = created + (p.ttlSeconds ?? 60);
   const contentSha256 = p.body !== undefined && p.body !== null && (typeof p.body !== "string" || p.body.length > 0) ? await sha256Hex(p.body) : null;
@@ -98,6 +106,10 @@ export async function signRequest(p: { credentialId: string; key: SigningKey; me
   const headers: Record<string, string> = { [KYA_HEADERS.credential]: p.credentialId, [KYA_HEADERS.created]: String(created), [KYA_HEADERS.expires]: String(expires), [KYA_HEADERS.signature]: signature };
   if (contentSha256) headers[KYA_HEADERS.content] = contentSha256;
   if (delegationHeader) headers[KYA_HEADERS.delegation] = delegationHeader;
+  if (p.present) {
+    headers[KYA_HEADERS.credentialDocument] = encodeCredentialHeader(p.present.credential as Credential);
+    headers[KYA_HEADERS.principalProof] = encodePrincipalProofHeader(p.present.proof);
+  }
   return headers;
 }
 
@@ -134,6 +146,12 @@ export interface KyaAuthOptions extends KyaOptions {
   maxTtlSeconds?: number;
   /** Verify the body hash when the request has a body. Default true. */
   requireBodyHash?: boolean;
+  /**
+   * Opt-in: accept requests that carry their own credential and principal's proof, with no issuer in the path
+   * (SPEC sections 14, 18-20). Trust anchors, clock and certificate status are required (construction throws
+   * without them); see KyaOfflineOptions. Absent: behaviour unchanged.
+   */
+  offline?: KyaOfflineOptions;
 }
 
 export interface KyaContext {
@@ -152,6 +170,12 @@ export interface KyaContext {
   delegation: { depth: number; delegate: AgentKey; expires_at: string; chain: Delegation[]; mandates: Mandate[] } | null;
   /** Whether the body hash was checked ("verified"), absent from the signature ("none") or not checkable ("skipped"). */
   body: "verified" | "none" | "skipped";
+  /**
+   * Present when the request was verified without the issuer (`offline` option): the credential came with the
+   * request, the principal's proof verified up to your anchors, and `evidence` is what your certificateStatus
+   * returned. check() and allowed() are then local, at your clock (allowed() never calls the issuer).
+   */
+  offline?: { issuer: string; self_issued: boolean; verified_at: string; evidence: StatusEvidence[] };
   /** Local evaluation of the mandate (no daily ceilings; those need the issuer). On a delegated request, of every mandate in the chain. */
   check(q: ActionQuery): LocalVerdict;
   /**
@@ -164,7 +188,13 @@ export interface KyaContext {
 
 export type KyaAuthResult = { ok: true; kya: KyaContext } | { ok: false; status: 401 | 403 | 502; error: string; message: string };
 
-export interface LocalVerdict { allowed: boolean; checks: { rule: string; ok: boolean; detail: string }[]; not_evaluated: string[] }
+export interface LocalVerdict {
+  allowed: boolean;
+  checks: { rule: string; ok: boolean; detail: string }[];
+  not_evaluated: string[];
+  /** Offline mode with a freshness policy: the status freshness verdict (SPEC section 18, checkFreshAction). */
+  freshness?: FreshnessVerdict;
+}
 
 const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until", "delegation"];
 
@@ -264,6 +294,8 @@ const headerOf = (headers: Headers | Record<string, string | string[] | undefine
 };
 
 export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
+  // Offline mode is opt-in and validated here: missing anchors, clock or certificate status throws.
+  const offline: ResolvedOffline | null = opts.offline === undefined ? null : resolveOffline(opts.offline);
   const client = createKyaClient(opts);
   const cacheTtl = opts.cacheTtlMs ?? 60_000;
   const maxSkew = opts.maxSkewSeconds ?? 300;
@@ -296,6 +328,12 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
 
   const fail = (status: 401 | 403 | 502, error: string, message: string): KyaAuthResult => ({ ok: false, status, error, message });
 
+  /** The offline clock, checked on every use (a wrong clock makes stale evidence look fresh). */
+  function offlineNow(): Date | null {
+    const d = offline?.now();
+    return d instanceof Date && !Number.isNaN(d.getTime()) ? d : null;
+  }
+
   async function authenticateParts(p: { method: string; url: string; headers: Headers | Record<string, string | string[] | undefined>; body?: string | ArrayBuffer | Uint8Array | null }): Promise<KyaAuthResult> {
     const credentialId = headerOf(p.headers, KYA_HEADERS.credential);
     const created = Number(headerOf(p.headers, KYA_HEADERS.created));
@@ -303,8 +341,12 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
     const signature = headerOf(p.headers, KYA_HEADERS.signature);
     const contentHeader = headerOf(p.headers, KYA_HEADERS.content);
     const delegationHeader = headerOf(p.headers, KYA_HEADERS.delegation);
+    const document = offline ? headerOf(p.headers, KYA_HEADERS.credentialDocument) : null;
+    const useOffline = offline !== null && (document !== null || !offline.issuerFallback);
     if (!credentialId || !signature || !Number.isFinite(created) || !Number.isFinite(expires)) return fail(401, "KYA_HEADERS_MISSING", `send ${KYA_HEADERS.credential}, ${KYA_HEADERS.created}, ${KYA_HEADERS.expires} and ${KYA_HEADERS.signature}`);
-    const now = Math.floor(Date.now() / 1000);
+    const at = useOffline ? offlineNow() : new Date();
+    if (!at) return fail(502, "KYA_CLOCK_INVALID", "the verifier's clock (offline.now) did not return a valid Date");
+    const now = Math.floor(at.getTime() / 1000);
     if (created > now + maxSkew) return fail(401, "KYA_SIGNATURE_NOT_YET_VALID", "created is in the future");
     if (expires < now) return fail(401, "KYA_SIGNATURE_EXPIRED", "expires is in the past");
     if (expires - created > maxTtl || expires < created) return fail(401, "KYA_SIGNATURE_TTL", `signature lifetime must be between 0 and ${maxTtl}s`);
@@ -318,6 +360,10 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       else bodyState = "verified";
     } else if (contentHeader) bodyState = "skipped";
 
+    const delegationSha256 = delegationHeader ? await sha256Hex(delegationHeader) : null;
+    const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader, delegationSha256 });
+    if (useOffline) return authenticateOffline({ credentialId, document, proofHeader: headerOf(p.headers, KYA_HEADERS.principalProof), delegationHeader, text, signature, bodyState, at });
+
     let v: Verification;
     try {
       v = await verification(credentialId);
@@ -327,37 +373,94 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
     }
     let delegation: KyaContext["delegation"] = null;
     if (delegationHeader) {
-      const d = await delegationOf(credentialId, v, delegationHeader);
+      if (!v.credential) return fail(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}`);
+      const d = await delegationOf(anchorOf(credentialId, v.agent, v.credential), delegationHeader);
       if (!d.ok) return d.result;
       delegation = d.delegation;
     }
-    const delegationSha256 = delegationHeader ? await sha256Hex(delegationHeader) : null;
-    const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader, delegationSha256 });
     return finish(credentialId, v, text, signature, bodyState, delegation);
   }
 
+  const anchorOf = (credentialId: string, agent: AgentKey, credential: Pick<Credential, "mandate" | "expires_at">): DelegationAnchor => ({ credential_id: credentialId, agent: agent as DelegationAnchor["agent"], mandate: credential.mandate as DelegationAnchor["mandate"], expires_at: credential.expires_at });
+
   /** D-30: verifies a KYA-Delegation chain against the credential (offline, core rules). */
-  async function delegationOf(credentialId: string, v: Verification, header: string): Promise<{ ok: true; delegation: NonNullable<KyaContext["delegation"]> } | { ok: false; result: KyaAuthResult }> {
+  async function delegationOf(anchor: DelegationAnchor, header: string, now?: Date): Promise<{ ok: true; delegation: NonNullable<KyaContext["delegation"]> } | { ok: false; result: KyaAuthResult }> {
     const no = (status: 401 | 403, error: string, message: string) => ({ ok: false as const, result: fail(status, error, message) });
-    if (!v.credential) return no(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}`);
     let chain: unknown;
     try {
       chain = decodeDelegationHeader(header);
     } catch (e) {
       return no(401, "KYA_DELEGATION_MALFORMED", (e as Error).message);
     }
-    const anchor: DelegationAnchor = { credential_id: credentialId, agent: v.agent as DelegationAnchor["agent"], mandate: v.credential.mandate as DelegationAnchor["mandate"], expires_at: v.credential.expires_at };
-    const r = await verifyDelegationChain({ credential: anchor, chain });
+    const r = await verifyDelegationChain({ credential: anchor, chain, now });
     if (!r.ok) return no(r.error === "KYA_DELEGATION_NOT_ALLOWED" || r.error === "KYA_DELEGATION_BROADER" ? 403 : 401, r.error, r.message);
     return { ok: true, delegation: { depth: r.depth, delegate: r.delegate, expires_at: r.expires_at, chain: chain as Delegation[], mandates: r.mandates as Mandate[] } };
+  }
+
+  /**
+   * Offline (opt-in): the credential and the principal's proof came with the request. Order: shape, delegation
+   * chain and request signature (cheap, reject strangers before anything else), then the principal's proof up to
+   * the anchors, then the caller's certificate status. No network here.
+   */
+  async function authenticateOffline(p: { credentialId: string; document: string | null; proofHeader: string | null; delegationHeader: string | null; text: string; signature: string; bodyState: KyaContext["body"]; at: Date }): Promise<KyaAuthResult> {
+    const o = offline as ResolvedOffline;
+    if (!p.document) return fail(401, "KYA_CREDENTIAL_MISSING", `this verifier works without the issuer: send ${KYA_HEADERS.credentialDocument} and ${KYA_HEADERS.principalProof}`);
+    let credential: Credential;
+    try {
+      credential = decodeCredentialHeader(p.document);
+    } catch (e) {
+      return fail(401, "KYA_CREDENTIAL_MALFORMED", (e as Error).message);
+    }
+    if (!credential.agent || typeof credential.agent !== "object" || typeof credential.agent.id !== "string" || !credential.mandate || typeof credential.mandate !== "object" || typeof credential.expires_at !== "string" || !credential.principal || !credential.authorized_by) return fail(401, "KYA_CREDENTIAL_MALFORMED", "KYA-Credential-Document is not a credential");
+    if (credential.credential_id !== p.credentialId) return fail(401, "KYA_CREDENTIAL_MISMATCH", `${KYA_HEADERS.credentialDocument} is credential ${String(credential.credential_id)}, the request names ${p.credentialId}`);
+    if (!p.proofHeader) return fail(401, "KYA_PRINCIPAL_PROOF_MISSING", `send ${KYA_HEADERS.principalProof} with ${KYA_HEADERS.credentialDocument}`);
+    let proof: PrincipalProof;
+    try {
+      proof = decodePrincipalProofHeader(p.proofHeader);
+    } catch (e) {
+      return fail(401, "KYA_PRINCIPAL_PROOF_MALFORMED", (e as Error).message);
+    }
+
+    let delegation: KyaContext["delegation"] = null;
+    if (p.delegationHeader) {
+      const d = await delegationOf(anchorOf(p.credentialId, credential.agent, credential), p.delegationHeader, p.at);
+      if (!d.ok) return d.result;
+      delegation = d.delegation;
+    }
+    const sig = await verifySignature(delegation ? delegation.delegate : credential.agent, p.text, p.signature);
+    if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", delegation ? "signature does not match the delegate's key over the signed text" : "signature does not match the credential's agent key over the signed text");
+
+    const presented = await verifyPresentedCredential(o, credential, proof, p.at);
+    if (!presented.ok) return fail(presented.status, presented.error, presented.message);
+    const status = await certificateStatusOf(o, { credential, revocation: presented.revocation }, p.at);
+    if (!status.ok) return fail(status.status, status.error, status.message);
+
+    const v: Verification = { credential_id: p.credentialId, status: "active", status_reason: null, agent: credential.agent, principal: credential.principal as Verification["principal"], credential, events: [] };
+    const info: NonNullable<KyaContext["offline"]> = { issuer: credential.issuer, self_issued: credential.issuer === SELF_ISSUER, verified_at: p.at.toISOString(), evidence: status.evidence };
+    return { ok: true, kya: contextOf(p.credentialId, v, sig.signer, p.bodyState, delegation, info) };
   }
 
   async function finish(credentialId: string, v: Verification, text: string, signature: string, bodyState: KyaContext["body"], delegation: KyaContext["delegation"] = null): Promise<KyaAuthResult> {
     const sig = await verifySignature(delegation ? delegation.delegate : v.agent, text, signature);
     if (!sig.ok) return fail(401, "KYA_BAD_SIGNATURE", delegation ? "signature does not match the delegate's key over the signed text" : "signature does not match the credential's agent key over the signed text");
     if (v.status !== "active") return fail(403, "KYA_CREDENTIAL_NOT_ACTIVE", `credential is ${v.status}${v.status_reason ? `: ${v.status_reason}` : ""}`);
+    return { ok: true, kya: contextOf(credentialId, v, sig.signer, bodyState, delegation, null) };
+  }
+
+  function contextOf(credentialId: string, v: Verification, signer: string, bodyState: KyaContext["body"], delegation: KyaContext["delegation"], local: NonNullable<KyaContext["offline"]> | null): KyaContext {
     const mandate = v.credential?.mandate ?? {};
     const mandates = delegation ? delegation.mandates : [mandate];
+    // Offline: every mandate at the verifier's clock, and, with a freshness policy, checkFreshAction on the evidence.
+    const offlineCheck = (q: ActionQuery): LocalVerdict => {
+      const at = offlineNow();
+      if (!at) return { allowed: false, checks: [{ rule: "clock", ok: false, detail: "the verifier's clock (offline.now) did not return a valid Date" }], not_evaluated: [] };
+      const base = delegation ? checkMandates(mandates, q, at) : checkMandate(mandate, q, at);
+      const policy = (offline as ResolvedOffline).policy;
+      if (!policy || !local) return base;
+      const f = checkFreshAction(mandate as Parameters<typeof checkFreshAction>[0], { ...q, now: at }, { policy, evidence: local.evidence });
+      const freshness = f.freshness.checks.map((c) => ({ rule: `freshness (${c.kind})`, ok: c.ok, detail: c.detail }));
+      return { allowed: base.allowed && f.allowed, checks: [...base.checks, ...freshness], not_evaluated: base.not_evaluated, freshness: f.freshness };
+    };
     const ctx: KyaContext = {
       credential_id: credentialId,
       agent: v.agent,
@@ -365,27 +468,34 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       status: v.status,
       mandate,
       credential: v.credential,
-      signer: sig.signer,
+      signer,
       body: bodyState,
       delegation,
-      check: (q) => (delegation ? checkMandates(mandates, q) : checkMandate(mandate, q)),
+      ...(local ? { offline: local } : {}),
+      check: (q) => (local ? offlineCheck(q) : delegation ? checkMandates(mandates, q) : checkMandate(mandate, q)),
       allowed: async (q) => {
+        if (local) {
+          // No issuer to ask: the local verdict, unsigned, in the issuer's shape.
+          const l = offlineCheck(q);
+          return { credential_id: credentialId, status: v.status, allowed: l.allowed, reason: l.allowed ? "inside every mandate (verified offline)" : "refused by the mandate or the status freshness (verified offline)", checks: l.checks.map((c) => ({ field: c.rule, ok: c.ok, detail: c.detail })), not_evaluated: l.not_evaluated, offline: true, ...(l.freshness ? { freshness: l.freshness } : {}) };
+        }
         if (delegation) {
           for (let i = 1; i < mandates.length; i++) {
-            const local = checkMandate(mandates[i]!, q);
-            if (!local.allowed) {
-              return { credential_id: credentialId, status: v.status, allowed: false, reason: `outside the mandate of delegation ${i}`, checks: local.checks.map((c) => ({ field: c.rule, ok: c.ok, detail: c.detail })), not_evaluated: local.not_evaluated, delegation_level: i };
+            const localVerdict = checkMandate(mandates[i]!, q);
+            if (!localVerdict.allowed) {
+              return { credential_id: credentialId, status: v.status, allowed: false, reason: `outside the mandate of delegation ${i}`, checks: localVerdict.checks.map((c) => ({ field: c.rule, ok: c.ok, detail: c.detail })), not_evaluated: localVerdict.not_evaluated, delegation_level: i };
             }
           }
         }
         return client.allowed(credentialId, q);
       }
     };
-    return { ok: true, kya: ctx };
+    return ctx;
   }
 
   /** Low level: verify a signature by a credential's agent key over a text you built yourself (used for signed responses). */
   async function verifySigned(p: { credentialId: string; text: string; signature: string; body?: KyaContext["body"] }): Promise<KyaAuthResult> {
+    if (offline && !offline.issuerFallback) return fail(401, "KYA_CREDENTIAL_MISSING", "this verifier works without the issuer: a bare signature carries no credential to check");
     let v: Verification;
     try {
       v = await verification(p.credentialId);
