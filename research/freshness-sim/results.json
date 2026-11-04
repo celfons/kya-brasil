@@ -1,0 +1,466 @@
+{
+  "params": {
+    "seed": 20261104,
+    "credentials": 400,
+    "horizon_hours": 720,
+    "actions_per_hour": 2.0,
+    "value_median_brl": 200.0,
+    "value_sigma": 1.6,
+    "lambda_per_hour": 1e-05,
+    "publication_delay": {
+      "crl_interval_h": 6.0,
+      "publish_latency_h": 4.0
+    },
+    "delay_samples": 64
+  },
+  "policies": {
+    "consultar sempre": [
+      {
+        "policy": "consultar sempre",
+        "setting": "0 h",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 35.7433
+      }
+    ],
+    "prazo fixo": [
+      {
+        "policy": "prazo fixo",
+        "setting": "0.25 h",
+        "fetches_per_1000": 667.19,
+        "expected_loss_per_1000_brl": 36.0438
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "0.5 h",
+        "fetches_per_1000": 500.79,
+        "expected_loss_per_1000_brl": 36.6297
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "1 h",
+        "fetches_per_1000": 333.81,
+        "expected_loss_per_1000_brl": 38.1286
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "2 h",
+        "fetches_per_1000": 200.34,
+        "expected_loss_per_1000_brl": 41.4494
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "4 h",
+        "fetches_per_1000": 111.42,
+        "expected_loss_per_1000_brl": 48.3141
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "6 h",
+        "fetches_per_1000": 77.25,
+        "expected_loss_per_1000_brl": 55.4092
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "12 h",
+        "fetches_per_1000": 40.31,
+        "expected_loss_per_1000_brl": 76.6694
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "24 h",
+        "fetches_per_1000": 20.83,
+        "expected_loss_per_1000_brl": 118.7654
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "48 h",
+        "fetches_per_1000": 10.42,
+        "expected_loss_per_1000_brl": 203.2849
+      }
+    ],
+    "proporcional ao valor": [
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.01",
+        "fetches_per_1000": 209.27,
+        "expected_loss_per_1000_brl": 37.5509
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.03",
+        "fetches_per_1000": 125.24,
+        "expected_loss_per_1000_brl": 40.522
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.1",
+        "fetches_per_1000": 67.67,
+        "expected_loss_per_1000_brl": 48.5248
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.3",
+        "fetches_per_1000": 37.5,
+        "expected_loss_per_1000_brl": 64.9877
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=1",
+        "fetches_per_1000": 23.92,
+        "expected_loss_per_1000_brl": 91.7432
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=3",
+        "fetches_per_1000": 21.19,
+        "expected_loss_per_1000_brl": 109.0546
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=10",
+        "fetches_per_1000": 20.84,
+        "expected_loss_per_1000_brl": 116.4979
+      }
+    ],
+    "faixas de valor": [
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, folgada",
+        "fetches_per_1000": 76.96,
+        "expected_loss_per_1000_brl": 51.0196
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, média",
+        "fetches_per_1000": 288.24,
+        "expected_loss_per_1000_brl": 37.5214
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, rígida",
+        "fetches_per_1000": 402.99,
+        "expected_loss_per_1000_brl": 36.4242
+      }
+    ]
+  },
+  "pareto": [
+    {
+      "policy": "prazo fixo",
+      "setting": "48 h",
+      "fetches_per_1000": 10.42,
+      "expected_loss_per_1000_brl": 203.2849
+    },
+    {
+      "policy": "prazo fixo",
+      "setting": "24 h",
+      "fetches_per_1000": 20.83,
+      "expected_loss_per_1000_brl": 118.7654
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=10",
+      "fetches_per_1000": 20.84,
+      "expected_loss_per_1000_brl": 116.4979
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=3",
+      "fetches_per_1000": 21.19,
+      "expected_loss_per_1000_brl": 109.0546
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=1",
+      "fetches_per_1000": 23.92,
+      "expected_loss_per_1000_brl": 91.7432
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=0.3",
+      "fetches_per_1000": 37.5,
+      "expected_loss_per_1000_brl": 64.9877
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=0.1",
+      "fetches_per_1000": 67.67,
+      "expected_loss_per_1000_brl": 48.5248
+    },
+    {
+      "policy": "prazo fixo",
+      "setting": "4 h",
+      "fetches_per_1000": 111.42,
+      "expected_loss_per_1000_brl": 48.3141
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=0.03",
+      "fetches_per_1000": 125.24,
+      "expected_loss_per_1000_brl": 40.522
+    },
+    {
+      "policy": "proporcional ao valor",
+      "setting": "L=0.01",
+      "fetches_per_1000": 209.27,
+      "expected_loss_per_1000_brl": 37.5509
+    },
+    {
+      "policy": "faixas de valor",
+      "setting": "3 faixas, média",
+      "fetches_per_1000": 288.24,
+      "expected_loss_per_1000_brl": 37.5214
+    },
+    {
+      "policy": "faixas de valor",
+      "setting": "3 faixas, rígida",
+      "fetches_per_1000": 402.99,
+      "expected_loss_per_1000_brl": 36.4242
+    },
+    {
+      "policy": "prazo fixo",
+      "setting": "0.25 h",
+      "fetches_per_1000": 667.19,
+      "expected_loss_per_1000_brl": 36.0438
+    },
+    {
+      "policy": "consultar sempre",
+      "setting": "0 h",
+      "fetches_per_1000": 1000.0,
+      "expected_loss_per_1000_brl": 35.7433
+    }
+  ],
+  "sensitivity": {
+    "1e-06": [
+      {
+        "policy": "prazo fixo 6 h",
+        "fetches_per_1000": 77.25,
+        "expected_loss_per_1000_brl": 5.5588
+      },
+      {
+        "policy": "proporcional L=1",
+        "fetches_per_1000": 23.92,
+        "expected_loss_per_1000_brl": 9.2038
+      },
+      {
+        "policy": "consultar sempre",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 3.5859
+      }
+    ],
+    "1e-05": [
+      {
+        "policy": "prazo fixo 6 h",
+        "fetches_per_1000": 77.25,
+        "expected_loss_per_1000_brl": 55.4092
+      },
+      {
+        "policy": "proporcional L=1",
+        "fetches_per_1000": 23.92,
+        "expected_loss_per_1000_brl": 91.7432
+      },
+      {
+        "policy": "consultar sempre",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 35.7433
+      }
+    ],
+    "0.0001": [
+      {
+        "policy": "prazo fixo 6 h",
+        "fetches_per_1000": 77.25,
+        "expected_loss_per_1000_brl": 536.5877
+      },
+      {
+        "policy": "proporcional L=1",
+        "fetches_per_1000": 23.92,
+        "expected_loss_per_1000_brl": 888.6765
+      },
+      {
+        "policy": "consultar sempre",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 346.1238
+      }
+    ]
+  },
+  "stolen_key": {
+    "prazo fixo 6 h": {
+      "sem teto diário": 5935988.0,
+      "teto diário R$ 20.000": 21510.0
+    },
+    "proporcional L=1": {
+      "sem teto diário": 8082231.0,
+      "teto diário R$ 20.000": 33150.0
+    },
+    "consultar sempre": {
+      "sem teto diário": 5066597.0,
+      "teto diário R$ 20.000": 20000.0
+    }
+  },
+  "value_shape": {
+    "top20_share_of_value": 0.777,
+    "actions": 575963
+  },
+  "proportional_L1_fetches_on_top20_value": 0.529,
+  "credential_no_delay": {
+    "rows": [
+      {
+        "policy": "consultar sempre",
+        "setting": "0 h",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 0.0
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "0.25 h",
+        "fetches_per_1000": 667.7,
+        "expected_loss_per_1000_brl": 0.3057
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "1 h",
+        "fetches_per_1000": 333.82,
+        "expected_loss_per_1000_brl": 2.4177
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "6 h",
+        "fetches_per_1000": 77.31,
+        "expected_loss_per_1000_brl": 19.9076
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "24 h",
+        "fetches_per_1000": 20.84,
+        "expected_loss_per_1000_brl": 84.766
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.01",
+        "fetches_per_1000": 209.44,
+        "expected_loss_per_1000_brl": 1.8201
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.03",
+        "fetches_per_1000": 125.46,
+        "expected_loss_per_1000_brl": 4.8196
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.1",
+        "fetches_per_1000": 68.03,
+        "expected_loss_per_1000_brl": 12.8475
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.3",
+        "fetches_per_1000": 37.69,
+        "expected_loss_per_1000_brl": 29.4335
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=1",
+        "fetches_per_1000": 23.87,
+        "expected_loss_per_1000_brl": 56.8885
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=3",
+        "fetches_per_1000": 21.2,
+        "expected_loss_per_1000_brl": 74.516
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=10",
+        "fetches_per_1000": 20.84,
+        "expected_loss_per_1000_brl": 82.1584
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, folgada",
+        "fetches_per_1000": 76.95,
+        "expected_loss_per_1000_brl": 15.4765
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, média",
+        "fetches_per_1000": 288.23,
+        "expected_loss_per_1000_brl": 1.8014
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, rígida",
+        "fetches_per_1000": 403.03,
+        "expected_loss_per_1000_brl": 0.6893
+      }
+    ],
+    "pareto": [
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=10",
+        "fetches_per_1000": 20.84,
+        "expected_loss_per_1000_brl": 82.1584
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=3",
+        "fetches_per_1000": 21.2,
+        "expected_loss_per_1000_brl": 74.516
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=1",
+        "fetches_per_1000": 23.87,
+        "expected_loss_per_1000_brl": 56.8885
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.3",
+        "fetches_per_1000": 37.69,
+        "expected_loss_per_1000_brl": 29.4335
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.1",
+        "fetches_per_1000": 68.03,
+        "expected_loss_per_1000_brl": 12.8475
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.03",
+        "fetches_per_1000": 125.46,
+        "expected_loss_per_1000_brl": 4.8196
+      },
+      {
+        "policy": "proporcional ao valor",
+        "setting": "L=0.01",
+        "fetches_per_1000": 209.44,
+        "expected_loss_per_1000_brl": 1.8201
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, média",
+        "fetches_per_1000": 288.23,
+        "expected_loss_per_1000_brl": 1.8014
+      },
+      {
+        "policy": "faixas de valor",
+        "setting": "3 faixas, rígida",
+        "fetches_per_1000": 403.03,
+        "expected_loss_per_1000_brl": 0.6893
+      },
+      {
+        "policy": "prazo fixo",
+        "setting": "0.25 h",
+        "fetches_per_1000": 667.7,
+        "expected_loss_per_1000_brl": 0.3057
+      },
+      {
+        "policy": "consultar sempre",
+        "setting": "0 h",
+        "fetches_per_1000": 1000.0,
+        "expected_loss_per_1000_brl": 0.0
+      }
+    ]
+  }
+}
