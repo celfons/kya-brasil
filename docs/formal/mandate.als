@@ -33,7 +33,7 @@ sig Mandate {
   rc: lone Yes, curs: set Currency,        -- restricts currencies? which ones
   parties: set Party,                      -- counterparties; empty = any
   ceiling: lone Int, ceilCur: lone Currency,
-  from: lone Int, until: lone Int
+  validFrom: lone Int, validUntil: lone Int
 }
 
 fact WellFormed {
@@ -44,7 +44,7 @@ fact WellFormed {
     some m.rc implies some m.curs
     some m.ceiling iff some m.ceilCur
     some m.ceiling implies m.ceiling > 0
-    (some m.from and some m.until) implies m.from < m.until
+    (some m.validFrom and some m.validUntil) implies m.validFrom < m.validUntil
   }
 }
 
@@ -60,23 +60,29 @@ fact NonNegativeAmounts { all q: Query | some q.amount implies q.amount >= 0 }
 
 /* checkAction: a rule is evaluated only when both the mandate and the query carry its field,
    except actions, which a restricted mandate requires. */
+pred allowsFrom[m: Mandate, q: Query]    { some m.validFrom implies q.now >= m.validFrom }
+pred allowsUntil[m: Mandate, q: Query]   { some m.validUntil implies q.now <= m.validUntil }
+pred allowsAction[m: Mandate, q: Query]  { some m.ra implies (some q.act and q.act in m.acts) }
+pred allowsCur[m: Mandate, q: Query]     { (some m.rc and some q.cur) implies q.cur in m.curs }
+pred allowsCeiling[m: Mandate, q: Query] { (some m.ceiling and some q.amount) implies ((no q.cur or q.cur = m.ceilCur) and q.amount <= m.ceiling) }
+pred allowsParty[m: Mandate, q: Query]   { (some m.parties and some q.party) implies q.party in m.parties }
+
 pred allows[m: Mandate, q: Query] {
-  some m.from implies q.now >= m.from
-  some m.until implies q.now <= m.until
-  some m.ra implies (some q.act and q.act in m.acts)
-  (some m.rc and some q.cur) implies q.cur in m.curs
-  (some m.ceiling and some q.amount) implies ((no q.cur or q.cur = m.ceilCur) and q.amount <= m.ceiling)
-  (some m.parties and some q.party) implies q.party in m.parties
+  allowsFrom[m, q] and allowsUntil[m, q] and allowsAction[m, q]
+  allowsCur[m, q] and allowsCeiling[m, q] and allowsParty[m, q]
 }
 
 /* mandateSubsetProblems(p, c) is empty: every field the parent restricts, the child restricts at least as much. */
+pred subActs[p, c: Mandate]    { some p.ra implies (some c.ra and c.acts in p.acts) }
+pred subCurs[p, c: Mandate]    { some p.rc implies (some c.rc and c.curs in p.curs) }
+pred subCeiling[p, c: Mandate] { some p.ceiling implies (some c.ceiling and c.ceilCur = p.ceilCur and c.ceiling <= p.ceiling) }
+pred subParties[p, c: Mandate] { some p.parties implies (some c.parties and c.parties in p.parties) }
+pred subFrom[p, c: Mandate]    { some p.validFrom implies (some c.validFrom and c.validFrom >= p.validFrom) }
+pred subUntil[p, c: Mandate]   { some p.validUntil implies (some c.validUntil and c.validUntil <= p.validUntil) }
+
 pred subset[p, c: Mandate] {
-  some p.ra implies (some c.ra and c.acts in p.acts)
-  some p.rc implies (some c.rc and c.curs in p.curs)
-  some p.ceiling implies (some c.ceiling and c.ceilCur = p.ceilCur and c.ceiling <= p.ceiling)
-  some p.parties implies (some c.parties and c.parties in p.parties)
-  some p.from implies (some c.from and c.from >= p.from)
-  some p.until implies (some c.until and c.until <= p.until)
+  subActs[p, c] and subCurs[p, c] and subCeiling[p, c]
+  subParties[p, c] and subFrom[p, c] and subUntil[p, c]
 }
 
 /* A credential and a chain of delegated mandates; an action passes only when the credential is in force and
