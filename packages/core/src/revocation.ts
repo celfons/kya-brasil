@@ -43,9 +43,14 @@ export interface VerifiedCrl {
 
 /**
  * Parses and verifies a DER CRL against `issuerCertificate` (base64 DER). Throws REVOCATION_UNAVAILABLE
- * when the CRL cannot be trusted (bad encoding, other issuer, bad signature, stale).
+ * when the CRL cannot be trusted (bad encoding, other issuer, bad signature).
+ *
+ * `pastNextUpdate` is the caller's choice for a CRL whose nextUpdate has passed: "refuse" throws (the usual
+ * reading of RFC 5280); "accept" returns it, still reporting next_update, for callers that bound the risk by
+ * the CRL's age instead (Li and Feigenbaum, FC 2001; SPEC section 18).
  */
-export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCertificate: string; now?: Date }): Promise<VerifiedCrl> {
+export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCertificate: string; pastNextUpdate: "refuse" | "accept"; now?: Date }): Promise<VerifiedCrl> {
+  if (p.pastNextUpdate !== "refuse" && p.pastNextUpdate !== "accept") throw new KyaError("INVALID_INPUT", 'pastNextUpdate is required: "refuse" or "accept"');
   const now = p.now ?? new Date();
   let crl: X509Crl;
   let issuer: X509Certificate;
@@ -57,7 +62,7 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
   }
   if (crl.issuer !== issuer.subject) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL issued by "${crl.issuer}", not by the certificate's AC "${issuer.subject}"`);
   if (!(await crl.verify({ publicKey: issuer }, globalThis.crypto as Crypto))) throw new KyaError("REVOCATION_UNAVAILABLE", "CRL signature does not match the AC certificate");
-  if (crl.nextUpdate && crl.nextUpdate < now) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL is stale (nextUpdate ${crl.nextUpdate.toISOString()})`);
+  if (p.pastNextUpdate === "refuse" && crl.nextUpdate && crl.nextUpdate < now) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL is stale (nextUpdate ${crl.nextUpdate.toISOString()})`);
   const this_update = crl.thisUpdate.toISOString();
   const next_update = crl.nextUpdate ? crl.nextUpdate.toISOString() : null;
   const entries = new Map(crl.entries.map((e) => [normalizeSerial(e.serialNumber), e] as const));
@@ -78,7 +83,7 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
 }
 
 /** One-shot check of `serial` against a DER CRL signed by `issuerCertificate`; see verifyCrl. */
-export async function checkRevocation(p: { crlDer: ArrayBuffer | Uint8Array; serial: string; issuerCertificate: string; now?: Date }): Promise<RevocationStatus> {
+export async function checkRevocation(p: { crlDer: ArrayBuffer | Uint8Array; serial: string; issuerCertificate: string; pastNextUpdate: "refuse" | "accept"; now?: Date }): Promise<RevocationStatus> {
   return (await verifyCrl(p)).lookup(p.serial);
 }
 

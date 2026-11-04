@@ -63,29 +63,40 @@ the text the delegator signs with its agent key; `mandateSubsetProblems(parent, 
 Offline, a verifier only has status evidence of some age: an answer the issuer signed (the credential's status) or a
 CRL (the certificate's). How old is acceptable is the verifier's call, because the verifier runs the risk (SPEC
 section 18). Declare the expected loss you accept per action (`L`) and the revocation rate you assume (`λ`, per hour);
-the maximum age is `L / (amount × λ)`, capped (one day by default):
+the maximum age is `L / (amount × λ)`, capped by your ceiling. The library holds no business values: every
+parameter below is required, and so is the clock.
 
 ```ts
 import { freshnessPolicy, checkFreshAction, evidenceFromSignedStatus, evidenceFromRevocation } from "@kya-brasil/core";
 
 const policy = freshnessPolicy({
   max_expected_loss: { amount: 1, currency: "BRL" },               // L: your tolerance, per action
-  revocation_rate_per_hour: { credential: lambda, certificate: mu }, // λ: what you assume; no default
+  revocation_rate_per_hour: { credential: lambda, certificate: mu }, // λ: what you assume
   require: ["credential"],                                          // add "certificate" to also require a CRL
-  // max_age_seconds: 86_400, max_clock_skew_seconds: 300, or max_age: ({ amount, kind }) => seconds
+  max_age_seconds: ceiling,                                         // your ceiling, whatever the value
+  max_clock_skew_seconds: skew,                                     // tolerance for evidence dated in the future
+  unvalued_action: "refuse",                                        // or "ceiling": actions of unknown value
+  past_valid_until: "refuse",                                       // or "accept": a CRL past nextUpdate, judged by age
+  // action_risk_value: { sign_contract: 100_000 }, max_age: ({ amount, kind, action }) => seconds
 });
 
 // The agent may staple a recent signed verdict to its request: then no network is needed.
 const evidence = [await evidenceFromSignedStatus(stapledVerdict, issuerPublicJwk, credential.credential_id)];
-// evidence.push(evidenceFromRevocation(await checkRevocation({ crlDer, serial, issuerCertificate })));
+// evidence.push(evidenceFromRevocation(await checkRevocation({ crlDer, serial, issuerCertificate, pastNextUpdate: "accept" })));
 
-const r = checkFreshAction(credential.mandate, { action: "buy", amount: 4200, currency: "BRL" }, { policy, evidence });
+const r = checkFreshAction(credential.mandate, { action: "buy", amount: 4200, currency: "BRL", now: trustedClock() }, { policy, evidence });
 // r.allowed; r.freshness.refresh = kinds to fetch again (or ask the agent for); r.freshness.applied = policy and
 // clock used, keep it with the verdict as the risk you accepted
 ```
 
-It fails closed: no evidence, another currency, an invalid amount or clock, evidence dated in the future beyond the
-skew, or a CRL past its `nextUpdate`. The freshest statement wins, so a later revocation beats an earlier "active".
+Actions without an amount (signing, reading data, calling an API) take the risk value you assign them:
+`action_risk_value: { sign_contract: 100_000, read_data: 50 }` in the policy's currency; an action with neither an
+amount nor a risk value is refused or gets the ceiling, as `unvalued_action` says. A custom `max_age` also receives the action.
+The daily ceiling (`max_per_day` with your own `spent_today`) is what bounds a stolen key inside the window; the
+counting, and any stricter ceiling of your own, are yours.
+
+It fails closed: no evidence, another currency, an invalid amount, a missing or invalid clock, evidence dated in the
+future beyond your skew, or a CRL past its `nextUpdate` when `past_valid_until` is `"refuse"`. The freshest statement wins, so a later revocation beats an earlier "active".
 `checkFreshness` and `maxStatusAgeSeconds` are available on their own.
 
 ## Payment instruments (card networks, acquirers, issuers)

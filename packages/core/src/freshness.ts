@@ -12,8 +12,12 @@
  *
  *     max_age(v) = L / (v × λ)   hours, capped by max_age_seconds.
  *
- * Pure functions, no network: the caller obtains the evidence (cache, CRL download, an issuer answer the
- * agent staples to its request) and passes the clock it trusts.
+ * Any action, not only payments: for an action with no amount (sign a document, read data, call an API) the
+ * verifier assigns a risk value per action (`action_risk_value`), or decides the age itself (`max_age`).
+ *
+ * Pure functions, no network, no business defaults: every value that expresses a risk decision (loss
+ * tolerance, rates, ceiling, clock skew, kinds required, what to do with an action of unknown value, the clock
+ * itself) is the caller's and must be passed. The module only validates that the values are well formed.
  */
 import { verifyAttestation } from "./attestation.js";
 import { type ActionQuery, type ActionVerdict, checkAction } from "./mandate.js";
@@ -37,26 +41,38 @@ export interface StatusEvidence {
   status?: string;
 }
 
-export const FRESHNESS_DEFAULT_MAX_AGE_SECONDS = 86_400;
-export const FRESHNESS_LIMIT_MAX_AGE_SECONDS = 90 * 86_400;
-export const FRESHNESS_DEFAULT_CLOCK_SKEW_SECONDS = 300;
-
 export interface FreshnessPolicyInput {
   /** L: the expected loss the verifier accepts per action, in the currency of the amounts it checks. */
   max_expected_loss: { amount: number; currency: string };
   /** λ: probability per hour that a subject in force stops being so, per kind of evidence. */
   revocation_rate_per_hour: Partial<Record<EvidenceKind, number>>;
-  /** Kinds of evidence an action needs. Default ["credential"]. */
-  require?: EvidenceKind[];
-  /** Ceiling on the evidence age, whatever the amount. Default 86400 (one day), at most 90 days. */
-  max_age_seconds?: number;
-  /** Tolerance for evidence dated after the verifier's clock. Default 300, at most 3600. */
-  max_clock_skew_seconds?: number;
+  /** Kinds of evidence an action needs: one or more of "credential", "certificate". */
+  require: EvidenceKind[];
+  /** Ceiling on the evidence age, in seconds, whatever the value at risk. */
+  max_age_seconds: number;
+  /** Tolerance, in seconds, for evidence dated after the verifier's clock. */
+  max_clock_skew_seconds: number;
   /**
-   * Replaces the default formula. Receives the amount (undefined when the action has none) and the kind;
-   * returns seconds. The result is clamped to [0, max_age_seconds]; anything not finite counts as 0.
+   * What to do with an action that has neither an amount nor a risk value in `action_risk_value`:
+   * "refuse" fails the check; "ceiling" accepts evidence up to `max_age_seconds`.
    */
-  max_age?: (p: { amount: number | undefined; currency: string; kind: EvidenceKind }) => number;
+  unvalued_action: "refuse" | "ceiling";
+  /**
+   * What to do with evidence past its own `valid_until` (a CRL past nextUpdate): "refuse" fails the check;
+   * "accept" lets its age alone decide, as Li and Feigenbaum (FC 2001) propose.
+   */
+  past_valid_until: "refuse" | "accept";
+  /**
+   * Value at risk, in the policy's currency, of actions that carry no amount (`sign`, `read`, `call`...),
+   * keyed by action name. Used only when the action has no amount; see `unvalued_action` for the rest.
+   */
+  action_risk_value?: Record<string, number>;
+  /**
+   * Replaces the default formula. Receives the value at risk (the amount, or the action's risk value; undefined
+   * when there is neither), the action and the kind; returns seconds. The result is clamped to
+   * [0, max_age_seconds]; anything not finite counts as 0.
+   */
+  max_age?: (p: { amount: number | undefined; currency: string; kind: EvidenceKind; action?: string }) => number;
 }
 
 export interface FreshnessPolicy {
@@ -65,11 +81,15 @@ export interface FreshnessPolicy {
   require: EvidenceKind[];
   max_age_seconds: number;
   max_clock_skew_seconds: number;
+  unvalued_action: "refuse" | "ceiling";
+  past_valid_until: "refuse" | "accept";
+  action_risk_value: Record<string, number>;
   max_age?: FreshnessPolicyInput["max_age"];
 }
 
 const KINDS: EvidenceKind[] = ["credential", "certificate"];
 const CURRENCY = /^[A-Z0-9]{2,10}$/;
+const ACTION = /^[a-z][a-z0-9_-]{1,31}$/;
 
 function bad(message: string): never {
   throw new KyaError("INVALID_INPUT", `freshness policy: ${message}`);
@@ -83,7 +103,7 @@ export function freshnessPolicy(input: FreshnessPolicyInput): FreshnessPolicy {
   const currency = typeof loss.currency === "string" ? loss.currency.trim().toUpperCase() : "";
   if (!CURRENCY.test(currency)) bad("max_expected_loss.currency must match ^[A-Z0-9]{2,10}$");
 
-  const require = input.require ?? ["credential"];
+  const require = input.require;
   if (!Array.isArray(require) || !require.length || require.some((k) => !KINDS.includes(k))) bad(`require must list one or more of ${KINDS.join(", ")}`);
 
   const rates: Partial<Record<EvidenceKind, number>> = {};
@@ -94,25 +114,49 @@ export function freshnessPolicy(input: FreshnessPolicyInput): FreshnessPolicy {
   }
   if (!input.max_age) for (const k of require) if (rates[k] === undefined) bad(`revocation_rate_per_hour.${k} is required (or give max_age)`);
 
-  const ceiling = input.max_age_seconds ?? FRESHNESS_DEFAULT_MAX_AGE_SECONDS;
-  if (!Number.isInteger(ceiling) || ceiling < 0 || ceiling > FRESHNESS_LIMIT_MAX_AGE_SECONDS) bad(`max_age_seconds must be an integer in 0..${FRESHNESS_LIMIT_MAX_AGE_SECONDS}`);
-  const skew = input.max_clock_skew_seconds ?? FRESHNESS_DEFAULT_CLOCK_SKEW_SECONDS;
-  if (!Number.isInteger(skew) || skew < 0 || skew > 3600) bad("max_clock_skew_seconds must be an integer in 0..3600");
+  const ceiling = input.max_age_seconds;
+  if (!Number.isSafeInteger(ceiling) || ceiling < 0) bad("max_age_seconds is required: an integer >= 0");
+  const skew = input.max_clock_skew_seconds;
+  if (!Number.isSafeInteger(skew) || skew < 0) bad("max_clock_skew_seconds is required: an integer >= 0");
+  const unvalued = input.unvalued_action;
+  if (unvalued !== "refuse" && unvalued !== "ceiling") bad('unvalued_action is required: "refuse" or "ceiling"');
+  const pastValid = input.past_valid_until;
+  if (pastValid !== "refuse" && pastValid !== "accept") bad('past_valid_until is required: "refuse" or "accept"');
   if (input.max_age !== undefined && typeof input.max_age !== "function") bad("max_age must be a function");
+  const values: Record<string, number> = {};
+  if (input.action_risk_value !== undefined) {
+    if (!input.action_risk_value || typeof input.action_risk_value !== "object" || Array.isArray(input.action_risk_value)) bad("action_risk_value must be an object of action -> value");
+    for (const [a, v] of Object.entries(input.action_risk_value)) {
+      if (!ACTION.test(a)) bad(`action_risk_value: "${a}" is not a mandate action name (^[a-z][a-z0-9_-]{1,31}$)`);
+      if (typeof v !== "number" || !Number.isFinite(v) || v < 0) bad(`action_risk_value.${a} must be a finite number >= 0`);
+      values[a] = v;
+    }
+  }
 
-  return { max_expected_loss: { amount: loss.amount, currency }, revocation_rate_per_hour: rates, require: [...new Set(require)], max_age_seconds: ceiling, max_clock_skew_seconds: skew, max_age: input.max_age };
+  return { max_expected_loss: { amount: loss.amount, currency }, revocation_rate_per_hour: rates, require: [...new Set(require)], max_age_seconds: ceiling, max_clock_skew_seconds: skew, unvalued_action: unvalued, past_valid_until: pastValid, action_risk_value: values, max_age: input.max_age };
 }
 
-/** Maximum evidence age, in whole seconds, for an action of `amount` (in the policy's currency). */
-export function maxStatusAgeSeconds(policy: FreshnessPolicy, kind: EvidenceKind, amount?: number): number {
+/** The value at risk of an action: its amount, or else the risk value the policy gives its name. */
+export function valueAtRisk(policy: FreshnessPolicy, amount?: number, action?: string): number | undefined {
+  if (amount !== undefined) return amount;
+  const a = action?.trim().toLowerCase();
+  return a && Object.hasOwn(policy.action_risk_value, a) ? policy.action_risk_value[a] : undefined;
+}
+
+/**
+ * Maximum evidence age, in whole seconds, for an action of `amount` (in the policy's currency) or, with no
+ * amount, of the risk value the policy assigns to `action`.
+ */
+export function maxStatusAgeSeconds(policy: FreshnessPolicy, kind: EvidenceKind, amount?: number, action?: string): number {
   const ceiling = policy.max_age_seconds;
+  const value = valueAtRisk(policy, amount, action);
   let seconds: number;
   if (policy.max_age) {
-    seconds = policy.max_age({ amount, currency: policy.max_expected_loss.currency, kind });
+    seconds = policy.max_age({ amount: value, currency: policy.max_expected_loss.currency, kind, action: action?.trim().toLowerCase() || undefined });
   } else {
     const rate = policy.revocation_rate_per_hour[kind] ?? 0;
-    if (amount === undefined || amount <= 0 || rate === 0) return ceiling;
-    seconds = (policy.max_expected_loss.amount / (amount * rate)) * 3600;
+    if (value === undefined || value <= 0 || rate === 0) return ceiling;
+    seconds = (policy.max_expected_loss.amount / (value * rate)) * 3600;
   }
   if (!Number.isFinite(seconds) || seconds < 0) return seconds === Infinity ? ceiling : 0;
   // The epsilon keeps binary rounding (1 / (10000 × 1e-4) × 3600 = 3599.999…) from costing a whole second.
@@ -136,12 +180,17 @@ export interface FreshnessVerdict {
   /** The policy and clock actually applied, to keep with the verdict as proof of the risk accepted. */
   applied: {
     now: string;
+    action: string | null;
     amount: number | null;
+    /** The amount, or the risk value assigned to the action; null when there was neither (ceiling applied). */
+    value_at_risk: number | null;
     currency: string;
     max_expected_loss: { amount: number; currency: string };
     revocation_rate_per_hour: Partial<Record<EvidenceKind, number>>;
     max_age_seconds: number;
     max_clock_skew_seconds: number;
+    unvalued_action: "refuse" | "ceiling";
+    past_valid_until: "refuse" | "accept";
     custom_max_age: boolean;
   };
 }
@@ -153,91 +202,133 @@ function human(seconds: number): string {
   return `${Math.floor(seconds / 86_400)} d`;
 }
 
+interface KindContext {
+  policy: FreshnessPolicy;
+  nowMs: number;
+  nowText: string;
+  amount: number | undefined;
+  action: string | undefined;
+  value: number | undefined;
+}
+
+function failAll(policy: FreshnessPolicy, detail: string): FreshnessCheck[] {
+  return policy.require.map((kind) => ({ rule: "freshness" as const, kind, ok: false, detail, age_seconds: null, max_age_seconds: 0 }));
+}
+
+/** Why the action cannot be judged at all (bad clock, bad amount, other currency, unknown value refused), or null. */
+function preconditionProblem(policy: FreshnessPolicy, nowValid: boolean, amountValid: boolean, qCurrency: string | undefined, c: KindContext): string | null {
+  const currency = policy.max_expected_loss.currency;
+  if (!nowValid) return "the verifier's clock is not a valid date";
+  if (!amountValid) return "amount is not a finite number >= 0";
+  if (qCurrency && qCurrency !== currency) return `loss tolerance is in ${currency}, operation in ${qCurrency}`;
+  if (c.value === undefined && c.amount === undefined && policy.unvalued_action === "refuse") {
+    const subject = c.action ? `"${c.action}"` : "an unnamed action";
+    return `no amount and no risk value for ${subject}; the policy refuses actions of unknown value`;
+  }
+  return null;
+}
+
+/** What the limit is based on, for the verdict's text. */
+function basisOf(c: KindContext, currency: string): string {
+  if (c.amount !== undefined) return `for ${c.amount} ${currency}`;
+  if (c.value !== undefined) return `for "${c.action}" (risk value ${c.value} ${currency})`;
+  const forAction = c.action ? ` and no risk value for "${c.action}"` : "";
+  return `no amount${forAction}, ceiling applies`;
+}
+
+/** The evidence with the latest as_of: a newer statement supersedes an older one, whatever it says. */
+function freshestOf(usable: StatusEvidence[]): { e: StatusEvidence; asOf: number } {
+  let e = usable[0]!;
+  let asOf = Date.parse(e.as_of);
+  for (const candidate of usable) {
+    const t = Date.parse(candidate.as_of);
+    if (t > asOf) {
+      e = candidate;
+      asOf = t;
+    }
+  }
+  return { e, asOf };
+}
+
+function isPastValidity(e: StatusEvidence, nowMs: number): boolean {
+  if (!e.valid_until) return false;
+  const until = Date.parse(e.valid_until);
+  return !Number.isNaN(until) && until < nowMs;
+}
+
+/** One required kind: its check, and whether fresher (or any) evidence would change the answer. */
+function checkKind(kind: EvidenceKind, evidence: StatusEvidence[], c: KindContext): { check: FreshnessCheck; refresh: boolean } {
+  const { policy, nowMs } = c;
+  const max = maxStatusAgeSeconds(policy, kind, c.amount, c.action);
+  const limit = `${basisOf(c, policy.max_expected_loss.currency)}: at most ${human(max)}`;
+  const result = (ok: boolean, detail: string, age: number | null, refresh = false) => ({ check: { rule: "freshness" as const, kind, ok, detail, age_seconds: age, max_age_seconds: max }, refresh });
+
+  const usable = evidence.filter((e) => e && e.kind === kind && !Number.isNaN(Date.parse(e.as_of)));
+  if (!usable.length) return result(false, `no ${kind} status evidence; ${limit}`, null, true);
+
+  const { e, asOf } = freshestOf(usable);
+  const age = Math.floor((nowMs - asOf) / 1000);
+  const ageShown = Math.max(0, age);
+  const from = e.source ? ` (${e.source})` : "";
+  if (asOf - nowMs > policy.max_clock_skew_seconds * 1000) {
+    return result(false, `${kind} evidence${from} is dated ${e.as_of}, after the verifier's clock ${c.nowText} beyond the ${policy.max_clock_skew_seconds} s tolerance`, age);
+  }
+  if (policy.past_valid_until === "refuse" && isPastValidity(e, nowMs)) return result(false, `${kind} evidence${from} expired at ${e.valid_until}`, ageShown, true);
+  if (!e.in_force) {
+    const status = e.status ? ` (${e.status})` : "";
+    return result(false, `${kind} is not in force${status} as of ${e.as_of}${from}`, ageShown);
+  }
+  const fresh = ageShown <= max;
+  return result(fresh, `${kind} status${from} is ${human(ageShown)} old; ${limit}`, ageShown, !fresh);
+}
+
 /**
  * Checks that, for every kind the policy requires, the freshest evidence given says "in force", is not
- * past its own validity, is not dated in the future beyond the clock skew, and is younger than the maximum
- * age for this amount. Fails closed: missing, malformed or foreign-currency input never passes.
+ * past its own validity (unless the policy accepts that), is not dated in the future beyond the clock skew,
+ * and is younger than the maximum age for this value. Fails closed: missing, malformed or foreign-currency
+ * input never passes.
  */
-export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence[], q: { amount?: number; currency?: string; now?: Date } = {}): FreshnessVerdict {
-  const now = q.now ?? new Date();
-  const nowMs = now.getTime();
-  const currency = policy.max_expected_loss.currency;
-  const qCurrency = q.currency?.trim().toUpperCase();
+export function checkFreshness(policy: FreshnessPolicy, evidence: StatusEvidence[], q: { action?: string; amount?: number; currency?: string; now: Date }): FreshnessVerdict {
+  const now = q.now;
+  const nowValid = now instanceof Date && !Number.isNaN(now.getTime());
   const amount = q.amount;
+  const action = q.action?.trim().toLowerCase() || undefined;
+  const amountValid = amount === undefined || (typeof amount === "number" && Number.isFinite(amount) && amount >= 0);
+  const value = amountValid ? valueAtRisk(policy, amount, action) : undefined;
+  const nowText = nowValid ? now.toISOString() : "invalid";
   const applied: FreshnessVerdict["applied"] = {
-    now: Number.isNaN(nowMs) ? "invalid" : now.toISOString(),
+    now: nowText,
+    action: action ?? null,
     amount: amount ?? null,
-    currency,
+    value_at_risk: value ?? null,
+    currency: policy.max_expected_loss.currency,
     max_expected_loss: policy.max_expected_loss,
     revocation_rate_per_hour: policy.revocation_rate_per_hour,
     max_age_seconds: policy.max_age_seconds,
     max_clock_skew_seconds: policy.max_clock_skew_seconds,
+    unvalued_action: policy.unvalued_action,
+    past_valid_until: policy.past_valid_until,
     custom_max_age: !!policy.max_age
   };
-  const checks: FreshnessCheck[] = [];
-  const refresh: EvidenceKind[] = [];
+  const c: KindContext = { policy, nowMs: nowValid ? now.getTime() : Number.NaN, nowText, amount, action, value };
 
-  if (Number.isNaN(nowMs)) {
-    for (const kind of policy.require) checks.push({ rule: "freshness", kind, ok: false, detail: "the verifier's clock is not a valid date", age_seconds: null, max_age_seconds: 0 });
-    return { ok: false, checks, refresh, applied };
-  }
-  const amountOk = amount === undefined || (typeof amount === "number" && Number.isFinite(amount) && amount >= 0);
-  if (!amountOk || (qCurrency && qCurrency !== currency)) {
-    const detail = !amountOk ? "amount is not a finite number >= 0" : `loss tolerance is in ${currency}, operation in ${qCurrency}`;
-    for (const kind of policy.require) checks.push({ rule: "freshness", kind, ok: false, detail, age_seconds: null, max_age_seconds: 0 });
-    return { ok: false, checks, refresh, applied };
-  }
+  const problem = preconditionProblem(policy, nowValid, amountValid, q.currency?.trim().toUpperCase(), c);
+  if (problem) return { ok: false, checks: failAll(policy, problem), refresh: [], applied };
 
-  for (const kind of policy.require) {
-    const max = maxStatusAgeSeconds(policy, kind, amount);
-    const limit = `${amount === undefined ? "no amount given, ceiling applies" : `for ${amount} ${currency}`}: at most ${human(max)}`;
-    const usable = evidence.filter((e) => e && e.kind === kind && !Number.isNaN(Date.parse(e.as_of)));
-    if (!usable.length) {
-      checks.push({ rule: "freshness", kind, ok: false, detail: `no ${kind} status evidence; ${limit}`, age_seconds: null, max_age_seconds: max });
-      refresh.push(kind);
-      continue;
-    }
-    // Freshest first: a newer statement supersedes an older one, whatever it says.
-    let e = usable[0]!;
-    let asOf = Date.parse(e.as_of);
-    for (const candidate of usable) {
-      const t = Date.parse(candidate.as_of);
-      if (t > asOf) {
-        e = candidate;
-        asOf = t;
-      }
-    }
-    const age = Math.floor((nowMs - asOf) / 1000);
-    const from = e.source ? ` (${e.source})` : "";
-    if (asOf - nowMs > policy.max_clock_skew_seconds * 1000) {
-      checks.push({ rule: "freshness", kind, ok: false, detail: `${kind} evidence${from} is dated ${e.as_of}, after the verifier's clock ${applied.now} beyond the ${policy.max_clock_skew_seconds} s tolerance`, age_seconds: age, max_age_seconds: max });
-      continue;
-    }
-    if (e.valid_until && !Number.isNaN(Date.parse(e.valid_until)) && Date.parse(e.valid_until) < nowMs) {
-      checks.push({ rule: "freshness", kind, ok: false, detail: `${kind} evidence${from} expired at ${e.valid_until}`, age_seconds: Math.max(0, age), max_age_seconds: max });
-      refresh.push(kind);
-      continue;
-    }
-    if (!e.in_force) {
-      checks.push({ rule: "freshness", kind, ok: false, detail: `${kind} is not in force${e.status ? ` (${e.status})` : ""} as of ${e.as_of}${from}`, age_seconds: Math.max(0, age), max_age_seconds: max });
-      continue;
-    }
-    const ageShown = Math.max(0, age);
-    const fresh = ageShown <= max;
-    checks.push({ rule: "freshness", kind, ok: fresh, detail: `${kind} status${from} is ${human(ageShown)} old; ${limit}`, age_seconds: ageShown, max_age_seconds: max });
-    if (!fresh) refresh.push(kind);
-  }
-  return { ok: checks.length > 0 && checks.every((c) => c.ok), checks, refresh, applied };
+  const results = policy.require.map((kind) => checkKind(kind, evidence, c));
+  const checks = results.map((r) => r.check);
+  const refresh = policy.require.filter((_, i) => results[i]!.refresh);
+  return { ok: checks.length > 0 && checks.every((x) => x.ok), checks, refresh, applied };
 }
 
 /**
  * The mandate (checkAction) and the freshness of the status, in one answer: allowed only when both pass.
- * The freshness check uses the action's amount and currency and the same clock.
+ * The freshness check uses the action's name, amount and currency and the same clock.
  */
-export function checkFreshAction(mandate: Mandate, q: ActionQuery, p: { policy: FreshnessPolicy; evidence: StatusEvidence[] }): { allowed: boolean; mandate: ActionVerdict; freshness: FreshnessVerdict } {
-  const now = q.now ?? new Date();
+export function checkFreshAction(mandate: Mandate, q: ActionQuery & { now: Date }, p: { policy: FreshnessPolicy; evidence: StatusEvidence[] }): { allowed: boolean; mandate: ActionVerdict; freshness: FreshnessVerdict } {
+  const now = q.now;
   const m = checkAction(mandate, { ...q, now });
-  const f = checkFreshness(p.policy, p.evidence, { amount: q.amount, currency: q.currency, now });
+  const f = checkFreshness(p.policy, p.evidence, { action: q.action, amount: q.amount, currency: q.currency, now });
   return { allowed: m.allowed && f.ok, mandate: m, freshness: f };
 }
 
