@@ -2,9 +2,9 @@
 # server, D-31) to npm. Manual: needs the
 # NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
 # them first. A version already on npm is skipped, so publishing one package never fails on the other.
-# Then mirrors the same builds to GitHub Packages as @celfons/kya-core and @celfons/kya-agent-tools (GitHub
-# requires the scope to be the repository owner), so both show under the repository's Packages. npmjs.com stays
-# the install channel.
+# Then mirrors the same builds to GitHub Packages as @celfons/kya-core, @celfons/kya-agent-tools and @celfons/kya-mcp
+# (GitHub requires the scope to be the repository owner), so all three show under the repository's Packages.
+# npmjs.com stays the install channel.
 name: Publish npm package
 on:
   workflow_dispatch:
@@ -96,6 +96,20 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           if npm view "@celfons/kya-agent-tools@$VERSION" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
             echo "::notice::@celfons/kya-agent-tools@$VERSION is already on GitHub Packages"
+          else
+            npm publish --registry https://npm.pkg.github.com
+          fi
+      - name: Mirror the MCP server to GitHub Packages
+        working-directory: packages/mcp
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Same bundle (dist/index.js, bin kya-mcp) as the npm package; only the name changes.
+          npm pkg set name=@celfons/kya-mcp
+          npm config set //npm.pkg.github.com/:_authToken "$GH_PACKAGES_TOKEN" --location project
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@celfons/kya-mcp@$VERSION" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "::notice::@celfons/kya-mcp@$VERSION is already on GitHub Packages"
           else
             npm publish --registry https://npm.pkg.github.com
           fi

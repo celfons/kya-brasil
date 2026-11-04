@@ -15,6 +15,9 @@ sub-agent's delegation chain holds. The free and offline tools need no key.
 The same tools are also served remotely at `https://kya-br-agents.marcelfons.workers.dev/mcp` (streamable HTTP). This
 package runs on your machine instead: the offline tools never leave it, and the issuer is only read for live data.
 
+The same bundle is mirrored to GitHub Packages as `@celfons/kya-mcp` (listed on the repository page; installing from
+there needs a GitHub token). npmjs.com is the channel to install from.
+
 ## Tools
 
 | Tool | Where | Price |
