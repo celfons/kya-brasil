@@ -58,6 +58,36 @@ const verdict = checkDelegatedAction(r.mandates, { action: "quote", amount: 80, 
 To delegate, `prepareDelegation({ credential, chain, delegate, mandate, ttlSeconds })` returns the delegation and
 the text the delegator signs with its agent key; `mandateSubsetProblems(parent, child)` says why a mandate is broader.
 
+## Status freshness proportional to the amount (offline)
+
+Offline, a verifier only has status evidence of some age: an answer the issuer signed (the credential's status) or a
+CRL (the certificate's). How old is acceptable is the verifier's call, because the verifier runs the risk (SPEC
+section 18). Declare the expected loss you accept per action (`L`) and the revocation rate you assume (`λ`, per hour);
+the maximum age is `L / (amount × λ)`, capped (one day by default):
+
+```ts
+import { freshnessPolicy, checkFreshAction, evidenceFromSignedStatus, evidenceFromRevocation } from "@kya-brasil/core";
+
+const policy = freshnessPolicy({
+  max_expected_loss: { amount: 1, currency: "BRL" },               // L: your tolerance, per action
+  revocation_rate_per_hour: { credential: lambda, certificate: mu }, // λ: what you assume; no default
+  require: ["credential"],                                          // add "certificate" to also require a CRL
+  // max_age_seconds: 86_400, max_clock_skew_seconds: 300, or max_age: ({ amount, kind }) => seconds
+});
+
+// The agent may staple a recent signed verdict to its request: then no network is needed.
+const evidence = [await evidenceFromSignedStatus(stapledVerdict, issuerPublicJwk, credential.credential_id)];
+// evidence.push(evidenceFromRevocation(await checkRevocation({ crlDer, serial, issuerCertificate })));
+
+const r = checkFreshAction(credential.mandate, { action: "buy", amount: 4200, currency: "BRL" }, { policy, evidence });
+// r.allowed; r.freshness.refresh = kinds to fetch again (or ask the agent for); r.freshness.applied = policy and
+// clock used, keep it with the verdict as the risk you accepted
+```
+
+It fails closed: no evidence, another currency, an invalid amount or clock, evidence dated in the future beyond the
+skew, or a CRL past its `nextUpdate`. The freshest statement wins, so a later revocation beats an earlier "active".
+`checkFreshness` and `maxStatusAgeSeconds` are available on their own.
+
 ## Payment instruments (card networks, acquirers, issuers)
 
 A mandate can list the instruments the agent may pay with. Each one is a network and the SHA-256 of a reference
