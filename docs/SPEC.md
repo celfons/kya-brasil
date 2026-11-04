@@ -294,6 +294,8 @@ An agent presents its credential on every request by signing the request with it
 | `KYA-Signature` | EIP-191 hex (`evm`, `erc8004`) or raw Ed25519 base64url (`web-bot-auth`) over the request text |
 | `KYA-Content-SHA256` | hex SHA-256 of the body, present whenever the request has a body |
 | `KYA-Delegation` | only on a request signed by a sub-agent: base64url (no padding) of the JSON delegation chain (section 17) |
+| `KYA-Credential-Document` | optional, for verifiers that work without the issuer: base64url (no padding) of the credential's JSON (section 6) |
+| `KYA-Principal-Proof` | optional, with `KYA-Credential-Document`: the principal's proof (section 19) |
 
 Request text, lines joined by `\n`:
 
@@ -315,6 +317,16 @@ the last delegate after verifying the chain (section 17), and MUST accept only `
 cache the credential for a short time (60 s in the reference client) and SHOULD honour `/v1/revocations`.
 This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
 is planned and will carry the same `KYA-Credential` header.
+
+**Without the issuer.** A verifier MAY accept the credential from the request instead of fetching it: the agent
+sends `KYA-Credential-Document` and `KYA-Principal-Proof` (neither is in the request text: the principal's
+signature binds them). The verifier then MUST check that the document's `credential_id` equals `KYA-Credential`,
+verify the request signature as above, verify the proof against ICP-Brasil trust anchors and a clock of its own
+(section 20 for `issuer` = `urn:kya-brasil:self`; otherwise section 19 plus the issuer's attestation, section 7,
+with a key it already holds, so that the credential's own fields are not the agent's word), check the
+certificate's revocation with evidence it trusts (section 18), and evaluate every mandate, the delegation chain's
+included, locally. Status changes made only at an issuer go unseen (section 19). Reference: the `offline` option of
+`createKyaAuth` in `@kya-brasil/agent-tools`.
 
 ### 14.1 Mutual authentication (agent to agent)
 
