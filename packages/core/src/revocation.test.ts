@@ -2,7 +2,7 @@
 import "reflect-metadata";
 import { describe, expect, it } from "vitest";
 import * as x509 from "@peculiar/x509";
-import { checkRevocation, crlUrlsOf, normalizeSerial, revocationEffect } from "./revocation.js";
+import { type CertificateRevocationPolicy, certificateRevocationPolicy, checkRevocation, crlUrlsOf, normalizeSerial, revocationEffect, verifyCrl } from "./revocation.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };
@@ -65,14 +65,49 @@ describe("e-CNPJ revocation (LCR)", () => {
   });
 });
 
-describe("revocation effect on an issued credential", () => {
+describe("revocation effect on an issued credential (D-16, D-36)", () => {
   const at = "2026-10-01T00:00:00Z";
-  it("revokes on compromise or unspecified, suspends on hold, ignores a later benign replacement", () => {
-    expect(revocationEffect({ revoked: false, revoked_at: null, reason: null }, at)).toBe("none");
-    expect(revocationEffect({ revoked: true, revoked_at: "2026-10-05T00:00:00Z", reason: "keyCompromise" }, at)).toBe("revoke");
-    expect(revocationEffect({ revoked: true, revoked_at: "2026-10-05T00:00:00Z", reason: null }, at)).toBe("revoke");
-    expect(revocationEffect({ revoked: true, revoked_at: "2026-10-05T00:00:00Z", reason: "certificateHold" }, at)).toBe("suspend");
-    expect(revocationEffect({ revoked: true, revoked_at: "2026-10-05T00:00:00Z", reason: "superseded" }, at)).toBe("none");
-    expect(revocationEffect({ revoked: true, revoked_at: "2026-09-05T00:00:00Z", reason: "superseded" }, at)).toBe("revoke");
+  // The reference issuer's policy (SPEC section 11); the core has none of its own.
+  const reference: CertificateRevocationPolicy = { by_reason: { certificateHold: "suspend", superseded: "keep", cessationOfOperation: "keep" }, other: "revoke" };
+  const entry = (reason: string | null, revoked_at = "2026-10-05T00:00:00Z", invalidity_date: string | null = null) => ({ revoked: true, revoked_at, reason, invalidity_date });
+
+  it("applies the caller's policy: revoke on compromise or no reason, suspend on hold, keep a later benign replacement", () => {
+    expect(revocationEffect({ revoked: false, revoked_at: null, reason: null }, at, reference)).toBe("none");
+    expect(revocationEffect(entry("keyCompromise"), at, reference)).toBe("revoke");
+    expect(revocationEffect(entry(null), at, reference)).toBe("revoke");
+    expect(revocationEffect(entry("certificateHold"), at, reference)).toBe("suspend");
+    expect(revocationEffect(entry("superseded"), at, reference)).toBe("none");
+    expect(revocationEffect(entry("superseded", "2026-09-05T00:00:00Z"), at, reference)).toBe("revoke");
+  });
+
+  it("another verifier may decide otherwise, e.g. suspend everything until it looks", () => {
+    const cautious: CertificateRevocationPolicy = { by_reason: {}, other: "suspend" };
+    expect(revocationEffect(entry("superseded"), at, cautious)).toBe("suspend");
+    expect(revocationEffect(entry("keyCompromise"), at, { by_reason: { affiliationChanged: "keep" }, other: "revoke" })).toBe("revoke");
+    expect(revocationEffect(entry("affiliationChanged"), at, { by_reason: { affiliationChanged: "keep" }, other: "revoke" })).toBe("none");
+  });
+
+  it("never keeps what was signed after the suspected compromise, or without a date to compare", () => {
+    const lenient: CertificateRevocationPolicy = { by_reason: { keyCompromise: "keep" }, other: "revoke" };
+    expect(revocationEffect(entry("keyCompromise", "2026-10-05T00:00:00Z", "2026-10-03T00:00:00Z"), at, lenient)).toBe("none");
+    expect(revocationEffect(entry("keyCompromise", "2026-10-05T00:00:00Z", "2026-09-20T00:00:00Z"), at, lenient)).toBe("revoke");
+    expect(revocationEffect(entry("superseded"), null, reference)).toBe("revoke");
+    expect(revocationEffect(entry("superseded"), "not a date", reference)).toBe("revoke");
+  });
+
+  it("requires a complete policy, with no default", () => {
+    expect(() => revocationEffect(entry("keyCompromise"), at, undefined as unknown as CertificateRevocationPolicy)).toThrow(/policy is required/);
+    expect(() => revocationEffect(entry("keyCompromise"), at, { by_reason: {}, other: "keep" as "revoke" })).toThrow(/never ignored/);
+    expect(() => revocationEffect(entry("keyCompromise"), at, { by_reason: { stolen: "revoke" } as never, other: "revoke" })).toThrow(/RFC 5280/);
+    expect(() => revocationEffect(entry("keyCompromise"), at, { by_reason: { superseded: "ignore" as "keep" }, other: "revoke" })).toThrow(/must be/);
+    expect(() => certificateRevocationPolicy({ other: "revoke" } as CertificateRevocationPolicy)).toThrow(/by_reason is required/);
+  });
+
+  it("reads the invalidity date the AC records", async () => {
+    const a = await ac();
+    const crl = await crlOf(a, [{ serialNumber: "0a1b", revocationDate: new Date("2026-10-10T12:00:00Z"), reason: x509.X509CrlReason.keyCompromise, invalidity: new Date("2026-10-09T00:00:00Z") }, { serialNumber: "0c0d", revocationDate: new Date("2026-10-10T12:00:00Z") }]);
+    const verified = await verifyCrl({ crlDer: crl.rawData, issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now });
+    expect(verified.lookup("0a1b")).toMatchObject({ reason: "keyCompromise", invalidity_date: "2026-10-09T00:00:00.000Z" });
+    expect(verified.lookup("0c0d")).toMatchObject({ reason: null, invalidity_date: null });
   });
 });

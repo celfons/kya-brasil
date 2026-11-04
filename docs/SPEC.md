@@ -232,10 +232,16 @@ The issuer MUST set the status to `revoked` at once, record the event, and list 
 At least daily, on every `active` or `suspended` credential, the issuer MUST check the two things it
 attests, recording each change as an event:
 
-1. **Certificate.** The CRL of the e-CNPJ that authorized the credential (section 4). A listed certificate
-   revokes the credential (final), except: `certificateHold` suspends it until the entry disappears, and
-   `superseded` or `cessationOfOperation` dated after the authorization change nothing (the certificate was
-   replaced or retired without compromise; the signature stands). An unreachable CRL changes nothing that day.
+1. **Certificate.** The CRL of the e-CNPJ that authorized the credential (section 4). What a listed
+   certificate does is the relying party's policy (D-36, `revocationEffect` with a
+   `CertificateRevocationPolicy`): for each RFC 5280 reason, revoke, suspend or keep, and for any other reason,
+   an entry without one included, revoke or suspend (never keep). Whatever the policy, an authorization is never
+   kept when the certificate was revoked before it, or when the AC's `invalidityDate` (suspected compromise) is
+   not after it. The reference issuer revokes (final), except: `certificateHold` suspends until the entry
+   disappears, and `superseded` or `cessationOfOperation` dated after the authorization change nothing (the
+   certificate was replaced or retired without compromise; the signature stands). An unreachable CRL changes
+   nothing that day. A verifier checking the principal's proof itself (section 19) applies its own policy the
+   same way.
 2. **Registration.** The company's status at the Receita Federal: not `ATIVA` suspends the credential;
    `ATIVA` again reinstates it.
 

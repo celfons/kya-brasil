@@ -30,6 +30,8 @@ export interface RevocationStatus {
   revoked: boolean;
   revoked_at: string | null;
   reason: string | null;
+  /** RFC 5280 invalidityDate: when the key is known or suspected to have been compromised, if the AC says so. */
+  invalidity_date?: string | null;
   crl_this_update: string;
   crl_next_update: string | null;
 }
@@ -75,6 +77,7 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
         revoked: entry !== null,
         revoked_at: entry ? entry.revocationDate.toISOString() : null,
         reason: entry && entry.reason !== undefined ? (X509CrlReason[entry.reason] ?? String(entry.reason)) : null,
+        invalidity_date: entry?.invalidity ? entry.invalidity.toISOString() : null,
         crl_this_update: this_update,
         crl_next_update: next_update
       };
@@ -87,18 +90,55 @@ export async function checkRevocation(p: { crlDer: ArrayBuffer | Uint8Array; ser
   return (await verifyCrl(p)).lookup(p.serial);
 }
 
+/** RFC 5280 CRL reason codes (section 5.3.1), by name. */
+export const CRL_REASONS = ["unspecified", "keyCompromise", "cACompromise", "affiliationChanged", "superseded", "cessationOfOperation", "certificateHold", "removeFromCRL", "privilegeWithdrawn", "aACompromise"] as const;
+export type CrlReason = (typeof CRL_REASONS)[number];
+
 /**
- * What a CRL entry does to a credential the certificate already authorized (D-16):
- *   - certificateHold: suspend (the AC may lift it; the review reinstates when the entry disappears);
- *   - superseded / cessationOfOperation dated after the authorization: nothing, the company replaced or
- *     retired the certificate without compromise and its signature stands (registration is checked apart);
- *   - anything else (unspecified, keyCompromise, privilegeWithdrawn, ...): revoke.
+ * D-36: what a revoked certificate does to what it already authorized, decided by whoever relies on it.
+ *   - `by_reason`: the effect of each CRL reason the caller has an opinion on: "revoke" (the authorization ends),
+ *     "suspend" (it stops while the entry stays, e.g. certificateHold) or "keep" (it stands: the certificate was
+ *     replaced or retired without compromise);
+ *   - `other`: the effect of any reason not listed, including an entry without a reason. Never "keep": an
+ *     unexplained revocation is not ignored.
+ * No default: which reasons end a mandate is a legal and risk decision (Código Civil art. 682; SPEC section 11).
+ */
+export interface CertificateRevocationPolicy {
+  by_reason: Partial<Record<CrlReason, "revoke" | "suspend" | "keep">>;
+  other: "revoke" | "suspend";
+}
+
+/** Throws INVALID_INPUT unless `p` is a complete CertificateRevocationPolicy. */
+export function certificateRevocationPolicy(p: CertificateRevocationPolicy): CertificateRevocationPolicy {
+  if (!p || typeof p !== "object") throw new KyaError("INVALID_INPUT", "a certificate revocation policy is required: { by_reason, other }");
+  if (p.other !== "revoke" && p.other !== "suspend") throw new KyaError("INVALID_INPUT", 'policy.other is required: "revoke" or "suspend" (an unexplained revocation is never ignored)');
+  if (!p.by_reason || typeof p.by_reason !== "object") throw new KyaError("INVALID_INPUT", "policy.by_reason is required (it may be empty)");
+  for (const [k, v] of Object.entries(p.by_reason)) {
+    if (!(CRL_REASONS as readonly string[]).includes(k)) throw new KyaError("INVALID_INPUT", `policy.by_reason.${k} is not an RFC 5280 reason`);
+    if (v !== "revoke" && v !== "suspend" && v !== "keep") throw new KyaError("INVALID_INPUT", `policy.by_reason.${k} must be "revoke", "suspend" or "keep"`);
+  }
+  return { by_reason: { ...p.by_reason }, other: p.other };
+}
+
+const isAfter = (a: string | null, b: string) => a !== null && Date.parse(a) > Date.parse(b);
+
+/**
+ * What a CRL entry does to an authorization the certificate already signed (D-16, D-36), under the caller's policy.
+ * Two rules hold whatever the policy says, because they are about the signature, not about the mandate:
+ *   - "keep" applies only when the revocation, and the suspected compromise (invalidityDate) when the AC gives
+ *     one, come after the authorization; otherwise the authorization was signed with a certificate already
+ *     revoked or already compromised, and it is revoked (MP 2.200-2 art. 10 presumes only a valid certificate);
+ *   - without the authorization's date there is nothing to compare: "keep" becomes "revoke".
  * At issuance any entry refuses: a new authorization must be signed with a certificate in force.
  */
-export function revocationEffect(r: Pick<RevocationStatus, "revoked" | "revoked_at" | "reason">, authorizedAt: string | null): "none" | "suspend" | "revoke" {
+export function revocationEffect(r: Pick<RevocationStatus, "revoked" | "revoked_at" | "reason"> & { invalidity_date?: string | null }, authorizedAt: string | null, policy: CertificateRevocationPolicy): "none" | "suspend" | "revoke" {
+  const pol = certificateRevocationPolicy(policy);
   if (!r.revoked) return "none";
-  if (r.reason === "certificateHold") return "suspend";
-  const benign = r.reason === "superseded" || r.reason === "cessationOfOperation";
-  if (benign && authorizedAt && r.revoked_at && Date.parse(r.revoked_at) > Date.parse(authorizedAt)) return "none";
-  return "revoke";
+  const reason = r.reason && (CRL_REASONS as readonly string[]).includes(r.reason) ? (r.reason as CrlReason) : null;
+  const effect = (reason && pol.by_reason[reason]) ?? pol.other;
+  if (effect !== "keep") return effect;
+  if (!authorizedAt || Number.isNaN(Date.parse(authorizedAt))) return "revoke";
+  const revokedAfter = isAfter(r.revoked_at, authorizedAt);
+  const compromiseAfter = r.invalidity_date ? isAfter(r.invalidity_date, authorizedAt) : true;
+  return revokedAfter && compromiseAfter ? "none" : "revoke";
 }
