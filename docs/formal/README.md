@@ -18,7 +18,7 @@ https://github.com/AlloyTools/org.alloytools.alloy/releases) and Java 17 or late
 ```sh
 java -jar org.alloytools.alloy.dist.jar exec -f -o out-checks docs/formal/mandate.als
 java -jar org.alloytools.alloy.dist.jar exec -q -f -r 60 -t xml -o out docs/formal/conformance.als
-python3 -I docs/formal/generate-vectors.py out docs/vectors/mandate-conformance.json
+python3 -I docs/formal/generate-vectors.py   # reads out/, writes docs/vectors/mandate-conformance.json
 pnpm --filter @kya-brasil/core test
 ```
 

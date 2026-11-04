@@ -2,7 +2,7 @@
 Turn the Alloy instances of conformance.als into conformance vectors for @kya-brasil/core.
 
     java -jar org.alloytools.alloy.dist.jar exec -q -f -r 60 -t xml -o out docs/formal/conformance.als
-    python3 -I docs/formal/generate-vectors.py out docs/vectors/mandate-conformance.json
+    python3 -I docs/formal/generate-vectors.py
 
 Mapping from the model to the library's mandate format: Action atoms become action names ("act0"),
 Currency atoms currency codes ("CUR0"), Party atoms counterparties ("party0.example"), the integer ceiling an
@@ -15,6 +15,10 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, timezone
 
+# Fixed paths, relative to the repository root (no command-line paths: nothing outside the repository is read or written).
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SRC = os.path.join(ROOT, "out")
+DST = os.path.join(ROOT, "docs", "vectors", "mandate-conformance.json")
 BASE = datetime(2027, 1, 1, tzinfo=timezone.utc)
 EXPECT = {
     "SubsetYes": ("subset", True),
@@ -100,18 +104,7 @@ def main(src, dst):
     print(f"{len(vectors)} vectors -> {dst}")
 
 
-def inside_cwd(path):
-    """Only relative paths that stay inside the working directory (no "..", no absolute paths, no symlink escape)."""
-    base = os.path.realpath(os.getcwd())
-    if os.path.isabs(path):
-        sys.exit(f"refusing absolute path: {path}")
-    full = os.path.realpath(os.path.join(base, path))
-    if os.path.commonpath([base, full]) != base:
-        sys.exit(f"refusing path outside the working directory: {path}")
-    return full
-
-
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit("usage: generate-vectors.py <alloy-xml-dir> <vectors.json>")
-    main(inside_cwd(sys.argv[1]), inside_cwd(sys.argv[2]))
+    if len(sys.argv) != 1:
+        sys.exit("usage (from the repository root, after Alloy wrote its instances to out/): python3 -I docs/formal/generate-vectors.py")
+    main(SRC, DST)
