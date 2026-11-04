@@ -56,7 +56,7 @@ async function companyCase(m: Mandate = mandate) {
   const text = challengeText({ issuer: ISSUER, challenge_id: "c-1", agent, cnpj: CNPJ, mandate_sha256, expires_at: "2026-10-14T00:15:00.000Z" });
   const sig = await cms(signer, root, text);
   const icp = await verifyIcpSignature({ cmsBase64: sig, challenge: text, expectedCnpj: CNPJ, anchors: [b64(root.cert.rawData)], now });
-  const credential = buildCredential({ credential_id: "cred-1", agent, cnpj: CNPJ, legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at }, mandate: m, mandate_sha256, issuer: ISSUER, now });
+  const credential = buildCredential({ credential_id: "cred-1", agent, cnpj: CNPJ, legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at, not_after: icp.not_after }, mandate: m, mandate_sha256, ttl_seconds: 90 * 86400, issuer: ISSUER, now });
   return { root, signer, text, sig, credential, anchors: [b64(root.cert.rawData)] };
 }
 
@@ -109,7 +109,7 @@ describe("verification without trusting the issuer (D-34)", () => {
     const text = personChallengeText({ issuer: ISSUER, challenge_id: "c-2", agent, mandate_sha256, expires_at: "2026-10-14T00:15:00.000Z" });
     const sig = await cms(signer, root, text);
     const certificate_sha256 = Buffer.from(await crypto.subtle.digest("SHA-256", signer.cert.rawData)).toString("hex");
-    const credential = buildPersonCredential({ credential_id: "cred-2", agent, certificate: { sha256: certificate_sha256, issuer: root.cert.subject, signed_at: now.toISOString() }, mandate, mandate_sha256, issuer: ISSUER, now });
+    const credential = buildPersonCredential({ credential_id: "cred-2", agent, certificate: { sha256: certificate_sha256, issuer: root.cert.subject, signed_at: now.toISOString(), not_after: signer.cert.notAfter.toISOString() }, mandate, mandate_sha256, ttl_seconds: 90 * 86400, issuer: ISSUER, now });
     const r = await verifyPrincipalProof({ credential, proof: { text, cms: sig }, anchors: [b64(root.cert.rawData)], now });
     expect(failed(r)).toEqual([]);
     expect(JSON.stringify(r)).not.toContain(CPF);

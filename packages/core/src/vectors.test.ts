@@ -24,7 +24,7 @@ async function generate() {
   const kyb: KybSnapshot = { risk_level: "low", risk_score: 5, registration_status: "ATIVA", active_sanctions: 0, forced_labor: false, federal_debt_brl: null, active_embargoes: 0, red_flags: [], checked_at: now.toISOString() };
   const mandate_sha256 = await mandateSha256(mandate);
   const challenge = { issuer, challenge_id: "0f6e1c2a-6b1d-4c0e-9f9a-2b0b3c4d5e6f", agent, cnpj, mandate_sha256, expires_at: "2026-10-13T00:15:00.000Z" };
-  const unsigned = buildCredential({ credential_id: "6d0b1c2e-1111-4222-8333-444455556666", agent, cnpj, legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: "3b7a0e5a1d9c8f2b6e4d1a0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a", subject: "CN=ACME LTDA:11222333000181, OU=AC Exemplo RFB, O=ICP-Brasil, C=BR", issuer: "CN=AC Exemplo RFB, O=ICP-Brasil, C=BR", signed_at: now.toISOString() }, mandate, mandate_sha256, kyb, issuer, now });
+  const unsigned = buildCredential({ credential_id: "6d0b1c2e-1111-4222-8333-444455556666", agent, cnpj, legal_name: "ACME LTDA", registration_status: "ATIVA", certificate: { sha256: "3b7a0e5a1d9c8f2b6e4d1a0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a", subject: "CN=ACME LTDA:11222333000181, OU=AC Exemplo RFB, O=ICP-Brasil, C=BR", issuer: "CN=AC Exemplo RFB, O=ICP-Brasil, C=BR", signed_at: now.toISOString(), not_after: "2027-10-12T00:00:00.000Z" }, mandate, mandate_sha256, ttl_seconds: 90 * 86400, kyb, issuer, now });
   const credential = await signCredential(unsigned, priv, key.keyId, now);
   const q = { action: "pay", amount: 80, currency: "USDC", counterparty: "33000167000101" };
   const v = checkAction(mandate, q);

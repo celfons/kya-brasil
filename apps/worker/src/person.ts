@@ -14,6 +14,9 @@ import type { AppEnv } from "./env";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 
+/** D-35: this issuer's credential lifetime (the library has no default). Never longer than the certificate or the mandate. */
+export const CREDENTIAL_TTL_SECONDS = 90 * 86400;
+
 const MAX_NEGATIVE_CHECKS = 3;
 const INVENTORY_WINDOW_MS = 10 * 60_000;
 
@@ -67,7 +70,7 @@ export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, ag
   const m = await material(env);
   if (!m) throw new KyaError("UPSTREAM_ERROR", "issuer has no signing key");
   const certificate = { sha256: icp.certificate_sha256, issuer: icp.issuer, signed_at: icp.signed_at };
-  const credential = await signCredential(buildPersonCredential({ credential_id: row.id, agent, certificate, mandate, mandate_sha256, issuer }), m.key, m.keyId);
+  const credential = await signCredential(buildPersonCredential({ credential_id: row.id, agent, certificate: { ...certificate, not_after: icp.not_after }, mandate, mandate_sha256, ttl_seconds: CREDENTIAL_TTL_SECONDS, issuer }), m.key, m.keyId);
   // No subject, no name: the certificate record keeps only what the CRL checks need.
   const record = { sha256: icp.certificate_sha256, subject: "", issuer: icp.issuer, signed_at: icp.signed_at, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
   await store.issue({ id: row.id, legal_name: "", credential, certificate: record, mandate, event });
