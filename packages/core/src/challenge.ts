@@ -4,8 +4,8 @@
  *   evm           EIP-191 personal_sign over the challenge text; address recovered and compared
  *   web-bot-auth  Ed25519 (RFC 9421 key material) raw signature over the challenge bytes
  *   erc8004       EIP-191 by the agent's on-chain agentWallet (resolved by the caller, see erc8004.ts)
- * The challenge text binds agent key, CNPJ, issuer and expiry, so a signature cannot be replayed
- * for another company or another issuer.
+ * The challenge text binds agent key, CNPJ, issuer, expiry and the mandate (its SHA-256, D-33), so a
+ * signature cannot be replayed for another company, another issuer or other powers.
  */
 import { verifyMessage, getAddress, isAddress } from "viem";
 import { type AgentKey, KyaError } from "./types.js";
@@ -54,23 +54,45 @@ export function normalizeAgentKey(input: { kind?: unknown; id?: unknown }): Agen
   throw new KyaError("INVALID_INPUT", "agent.kind must be evm, web-bot-auth or erc8004");
 }
 
-/** The exact text the agent signs. Line-based so wallets show it readably. */
-export function challengeText(p: { issuer: string; challenge_id: string; agent: AgentKey; cnpj: string; expires_at: string }): string {
+const HEX64 = /^[0-9a-f]{64}$/;
+
+function requireMandateSha256(h: unknown): string {
+  if (typeof h !== "string" || !HEX64.test(h)) throw new KyaError("INVALID_INPUT", "mandate_sha256 must be 64 lowercase hex characters (see mandateSha256)");
+  return h;
+}
+
+/**
+ * The exact text the agent and the e-CNPJ sign. Line-based so wallets show it readably. Since D-33 it carries
+ * the mandate's SHA-256, so the certificate signature covers the powers granted, not only the binding.
+ */
+export function challengeText(p: { issuer: string; challenge_id: string; agent: AgentKey; cnpj: string; mandate_sha256: string; expires_at: string }): string {
   return [
     "KYA Brasil: prove this agent key acts for a company",
     `issuer: ${p.issuer}`,
     `challenge: ${p.challenge_id}`,
     `agent: ${p.agent.kind}:${p.agent.id}`,
     `cnpj: ${p.cnpj}`,
+    `mandate-sha256: ${requireMandateSha256(p.mandate_sha256)}`,
     `expires: ${p.expires_at}`
   ].join("\n");
 }
 
-export function newChallenge(p: { issuer: string; agent: AgentKey; cnpj: string; now?: Date }): Challenge {
+export function newChallenge(p: { issuer: string; agent: AgentKey; cnpj: string; mandate_sha256: string; now?: Date }): Challenge {
   const now = p.now ?? new Date();
   const challenge_id = crypto.randomUUID();
   const expires_at = new Date(now.getTime() + CHALLENGE_TTL_SECONDS * 1000).toISOString();
-  return { challenge_id, expires_at, text: challengeText({ issuer: p.issuer, challenge_id, agent: p.agent, cnpj: p.cnpj, expires_at }) };
+  return { challenge_id, expires_at, text: challengeText({ issuer: p.issuer, challenge_id, agent: p.agent, cnpj: p.cnpj, mandate_sha256: p.mandate_sha256, expires_at }) };
+}
+
+/**
+ * The mandate SHA-256 a signed challenge text commits to (its `mandate-sha256:` line), or null when the text
+ * has none (a challenge from before D-33). The issuer compares it with the mandate it is about to issue.
+ */
+export function mandateSha256OfChallenge(text: string): string | null {
+  const lines = text.split("\n").filter((l) => l.startsWith("mandate-sha256: "));
+  if (lines.length !== 1) return null;
+  const h = lines[0]!.slice("mandate-sha256: ".length);
+  return HEX64.test(h) ? h : null;
 }
 
 /** True when `signature` is the agent key's signature over `text`. Never throws on a bad signature. */

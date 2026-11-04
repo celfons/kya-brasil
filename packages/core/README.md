@@ -25,10 +25,13 @@ A credential from any KYA issuer (the hosted one, yours, a partner's) is checked
 published at `<issuer>/.well-known/kya.json`.
 
 ```ts
-import { verifyCredentialSignature, effectiveStatus, checkAction, hashPaymentRef } from "@kya-brasil/core";
+import { verifyCredentialSignature, verifyMandateAuthorization, effectiveStatus, checkAction, hashPaymentRef } from "@kya-brasil/core";
 
 const sig = await verifyCredentialSignature(credential, issuerPublicJwk); // { valid, key_id, signed_at }
 if (!sig.valid || effectiveStatus(credential) !== "active") deny();
+// D-33: the e-CNPJ / e-CPF signature covers the mandate when the credential carries its hash.
+const auth = await verifyMandateAuthorization(credential); // "signed" | "mismatch" | "not_covered" (issued before D-33)
+if (auth === "mismatch") deny(); // decide yourself whether "not_covered" (issuer attestation only) is enough
 // For live status (revoked or suspended after issuance) read credential.verify_url, or accept that risk until expires_at.
 
 const verdict = checkAction(credential.mandate, {

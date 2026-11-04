@@ -41,9 +41,9 @@ Issuers MUST normalize `id` (checksum the address; canonical base64url) before s
 
 ## 3. Challenge
 
-The issuer hands the company a one-time challenge that binds issuer, agent, CNPJ and expiry, so a
-signature cannot be replayed for another company or issuer. The text MUST be exactly these six lines
-joined by `\n`, no trailing newline:
+The issuer hands the company a one-time challenge that binds issuer, agent, CNPJ, mandate and expiry, so a
+signature cannot be replayed for another company, another issuer or other powers. The text MUST be exactly these
+seven lines joined by `\n`, no trailing newline:
 
 ```
 KYA Brasil: prove this agent key acts for a company
@@ -51,6 +51,7 @@ issuer: <issuer origin>
 challenge: <challenge_id, uuid>
 agent: <kind>:<id>
 cnpj: <14 digits>
+mandate-sha256: <lowercase hex SHA-256 of the canonical JSON (section 7) of the mandate>
 expires: <ISO 8601 UTC>
 ```
 
@@ -59,8 +60,17 @@ The challenge MUST expire within 15 minutes and MUST be consumed on first use, s
 The issuer MUST keep, with each challenge, the mandate requested when it was created, and MUST issue that mandate
 when the challenge is proved, never a mandate changed later. A new registration for the same agent and principal
 MUST void the challenges still outstanding, so a signing link already handed to the certificate holder cannot issue a
-mandate other than the one it showed. The certificate signature covers the challenge text, which does not contain the
-mandate: the holder's consent to the mandate rests on what the signing page showed, and the issuer attests it.
+mandate other than the one it showed.
+
+Since D-33 the certificate signature covers the mandate: the `mandate-sha256:` line is the hash of the mandate kept
+with the challenge, and the issuer MUST refuse to issue when the signed text does not carry the hash of the mandate it
+is about to issue (a challenge created before D-33 carries none and is refused; challenges expire within 15 minutes).
+The credential records that hash in `authorized_by.mandate_sha256` (section 6), so any verifier can check offline that
+the mandate it reads is the one the principal signed. The signing page computes the same hash in the browser and warns
+when it does not match the mandate it shows. The signed text and the detached CMS stay with the principal, who can
+download them from the signing page: the issuer does not keep the CMS, which carries the signer's certificate and so
+personal data (section 12). With them, anyone can verify with an ICP-Brasil validator that the principal authorized
+this agent with these powers.
 
 ## 4. Company proof (e-CNPJ)
 
@@ -144,7 +154,7 @@ mandate MUST NOT exceed 8192 bytes.
   "version": 1,
   "agent": { "kind": "evm", "id": "0x..." },
   "principal": { "cnpj": "11222333000181", "cnpj_formatted": "11.222.333/0001-81", "legal_name": "ACME LTDA", "registration_status": "ATIVA" },
-  "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "hex", "certificate_subject": "CN=...", "issuer": "CN=AC ...", "signed_at": "ISO 8601" },
+  "authorized_by": { "method": "icp-brasil-e-cnpj", "certificate_sha256": "hex", "certificate_subject": "CN=...", "issuer": "CN=AC ...", "signed_at": "ISO 8601", "mandate_sha256": "64 hex" },
   "mandate": { ... },
   "kyb_snapshot": null,
   "status": "active",
@@ -159,6 +169,9 @@ mandate MUST NOT exceed 8192 bytes.
 ```
 
 - `expires_at` MUST be at most 90 days after `issued_at` and MUST NOT be later than `mandate.valid_until`.
+- `authorized_by.mandate_sha256` (D-33) is the hash the signed challenge carried, and MUST equal the SHA-256 of the
+  canonical JSON of `mandate`. Credentials issued before D-33 do not have it: their mandate rests on the issuer's
+  attestation only.
 - Issuance MUST be refused when the certificate is revoked (section 4) or when the company's registration at the Receita Federal is confirmed as other than `ATIVA`. Nothing else about the company (sanctions, debt, risk score) affects issuance or status.
 - The registration check is optional and never blocks on its own failure (D-24). When the issuer has it off, `principal.registration_status` is `NOT_CHECKED`; when no source answers, `UNVERIFIED`. In both cases the credential is issued, `legal_name` comes from the e-CNPJ certificate, and the issuance response carries the reason in `warnings` (and in `kyb_warnings`, kept for v1). The daily review checks again and suspends if a later answer is not `ATIVA`. Verifiers that require a confirmed status MUST check for `ATIVA`.
 - `kyb_snapshot` is kept in v1 for compatibility and is `null` in credentials issued by the reference issuer since D-23. Older credentials may carry a risk screen taken at issuance (an object with `risk_level`, `active_sanctions`, `checked_at` and similar); it never affected status and verifiers MUST NOT read it as a current assessment.
@@ -183,6 +196,7 @@ A verifier that receives a credential (or a `credential_id`) with an agent's req
 
 1. **Binding**: confirm that the key that signed the agent's request equals `credential.agent.id` (same `kind`). A credential alone proves nothing about who is talking.
 2. **Signature**: fetch the issuer's keys, pick the one whose `key_id` equals `attestation.key_id`, and run section 7 in reverse. Reject on hash mismatch or bad signature.
+   **Mandate authorization** (D-33): when `authorized_by.mandate_sha256` is present, it MUST equal the SHA-256 of the canonical JSON of `mandate` (`verifyMandateAuthorization` in the core); reject otherwise. When it is absent, the mandate rests on the issuer's attestation alone, and the verifier decides whether that is enough.
 3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily. When the issuer is unreachable, steps 2 and 4 still work offline but say nothing about a later suspension or revocation; accepting such a credential is the verifier's risk until `expires_at`. Section 18 lets the verifier bound that risk: it states how old the status evidence may be for the amount at stake.
 4. **Expiry**: `now < expires_at`.
 5. **Mandate**: either evaluate section 5 locally, or request a signed verdict from the issuer (section 9) and keep it as evidence.
@@ -324,8 +338,8 @@ reproduces the challenge text from its fields, and reaches the same `allowed` re
 An agent MAY act for a natural person who signs with an ICP-Brasil **e-CPF**.
 
 - Registration: `POST /v1/agents` with `principal: "person"` and no `cnpj`. The challenge text starts with
-  `KYA Brasil: prove this agent key acts for me, a natural person`, carries `principal: person (e-CPF)` and a
-  `consent:` line in which the person authorizes the issuer to keep a keyed hash of the CPF while the credential is
+  `KYA Brasil: prove this agent key acts for me, a natural person`, carries `principal: person (e-CPF)`, a
+  `mandate-sha256:` line as in section 3 (D-33), and a `consent:` line in which the person authorizes the issuer to keep a keyed hash of the CPF while the credential is
   valid and to answer paying verifiers whether a CPF they already have matches. Signing the text records consent.
 - Proof: the CMS is verified as in section 4, except that the signer certificate MUST be an e-CPF (CPF read from
   the `2.16.76.1.3.1` otherName, characters 9 to 19, or the common name suffix `:<11 digits>`) and MUST NOT be an

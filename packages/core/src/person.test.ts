@@ -49,7 +49,8 @@ describe("natural persons (D-29)", () => {
 
   it("verifies an e-CPF signature and reads the CPF, without any subject in the proof", async () => {
     const { ca, leaf, keys } = await pki("person");
-    const ch = newPersonChallenge({ issuer: "https://kya.test", agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" }, now });
+    const ch = newPersonChallenge({ issuer: "https://kya.test", agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" }, mandate_sha256: "b".repeat(64), now });
+    expect(ch.text).toContain(`mandate-sha256: ${"b".repeat(64)}`);
     expect(ch.text).toContain("consent: I authorize");
     expect(ch.text).not.toMatch(/cnpj:/);
     const sig = await cms(leaf, ca, keys.privateKey, ch.text);
