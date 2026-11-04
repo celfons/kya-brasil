@@ -183,7 +183,7 @@ A verifier that receives a credential (or a `credential_id`) with an agent's req
 
 1. **Binding**: confirm that the key that signed the agent's request equals `credential.agent.id` (same `kind`). A credential alone proves nothing about who is talking.
 2. **Signature**: fetch the issuer's keys, pick the one whose `key_id` equals `attestation.key_id`, and run section 7 in reverse. Reject on hash mismatch or bad signature.
-3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily. When the issuer is unreachable, steps 2 and 4 still work offline but say nothing about a later suspension or revocation; accepting such a credential is the verifier's risk until `expires_at`.
+3. **Live status**: `GET verify_url`. Accept only `status == "active"`. Verifiers that cache credentials SHOULD poll `/v1/revocations?since=` at least daily. When the issuer is unreachable, steps 2 and 4 still work offline but say nothing about a later suspension or revocation; accepting such a credential is the verifier's risk until `expires_at`. Section 18 lets the verifier bound that risk: it states how old the status evidence may be for the amount at stake.
 4. **Expiry**: `now < expires_at`.
 5. **Mandate**: either evaluate section 5 locally, or request a signed verdict from the issuer (section 9) and keep it as evidence.
 
@@ -402,3 +402,42 @@ the credential's mandate only; delegated mandates are evaluated by the verifier 
 `@kya-brasil/core`, `check()` and `allowed()` in the middleware). Error codes: `KYA_DELEGATION_MALFORMED`,
 `KYA_DELEGATION_MISMATCH`, `KYA_DELEGATION_NOT_ALLOWED`, `KYA_DELEGATION_TOO_DEEP`, `KYA_DELEGATION_TTL`,
 `KYA_DELEGATION_NOT_YET_VALID`, `KYA_DELEGATION_EXPIRED`, `KYA_DELEGATION_BROADER`, `KYA_DELEGATION_BAD_SIGNATURE`.
+
+## 18. Status freshness proportional to the amount (D-32)
+
+Section 8 step 3 asks for the live status; offline, a verifier only has evidence of status that is some time old.
+How old is acceptable is the verifier's decision, because the verifier runs the risk (Rivest, *Can We Eliminate
+Certificate Revocation Lists?*, Financial Cryptography 1998, proposition 1). This section fixes how that decision is
+expressed and checked, so that it is explicit, proportional to what is at stake and kept as evidence.
+
+**Evidence.** `{ kind, in_force, as_of, valid_until?, source?, status? }`, where `kind` is `credential` (the KYA
+credential's status) or `certificate` (the ICP-Brasil certificate's status):
+
+- credential: any answer the issuer signed (section 7) that carries `credential_id` and `status`, such as a section 9
+  verdict. `as_of` is `attestation.signed_at`; `in_force` is `status == "active"`. The agent MAY staple such an answer
+  to its request, so the verifier needs no network;
+- certificate: a CRL lookup (section 10 of RFC 5280, `checkRevocation` in the core). `as_of` is the CRL's
+  `thisUpdate`, `valid_until` its `nextUpdate`, `in_force` is "serial not listed".
+
+**Policy.** `max_expected_loss` *L* (amount and currency), `revocation_rate_per_hour` *λ* per kind, `require` (kinds
+needed, default `["credential"]`), `max_age_seconds` (ceiling, default 86400, at most 90 days),
+`max_clock_skew_seconds` (default 300, at most 3600), and optionally a function `max_age(amount, kind)` that replaces
+the formula. The maximum age for an action of amount *v* is
+
+    max_age(v) = min( max_age_seconds, floor( L / (v × λ) × 3600 ) )   seconds
+
+which keeps the expected loss *v × λ × age* at or under *L*. With no amount, a zero amount or *λ* = 0 the ceiling
+applies. A custom function's result is clamped to `[0, max_age_seconds]`; a result that is not finite counts as 0.
+
+**Check.** For every required kind, take the evidence with the latest `as_of` (a newer statement supersedes an older
+one, whatever it says). The check passes when that evidence is in force, `valid_until` (if any) is not past, `as_of`
+is not later than the verifier's clock by more than `max_clock_skew_seconds`, and its age is at most `max_age(v)`.
+It fails closed on missing evidence, an amount that is not a finite number ≥ 0, an operation in a currency other than
+*L*'s, or an invalid clock. The verdict lists every check, the kinds for which fresher evidence would change the
+answer (`refresh`: fetch it, or ask the agent to staple it), and the policy and clock applied (`applied`), so the
+verifier can show later which risk it accepted. An action is allowed only when the mandate (section 5) and the
+freshness check both pass (`checkFreshAction` in `@kya-brasil/core`).
+
+The rate *λ* has no default: it is a property of the issuer's and of the ACs' revocation behaviour, and the verifier
+states the one it assumes. The clock is the verifier's: a wrong clock makes stale evidence look fresh, which is why
+the clock used is recorded and evidence dated in the future is refused.
