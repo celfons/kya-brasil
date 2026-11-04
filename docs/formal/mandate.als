@@ -5,6 +5,7 @@
  *   allows[m, q]     <-> checkAction(m, q).allowed        (packages/core/src/mandate.ts, SPEC section 5)
  *   subset[p, c]     <-> isMandateSubset(p, c)             (packages/core/src/delegation.ts, SPEC section 17)
  *   permitted[...]   <-> checkFreshAction / the verifier's rule that a revoked credential ends every delegation
+ *   issuable[p, c]   <-> buildDelegation(parent, child) succeeds         (packages/core/src/issuance.ts, SPEC section 20)
  * and states the properties that packages/core/src/properties.test.ts checks on random cases (P1 to P3).
  *
  * Abstractions, on purpose:
@@ -12,7 +13,7 @@
  *   - counterparty wildcards ("*.domain") are plain set membership; the implementation's matching is checked
  *     by the property tests instead;
  *   - payment instruments and delegation depth/ttl are left out (same subset shape as currencies; depth and
- *     ttl only shorten chains);
+ *     ttl only shorten chains); whether a mandate may delegate at all is modelled (`deleg`, D-37);
  *   - time and amounts are small integers.
  *
  * Run with the Alloy 6 analyzer (https://alloytools.org): open this file and execute every command, or
@@ -33,7 +34,8 @@ sig Mandate {
   rc: lone Yes, curs: set Currency,        -- restricts currencies? which ones
   parties: set Party,                      -- counterparties; empty = any
   ceiling: lone Int, ceilCur: lone Currency,
-  validFrom: lone Int, validUntil: lone Int
+  validFrom: lone Int, validUntil: lone Int,
+  deleg: lone Yes                          -- mandate.delegation present: the agent may delegate
 }
 
 fact WellFormed {
@@ -79,10 +81,12 @@ pred subCeiling[p, c: Mandate] { some p.ceiling implies (some c.ceiling and c.ce
 pred subParties[p, c: Mandate] { some p.parties implies (some c.parties and c.parties in p.parties) }
 pred subFrom[p, c: Mandate]    { some p.validFrom implies (some c.validFrom and c.validFrom >= p.validFrom) }
 pred subUntil[p, c: Mandate]   { some p.validUntil implies (some c.validUntil and c.validUntil <= p.validUntil) }
+pred subDeleg[p, c: Mandate]   { some c.deleg implies some p.deleg }   -- a child may delegate only if its parent may
 
 pred subset[p, c: Mandate] {
   subActs[p, c] and subCurs[p, c] and subCeiling[p, c]
   subParties[p, c] and subFrom[p, c] and subUntil[p, c]
+  subDeleg[p, c]
 }
 
 /* A credential and a chain of delegated mandates; an action passes only when the credential is in force and
@@ -92,8 +96,12 @@ sig Credential { signed: one Mandate, inForce: lone Yes }
 pred chainOk[cr: Credential, chain: seq Mandate] {
   some chain
   chain.first = cr.signed
-  all i: chain.inds - chain.lastIdx | subset[chain[i], chain[i.add[1]]]
+  all i: chain.inds - chain.lastIdx | some chain[i].deleg and subset[chain[i], chain[i.add[1]]]
 }
+
+/* Issuance (D-37): the principal issues the signed mandate; a delegating agent issues its sub-agent's mandate.
+   buildDelegation refuses unless the parent may delegate and the child is contained in it. */
+pred issuable[p, c: Mandate] { some p.deleg and subset[p, c] }
 
 pred permitted[cr: Credential, chain: seq Mandate, q: Query] {
   some cr.inForce
@@ -118,6 +126,26 @@ check ChainNonAmplification for 4 but 5 Int, 4 seq
 -- P3: a credential not in force permits nothing, whatever its chain allows.
 assert Cascade { all cr: Credential, chain: seq Mandate, q: Query | no cr.inForce implies not permitted[cr, chain, q] }
 check Cascade for 4 but 5 Int, 4 seq
+
+-- Issuance refuses exactly what chain verification refuses, link by link: a chain verifies iff every link was issuable.
+assert IssuanceMatchesVerification {
+  all cr: Credential, chain: seq Mandate |
+    (some chain and chain.first = cr.signed) implies
+      (chainOk[cr, chain] iff (all i: chain.inds - chain.lastIdx | issuable[chain[i], chain[i.add[1]]]))
+}
+check IssuanceMatchesVerification for 4 but 5 Int, 4 seq
+
+-- A chain built only by issuance never allows what the signed mandate refuses.
+assert IssuedChainNonAmplification {
+  all cr: Credential, chain: seq Mandate, q: Query |
+    (some chain and chain.first = cr.signed and (all i: chain.inds - chain.lastIdx | issuable[chain[i], chain[i.add[1]]]) and allows[chain.last, q])
+      implies allows[cr.signed, q]
+}
+check IssuedChainNonAmplification for 4 but 5 Int, 4 seq
+
+-- A mandate that may not delegate issues nothing below it.
+assert NoPermissionNoIssue { all p, c: Mandate | no p.deleg implies not issuable[p, c] }
+check NoPermissionNoIssue for 5 but 5 Int
 
 -- Sanity: the model is not vacuous; there are proper delegations and permitted actions.
 run ProperDelegation { some cr: Credential, chain: seq Mandate, q: Query | #chain = 3 and chain[1] != chain[0] and permitted[cr, chain, q] } for 4 but 5 Int, 4 seq

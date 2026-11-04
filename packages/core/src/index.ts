@@ -13,3 +13,4 @@ export * from "./person.js";
 export * from "./delegation.js";
 export * from "./freshness.js";
 export * from "./principal-proof.js";
+export * from "./issuance.js";

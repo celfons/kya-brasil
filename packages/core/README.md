@@ -8,6 +8,7 @@ systems, with no hosted service in the path: the same code the reference issuer 
 - **Agent keys**: challenge text and signature checks for EVM wallets (EIP-191), Ed25519 (Web Bot Auth, RFC 9421) and ERC-8004 agents.
 - **Mandate**: schema, validation and deterministic evaluation of an intended action, including **payment instruments** for card networks, acquirers and issuers.
 - **Credential**: build, sign and verify (Ed25519 over canonical JSON), offline.
+- **Issuance by the principal**: the e-CNPJ / e-CPF holder issues the credential itself, with no issuer service: build the mandate, get the exact bytes to sign, assemble, and verify (`buildMandate`, `mandateSigningInput`, `assembleCredential`, `buildDelegation`).
 - **CNPJ**: normalize, validate, format.
 
 Storage, network calls and keys stay yours: the library never fetches anything except an ERC-8004 lookup over
@@ -44,6 +45,80 @@ const verdict = checkAction(credential.mandate, {
   payment_ref_sha256: await hashPaymentRef(tokenRef)   // the network token reference or PAR of this transaction
 });
 // verdict.allowed, verdict.checks (every rule evaluated, with its reason), verdict.not_evaluated (extensions)
+```
+
+## Emissão pelo responsável (issue it yourself, no issuer service)
+
+There is no native link between an ICP-Brasil certificate and an AI agent: the link is the KYA format, so the
+library issues it as well as verifies it. **The issuer is the principal itself**, the holder of the e-CNPJ or e-CPF,
+not a service in between: no account, no API, no one else sees the certificate or decides on the powers. In a
+delegation, the parent agent is the issuer of its sub-agent's mandate. SPEC section 20, decision D-37.
+
+Issuance is symmetric to verification and uses the same functions: the mandate is validated by the verifier's
+schema, hashed with the same canonical JSON (SPEC section 7), and the text the certificate signs is the same
+challenge text `verifyPrincipalProof` reads. Every risk field is required (no defaults: `[]` says "any",
+`delegation: null` says "may not delegate"), and whatever verification would refuse is refused at issuance.
+
+```ts
+import { buildMandate, mandateSigningInput, assembleCredential, verifySelfIssuedCredential, openPfx, encodePrincipalProofHeader } from "@kya-brasil/core";
+
+// 1. The principal states the powers. Missing field = error.
+const built = await buildMandate({
+  credential_id: crypto.randomUUID(),
+  agent: { kind: "evm", id: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" },   // the agent's public key
+  principal: { kind: "company", cnpj: "11.222.333/0001-81" },                // or { kind: "person" } (e-CPF)
+  mandate: {
+    actions: ["quote", "order", "pay"],
+    max_per_operation: { amount: 5000, currency: "BRL" },
+    max_per_day: { amount: 20000, currency: "BRL" },
+    currencies: ["BRL"],
+    counterparties: ["33000167000101", "*.fornecedor.com.br"],
+    payment_instruments: [],
+    valid_from: "2026-11-01T00:00:00Z",
+    valid_until: "2027-03-01T00:00:00Z",
+    delegation: { max_depth: 1, max_ttl_seconds: 3600 }                      // or null
+  },
+  ttl_seconds: 30 * 86400,
+  now: new Date()
+});
+
+// 2. The exact bytes the certificate signs (text, UTF-8 bytes and their SHA-256).
+const { text } = await mandateSigningInput(built);
+
+// 3. Sign with any ICP-Brasil signer that produces a CMS (detached or attached, SHA-256, RSA PKCS#1 v1.5):
+//    an A1 file here; a token, HSM or cloud certificate through ecnpjSigner / buildDetachedCms / cloudSigner.
+const signer = await openPfx(pfxBytes, password);
+const cms = await signer.sign(text);
+
+// 4. Assemble: checks the signature, the chain to the anchors and the CNPJ as a verifier will, and refuses otherwise.
+const { credential, proof } = await assembleCredential(built, cms, [], { anchors: icpBrasilAnchors, now: new Date() });
+// Check the certificate's CRL now (checkRevocation), then hand { credential, proof } to the agent.
+
+// 5. The agent presents both; any verifier checks them against ICP-Brasil alone.
+const header = encodePrincipalProofHeader(proof);                            // KYA-Principal-Proof
+const r = await verifySelfIssuedCredential({ credential, proof, anchors: icpBrasilAnchors, now: new Date() });
+// r.ok; r.checks: signature, certificate, agent, principal, issuer, mandate, credential, validity
+```
+
+A self-issued credential has `issuer: "urn:kya-brasil:self"` and no issuer attestation: the principal's signature is
+the proof, and its status is the certificate's (CRL) and the credential's own expiry, which never passes the
+mandate's `valid_until` nor the certificate's end of validity. To revoke before that, the principal revokes the
+certificate or issues mandates with short lifetimes; there is no status service to ask. The certificate signer
+stays outside the core: an A3 token (PKCS#11 and PIN) is `openToken` in `@kya-brasil/agent-tools`.
+
+Delegation, issued by the parent agent with its own key:
+
+```ts
+import { buildDelegation, assembleDelegation, encodeDelegationHeader } from "@kya-brasil/core";
+
+const prepared = await buildDelegation({ credential }, {
+  delegate: { kind: "evm", id: subAgentAddress },
+  mandate: { ...narrowerTerms, delegation: null },  // all fields required; refused if broader than the parent's
+  ttl_seconds: 600,
+  now: new Date()
+});
+const chain = await assembleDelegation({ credential }, prepared, await agentAccount.signMessage({ message: prepared.text }), new Date());
+// KYA-Delegation: encodeDelegationHeader(chain); verifiers use verifyDelegationChain, unchanged.
 ```
 
 ## Without trusting the issuer
