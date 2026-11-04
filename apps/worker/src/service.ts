@@ -107,7 +107,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   if (mandateSha256OfChallenge(ch.text) !== mandate_sha256) throw new KyaError("CHALLENGE_FAILED", "challenge does not commit to the mandate being issued (issued before the mandate was signed); register again");
   if (!(await verifyAgentSignature(agent, ch.text, proof.agent_signature))) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over challenge.text");
   if (row.principal_kind === "person") {
-    const issued = await issuePerson(env, issuerOf(env, origin), row, agent, ch.text, proof.ecnpj_signature, event, mandate, mandate_sha256);
+    const issued = await issuePerson(env, issuerOf(env, origin), row, agent, { text: ch.text, signature: proof.ecnpj_signature, mandate, mandate_sha256 }, event);
     if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
     return issued;
   }

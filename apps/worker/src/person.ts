@@ -43,7 +43,16 @@ export function personChallenge(issuer: string, agent: AgentKey, mandate_sha256:
 }
 
 /** Issuance or renewal for a person: e-CPF proof, CRL, keyed hash; a renewal must be signed by the same person. */
-export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, agent: AgentKey, text: string, ecpfSignature: string, event: "issued" | "renewed", mandate: Mandate, mandate_sha256: string) {
+/** What the person signed: the challenge text, the e-CPF CMS over it, and the mandate it commits to (D-33). */
+export interface PersonProof {
+  text: string;
+  signature: string;
+  mandate: Mandate;
+  mandate_sha256: string;
+}
+
+export async function issuePerson(env: AppEnv, issuer: string, row: AgentRow, agent: AgentKey, proof: PersonProof, event: "issued" | "renewed") {
+  const { text, signature: ecpfSignature, mandate, mandate_sha256 } = proof;
   const store = new Store(env.DB);
   const keys = keysOf(env);
   const anchors = await icpAnchors(env);
