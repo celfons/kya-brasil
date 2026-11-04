@@ -100,5 +100,18 @@ def main(src, dst):
     print(f"{len(vectors)} vectors -> {dst}")
 
 
+def inside_cwd(path):
+    """Only relative paths that stay inside the working directory (no "..", no absolute paths, no symlink escape)."""
+    base = os.path.realpath(os.getcwd())
+    if os.path.isabs(path):
+        sys.exit(f"refusing absolute path: {path}")
+    full = os.path.realpath(os.path.join(base, path))
+    if os.path.commonpath([base, full]) != base:
+        sys.exit(f"refusing path outside the working directory: {path}")
+    return full
+
+
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv) != 3:
+        sys.exit("usage: generate-vectors.py <alloy-xml-dir> <vectors.json>")
+    main(inside_cwd(sys.argv[1]), inside_cwd(sys.argv[2]))
