@@ -3,7 +3,7 @@
  * an action, renew, revoke, and the daily review. Each returns plain JSON; routes add payment.
  */
 import {
-  type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
+  type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge, type CertificateRevocationPolicy,
   normalizeAgentKey, normalizeCnpj, signCredential, signingLink, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
   mandateSha256, mandateSha256OfChallenge,
 } from "@kya-brasil/core";
@@ -16,6 +16,13 @@ import { registrationOrWarning } from "./registration";
 import { certificateRevocation } from "./revocation";
 import { Store, type AgentRow } from "./store";
 import { CREDENTIAL_TTL_SECONDS, issuePerson, keysOf, personChallenge, revokePerson } from "./person";
+
+/**
+ * D-16, D-36: this issuer's reading of a CRL entry on a live credential (the core has no default). Hold suspends;
+ * a later replacement or retirement of the certificate without compromise leaves the mandate standing, as a new
+ * certificate does not end a power of attorney (Código Civil art. 682); anything else, unexplained included, revokes.
+ */
+const CERTIFICATE_REVOCATION_POLICY = { by_reason: { certificateHold: "suspend", superseded: "keep", cessationOfOperation: "keep" }, other: "revoke" } as const satisfies CertificateRevocationPolicy;
 
 const issuerOf = (env: AppEnv, origin: string) => (env.ISSUER_URL ?? origin).replace(/\/$/, "");
 
@@ -334,7 +341,7 @@ export async function dailyReview(env: AppEnv): Promise<{ reviewed: number; susp
           console.error("revocation check failed", row.id, e);
           return null;
         });
-        certificate = r ? revocationEffect(r, row.authorized_at) : "unknown";
+        certificate = r ? revocationEffect(r, row.authorized_at, CERTIFICATE_REVOCATION_POLICY) : "unknown";
         if (r?.revoked) certificateReason = `e-CNPJ certificate revoked by its AC on ${r.revoked_at}${r.reason ? ` (${r.reason})` : ""}`;
         if (r) await store.markReviewed(row.id, { last_revocation_check_at: new Date().toISOString() });
       }
