@@ -93,8 +93,12 @@ export interface Credential {
   agent: AgentKey;
   /** A company (e-CNPJ) or, since D-29, a natural person (e-CPF) with no personal data: tell them apart by `kind`. */
   principal: CompanyPrincipal | PersonPrincipal;
-  /** How the principal authorized it: hash of the ICP-Brasil certificate that signed the challenge. No subject for persons. */
-  authorized_by: { method: "icp-brasil-e-cnpj" | "icp-brasil-e-cpf"; certificate_sha256: string; certificate_subject?: string; issuer: string; signed_at: string };
+  /**
+   * How the principal authorized it: hash of the ICP-Brasil certificate that signed the challenge. No subject for
+   * persons. `mandate_sha256` (D-33) is the mandate's SHA-256 that the signed challenge carried: when it equals
+   * mandateSha256(mandate), the certificate signature covers these powers (see verifyMandateAuthorization).
+   */
+  authorized_by: { method: "icp-brasil-e-cnpj" | "icp-brasil-e-cpf"; certificate_sha256: string; certificate_subject?: string; issuer: string; signed_at: string; mandate_sha256?: string };
   mandate: Mandate;
   /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Always null from the reference issuer since D-23 (no KYB dependency); kept in /v1. Null when the issuer has no KYB source (D-17). */
   kyb_snapshot: KybSnapshot | null;

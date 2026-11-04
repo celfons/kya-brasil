@@ -5,6 +5,7 @@
 import {
   type AgentKey, type Credential, KyaError, type Mandate, buildCredential, checkAction, effectiveStatus, formatCnpj, isValidCnpj, principalDecision, revocationEffect, newChallenge,
   normalizeAgentKey, normalizeCnpj, signCredential, signingLink, validateMandate, verifyAgentSignature, verifyIcpSignature, challengeText,
+  mandateSha256, mandateSha256OfChallenge,
 } from "@kya-brasil/core";
 import { icpAnchors } from "./anchors";
 import { withWallet } from "./erc8004";
@@ -38,7 +39,7 @@ export async function register(env: AppEnv, origin: string, body: { agent?: unkn
     await env.DB.prepare("UPDATE agents SET mandate = ?2, status = 'pending', status_reason = NULL, updated_at = ?3 WHERE id = ?1").bind(id, JSON.stringify(mandate), new Date().toISOString()).run();
     if (agent.wallet) await store.setWallet(id, agent.wallet);
   }
-  const ch = newChallenge({ issuer, agent, cnpj });
+  const ch = newChallenge({ issuer, agent, cnpj, mandate_sha256: await mandateSha256(mandate) });
   await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at, mandate });
   return {
     credential_id: id,
@@ -72,7 +73,7 @@ async function registerPerson(env: AppEnv, origin: string, agent: AgentKey, body
     await store.voidChallenges(id);
     await env.DB.prepare("UPDATE agents SET mandate = ?2, status = 'pending', status_reason = NULL, updated_at = ?3 WHERE id = ?1").bind(id, JSON.stringify(mandate), new Date().toISOString()).run();
   }
-  const ch = personChallenge(issuer, agent);
+  const ch = personChallenge(issuer, agent, await mandateSha256(mandate));
   await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at, mandate });
   return {
     credential_id: id,
@@ -101,9 +102,12 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   // The mandate is the one requested with this challenge, which is what the signing link showed (not the row's current one).
   if (!ch.mandate) throw new KyaError("CHALLENGE_FAILED", "challenge from before the issuer update; register again");
   const mandate = JSON.parse(ch.mandate) as Mandate;
+  // D-33: the certificate signs the mandate's hash. A text without it, or with another mandate's, issues nothing.
+  const mandate_sha256 = await mandateSha256(mandate);
+  if (mandateSha256OfChallenge(ch.text) !== mandate_sha256) throw new KyaError("CHALLENGE_FAILED", "challenge does not commit to the mandate being issued (issued before the mandate was signed); register again");
   if (!(await verifyAgentSignature(agent, ch.text, proof.agent_signature))) throw new KyaError("CHALLENGE_FAILED", "agent_signature does not match the agent key over challenge.text");
   if (row.principal_kind === "person") {
-    const issued = await issuePerson(env, issuerOf(env, origin), row, agent, ch.text, proof.ecnpj_signature, event, mandate);
+    const issued = await issuePerson(env, issuerOf(env, origin), row, agent, { text: ch.text, signature: proof.ecnpj_signature, mandate, mandate_sha256 }, event);
     if (agent.wallet && agent.wallet !== row.agent_wallet) await store.setWallet(row.id, agent.wallet);
     return issued;
   }
@@ -127,7 +131,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
   const issuer = issuerOf(env, origin);
   const certificate = { sha256: icp.certificate_sha256, subject: icp.certificate_subject, issuer: icp.issuer, signed_at: icp.signed_at };
   const legalName = reg.legal_name ?? certificateName(icp.certificate_subject);
-  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: legalName, registration_status: reg.registration_status, certificate, mandate, kyb: null, issuer });
+  const unsigned = buildCredential({ credential_id: row.id, agent, cnpj: row.cnpj, legal_name: legalName, registration_status: reg.registration_status, certificate, mandate, mandate_sha256, kyb: null, issuer });
   const credential = await signCredential(unsigned, m.key, m.keyId);
   const record = { ...certificate, serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls, revocation_checked_at: new Date().toISOString() };
   await store.issue({ id: row.id, legal_name: legalName, credential, certificate: record, mandate, event });
@@ -264,8 +268,10 @@ export async function renewChallenge(env: AppEnv, origin: string, id: string) {
   if (!row) throw new KyaError("NOT_FOUND", "unknown credential_id");
   if (row.status === "revoked") throw new KyaError("CONFLICT", "revoked credentials cannot be renewed; register again");
   const agent: AgentKey = await withWallet(env, { kind: row.agent_kind, id: row.agent_id });
-  const ch = row.principal_kind === "person" ? personChallenge(issuerOf(env, origin), agent) : newChallenge({ issuer: issuerOf(env, origin), agent, cnpj: row.cnpj });
-  await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at, mandate: JSON.parse(row.mandate) as Mandate });
+  const mandate = JSON.parse(row.mandate) as Mandate;
+  const mandate_sha256 = await mandateSha256(mandate);
+  const ch = row.principal_kind === "person" ? personChallenge(issuerOf(env, origin), agent, mandate_sha256) : newChallenge({ issuer: issuerOf(env, origin), agent, cnpj: row.cnpj, mandate_sha256 });
+  await store.createChallenge({ id: ch.challenge_id, agent_row: id, text: ch.text, expires_at: ch.expires_at, mandate });
   return { credential_id: id, challenge: { id: ch.challenge_id, text: ch.text, expires_at: ch.expires_at }, next: `POST ${issuerOf(env, origin)}/v1/agents/${id}/renew/prove with {challenge_id, agent_signature, ecnpj_signature}` };
 }
 

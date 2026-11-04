@@ -17,6 +17,8 @@ export function buildCredential(p: {
   registration_status: string;
   certificate: { sha256: string; subject: string; issuer: string; signed_at: string };
   mandate: Mandate;
+  /** D-33: the mandate SHA-256 the signed challenge carried (mandateSha256OfChallenge). */
+  mandate_sha256?: string;
   /** /v1 compatibility only; leave out (null). */
   kyb?: KybSnapshot | null;
   issuer: string;
@@ -34,7 +36,7 @@ export function buildCredential(p: {
     version: 1,
     agent: p.agent,
     principal: { cnpj, cnpj_formatted: formatCnpj(cnpj), legal_name: p.legal_name, registration_status: p.registration_status },
-    authorized_by: { method: "icp-brasil-e-cnpj", certificate_sha256: p.certificate.sha256, certificate_subject: p.certificate.subject, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at },
+    authorized_by: { method: "icp-brasil-e-cnpj", certificate_sha256: p.certificate.sha256, certificate_subject: p.certificate.subject, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at, ...(p.mandate_sha256 ? { mandate_sha256: p.mandate_sha256 } : {}) },
     mandate: p.mandate,
     kyb_snapshot: p.kyb ?? null,
     status: p.status ?? "active",
@@ -53,6 +55,8 @@ export function buildPersonCredential(p: {
   agent: AgentKey;
   certificate: { sha256: string; issuer: string; signed_at: string };
   mandate: Mandate;
+  /** D-33: the mandate SHA-256 the signed challenge carried (mandateSha256OfChallenge). */
+  mandate_sha256?: string;
   issuer: string;
   now?: Date;
 }): Credential {
@@ -65,7 +69,7 @@ export function buildPersonCredential(p: {
     version: 1,
     agent: p.agent,
     principal: { kind: "person", verified_by: "icp-brasil-e-cpf" },
-    authorized_by: { method: "icp-brasil-e-cpf", certificate_sha256: p.certificate.sha256, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at },
+    authorized_by: { method: "icp-brasil-e-cpf", certificate_sha256: p.certificate.sha256, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at, ...(p.mandate_sha256 ? { mandate_sha256: p.mandate_sha256 } : {}) },
     mandate: p.mandate,
     kyb_snapshot: null,
     status: "active",
@@ -114,3 +118,23 @@ export function effectiveStatus(c: Pick<Credential, "status" | "expires_at">, no
   if (c.status === "active" && Date.parse(c.expires_at) < now.getTime()) return "expired";
   return c.status;
 }
+
+/** D-33: SHA-256 (lowercase hex) of the canonical JSON (section 7) of a mandate; what the challenge commits to. */
+export async function mandateSha256(mandate: Mandate): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalize(mandate)));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Offline: does the ICP-Brasil signature behind this credential cover its mandate (D-33)?
+ *   "signed"      authorized_by.mandate_sha256 equals the SHA-256 of credential.mandate;
+ *   "mismatch"    it does not: the mandate is not the one the principal signed (refuse the credential);
+ *   "not_covered" the credential predates D-33 and carries no hash: the mandate rests on the issuer's attestation.
+ * The certificate signature itself is verified by the issuer at issuance; the signed .p7s stays with the principal.
+ */
+export async function verifyMandateAuthorization(c: Pick<Credential, "mandate" | "authorized_by">): Promise<"signed" | "mismatch" | "not_covered"> {
+  const h = c.authorized_by?.mandate_sha256;
+  if (!h) return "not_covered";
+  return (await mandateSha256(c.mandate)) === h ? "signed" : "mismatch";
+}
+

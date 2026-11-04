@@ -68,8 +68,9 @@ export function personKeys(json: string | undefined): { current: { version: numb
 export const PERSON_CONSENT =
   "I authorize this issuer to keep a keyed hash of my CPF while this credential is valid and to answer, to verifiers who pay for each check, only whether a CPF they already have matches. My name and CPF are never stored in clear, published or revealed. / Autorizo este emissor a guardar um hash com chave do meu CPF enquanto esta credencial valer e a responder, a verificadores que pagam por consulta, apenas se um CPF que eles ja tem confere. Meu nome e meu CPF nunca sao guardados em claro, publicados ou revelados.";
 
-/** The text a person and the agent sign (no CPF: it comes from the e-CPF certificate). */
-export function personChallengeText(p: { issuer: string; challenge_id: string; agent: AgentKey; expires_at: string }): string {
+/** The text a person and the agent sign (no CPF: it comes from the e-CPF certificate); with the mandate's SHA-256 (D-33). */
+export function personChallengeText(p: { issuer: string; challenge_id: string; agent: AgentKey; mandate_sha256: string; expires_at: string }): string {
+  if (typeof p.mandate_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(p.mandate_sha256)) throw new KyaError("INVALID_INPUT", "mandate_sha256 must be 64 lowercase hex characters (see mandateSha256)");
   return [
     "KYA Brasil: prove this agent key acts for me, a natural person",
     `issuer: ${p.issuer}`,
@@ -77,6 +78,7 @@ export function personChallengeText(p: { issuer: string; challenge_id: string; a
     `agent: ${p.agent.kind}:${p.agent.id}`,
     "principal: person (e-CPF)",
     `consent: ${PERSON_CONSENT}`,
+    `mandate-sha256: ${p.mandate_sha256}`,
     `expires: ${p.expires_at}`
   ].join("\n");
 }
@@ -84,9 +86,9 @@ export function personChallengeText(p: { issuer: string; challenge_id: string; a
 /** The text a person signs with the e-CPF to see their own agents (accepted for 10 minutes after `at`). */
 export const personAgentsText = (at: Date = new Date()) => `KYA Brasil: my agents\nat: ${at.toISOString()}`;
 
-export function newPersonChallenge(p: { issuer: string; agent: AgentKey; now?: Date }): Challenge {
+export function newPersonChallenge(p: { issuer: string; agent: AgentKey; mandate_sha256: string; now?: Date }): Challenge {
   const now = p.now ?? new Date();
   const challenge_id = crypto.randomUUID();
   const expires_at = new Date(now.getTime() + CHALLENGE_TTL_SECONDS * 1000).toISOString();
-  return { challenge_id, expires_at, text: personChallengeText({ issuer: p.issuer, challenge_id, agent: p.agent, expires_at }) };
+  return { challenge_id, expires_at, text: personChallengeText({ issuer: p.issuer, challenge_id, agent: p.agent, mandate_sha256: p.mandate_sha256, expires_at }) };
 }

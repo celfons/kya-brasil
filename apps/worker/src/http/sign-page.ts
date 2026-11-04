@@ -82,7 +82,7 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       <dt>Emissor</dt><dd id="s-issuer">-</dd>
       <dt>Válido até</dt><dd id="s-exp">-</dd>
     </dl>
-    <div id="s-mandate-wrap" hidden><b>Mandato (o que o agente poderá fazer)</b><pre id="s-mandate"></pre></div>
+    <div id="s-mandate-wrap" hidden><b>Mandato (o que o agente poderá fazer)</b><pre id="s-mandate"></pre><p id="s-mandate-ok" class="muted" hidden></p></div>
     <div id="s-consent" hidden><b>Consentimento (faz parte do texto assinado)</b><p id="s-consent-text" class="muted"></p></div>
     <p id="s-alert" class="bad" hidden></p>
     <details><summary class="muted">Texto exato que será assinado</summary><pre id="s-text"></pre></details>
@@ -122,6 +122,8 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       <label>Assinatura do agente (o agente envia; cole aqui se não veio no link)<input type="text" id="agent-sig"></label>
     </div>
     <p><button id="prove">Emitir a credencial</button></p>
+    <p class="muted" id="keep">Guarde a prova: o texto assinado e a assinatura ficam com você, não com o emissor. Com eles, qualquer pessoa confere com um validador ICP-Brasil que você autorizou este agente e estes poderes.</p>
+    <p><a class="btn alt" id="dl-p7s" download="kya-assinatura.p7s" href="#">Baixar a assinatura (.p7s)</a> <a class="btn alt" id="dl-signed" download="kya-texto-assinado.txt" href="#">Baixar o texto assinado</a></p>
     <details><summary class="muted">Assinatura e-CNPJ (base64), para enviar manualmente</summary><textarea id="sig" readonly></textarea><p><button class="alt" id="copy">Copiar</button></p></details>
     <p id="prove-msg"></p>
   </section>
@@ -136,6 +138,9 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
   const state = { id: q.get("id"), challengeId: q.get("challenge_id"), agentSig: q.get("agent_signature"), text: null, cnpj: null, person: false, signature: null };
   const fromB64u = (s) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)));
   const alertBad = (msg) => { $("s-alert").textContent = msg; $("s-alert").hidden = false; };
+  // D-33: the same canonical JSON as the core (keys in code-unit order), so the page can check the mandate hash.
+  const canon = (v) => v === null || typeof v !== "object" ? JSON.stringify(v) : Array.isArray(v) ? "[" + v.map(canon).join(",") + "]" : "{" + Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+  const sha256hex = async (t) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)))].map((b) => b.toString(16).padStart(2, "0")).join("");
 
   function load(text) {
     state.text = text;
@@ -162,7 +167,16 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       fetch("/v1/agents/" + encodeURIComponent(state.id)).then((r) => r.ok ? r.json() : null).then((v) => {
         if (!v) return;
         const m = v.requested_mandate || (v.credential && v.credential.mandate);
-        if (m) { $("s-mandate").textContent = JSON.stringify(m, null, 2); $("s-mandate-wrap").hidden = false; }
+        if (m) {
+          $("s-mandate").textContent = JSON.stringify(m, null, 2); $("s-mandate-wrap").hidden = false;
+          const signed = field("mandate-sha256");
+          if (!signed) alertBad("Este desafio não inclui o mandato. Peça um novo link a quem está registrando o agente.");
+          else sha256hex(canon(m)).then((h) => {
+            if (h !== signed) return alertBad("O mandato mostrado não corresponde ao texto que seria assinado. Não assine.");
+            $("s-mandate-ok").textContent = "O texto a assinar inclui o hash deste mandato: a sua assinatura cobre exatamente estes poderes.";
+            $("s-mandate-ok").hidden = false;
+          });
+        }
         if (v.status && v.status !== "pending") alertBad("Este registro está com status " + v.status + "; o link pode ser antigo.");
       }).catch(() => {});
     }
@@ -190,6 +204,9 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
   function ready(signature) {
     state.signature = signature;
     $("sig").value = signature;
+    const der = Uint8Array.from(atob(signature), (c) => c.charCodeAt(0));
+    $("dl-p7s").href = URL.createObjectURL(new Blob([der], { type: "application/pkcs7-signature" }));
+    $("dl-signed").href = URL.createObjectURL(new Blob([state.text], { type: "text/plain" }));
     $("result").hidden = false;
     $("need-agent").hidden = !!state.agentSig;
     if (state.agentSig) $("agent-sig").value = state.agentSig;
