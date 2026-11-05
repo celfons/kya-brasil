@@ -39,34 +39,43 @@ def interp_fixed(fixed, fetches):
     return float(np.interp(x, xs, [y for _, y in pts]))
 
 
-def main():
+def measured_delay_pool():
+    """Exposure delays with the measured cadence (reissue every 0.5 h), as in simulate_measured.py."""
     m, w = M.load()
-    staff = w / w.max()
-    lam = M.lambda_per_hour(m)["per_hour"]
     rng = np.random.default_rng(M.SEED)
     p, wt = M.cadence_mix(m, False)
-    pool, _ = M.exposure(rng, rng.uniform(0, M.WEEK, M.POOL), staff, p, wt)
+    pool, _ = M.exposure(rng, rng.uniform(0, M.WEEK, M.POOL), w / w.max(), p, wt)
+    return M.lambda_per_hour(m)["per_hour"], pool
+
+
+def gain_over_fixed(row, fixed, floor):
+    """Gain of one proportional point over the fixed deadline with the same fetches, or None outside its range."""
+    ref = interp_fixed(fixed, row["fetches_per_1000"])
+    if ref is None:
+        return None
+    gain = ref - row["expected_loss_per_1000_brl"]
+    return {"setting": row["setting"], "fetches_per_1000": row["fetches_per_1000"], "loss": row["expected_loss_per_1000_brl"],
+            "fixed_loss_same_fetches": round(ref, 4), "gain_brl_per_1000": round(gain, 4),
+            "share_of_avoidable": round(gain / (ref - floor) if ref > floor else 0.0, 4)}
+
+
+def best_gain(rows):
+    """(always-fetch floor, best proportional point by share of the avoidable loss removed)."""
+    floor = next(r for r in rows if r["policy"] == "consultar sempre")["expected_loss_per_1000_brl"]
+    fixed = [r for r in rows if r["policy"] == "prazo fixo"]
+    gains = [g for r in rows if r["policy"] == "proporcional ao valor" for g in [gain_over_fixed(r, fixed, floor)] if g]
+    return floor, max(gains, key=lambda g: g["share_of_avoidable"], default=None)
+
+
+def main():
+    lam, pool = measured_delay_pool()
     base = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool}
     out = {"seed": M.SEED, "lambda_measured_per_hour": lam, "multipliers": MULTIPLIERS, "medians_brl": MEDIANS_BRL, "scenarios": []}
     for med in MEDIANS_BRL:
         for k in MULTIPLIERS:
-            prm = {**base, "lambda_per_hour": lam * k, "value_median_brl": med}
-            res = M.sweep(prm, lam * k)["rows"]
-            floor = next(r for r in res if r["policy"] == "consultar sempre")["expected_loss_per_1000_brl"]
-            fixed = [r for r in res if r["policy"] == "prazo fixo"]
-            best = None
-            for r in res:
-                if r["policy"] != "proporcional ao valor":
-                    continue
-                ref = interp_fixed(fixed, r["fetches_per_1000"])
-                if ref is None:
-                    continue
-                gain = ref - r["expected_loss_per_1000_brl"]
-                share = gain / (ref - floor) if ref > floor else 0.0
-                if best is None or share > best["share_of_avoidable"]:
-                    best = {"setting": r["setting"], "fetches_per_1000": r["fetches_per_1000"], "loss": r["expected_loss_per_1000_brl"],
-                            "fixed_loss_same_fetches": round(ref, 4), "gain_brl_per_1000": round(gain, 4), "share_of_avoidable": round(share, 4)}
-            row = {"multiplier": k, "median_brl": med, "lambda_per_hour": lam * k, "floor_brl_per_1000": floor, "best": best, "rows": res}
+            rows = M.sweep({**base, "lambda_per_hour": lam * k, "value_median_brl": med}, lam * k)["rows"]
+            floor, best = best_gain(rows)
+            row = {"multiplier": k, "median_brl": med, "lambda_per_hour": lam * k, "floor_brl_per_1000": floor, "best": best, "rows": rows}
             out["scenarios"].append(row)
             print(json.dumps({kk: vv for kk, vv in row.items() if kk != "rows"}, ensure_ascii=False), flush=True)
     with open(os.path.join(HERE, "sensitivity.json"), "w", encoding="utf-8") as f:

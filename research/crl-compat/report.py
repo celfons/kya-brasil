@@ -1,8 +1,8 @@
 """Aggregates data/results.jsonl into results/results.json (every CRL x library) and results/RESULTS.md.
 
-Usage: python3 -I report.py data/pairs.json data/results.jsonl
+Usage: python3 -I report.py (reads data/pairs.json and data/results.jsonl next to this file)
 """
-import json, os, platform, statistics, sys
+import json, os, platform
 from collections import OrderedDict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,9 +31,11 @@ def group(p):
 
 
 def main():
-    meta = json.load(open(sys.argv[1]))
+    with open(os.path.join(HERE, "data", "pairs.json")) as f:
+        meta = json.load(f)
     pairs = {p["id"]: p for p in meta["pairs"]}
-    rows = [json.loads(line) for line in open(sys.argv[2])]
+    with open(os.path.join(HERE, "data", "results.jsonl")) as f:
+        rows = [json.loads(line) for line in f]
     versions = {r["lib"]: r["version"] for r in rows}
     by = {(r["lib"], r["id"]): r for r in rows}
     verifiable = [p for p in meta["pairs"] if p["issuers"]]

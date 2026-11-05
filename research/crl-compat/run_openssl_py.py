@@ -1,8 +1,25 @@
 """OpenSSL CLI and Python cryptography: parse and verify every CRL in data/pairs.json. Prints JSON lines.
 
-Usage: python3 -I run_openssl_py.py data/pairs.json openssl|python
+Usage: python3 -I run_openssl_py.py openssl|python
 """
-import json, statistics, subprocess, sys, time
+import json
+import os
+import statistics
+import subprocess
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DATA = os.path.join(HERE, "data")
+
+
+def under(sub, name):
+    """Path of `name` inside data/<sub>; refuses anything that would leave it (pairs.json is data, not trusted)."""
+    base = os.path.realpath(os.path.join(DATA, sub))
+    path = os.path.realpath(os.path.join(base, name))
+    if os.path.commonpath([path, base]) != base:
+        raise ValueError(f"refusing path {name!r}")
+    return path
 
 
 def timed(fn, n=3):
@@ -14,42 +31,43 @@ def timed(fn, n=3):
     return out, statistics.median(ms)
 
 
+def openssl_verify(crl, cert):
+    r = subprocess.run(["openssl", "crl", "-inform", "DER", "-in", crl, "-CAfile", cert, "-noout"], capture_output=True)
+    return (r.stdout + r.stderr).decode()
+
+
 def openssl(p):
-    def parse():
-        return subprocess.run(["openssl", "crl", "-inform", "DER", "-in", p["crl"], "-noout"], capture_output=True)
-    r, _ = timed(parse, 1)
+    crl = under("crl", p["crl"])
+    r = subprocess.run(["openssl", "crl", "-inform", "DER", "-in", crl, "-noout"], capture_output=True)
     if r.returncode != 0:
         return "parse_error", r.stderr.decode()[:200], None
     if not p["issuers"]:
         return "parsed_no_issuer", "", None
     last = ""
-    for cert in p["issuers"]:
-        def verify():
-            return subprocess.run(["openssl", "crl", "-inform", "DER", "-in", p["crl"], "-CAfile", cert, "-noout"], capture_output=True)
-        r, ms = timed(verify)
-        err = (r.stdout + r.stderr).decode()
-        if "verify OK" in err:
+    for name in p["issuers"]:
+        out, ms = timed(lambda c=under("cert", name): openssl_verify(crl, c))
+        if "verify OK" in out:
             return "ok", "", ms
-        last = err.strip()[:200]
+        last = out.strip()[:200]
     return "verify_failed", last, None
 
 
 def python(p):
     from cryptography import x509
+    with open(under("crl", p["crl"]), "rb") as f:
+        der = f.read()
     try:
-        der = open(p["crl"], "rb").read()
-        crl, _ = timed(lambda: x509.load_der_x509_crl(der), 1)
+        x509.load_der_x509_crl(der)
     except Exception as e:  # noqa: BLE001
         return "parse_error", f"{type(e).__name__}: {e}"[:200], None
     if not p["issuers"]:
         return "parsed_no_issuer", "", None
     last = ""
-    for cert in p["issuers"]:
+    for name in p["issuers"]:
         try:
-            key = x509.load_pem_x509_certificate(open(cert, "rb").read()).public_key()
-            def verify():
-                return x509.load_der_x509_crl(der).is_signature_valid(key)
-            ok, ms = timed(verify)
+            with open(under("cert", name), "rb") as f:
+                key = x509.load_pem_x509_certificate(f.read()).public_key()
+            ok, ms = timed(lambda k=key: x509.load_der_x509_crl(der).is_signature_valid(k))
             if ok:
                 return "ok", "", ms
             last = "is_signature_valid returned False"
@@ -59,18 +77,20 @@ def python(p):
 
 
 def main():
-    pairs = json.load(open(sys.argv[1]))["pairs"]
-    lib = sys.argv[2]
+    lib = sys.argv[1]
     if lib == "openssl":
+        name, fn = "OpenSSL CLI", openssl
         version = subprocess.run(["openssl", "version"], capture_output=True, text=True).stdout.split()[1]
-        fn = openssl
-    else:
+    elif lib == "python":
         import cryptography
-        version = cryptography.__version__
-        fn = python
+        name, fn, version = "Python cryptography", python, cryptography.__version__
+    else:
+        raise SystemExit("usage: run_openssl_py.py openssl|python")
+    with open(os.path.join(DATA, "pairs.json")) as f:
+        pairs = json.load(f)["pairs"]
     for p in pairs:
         outcome, detail, ms = fn(p)
-        print(json.dumps({"lib": "OpenSSL CLI" if lib == "openssl" else "Python cryptography", "version": version, "id": p["id"], "outcome": outcome, "detail": detail, "ms": ms}), flush=True)
+        print(json.dumps({"lib": name, "version": version, "id": p["id"], "outcome": outcome, "detail": detail, "ms": ms}), flush=True)
 
 
 if __name__ == "__main__":

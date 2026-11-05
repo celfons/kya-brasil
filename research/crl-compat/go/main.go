@@ -1,6 +1,6 @@
 // Go crypto/x509: parse and verify every CRL in data/pairs.json. Prints JSON lines.
 //
-// Usage: go run . ../data/pairs.json
+// Usage: (cd go && go run .), reads ../data/pairs.json
 package main
 
 import (
@@ -9,8 +9,10 @@ import (
 	"encoding/pem"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -29,6 +31,21 @@ type result struct {
 	Ms      *float64 `json:"ms"`
 }
 
+const data = "../data"
+
+// under is the path of name inside data/<sub>; it refuses anything that would leave it (pairs.json is data).
+func under(sub, name string) (string, error) {
+	base, err := filepath.Abs(filepath.Join(data, sub))
+	if err != nil {
+		return "", err
+	}
+	path := filepath.Join(base, name)
+	if rel, err := filepath.Rel(base, path); err != nil || strings.HasPrefix(rel, "..") || filepath.IsAbs(rel) {
+		return "", fmt.Errorf("refusing path %q", name)
+	}
+	return path, nil
+}
+
 func median(fn func() error) (float64, error) {
 	var ms []float64
 	var err error
@@ -43,7 +60,12 @@ func median(fn func() error) (float64, error) {
 
 func run(p pair) result {
 	r := result{Lib: "Go crypto/x509", Version: runtime.Version(), ID: p.ID}
-	der, err := os.ReadFile(p.Crl)
+	crl, err := under("crl", p.Crl)
+	if err != nil {
+		r.Outcome, r.Detail = "parse_error", err.Error()
+		return r
+	}
+	der, err := os.ReadFile(crl)
 	if err != nil {
 		r.Outcome, r.Detail = "parse_error", err.Error()
 		return r
@@ -57,9 +79,18 @@ func run(p pair) result {
 		return r
 	}
 	last := ""
-	for _, path := range p.Issuers {
+	for _, name := range p.Issuers {
+		path, err := under("cert", name)
+		if err != nil {
+			last = err.Error()
+			continue
+		}
 		raw, _ := os.ReadFile(path)
 		block, _ := pem.Decode(raw)
+		if block == nil {
+			last = "issuer certificate: not PEM"
+			continue
+		}
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
 			last = "issuer certificate: " + err.Error()
@@ -83,7 +114,7 @@ func run(p pair) result {
 }
 
 func main() {
-	raw, err := os.ReadFile(os.Args[1])
+	raw, err := os.ReadFile(filepath.Join(data, "pairs.json"))
 	if err != nil {
 		panic(err)
 	}

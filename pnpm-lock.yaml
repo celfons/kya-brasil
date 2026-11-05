@@ -273,9 +273,6 @@ importers:
       '@peculiar/x509':
         specifier: 2.1.0
         version: 2.1.0
-      asn1js:
-        specifier: 3.0.10
-        version: 3.0.10
       node-forge:
         specifier: 1.4.1
         version: 1.4.1
