@@ -233,6 +233,22 @@ The PIN comes from `KYA_TOKEN_PIN` or is asked for. The key never leaves the tok
 software PKCS#11 token) in CI. The signing code is in `@kya-brasil/core` (`openPfx`, `ecnpjSigner`,
 `buildDetachedCms`), re-exported here; any other token or cloud signer plugs into `ecnpjSigner`.
 
+**Issue the credential yourself, no service (D-37).** With the token (or `--pfx` / `--cloud`), the holder issues a
+self-issued credential (`issuer: urn:kya-brasil:self`) from a mandate input file (`MandateInput` of
+`@kya-brasil/core`: `credential_id`, `agent`, `principal`, every risk field of `mandate`, `ttl_seconds`; `now`
+optional, default the current clock). `--anchors` is the ICP-Brasil bundle (PEM) the result is checked against.
+A legal representative then co-signs with their e-CPF (SPEC section 21; on a token, the e-CPF certificate is picked
+unless `--label` says otherwise), so a verifier can check that the company, not only whoever holds its e-CNPJ, wants
+the mandate (`verifyCompanyWill` in the core):
+
+```sh
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --issue mandate-input.json --anchors icp-brasil.pem --out credential.json
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --cosign credential.json --anchors icp-brasil.pem   # e-CPF of a representative
+```
+
+`credential.json` holds `{ credential, proof }`: hand both to the agent. The text signed is printed before signing.
+Check the certificate's CRL before using the credential (the command does not go online).
+
 **Cloud certificate (PSC).** `kya-sign --cloud ./my-psc.mjs --link "<sign_url>"` with a module that implements
 `CloudSignatureProvider` for your PSC ([template](https://github.com/celfons/kya-brasil/tree/main/examples/cloud-provider));
 the browser opens for the approval and the terminal receives the redirect on `127.0.0.1`.

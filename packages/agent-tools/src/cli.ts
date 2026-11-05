@@ -7,20 +7,23 @@
  *   Cloud:     kya-sign --cloud ./my-psc.mjs --link "<sign_url>&agent_signature=…"
  *              (a module exporting a CloudSignatureProvider: yours, for your PSC; the browser opens for the
  *               approval and comes back to a one-time local address)
+ *   Issue without a service (D-37): kya-sign --pkcs11 <library> --issue mandate-input.json --anchors icp.pem --out credential.json
+ *   Co-sign as legal representative (e-CPF): kya-sign --pkcs11 <library> --cosign credential.json --anchors icp.pem [--out file]
  *   Text instead of a link: --text-file desafio.txt or --text "<text>" (prints the signature).
  * The password (A1) comes from KYA_PFX_PASSWORD and the PIN (A3) from KYA_TOKEN_PIN, or are asked for without
  * echo. With a link carrying agent_signature, the proof is sent and the issued credential printed. Everything
  * happens on this machine; the certificate and its password or PIN are never sent anywhere.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import { cloudSigner, newState, pkcePair, openPfx, readSigningLink, type CloudSignatureProvider, type ECnpjSigner } from "@kya-brasil/core";
 import { listTokenCertificates, openToken } from "./pkcs11.js";
+import { cosignCredential, issueCredential, parseAnchors, parseMandateInput } from "./issue.js";
 
-const args = process.argv.slice(2);
+let args = process.argv.slice(2);
 const opt = (name: string) => {
   const i = args.indexOf(`--${name}`);
   return i >= 0 ? args[i + 1] : undefined;
@@ -106,9 +109,12 @@ const USAGE = `usage:
   kya-sign --pkcs11 <library> [--slot N] [--label L] (--link … | --text-file … | --text …)
   kya-sign --pkcs11 <library> --list
   kya-sign --cloud <provider module> [--port N] [--no-open] (--link … | --text-file … | --text …)
+  kya-sign (--pkcs11 <library> | --pfx <file> | --cloud <module>) --issue <mandate-input.json> --anchors <icp.pem> --out <credential.json>
+  kya-sign (--pkcs11 <library> | --pfx <file> | --cloud <module>) --cosign <credential.json> --anchors <icp.pem> [--out <file>]
 `;
 
-async function main() {
+export async function main(argv: string[] = process.argv.slice(2)) {
+  args = argv;
   if (args.includes("--help") || args.includes("-h")) return void process.stdout.write(USAGE);
   const pfxPath = opt("pfx");
   const library = opt("pkcs11");
@@ -122,13 +128,37 @@ async function main() {
     for (const c of await listTokenCertificates({ library, slot })) process.stdout.write(`${c.label}\t${c.cnpj ?? "-"}\t${c.notAfter.toISOString().slice(0, 10)}\t${c.subject}\n`);
     return;
   }
-  const link = opt("link") ? readSigningLink(opt("link")!) : null;
-  const text = link ? link.text : opt("text-file") ? readFileSync(opt("text-file")!, "utf8") : (opt("text") ?? die("give --link, --text-file or --text"));
+  const issuePath = opt("issue");
+  const cosignPath = opt("cosign");
+  if (issuePath && cosignPath) die("give --issue or --cosign, not both");
+  const link = issuePath || cosignPath ? null : opt("link") ? readSigningLink(opt("link")!) : null;
+  const text = issuePath || cosignPath ? "" : link ? link.text : opt("text-file") ? readFileSync(opt("text-file")!, "utf8") : (opt("text") ?? die("give --link, --text-file or --text"));
+  let anchors: string[] = [];
+  if (issuePath || cosignPath) {
+    anchors = parseAnchors(readFileSync(opt("anchors") ?? die("--anchors <icp.pem>: the ICP-Brasil roots the credential is checked against"), "utf8"));
+    if (issuePath && !opt("out")) die("--out <credential.json> is required with --issue");
+  }
 
   let signer: ECnpjSigner & { close?: () => void | Promise<void> };
   if (cloud) signer = await cloudLogin(await loadProvider(cloud), opt("port") ? Number(opt("port")) : 0, !args.includes("--no-open"));
-  else if (library) signer = await openToken({ library, slot, label: opt("label"), pin: await askSecret("KYA_TOKEN_PIN", "PIN do token / token PIN: ") });
+  else if (library) signer = await openToken({ library, slot, label: opt("label"), kind: cosignPath ? "person" : "company", pin: await askSecret("KYA_TOKEN_PIN", "PIN do token / token PIN: ") });
   else signer = await openPfx(new Uint8Array(readFileSync(pfxPath!)), await askSecret("KYA_PFX_PASSWORD", "Senha do certificado / certificate password: "));
+
+  if (issuePath || cosignPath) {
+    try {
+      const io = { log: (s: string) => void process.stderr.write(s) };
+      const now = new Date();
+      const issued = issuePath
+        ? await issueCredential({ input: parseMandateInput(readFileSync(issuePath, "utf8"), now), signer, anchors, now, io })
+        : await cosignCredential({ issued: JSON.parse(readFileSync(cosignPath!, "utf8")), signer, anchors, now, io });
+      const out = opt("out") ?? cosignPath!;
+      writeFileSync(out, `${JSON.stringify(issued, null, 2)}\n`);
+      process.stderr.write(`written: ${out} (credential ${issued.credential.credential_id}, expires ${issued.credential.expires_at}${issued.credential.cosignatures ? `, ${issued.credential.cosignatures.length} co-signature(s)` : ""})\n`);
+    } finally {
+      await signer.close?.();
+    }
+    return;
+  }
 
   try {
     process.stderr.write(`certificate: ${signer.subject}\nsigning:\n${text.split("\n").map((l) => `  ${l}`).join("\n")}\n`);
@@ -149,4 +179,12 @@ async function main() {
   }
 }
 
-main().catch((e: unknown) => die((e as Error).message));
+// Run as a command (also through the npm bin symlink), not when imported (tests).
+const invoked = (() => {
+  try {
+    return !!process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+})();
+if (invoked) main().catch((e: unknown) => die((e as Error).message));
