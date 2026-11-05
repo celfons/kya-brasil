@@ -78,7 +78,7 @@ export function cnpjFromCertificate(cert: X509Certificate): string | null {
   // Alphanumeric since 2026 (IN RFB 2.229/2024): letters in the first 12 positions, digits in the 2 check digits.
   const value = otherNameValue(cert, "3");
   const cnpj = value === null ? "" : normalizeCnpj(value);
-  return /^[0-9A-Z]{12}[0-9]{2}$/.test(cnpj) ? cnpj : null;
+  return /^[0-9A-Z]{12}\d{2}$/.test(cnpj) ? cnpj : null;
 }
 
 /** OID 2.16.76.1.3.1: data of the e-CPF holder, "ddmmaaaa" birth date followed by the 11-digit CPF (DOC-ICP-04). */
