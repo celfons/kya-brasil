@@ -27,6 +27,15 @@ verifiable offline, live status at a stable URL, revocable at once. Every per-ac
 KYA Brasil answers *who speaks for whom*, not *whether they are a good risk*. Sanctions, debt and litigation are
 the verifier's call, with whatever screening it trusts.
 
+**This repository has two parts.**
+
+- **The product:** the library [`packages/core`](packages/core), the client [`packages/agent-tools`](packages/agent-tools),
+  the MCP server [`packages/mcp`](packages/mcp), the issuer you can host yourself ([`apps/worker`](apps/worker),
+  [`infra`](infra), [`docker`](docker)), [`examples`](examples) and the [SPEC](docs/SPEC.md). Start at
+  [Start here](#start-here).
+- **The research behind it:** pre-registered hypotheses, experiments, the formal model, the case-study kit and
+  the paper's artifact. Index: [research/README.md](research/README.md).
+
 ## Start here
 
 Pick the role you are in. A runnable version of the offline and self-issued paths, with a throwaway test PKI, is in
@@ -327,7 +336,7 @@ npx @kya-brasil/study-kit init estudo-kya   # consent (Portuguese), then the wor
 ```
 
 Invited participants follow the guide they receive; protocol, ethics and analysis are in
-[research/study](research/study).
+[research/study](research/study), and the other experiments in the [research index](research/README.md).
 
 ## Contributing and security
 
