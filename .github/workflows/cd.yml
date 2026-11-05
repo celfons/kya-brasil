@@ -1,4 +1,4 @@
-# Everything automatic. On every merge to main (or manual run), for each stack (dev, prod):
+# Everything automatic. On every merge to main (or manual run), for the prod stack (dev was dropped: no test environment):
 #   create the Pulumi stack if missing → write its config from the GitHub environment's secrets/vars →
 #   pulumi up → upload the ICP-Brasil anchors to KV → smoke test → rollback on failure.
 # A stack is skipped when its environment has no PAY_TO secret. Nothing is ever run from a laptop.
@@ -32,7 +32,7 @@ jobs:
       max-parallel: 1
       fail-fast: false
       matrix:
-        stack: [dev, prod]
+        stack: [prod]
     environment: ${{ matrix.stack }}
     permissions:
       id-token: write   # MCP Registry login via GitHub OIDC (proves the io.github.<owner> namespace)

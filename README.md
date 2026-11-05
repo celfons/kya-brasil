@@ -243,7 +243,7 @@ pnpm install && pnpm typecheck && pnpm test     # development (CI also runs the 
 cd apps/worker && cp .dev.vars.example .dev.vars && pnpm dev
 ```
 
-Push to `main` deploys `dev` and `prod` from the GitHub environments of the same name (`PULUMI_ACCESS_TOKEN`,
+Push to `main` deploys `prod` from the GitHub environment of the same name (`PULUMI_ACCESS_TOKEN`,
 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`; optional `INTERNAL_API_KEY`, `CDP_API_KEY_ID` /
 `CDP_API_KEY_SECRET`, `CNPJ_API_URL`, `REGISTRATION_CHECK`). The CD applies the D1 migrations, generates the
 signing key and the person HMAC key once per stack, uploads the anchors, runs the smoke test and rolls back on

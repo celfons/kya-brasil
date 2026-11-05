@@ -1,6 +1,6 @@
 # Runbook
 
-## Segredos por ambiente (GitHub environments `dev` e `prod`)
+## Segredos por ambiente (GitHub environment `prod`; o `dev` saiu do CD)
 `PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Opcionais:
 `INTERNAL_API_KEY`, `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `CNPJ_API_URL`
 (fonte própria da situação cadastral no formato BrasilAPI, tentada antes da BrasilAPI e do CNPJ.ws, D-23),
