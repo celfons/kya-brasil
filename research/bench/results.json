@@ -1,0 +1,263 @@
+{
+  "warning": "TEST ONLY: measured on a throwaway test PKI (examples/quickstart/make-test-pki.mjs)",
+  "env": {
+    "date": "2026-11-05T13:27:06.215Z",
+    "node": "v22.23.4",
+    "v8": "12.4.254.21-node.57",
+    "openssl": "3.5.9",
+    "os": "linux 6.18.44-fc-v236 (x64)",
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpu_count": 4,
+    "total_mem_gb": 15.7,
+    "packages": {
+      "@kya-brasil/core": "0.19.0",
+      "@kya-brasil/agent-tools": "0.14.0",
+      "@peculiar/x509": "2.1.0",
+      "node-forge": "1.4.1",
+      "viem": "2.57.5"
+    },
+    "n_default": 1000,
+    "smoke": false,
+    "github_run_id": null,
+    "runner": null
+  },
+  "results": [
+    {
+      "id": "issuance",
+      "label": "1. issuance: buildMandate + signingInput + RSA sign (A1) + assemble",
+      "n": 300,
+      "warmup": 30,
+      "median_ms": 39.5963,
+      "p95_ms": 48.3208,
+      "mean_ms": 40.088,
+      "min_ms": 28.2457,
+      "max_ms": 99.9046,
+      "ops_per_s": 25.3
+    },
+    {
+      "id": "rsa_sign_cms",
+      "label": "1a. e-CNPJ A1 sign only (detached CMS, RSA-2048)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 3.7419,
+      "p95_ms": 7.1667,
+      "mean_ms": 4.2237,
+      "min_ms": 2.4308,
+      "max_ms": 12.0867,
+      "ops_per_s": 267.2
+    },
+    {
+      "id": "verify_self_issued",
+      "label": "2. verifySelfIssuedCredential (proof vs anchors)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 14.2336,
+      "p95_ms": 19.7707,
+      "mean_ms": 14.5967,
+      "min_ms": 8.7982,
+      "max_ms": 28.6627,
+      "ops_per_s": 70.3
+    },
+    {
+      "id": "add_cosignature",
+      "label": "3a. addCosignature (e-CPF CMS already signed)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 20.0522,
+      "p95_ms": 28.8402,
+      "mean_ms": 20.684,
+      "min_ms": 11.8065,
+      "max_ms": 54.4151,
+      "ops_per_s": 49.9
+    },
+    {
+      "id": "verify_company_will",
+      "label": "3b. verifyCompanyWill (1 co-signer)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 29.8773,
+      "p95_ms": 40.3877,
+      "mean_ms": 30.788,
+      "min_ms": 21.3754,
+      "max_ms": 62.519,
+      "ops_per_s": 33.5
+    },
+    {
+      "id": "sign_request",
+      "label": "4a. agent signRequest (EVM, with present)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 1.0894,
+      "p95_ms": 2.0085,
+      "mean_ms": 1.2037,
+      "min_ms": 0.822,
+      "max_ms": 4.3558,
+      "ops_per_s": 917.9
+    },
+    {
+      "id": "authenticate_offline",
+      "label": "4b. createKyaAuth offline: authenticate + check() (CRL cached)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 17.4158,
+      "p95_ms": 24.0745,
+      "mean_ms": 17.885,
+      "min_ms": 11.7927,
+      "max_ms": 44.183,
+      "ops_per_s": 57.4
+    },
+    {
+      "id": "delegation_depth_1",
+      "label": "5. verifyDelegationChain depth 1",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 3.096,
+      "p95_ms": 4.3365,
+      "mean_ms": 3.2427,
+      "min_ms": 2.1914,
+      "max_ms": 12.6939,
+      "ops_per_s": 323
+    },
+    {
+      "id": "delegation_depth_2",
+      "label": "5. verifyDelegationChain depth 2",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 6.2056,
+      "p95_ms": 8.7329,
+      "mean_ms": 6.5524,
+      "min_ms": 4.3941,
+      "max_ms": 40.1081,
+      "ops_per_s": 161.1
+    },
+    {
+      "id": "delegation_depth_3",
+      "label": "5. verifyDelegationChain depth 3",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 9.1483,
+      "p95_ms": 13.0826,
+      "mean_ms": 9.5737,
+      "min_ms": 6.3517,
+      "max_ms": 46.727,
+      "ops_per_s": 109.3
+    },
+    {
+      "id": "crl_small_check",
+      "label": "6a. checkRevocation small CRL (parse+verify+lookup)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 1.3417,
+      "p95_ms": 3.3822,
+      "mean_ms": 1.6442,
+      "min_ms": 0.7965,
+      "max_ms": 8.8179,
+      "ops_per_s": 745.3
+    },
+    {
+      "id": "crl_small_lookup",
+      "label": "6a. lookup on verified small CRL",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0003,
+      "p95_ms": 0.0004,
+      "mean_ms": 0.0003,
+      "min_ms": 0.0002,
+      "max_ms": 0.0062,
+      "ops_per_s": 3333333.3
+    },
+    {
+      "id": "crl_max_verify",
+      "label": "6b. verifyCrl largest accepted CRL (1244 entries)",
+      "n": 200,
+      "warmup": 20,
+      "median_ms": 108.8687,
+      "p95_ms": 160.8995,
+      "mean_ms": 113.6998,
+      "min_ms": 85.9812,
+      "max_ms": 342.2093,
+      "ops_per_s": 9.2
+    },
+    {
+      "id": "crl_max_lookup",
+      "label": "6b. lookup on verified 1244-entry CRL (50% hits)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0025,
+      "p95_ms": 0.0863,
+      "mean_ms": 0.0323,
+      "min_ms": 0.0006,
+      "max_ms": 2.918,
+      "ops_per_s": 400000
+    },
+    {
+      "id": "crl_large_parse_verify_unlimited",
+      "label": "6b. large CRL (77000) parse+verify+index, asn1js maxNodes raised (reference)",
+      "n": 20,
+      "warmup": 2,
+      "median_ms": 3657.7285,
+      "p95_ms": 4125.3633,
+      "mean_ms": 3738.3648,
+      "min_ms": 3362.8948,
+      "max_ms": 4147.0111,
+      "ops_per_s": 0.3
+    },
+    {
+      "id": "crl_large_lookup_unlimited",
+      "label": "6b. lookup in 77000-entry index (Map, 50% hits)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0013,
+      "p95_ms": 0.0034,
+      "mean_ms": 0.0018,
+      "min_ms": 0.0004,
+      "max_ms": 0.0587,
+      "ops_per_s": 769230.8
+    }
+  ],
+  "sizes": {
+    "credential_json": 1315,
+    "credential_and_proof_json": 5814,
+    "principal_proof_header": 5967,
+    "principal_proof_header_1_cosignature": 11562,
+    "request_headers_total": 8110,
+    "request_headers_total_1_cosignature": 14071,
+    "request_header_names": [
+      "kya-credential",
+      "kya-created",
+      "kya-expires",
+      "kya-signature",
+      "kya-content-sha256",
+      "kya-credential-document",
+      "kya-principal-proof"
+    ],
+    "request_headers_each": {
+      "kya-credential": 36,
+      "kya-created": 10,
+      "kya-expires": 10,
+      "kya-signature": 132,
+      "kya-content-sha256": 64,
+      "kya-credential-document": 1754,
+      "kya-principal-proof": 5967
+    },
+    "delegation_header": {
+      "depth_1": 988,
+      "depth_2": 2058,
+      "depth_3": 3058
+    },
+    "crl_small": 442,
+    "crl_large": 3696466,
+    "crl_large_entries": 77000
+  },
+  "findings": [
+    {
+      "id": "crl_large_verify_refused",
+      "entries": 77000,
+      "bytes": 3696466,
+      "error": "CRL or issuer certificate is not valid DER: Maximum ASN.1 node count exceeded",
+      "failed_after_ms": 56.3,
+      "max_entries_accepted": 1244,
+      "max_entries_bytes": 60175
+    }
+  ]
+}
