@@ -2,7 +2,7 @@
 
 A biblioteca não tem valores padrão de risco: quem emite ou verifica um mandato informa cada valor. Esta página
 explica cada escolha e dá valores de referência medidos na ICP-Brasil. A infraestrutura também é sua: rode o
-verificador e, se quiser, o emissor de referência (`apps/worker`, ver `docs/SELF-HOSTING.md`) onde preferir.
+verificador onde preferir.
 
 ## Ao emitir um mandato (`buildMandate`)
 
@@ -12,7 +12,7 @@ verificador e, se quiser, o emissor de referência (`apps/worker`, ver `docs/SEL
 | `max_per_operation` | a perda de uma ação indevida | o maior pagamento único que você aceitaria perder |
 | `max_per_day` | a perda até alguém perceber | quanto você pode perder num dia; o verificador informa o `spent_today` |
 | `counterparties`, `currencies`, `payment_instruments` | para onde o dinheiro pode ir | o mais restrito que o uso permitir; `[]` significa qualquer um |
-| `valid_from` / `valid_until`, validade da credencial | quanto tempo um mandato vazado continua utilizável | curta. Uma credencial emitida pelo próprio titular (`urn:kya-brasil:self`) não pode ser revogada sozinha: ela vale até expirar ou até o certificado ser revogado. Se precisar revogar uma credencial isolada antes do prazo, emita-a pelo emissor de referência |
+| `valid_from` / `valid_until`, validade da credencial | quanto tempo um mandato vazado continua utilizável | conforme o seu apetite de risco, pelo mesmo princípio da fórmula proposta, `L / (valor × λ)`: quanto maiores os tetos do mandato e menor a perda tolerada (L), mais curta a validade. Uma credencial emitida pelo próprio titular (`urn:kya-brasil:self`) só deixa de valer ao expirar ou quando o certificado é revogado |
 | `delegation` | subagentes | `null`, a menos que precise; nesse caso, o menor `max_depth` e o menor `max_ttl_seconds` |
 
 Os tetos são a única defesa que vale quando a chave do agente é roubada ou o modelo se comporta mal: a atualidade
