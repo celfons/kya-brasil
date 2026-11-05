@@ -1,0 +1,12 @@
+{
+  "//": "Only for tsx: run the examples against the workspace's TypeScript source, not a built or published copy.",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "paths": {
+      "@kya-brasil/core": ["../../packages/core/src/index.ts"],
+      "@kya-brasil/agent-tools": ["../../packages/agent-tools/src/index.ts"]
+    }
+  }
+}

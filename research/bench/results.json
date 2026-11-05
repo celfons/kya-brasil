@@ -1,0 +1,267 @@
+{
+  "warning": "TEST ONLY: measured on a throwaway test PKI (examples/quickstart/make-test-pki.mjs)",
+  "env": {
+    "date": "2026-11-05T13:36:20.441Z",
+    "node": "v22.23.4",
+    "v8": "12.4.254.21-node.57",
+    "openssl": "3.5.9",
+    "os": "linux 6.18.44-fc-v236 (x64)",
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpu_count": 4,
+    "total_mem_gb": 15.7,
+    "packages": {
+      "@kya-brasil/core": "0.19.1",
+      "@kya-brasil/agent-tools": "0.14.0",
+      "@peculiar/x509": "2.1.0",
+      "node-forge": "1.4.1",
+      "viem": "2.57.5"
+    },
+    "n_default": 1000,
+    "smoke": false,
+    "github_run_id": null,
+    "runner": null
+  },
+  "results": [
+    {
+      "id": "issuance",
+      "label": "1. issuance: buildMandate + signingInput + RSA sign (A1) + assemble",
+      "n": 300,
+      "warmup": 30,
+      "median_ms": 42.1318,
+      "p95_ms": 59.4498,
+      "mean_ms": 43.8843,
+      "min_ms": 28.9212,
+      "max_ms": 117.0302,
+      "ops_per_s": 23.7
+    },
+    {
+      "id": "rsa_sign_cms",
+      "label": "1a. e-CNPJ A1 sign only (detached CMS, RSA-2048)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 3.4803,
+      "p95_ms": 6.7534,
+      "mean_ms": 4.0097,
+      "min_ms": 2.4467,
+      "max_ms": 25.6137,
+      "ops_per_s": 287.3
+    },
+    {
+      "id": "verify_self_issued",
+      "label": "2. verifySelfIssuedCredential (proof vs anchors)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 12.887,
+      "p95_ms": 18.1364,
+      "mean_ms": 13.2487,
+      "min_ms": 8.2226,
+      "max_ms": 34.0155,
+      "ops_per_s": 77.6
+    },
+    {
+      "id": "add_cosignature",
+      "label": "3a. addCosignature (e-CPF CMS already signed)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 17.4141,
+      "p95_ms": 22.8507,
+      "mean_ms": 17.5619,
+      "min_ms": 10.8124,
+      "max_ms": 33.8171,
+      "ops_per_s": 57.4
+    },
+    {
+      "id": "verify_company_will",
+      "label": "3b. verifyCompanyWill (1 co-signer)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 27.3692,
+      "p95_ms": 42.5949,
+      "mean_ms": 29.1388,
+      "min_ms": 19.6803,
+      "max_ms": 98.1907,
+      "ops_per_s": 36.5
+    },
+    {
+      "id": "sign_request",
+      "label": "4a. agent signRequest (EVM, with present)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 1.3681,
+      "p95_ms": 2.7907,
+      "mean_ms": 1.6659,
+      "min_ms": 0.8191,
+      "max_ms": 32.0417,
+      "ops_per_s": 730.9
+    },
+    {
+      "id": "authenticate_offline",
+      "label": "4b. createKyaAuth offline: authenticate + check() (CRL cached)",
+      "n": 500,
+      "warmup": 50,
+      "median_ms": 18.0298,
+      "p95_ms": 25.838,
+      "mean_ms": 18.6083,
+      "min_ms": 11.5438,
+      "max_ms": 42.2213,
+      "ops_per_s": 55.5
+    },
+    {
+      "id": "delegation_depth_1",
+      "label": "5. verifyDelegationChain depth 1",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 3.1116,
+      "p95_ms": 4.5476,
+      "mean_ms": 3.2603,
+      "min_ms": 2.0529,
+      "max_ms": 20.8468,
+      "ops_per_s": 321.4
+    },
+    {
+      "id": "delegation_depth_2",
+      "label": "5. verifyDelegationChain depth 2",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 6.2714,
+      "p95_ms": 9.0166,
+      "mean_ms": 6.5307,
+      "min_ms": 4.149,
+      "max_ms": 17.7199,
+      "ops_per_s": 159.5
+    },
+    {
+      "id": "delegation_depth_3",
+      "label": "5. verifyDelegationChain depth 3",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 9.38,
+      "p95_ms": 13.0673,
+      "mean_ms": 9.7802,
+      "min_ms": 6.5605,
+      "max_ms": 36.4649,
+      "ops_per_s": 106.6
+    },
+    {
+      "id": "crl_small_check",
+      "label": "6a. checkRevocation small CRL (parse+verify+lookup)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 1.1754,
+      "p95_ms": 2.647,
+      "mean_ms": 1.3603,
+      "min_ms": 0.7448,
+      "max_ms": 6.8176,
+      "ops_per_s": 850.8
+    },
+    {
+      "id": "crl_small_lookup",
+      "label": "6a. lookup on verified small CRL",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0003,
+      "p95_ms": 0.0005,
+      "mean_ms": 0.0003,
+      "min_ms": 0.0002,
+      "max_ms": 0.0108,
+      "ops_per_s": 3333333.3
+    },
+    {
+      "id": "crl_large_verify",
+      "label": "6b. verifyCrl synthetic CRL (77000 entries: parse+verify+index)",
+      "n": 50,
+      "warmup": 3,
+      "median_ms": 117.1593,
+      "p95_ms": 145.7069,
+      "mean_ms": 120.2704,
+      "min_ms": 91.9438,
+      "max_ms": 158.6373,
+      "ops_per_s": 8.5
+    },
+    {
+      "id": "crl_large_lookup",
+      "label": "6b. lookup on verified 77000-entry CRL (50% hits)",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0031,
+      "p95_ms": 0.0064,
+      "mean_ms": 0.0036,
+      "min_ms": 0.0006,
+      "max_ms": 0.0928,
+      "ops_per_s": 322580.6
+    },
+    {
+      "id": "crl_serpro_verify",
+      "label": "6c. verifyCrl real AC SERPRO RFB v5 CRL (parse+verify+index)",
+      "n": 50,
+      "warmup": 3,
+      "median_ms": 122.1056,
+      "p95_ms": 155.8209,
+      "mean_ms": 123.0023,
+      "min_ms": 89.95,
+      "max_ms": 175.9181,
+      "ops_per_s": 8.2
+    },
+    {
+      "id": "crl_serpro_lookup",
+      "label": "6c. lookup on verified SERPRO RFB v5 CRL",
+      "n": 1000,
+      "warmup": 100,
+      "median_ms": 0.0008,
+      "p95_ms": 0.0014,
+      "mean_ms": 0.0009,
+      "min_ms": 0.0003,
+      "max_ms": 0.0089,
+      "ops_per_s": 1250000
+    }
+  ],
+  "sizes": {
+    "credential_json": 1315,
+    "credential_and_proof_json": 5814,
+    "principal_proof_header": 5967,
+    "principal_proof_header_1_cosignature": 11562,
+    "request_headers_total": 8110,
+    "request_headers_total_1_cosignature": 14071,
+    "request_header_names": [
+      "kya-credential",
+      "kya-created",
+      "kya-expires",
+      "kya-signature",
+      "kya-content-sha256",
+      "kya-credential-document",
+      "kya-principal-proof"
+    ],
+    "request_headers_each": {
+      "kya-credential": 36,
+      "kya-created": 10,
+      "kya-expires": 10,
+      "kya-signature": 132,
+      "kya-content-sha256": 64,
+      "kya-credential-document": 1754,
+      "kya-principal-proof": 5967
+    },
+    "delegation_header": {
+      "depth_1": 988,
+      "depth_2": 2058,
+      "depth_3": 3058
+    },
+    "crl_small": 442,
+    "crl_large": 3696466,
+    "crl_large_entries": 77000,
+    "crl_serpro": 2336775,
+    "crl_serpro_source": {
+      "key": "lcr/uf-ac-serpro-rfb-v5/20261105T130150Z_1ba75dadd611024b.crl",
+      "sha256": "1ba75dadd611024b26b47ee50f190cf6430dc634b3ad454a814dfc7503d74ada",
+      "this_update": "2026-11-05T13:01:50.000Z",
+      "next_update": "2026-11-05T19:01:50.000Z"
+    }
+  },
+  "findings": [
+    {
+      "id": "crl_large_refused_before_0_19_1",
+      "fixed_in": "@kya-brasil/core 0.19.1",
+      "before": "verifyCrl refused any CRL above about 1 240 entries (\"Maximum ASN.1 node count exceeded\": asn1js default maxNodes = 10 000 via @peculiar/x509 X509Crl), so the 77 000-entry SERPRO RFB v5 CRL could not be verified. Measured with core 0.19.0 on this machine: refused after 56 ms; largest accepted 1 244 entries (60 175 bytes), verifyCrl 109 ms median; the full 77k CRL parse+verify+index with asn1js maxNodes raised (reference outside the library): 3 658 ms median, 4 125 ms p95.",
+      "after": "core 0.19.1 parses the CRL with its own bounded DER reader (64 MiB, 2 000 000 entries), indexes serials by offset and decodes an entry only on lookup; the signature is verified over the TBSCertList bytes with Web Crypto."
+    }
+  ]
+}

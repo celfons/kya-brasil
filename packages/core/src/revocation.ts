@@ -6,7 +6,9 @@
  * Pure functions: fetching and caching the CRL is the caller's job.
  */
 import "reflect-metadata"; // @peculiar/x509 (tsyringe) needs it before import
-import { CRLDistributionPointsExtension, X509Certificate, X509Crl, X509CrlReason } from "@peculiar/x509";
+import { CRLDistributionPointsExtension, Name, X509Certificate, X509CrlReason } from "@peculiar/x509";
+import { type ParsedCrl, ecdsaDerToRaw, parseCrlDer } from "./crl-der.js";
+export { MAX_CRL_BYTES, MAX_CRL_ENTRIES } from "./crl-der.js";
 import { KyaError } from "./types.js";
 
 /** Serial numbers compared as lowercase hex without leading zeros. */
@@ -54,25 +56,25 @@ export interface VerifiedCrl {
 export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCertificate: string; pastNextUpdate: "refuse" | "accept"; now?: Date }): Promise<VerifiedCrl> {
   if (p.pastNextUpdate !== "refuse" && p.pastNextUpdate !== "accept") throw new KyaError("INVALID_INPUT", 'pastNextUpdate is required: "refuse" or "accept"');
   const now = p.now ?? new Date();
-  let crl: X509Crl;
+  let crl: ParsedCrl;
   let issuer: X509Certificate;
   try {
-    crl = new X509Crl(new Uint8Array(p.crlDer));
+    crl = parseCrlDer(new Uint8Array(p.crlDer));
     issuer = new X509Certificate(p.issuerCertificate.replace(/-----[^-]+-----|\s+/g, ""));
   } catch (e) {
     throw new KyaError("REVOCATION_UNAVAILABLE", `CRL or issuer certificate is not valid DER: ${(e as Error).message}`);
   }
-  if (crl.issuer !== issuer.subject) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL issued by "${crl.issuer}", not by the certificate's AC "${issuer.subject}"`);
-  if (!(await crl.verify({ publicKey: issuer }, globalThis.crypto as Crypto))) throw new KyaError("REVOCATION_UNAVAILABLE", "CRL signature does not match the AC certificate");
+  const crlIssuer = new Name(ab(crl.issuerDer)).toString();
+  if (crlIssuer !== issuer.subject) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL issued by "${crlIssuer}", not by the certificate's AC "${issuer.subject}"`);
+  if (!(await verifyCrlSignature(crl, issuer))) throw new KyaError("REVOCATION_UNAVAILABLE", "CRL signature does not match the AC certificate");
   if (p.pastNextUpdate === "refuse" && crl.nextUpdate && crl.nextUpdate < now) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL is stale (nextUpdate ${crl.nextUpdate.toISOString()})`);
   const this_update = crl.thisUpdate.toISOString();
   const next_update = crl.nextUpdate ? crl.nextUpdate.toISOString() : null;
-  const entries = new Map(crl.entries.map((e) => [normalizeSerial(e.serialNumber), e] as const));
   return {
     this_update,
     next_update,
     lookup(serial: string): RevocationStatus {
-      const entry = entries.get(normalizeSerial(serial)) ?? null;
+      const entry = crl.entry(normalizeSerial(serial));
       return {
         revoked: entry !== null,
         revoked_at: entry ? entry.revocationDate.toISOString() : null,
@@ -83,6 +85,44 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
       };
     }
   };
+}
+
+// CRL signature algorithms (RFC 4055 / RFC 5758). ICP-Brasil ACs sign with RSA PKCS#1 v1.5
+// (SHA-512 mostly; SHA-256; SHA-1 on old generations), ECDSA SHA-512 (AC Raiz v3/v4) and Ed448 (AC Raiz v6, AC INMETRO).
+const RSA_PKCS1: Record<string, string> = { "1.2.840.113549.1.1.5": "SHA-1", "1.2.840.113549.1.1.11": "SHA-256", "1.2.840.113549.1.1.12": "SHA-384", "1.2.840.113549.1.1.13": "SHA-512" };
+const ECDSA: Record<string, string> = { "1.2.840.10045.4.3.2": "SHA-256", "1.2.840.10045.4.3.3": "SHA-384", "1.2.840.10045.4.3.4": "SHA-512" };
+// EdDSA (RFC 8410): AC Raiz v6 and AC INMETRO sign their CRLs with Ed448. Parameters must be absent.
+const EDDSA: Record<string, string> = { "1.3.101.112": "Ed25519", "1.3.101.113": "Ed448" };
+const CURVE_BYTES: Record<string, number> = { "P-256": 32, "P-384": 48, "P-521": 66 };
+const ab = (u: Uint8Array) => u.buffer.slice(u.byteOffset, u.byteOffset + u.byteLength) as ArrayBuffer;
+
+/** Verifies the CRL's signature over TBSCertList with the AC's public key (Web Crypto). Unknown algorithms fail. */
+async function verifyCrlSignature(crl: ParsedCrl, issuer: X509Certificate): Promise<boolean> {
+  const spki = ab(new Uint8Array(issuer.publicKey.rawData));
+  try {
+    const rsaHash = RSA_PKCS1[crl.signatureAlgorithm];
+    if (rsaHash) {
+      const key = await crypto.subtle.importKey("spki", spki, { name: "RSASSA-PKCS1-v1_5", hash: rsaHash }, false, ["verify"]);
+      return await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, ab(crl.signature), ab(crl.tbs));
+    }
+    const ecHash = ECDSA[crl.signatureAlgorithm];
+    if (ecHash) {
+      const namedCurve = (issuer.publicKey.algorithm as EcKeyAlgorithm).namedCurve;
+      const size = CURVE_BYTES[namedCurve];
+      if (!size) return false;
+      const key = await crypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve }, false, ["verify"]);
+      return await crypto.subtle.verify({ name: "ECDSA", hash: ecHash }, key, ab(ecdsaDerToRaw(crl.signature, size)), ab(crl.tbs));
+    }
+    const edName = EDDSA[crl.signatureAlgorithm];
+    if (edName) {
+      if (crl.signatureAlgorithmParams) return false;
+      const key = await crypto.subtle.importKey("spki", spki, { name: edName }, false, ["verify"]);
+      return await crypto.subtle.verify({ name: edName }, key, ab(crl.signature), ab(crl.tbs));
+    }
+  } catch {
+    return false;
+  }
+  throw new KyaError("REVOCATION_UNAVAILABLE", `CRL signature algorithm ${crl.signatureAlgorithm} is not supported`);
 }
 
 /** One-shot check of `serial` against a DER CRL signed by `issuerCertificate`; see verifyCrl. */
