@@ -8,9 +8,7 @@
 //      BENCH_CRL_ENTRIES (default 77000) entries of the synthetic large CRL.
 import "reflect-metadata";
 import { execFileSync } from "node:child_process";
-import { X509Certificate as NodeX509, verify as cryptoVerify } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import * as asn1js from "asn1js";
 import { cpus, arch, platform, release, totalmem } from "node:os";
 import { join, resolve } from "node:path";
 import { performance } from "node:perf_hooks";
@@ -170,7 +168,7 @@ await bench("crl_small_lookup", "6a. lookup on verified small CRL", N, () => sma
 // Large CRL: its own throwaway AC (make-test-pki.mjs does not keep the AC key), RSA-2048 like the quickstart,
 // CRL_ENTRIES random 16-byte serials with revocation date and reason, like an ICP-Brasil AC's CRL.
 // Generated with the openssl CLI (`openssl ca -gencrl`): @peculiar/x509's X509CrlGenerator re-parses what it
-// builds and hits the same asn1js node limit as verifyCrl (see below), so it cannot produce one this large.
+// builds with asn1js's 10 000-node default, so it cannot produce one this large.
 const reasonNames = ["keyCompromise", "superseded", "cessationOfOperation", "affiliationChanged"];
 const serials = Array.from({ length: CRL_ENTRIES }, () => "4" + Buffer.from(crypto.getRandomValues(new Uint8Array(15))).toString("hex").toUpperCase().slice(1));
 function opensslCrl(dir, entries) {
@@ -191,56 +189,41 @@ sizes.crl_large = big.der.byteLength;
 sizes.crl_large_entries = CRL_ENTRIES;
 const probe = (list) => (i) => (i % 2 ? list[(i * 7919) % list.length] : "5" + (i + 1).toString(16).padStart(31, "0")); // half hits, half misses
 
-// verifyCrl on the large CRL. With asn1js's default maxNodes (10 000) a CRL above roughly a thousand entries is
-// refused ("Maximum ASN.1 node count exceeded"): recorded as a finding, not hidden.
-let bigVerified = null;
+// Library code path on the large CRL (refused before core 0.19.1, see `findings`).
 const findings = [];
-try {
-  t0 = performance.now();
-  bigVerified = await verifyCrl({ crlDer: big.der, issuerCertificate: big.acB64, pastNextUpdate: "refuse" });
-} catch (e) {
-  findings.push({ id: "crl_large_verify_refused", entries: CRL_ENTRIES, bytes: big.der.byteLength, error: e.message, failed_after_ms: +(performance.now() - t0).toFixed(1) });
-  console.log(`FINDING: verifyCrl refuses the ${CRL_ENTRIES}-entry CRL after ${(performance.now() - t0).toFixed(1)} ms: ${e.message}`);
-}
-if (bigVerified) {
-  await bench("crl_large_verify", `6b. verifyCrl large CRL (${CRL_ENTRIES} entries: parse+verify+index)`, slow(20), async () => { bigVerified = await verifyCrl({ crlDer: big.der, issuerCertificate: big.acB64, pastNextUpdate: "refuse" }); }, { warmup: 2 });
-  await bench("crl_large_lookup", "6b. lookup on verified large CRL (50% hits)", N, (i) => bigVerified.lookup(probe(serials)(i)), { setup: (i) => Math.abs(i) });
-} else {
-  // Largest CRL verifyCrl accepts today, measured the same way.
-  let lo = 100, hi = CRL_ENTRIES;
-  while (hi - lo > 10) {
-    const mid = Math.floor((lo + hi) / 2);
-    const c = opensslCrl(join(OUT, "probe-crl"), serials.slice(0, mid));
-    try { await verifyCrl({ crlDer: c.der, issuerCertificate: c.acB64, pastNextUpdate: "accept" }); lo = mid; } catch { hi = mid; }
+let bigVerified;
+await bench("crl_large_verify", `6b. verifyCrl synthetic CRL (${CRL_ENTRIES} entries: parse+verify+index)`, slow(50), async () => { bigVerified = await verifyCrl({ crlDer: big.der, issuerCertificate: big.acB64, pastNextUpdate: "refuse" }); }, { warmup: 3 });
+await bench("crl_large_lookup", `6b. lookup on verified ${CRL_ENTRIES}-entry CRL (50% hits)`, N, (i) => bigVerified.lookup(probe(serials)(i)), { setup: (i) => Math.abs(i) });
+if (!bigVerified.lookup(serials[0]).revoked || bigVerified.lookup("5ff").revoked) fail("large CRL lookup is wrong");
+
+// The real AC SERPRO RFB v5 CRL, latest copy kept by the public kya-icp collector, verified against the AC
+// certificate in anchors/icp-brasil.pem. Full runs only (needs the network); skipped, and said so, if unreachable.
+if (!SMOKE && process.env.BENCH_SERPRO !== "0") {
+  const base = "https://kya-icp-collector.marcelfons.workers.dev";
+  try {
+    const list = await (await fetch(`${base}/api/files/uf-ac-serpro-rfb-v5`, { headers: { "user-agent": "curl/8" } })).json();
+    const key = list.files.map((f) => f.key).sort().at(-1);
+    const der = new Uint8Array(await (await fetch(`${base}/files/${key}`, { headers: { "user-agent": "curl/8" } })).arrayBuffer());
+    const pems = readFileSync(join(HERE, "../../anchors/icp-brasil.pem"), "utf8").match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g);
+    const acCert = pems.find((p) => new x509.X509Certificate(p).subject.includes("CN=Autoridade Certificadora SERPRORFBv5"));
+    if (!acCert) throw new Error("AC SERPRO RFB v5 certificate not in anchors/icp-brasil.pem");
+    let real;
+    await bench("crl_serpro_verify", "6c. verifyCrl real AC SERPRO RFB v5 CRL (parse+verify+index)", slow(50), async () => { real = await verifyCrl({ crlDer: der, issuerCertificate: acCert, pastNextUpdate: "accept" }); }, { warmup: 3 });
+    await bench("crl_serpro_lookup", "6c. lookup on verified SERPRO RFB v5 CRL", N, (i) => real.lookup((i * 2654435761 >>> 0).toString(16)), { setup: (i) => Math.abs(i) });
+    sizes.crl_serpro = der.byteLength;
+    sizes.crl_serpro_source = { key, sha256: Buffer.from(await crypto.subtle.digest("SHA-256", der)).toString("hex"), this_update: real.this_update, next_update: real.next_update };
+    console.log(`SERPRO RFB v5 CRL ${key}: ${der.byteLength} bytes`);
+  } catch (e) {
+    console.log(`SKIPPED real SERPRO CRL: ${e.message}`);
+    sizes.crl_serpro_source = { skipped: e.message };
   }
-  const maxOk = serials.slice(0, lo);
-  const c = opensslCrl(join(OUT, "max-crl"), maxOk);
-  findings[0].max_entries_accepted = lo;
-  findings[0].max_entries_bytes = c.der.byteLength;
-  console.log(`FINDING: largest CRL verifyCrl accepts: ${lo} entries (${c.der.byteLength} bytes)`);
-  let v;
-  await bench("crl_max_verify", `6b. verifyCrl largest accepted CRL (${lo} entries)`, slow(200), async () => { v = await verifyCrl({ crlDer: c.der, issuerCertificate: c.acB64, pastNextUpdate: "accept" }); });
-  await bench("crl_max_lookup", `6b. lookup on verified ${lo}-entry CRL (50% hits)`, N, (i) => v.lookup(probe(maxOk)(i)), { setup: (i) => Math.abs(i) });
-  // What a verifyCrl without the node limit would cost on the full CRL: asn1js parse with maxNodes raised,
-  // RSA signature check of tbsCertList with node:crypto, serial index in a Map.
-  const bigAcKey = new NodeX509(Buffer.from(big.acB64, "base64")).publicKey;
-  const parseVerifyIndex = () => {
-    const ab = big.der.buffer.slice(big.der.byteOffset, big.der.byteOffset + big.der.byteLength);
-    const asn = asn1js.fromBER(ab, { maxNodes: 50_000_000 });
-    if (asn.result.error) throw new Error(asn.result.error);
-    const [tbs, , sig] = asn.result.valueBlock.value;
-    const ok = cryptoVerify("sha256", new Uint8Array(tbs.valueBeforeDecodeView), bigAcKey, new Uint8Array(sig.valueBlock.valueHexView));
-    if (!ok) throw new Error("signature");
-    const list = tbs.valueBlock.value.find((n, i) => i >= 4 && n.idBlock.tagClass === 1 && n.idBlock.tagNumber === 16);
-    const m = new Map();
-    for (const e of list.valueBlock.value) m.set(Buffer.from(e.valueBlock.value[0].valueBlock.valueHexView).toString("hex").replace(/^0+(?=.)/, ""), e);
-    return m;
-  };
-  let idx;
-  await bench("crl_large_parse_verify_unlimited", `6b. large CRL (${CRL_ENTRIES}) parse+verify+index, asn1js maxNodes raised (reference)`, slow(20), () => { idx = parseVerifyIndex(); }, { warmup: 2 });
-  if (idx.size !== CRL_ENTRIES || !idx.has(serials[0].toLowerCase())) fail(`reference CRL index has ${idx.size} entries`);
-  await bench("crl_large_lookup_unlimited", `6b. lookup in ${CRL_ENTRIES}-entry index (Map, 50% hits)`, N, (i) => idx.get(probe(serials)(i).toLowerCase()), { setup: (i) => Math.abs(i) });
 }
+
+findings.push({
+  id: "crl_large_refused_before_0_19_1", fixed_in: "@kya-brasil/core 0.19.1",
+  before: "verifyCrl refused any CRL above about 1 240 entries (\"Maximum ASN.1 node count exceeded\": asn1js default maxNodes = 10 000 via @peculiar/x509 X509Crl), so the 77 000-entry SERPRO RFB v5 CRL could not be verified. Measured with core 0.19.0 on this machine: refused after 56 ms; largest accepted 1 244 entries (60 175 bytes), verifyCrl 109 ms median; the full 77k CRL parse+verify+index with asn1js maxNodes raised (reference outside the library): 3 658 ms median, 4 125 ms p95.",
+  after: "core 0.19.1 parses the CRL with its own bounded DER reader (64 MiB, 2 000 000 entries), indexes serials by offset and decodes an entry only on lookup; the signature is verified over the TBSCertList bytes with Web Crypto."
+});
 
 // ---- smoke assertions: sizes in ranges, never timings ----------------------------------------------------------
 // RSA-2048 signatures have a fixed size, but JSON carries UUIDs, timestamps and DER of varying length: ranges only.
@@ -285,8 +268,9 @@ const md = [
   `| All request headers (${sizes.request_header_names.length}: ${sizes.request_header_names.join(", ")}) | ${sizes.request_headers_total} |`,
   `| All request headers, 1 co-signature | ${sizes.request_headers_total_1_cosignature} |`,
   ...Object.entries(sizes.delegation_header).map(([k, v]) => `| KYA-Delegation header, ${k.replace("_", " ")} | ${v} |`),
-  `| Small test CRL (1 entry) | ${sizes.crl_small} |`, `| Synthetic large CRL (${sizes.crl_large_entries} entries) | ${sizes.crl_large} |`, "",
-  ...(findings.length ? ["## Findings", "", ...findings.map((x) => `- \`verifyCrl\` refuses the ${x.entries}-entry CRL (${x.bytes} bytes) after ${x.failed_after_ms} ms: "${x.error}" (asn1js default \`maxNodes\` = 10 000, reached through @peculiar/x509's \`X509Crl\`). Largest CRL accepted: ${x.max_entries_accepted} entries (${x.max_entries_bytes} bytes). The "maxNodes raised (reference)" rows show what parse+verify+index of the full CRL costs without that limit (asn1js + node:crypto, not the library's code path).`), ""] : [])
+  `| Small test CRL (1 entry) | ${sizes.crl_small} |`, `| Synthetic large CRL (${sizes.crl_large_entries} entries) | ${sizes.crl_large} |`, ...(sizes.crl_serpro ? [`| Real AC SERPRO RFB v5 CRL | ${sizes.crl_serpro} |`] : []), "",
+  ...(findings.length ? ["## Findings", "", ...findings.map((x) => `- **Found by this benchmark, fixed in ${x.fixed_in}.** Before: ${x.before} After: ${x.after}`), ""] : []),
+  ...(sizes.crl_serpro ? [`Real CRL: \`${sizes.crl_serpro_source.key}\` (${sizes.crl_serpro} bytes, SHA-256 ${sizes.crl_serpro_source.sha256}, thisUpdate ${sizes.crl_serpro_source.this_update}), from the public kya-icp collector.`, ""] : [])
 ].join("\n");
 const dest = SMOKE ? OUT : HERE;
 writeFileSync(join(dest, "results.json"), JSON.stringify(json, null, 2) + "\n");

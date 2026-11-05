@@ -31,8 +31,9 @@ versions, `GITHUB_RUN_ID` when in CI; every result with min/mean/max too) and [`
 on the same machine, not across machines. CI only runs the smoke step (no timing thresholds); the full run is the
 manual `Benchmark` workflow (`.github/workflows/bench.yml`, input `n`), which prints RESULTS.md to the job summary.
 
-**Finding (CRL size).** `verifyCrl` (through `@peculiar/x509`'s `X509Crl` and asn1js's default `maxNodes` = 10 000)
-refuses CRLs above about 1 240 entries with "Maximum ASN.1 node count exceeded", so a CRL the size of the SERPRO RFB v5
-one (~77 000 entries, ~3.7 MB) cannot be verified today. The benchmark records this under `findings`, measures the
-largest CRL accepted, and, as a reference, what parse+verify+index of the full CRL costs with the limit raised
-(asn1js + `node:crypto`, outside the library's code path). The large CRL is generated with the `openssl` CLI.
+**Finding (CRL size), fixed in core 0.19.1.** Up to core 0.19.0, `verifyCrl` (through `@peculiar/x509`'s `X509Crl`
+and asn1js's default `maxNodes` = 10 000) refused CRLs above about 1 240 entries, so the AC SERPRO RFB v5 CRL
+(~77 000 entries) could not be verified. Core 0.19.1 reads CRLs with a bounded DER reader of its own. Section 6b
+measures the library on a synthetic CRL generated with the `openssl` CLI (`BENCH_CRL_ENTRIES`); 6c on the latest real
+SERPRO RFB v5 CRL from the public kya-icp collector, verified against `anchors/icp-brasil.pem` (full runs only, needs
+network; `BENCH_SERPRO=0` skips it). The "before" numbers are kept in `findings` of results.json.

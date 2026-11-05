@@ -60,7 +60,8 @@ Os comandos do Alloy estão em `docs/formal/mandate.als` e `docs/formal/threats.
   - dados medidos: 94% das revogações em dias úteis, das 8h às 18h; janela média de 15,5 h entre o pedido de revogação e a LCR (simulação).
 - **Risco residual:**
   - o intervalo entre o comprometimento e o pedido de revogação não é observável;
-  - certificados revogados depois da última LCR aceita passam dentro da janela (`NoRevokedAcceptedOffline`, contraexemplo esperado).
+  - certificados revogados depois da última LCR aceita passam dentro da janela (`NoRevokedAcceptedOffline`, contraexemplo esperado);
+  - até o core 0.19.0, `verifyCrl` recusava LCRs com mais de cerca de 1 240 entradas (limite de nós ASN.1 do asn1js), como a da AC SERPRO RFB v5 (~77 000 entradas): o verificador falhava fechado (502) para todo e-CNPJ dessa AC. Corrigido no 0.19.1 (leitor DER próprio, limitado a 64 MiB e 2 000 000 de entradas; teste com LCR de 200 000 entradas); encontrado pelo benchmark (`research/bench`).
 
 ### 3. Uso do e-CNPJ por quem não representa a empresa
 
@@ -133,7 +134,7 @@ O caso típico é o contador que guarda o A1 da empresa.
   - `packages/core/src/freshness.test.ts`: "refuses missing evidence for a required kind", "refuses evidence dated in the future beyond the caller's clock skew, and accepts it within", "fails closed on another currency, a bad amount or a missing or bad clock" e "turns a CRL lookup into certificate evidence; past nextUpdate it is refused or judged by age, as the caller chose";
   - dados: λ medido de cerca de 0,24% ao ano;
   - simulação: fronteira de Pareto (`research/freshness-sim`), a testar como H2 no pré-registro (osf.io/t59kv).
-- **Risco residual:** a política limita a exposição, não a elimina; λ é piso e o motivo da revogação raramente é publicado.
+- **Risco residual:** a política limita a exposição, não a elimina; λ é piso e o motivo da revogação raramente é publicado. Uma LCR que o verificador não consegue ler leva à recusa (falha fechada), não à aceitação de status velho; até o core 0.19.0 isso acontecia com toda LCR grande (ver ameaça 2).
 
 ## Fora do escopo
 
