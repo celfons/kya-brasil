@@ -22,6 +22,15 @@ ESM, Node 18+, Workers, Deno and browsers (Web Crypto).
 
 ## Verify a credential and an action, offline
 
+**Trust anchors.** Every function that checks an ICP-Brasil signature takes `anchors: string[]`, one certificate
+per string, as a PEM block or base64 DER. The ICP-Brasil bundle (roots and intermediate ACs, from the ITI) is
+[`anchors/icp-brasil.pem`](https://github.com/celfons/kya-brasil/blob/main/anchors/icp-brasil.pem) in the repository,
+not in the npm package: fetch it from a pinned commit
+(`https://raw.githubusercontent.com/celfons/kya-brasil/<commit>/anchors/icp-brasil.pem`), review changes to it like
+code, and split it with `pem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g)`. A runnable
+example with a throwaway test PKI is in
+[examples/quickstart](https://github.com/celfons/kya-brasil/tree/main/examples/quickstart).
+
 A credential from any KYA issuer (the hosted one, yours, a partner's) is checked with that issuer's public key,
 published at `<issuer>/.well-known/kya.json`.
 
@@ -47,7 +56,7 @@ const verdict = checkAction(credential.mandate, {
 // verdict.allowed, verdict.checks (every rule evaluated, with its reason), verdict.not_evaluated (extensions)
 ```
 
-## Emissão pelo responsável (issue it yourself, no issuer service)
+## Issuance by the principal (issue it yourself, no issuer service)
 
 There is no native link between an ICP-Brasil certificate and an AI agent: the link is the KYA format, so the
 library issues it as well as verifies it. **The issuer is the principal itself**, the holder of the e-CNPJ or e-CPF,
