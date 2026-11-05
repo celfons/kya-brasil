@@ -1,0 +1,572 @@
+{
+ "estabelecimentos_matriz_por_situacao": {
+  "02": 27049049,
+  "08": 33146792,
+  "04": 9910171,
+  "03": 302718,
+  "01": 108708
+ },
+ "max_data_situacao_cadastral": "20261011",
+ "n_empresas_ativas_matriz": 27049048,
+ "formato_campo_cpf_cnpj_socio": {
+  "rep:***999999**": 28495961,
+  "2:***999999**": 27740460,
+  "1:99999999": 742695,
+  "3:": 12806
+ },
+ "socios_linhas_stats": {
+  "linhas": 28495961,
+  "ident_2": 27740460,
+  "rep_legal_cpf_preenchido": 761727,
+  "rep_legal_qual_14": 71518,
+  "rep_legal_nome_preenchido": 761727,
+  "rep_legal_qual_nao00": 762344,
+  "socio_incapaz_ou_menor": 152831,
+  "socio_incapaz_ou_menor_com_rep": 152408,
+  "rep_legal_qual_15": 79081,
+  "ident_1": 742695,
+  "rep_legal_qual_05": 510605,
+  "rep_legal_qual_17": 97635,
+  "ident_3": 12806,
+  "estrangeiro": 12806,
+  "estrangeiro_com_rep": 11236,
+  "rep_legal_qual_35": 670,
+  "rep_legal_qual_09": 2213,
+  "rep_legal_qual_65": 5
+ },
+ "qualificacoes_latest": {
+  "ident2_q49": 18161996,
+  "ident2_q22": 5619596,
+  "ident2_q16": 1507943,
+  "ident2_q05": 817140,
+  "ident1_q22": 536455,
+  "ident2_q59": 437180,
+  "ident2_q65": 421534,
+  "ident2_q10": 396296,
+  "ident2_q30": 150636,
+  "ident2_q52": 86066,
+  "ident1_q20": 71363,
+  "ident1_q31": 69745,
+  "ident2_q28": 50914,
+  "ident1_q37": 43313,
+  "ident2_q38": 30744,
+  "ident2_q53": 29853,
+  "ident2_q08": 15660,
+  "ident1_q63": 13924,
+  "ident3_q37": 8864,
+  "ident1_q49": 5387,
+  "ident2_q31": 3448,
+  "ident2_q54": 2889,
+  "ident3_q38": 2555,
+  "ident2_q29": 2161,
+  "ident2_q18": 2072,
+  "ident2_q33": 1394,
+  "ident1_q78": 1204,
+  "ident2_q26": 1002,
+  "ident3_q72": 623,
+  "ident2_q63": 493,
+  "ident2_q24": 386,
+  "ident2_q23": 361,
+  "ident3_q70": 274,
+  "ident1_q28": 243,
+  "ident1_q21": 241,
+  "ident1_q10": 227,
+  "ident2_q25": 206,
+  "ident1_q52": 205,
+  "ident3_q71": 196,
+  "ident2_q66": 144,
+  "ident3_q74": 135,
+  "ident3_q73": 116,
+  "ident1_q05": 110,
+  "ident1_q54": 101,
+  "ident1_q79": 69,
+  "ident2_q74": 59,
+  "ident2_q20": 56,
+  "ident2_q00": 36,
+  "ident2_q68": 28,
+  "ident2_q72": 27,
+  "ident2_q21": 27,
+  "ident1_q38": 25,
+  "ident3_q75": 25,
+  "ident2_q73": 23,
+  "ident2_q50": 18,
+  "ident2_q70": 18,
+  "ident1_q23": 18,
+  "ident1_q16": 16,
+  "ident2_q09": 14,
+  "ident1_q69": 11,
+  "ident1_q08": 11,
+  "ident3_q17": 10,
+  "ident2_q14": 10,
+  "ident2_q15": 7,
+  "ident2_q17": 6,
+  "ident2_q75": 5,
+  "ident1_q17": 5,
+  "ident1_q25": 4,
+  "ident1_q26": 4,
+  "ident1_q59": 3,
+  "ident3_q10": 3,
+  "ident1_q24": 3,
+  "ident1_q29": 3,
+  "ident2_q67": 3,
+  "ident3_q49": 2,
+  "ident2_q71": 2,
+  "ident2_q56": 2,
+  "ident1_q33": 2,
+  "ident2_q13": 2,
+  "ident3_q33": 1,
+  "ident3_q16": 1,
+  "ident2_q64": 1,
+  "ident2_q47": 1,
+  "ident3_q22": 1,
+  "ident1_q57": 1,
+  "ident1_q00": 1,
+  "ident1_q18": 1,
+  "ident2_q58": 1
+ },
+ "faixa_etaria": {
+  "5": 6944043,
+  "7": 4363319,
+  "4": 5064217,
+  "8": 2326622,
+  "6": 5658612,
+  "9": 1205971,
+  "3": 1992728,
+  "2": 154582,
+  "0": 757332,
+  "1": 28535
+ },
+ "pf_unicidade": {
+  "linhas_pf": 27740460,
+  "nomes_distintos": 15919074,
+  "pares_nome_mascara_distintos": 18296000,
+  "nomes_com_mais_de_uma_mascara_aprox": 826949,
+  "pares_empresa_mascara_distintos": 27740188,
+  "pares_empresa_mascara_nome_distintos": 27740454,
+  "empresa_mascara_com_mais_de_um_nome": 266
+ },
+ "cobertura": {
+  "_denominador_empresas_ativas_matriz": 27049048,
+  "TODAS": {
+   "empresas": 27049048,
+   "com_qualquer_socio": {
+    "n": 9216612,
+    "den": 27049048,
+    "pct": 34.07
+   },
+   "com_socio_PF": {
+    "n": 9215149,
+    "den": 27049048,
+    "pct": 34.07
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 8921811,
+    "den": 27049048,
+    "pct": 32.98
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 9082783,
+    "den": 27049048,
+    "pct": 33.58
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 9083277,
+    "den": 27049048,
+    "pct": 33.58
+   }
+  },
+  "Associacao privada (3999)": {
+   "empresas": 544954,
+   "com_qualquer_socio": {
+    "n": 544700,
+    "den": 544954,
+    "pct": 99.95
+   },
+   "com_socio_PF": {
+    "n": 544700,
+    "den": 544954,
+    "pct": 99.95
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 544695,
+    "den": 544954,
+    "pct": 99.95
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 544699,
+    "den": 544954,
+    "pct": 99.95
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 544699,
+    "den": 544954,
+    "pct": 99.95
+   }
+  },
+  "Cooperativa": {
+   "empresas": 15855,
+   "com_qualquer_socio": {
+    "n": 15838,
+    "den": 15855,
+    "pct": 99.89
+   },
+   "com_socio_PF": {
+    "n": 15838,
+    "den": 15855,
+    "pct": 99.89
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 15838,
+    "den": 15855,
+    "pct": 99.89
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 15838,
+    "den": 15855,
+    "pct": 99.89
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 15838,
+    "den": 15855,
+    "pct": 99.89
+   }
+  },
+  "EI nao-MEI (2135)": {
+   "empresas": 2900772,
+   "com_qualquer_socio": {
+    "n": 110,
+    "den": 2900772,
+    "pct": 0.0
+   },
+   "com_socio_PF": {
+    "n": 110,
+    "den": 2900772,
+    "pct": 0.0
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 91,
+    "den": 2900772,
+    "pct": 0.0
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 106,
+    "den": 2900772,
+    "pct": 0.0
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 106,
+    "den": 2900772,
+    "pct": 0.0
+   }
+  },
+  "EIRELI (2305/2313)": {
+   "empresas": 14,
+   "com_qualquer_socio": {
+    "n": 14,
+    "den": 14,
+    "pct": 100.0
+   },
+   "com_socio_PF": {
+    "n": 14,
+    "den": 14,
+    "pct": 100.0
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 0,
+    "den": 14,
+    "pct": 0.0
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 14,
+    "den": 14,
+    "pct": 100.0
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 14,
+    "den": 14,
+    "pct": 100.0
+   }
+  },
+  "LTDA (2062)": {
+   "empresas": 7916127,
+   "com_qualquer_socio": {
+    "n": 7879271,
+    "den": 7916127,
+    "pct": 99.53
+   },
+   "com_socio_PF": {
+    "n": 7879048,
+    "den": 7916127,
+    "pct": 99.53
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 7876176,
+    "den": 7916127,
+    "pct": 99.5
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 7876233,
+    "den": 7916127,
+    "pct": 99.5
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 7876330,
+    "den": 7916127,
+    "pct": 99.5
+   }
+  },
+  "MEI (2135 + opcao MEI)": {
+   "empresas": 13758052,
+   "com_qualquer_socio": {
+    "n": 18,
+    "den": 13758052,
+    "pct": 0.0
+   },
+   "com_socio_PF": {
+    "n": 18,
+    "den": 13758052,
+    "pct": 0.0
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 16,
+    "den": 13758052,
+    "pct": 0.0
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 16,
+    "den": 13758052,
+    "pct": 0.0
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 16,
+    "den": 13758052,
+    "pct": 0.0
+   }
+  },
+  "SA (2046/2054)": {
+   "empresas": 64446,
+   "com_qualquer_socio": {
+    "n": 63997,
+    "den": 64446,
+    "pct": 99.3
+   },
+   "com_socio_PF": {
+    "n": 63993,
+    "den": 64446,
+    "pct": 99.3
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 63966,
+    "den": 64446,
+    "pct": 99.26
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 63990,
+    "den": 64446,
+    "pct": 99.29
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 63990,
+    "den": 64446,
+    "pct": 99.29
+   }
+  },
+  "Soc. Simples Ltda (2240)": {
+   "empresas": 175731,
+   "com_qualquer_socio": {
+    "n": 169781,
+    "den": 175731,
+    "pct": 96.61
+   },
+   "com_socio_PF": {
+    "n": 169767,
+    "den": 175731,
+    "pct": 96.61
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 169060,
+    "den": 175731,
+    "pct": 96.2
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 169062,
+    "den": 175731,
+    "pct": 96.2
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 169068,
+    "den": 175731,
+    "pct": 96.21
+   }
+  },
+  "outras": {
+   "empresas": 1673097,
+   "com_qualquer_socio": {
+    "n": 542883,
+    "den": 1673097,
+    "pct": 32.45
+   },
+   "com_socio_PF": {
+    "n": 541661,
+    "den": 1673097,
+    "pct": 32.37
+   },
+   "com_PF_qual_admin_dir_pres_socioadm": {
+    "n": 251969,
+    "den": 1673097,
+    "pct": 15.06
+   },
+   "com_PF_qual_representacao_ampla": {
+    "n": 412825,
+    "den": 1673097,
+    "pct": 24.67
+   },
+   "com_qualquer_qual_representacao_ampla": {
+    "n": 413216,
+    "den": 1673097,
+    "pct": 24.7
+   }
+  }
+ },
+ "frescor_entrada": {
+  "linhas_com_data_valida": {
+   "n": 28495959,
+   "den": 28495961,
+   "pct": 100.0
+  },
+  "linhas_data_futura_ou_invalida": 2,
+  "entrada_ultimos_1_meses": {
+   "n": 57895,
+   "den": 28495959,
+   "pct": 0.2
+  },
+  "entrada_ultimos_3_meses": {
+   "n": 517174,
+   "den": 28495959,
+   "pct": 1.81
+  },
+  "entrada_ultimos_6_meses": {
+   "n": 1195563,
+   "den": 28495959,
+   "pct": 4.2
+  },
+  "entrada_ultimos_12_meses": {
+   "n": 2509791,
+   "den": 28495959,
+   "pct": 8.81
+  },
+  "entrada_no_mes_ref": {
+   "n": 57895,
+   "den": 28495959,
+   "pct": 0.2
+  },
+  "linhas_por_mes_entrada": {
+   "202509": 200727,
+   "202510": 209059,
+   "202511": 178358,
+   "202512": 182414,
+   "202601": 215992,
+   "202602": 228287,
+   "202603": 280760,
+   "202604": 228417,
+   "202605": 219961,
+   "202606": 219474,
+   "202607": 238954,
+   "202608": 232721,
+   "202609": 226558,
+   "202610": 57895
+  },
+  "empresas_ativas_com_entrada_ultimos_3m": {
+   "n": 383253,
+   "den": 27049048,
+   "pct": 1.42
+  }
+ },
+ "max_data_entrada_sociedade_latest": 202610,
+ "max_data_entrada_raw_ate_2099": 202610,
+ "_meta": {
+  "inner_files": {
+   "2026-10/Estabelecimentos0.zip": "K3241.K03200Y0.D61010.ESTABELE",
+   "2026-10/Estabelecimentos1.zip": "K3241.K03200Y1.D61010.ESTABELE",
+   "2026-10/Estabelecimentos2.zip": "K3241.K03200Y2.D61010.ESTABELE",
+   "2026-10/Estabelecimentos3.zip": "K3241.K03200Y3.D61010.ESTABELE",
+   "2026-10/Estabelecimentos4.zip": "K3241.K03200Y4.D61010.ESTABELE",
+   "2026-10/Estabelecimentos5.zip": "K3241.K03200Y5.D61010.ESTABELE",
+   "2026-10/Estabelecimentos6.zip": "K3241.K03200Y6.D61010.ESTABELE",
+   "2026-10/Estabelecimentos7.zip": "K3241.K03200Y7.D61010.ESTABELE",
+   "2026-10/Estabelecimentos8.zip": "K3241.K03200Y8.D61010.ESTABELE",
+   "2026-10/Estabelecimentos9.zip": "K3241.K03200Y9.D61010.ESTABELE",
+   "2026-10/Empresas0.zip": "K3241.K03200Y0.D61010.EMPRECSV",
+   "2026-10/Empresas1.zip": "K3241.K03200Y1.D61010.EMPRECSV",
+   "2026-10/Empresas2.zip": "K3241.K03200Y2.D61010.EMPRECSV",
+   "2026-10/Empresas3.zip": "K3241.K03200Y3.D61010.EMPRECSV",
+   "2026-10/Empresas4.zip": "K3241.K03200Y4.D61010.EMPRECSV",
+   "2026-10/Empresas5.zip": "K3241.K03200Y5.D61010.EMPRECSV",
+   "2026-10/Empresas6.zip": "K3241.K03200Y6.D61010.EMPRECSV",
+   "2026-10/Empresas7.zip": "K3241.K03200Y7.D61010.EMPRECSV",
+   "2026-10/Empresas8.zip": "K3241.K03200Y8.D61010.EMPRECSV",
+   "2026-10/Empresas9.zip": "K3241.K03200Y9.D61010.EMPRECSV",
+   "2026-10/Simples.zip": "F.K03200$W.SIMPLES.CSV.D61010",
+   "2026-10/Socios0.zip": "K3241.K03200Y0.D61010.SOCIOCSV",
+   "2026-10/Socios1.zip": "K3241.K03200Y1.D61010.SOCIOCSV",
+   "2026-10/Socios2.zip": "K3241.K03200Y2.D61010.SOCIOCSV",
+   "2026-10/Socios3.zip": "K3241.K03200Y3.D61010.SOCIOCSV",
+   "2026-10/Socios4.zip": "K3241.K03200Y4.D61010.SOCIOCSV",
+   "2026-10/Socios5.zip": "K3241.K03200Y5.D61010.SOCIOCSV",
+   "2026-10/Socios6.zip": "K3241.K03200Y6.D61010.SOCIOCSV",
+   "2026-10/Socios7.zip": "K3241.K03200Y7.D61010.SOCIOCSV",
+   "2026-10/Socios8.zip": "K3241.K03200Y8.D61010.SOCIOCSV",
+   "2026-10/Socios9.zip": "K3241.K03200Y9.D61010.SOCIOCSV"
+  },
+  "seconds": 2177
+ },
+ "_meses": {
+  "latest": "2026-10",
+  "prev": "-"
+ },
+ "_qualificacoes_contadas": {
+  "REP_CORE": [
+   "05",
+   "10",
+   "16",
+   "49"
+  ],
+  "REP_EXT": [
+   "05",
+   "10",
+   "11",
+   "12",
+   "13",
+   "16",
+   "19",
+   "28",
+   "34",
+   "43",
+   "49",
+   "50",
+   "64",
+   "65",
+   "66",
+   "67",
+   "68",
+   "70",
+   "72",
+   "73",
+   "74"
+  ]
+ },
+ "cpf_mascara": {
+  "mascaras_amostradas": 2000,
+  "min": 1000,
+  "max": 1000,
+  "media": 1000.0,
+  "brute_force_mascara_exemplo_candidatos": 100000,
+  "brute_force_validos": 1000,
+  "nota": "digitos 1-3 livres (1000 combinacoes); DV determinados -> 1000 CPFs validos por mascara (menos 1 se houver repetidos, ex. 111111111-11); o 9o digito visivel e a regiao fiscal"
+ },
+ "publicacao": {
+  "2026-10": "Last-Modified 2026-10-13 22:00-22:09 GMT (WebDAV); nome interno D61010 = 2026-10-10",
+  "2026-09": "Last-Modified 2026-09-14 14:59-15:08 GMT (WebDAV)",
+  "consulta": "2026-11-05; pasta 2026-11 ainda inexistente"
+ }
+}
