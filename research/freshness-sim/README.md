@@ -79,3 +79,66 @@ policy (SPEC section 18, "Daily ceilings").
 **Sensitivity.** `results.json` also holds the three main policies under true rates of 1e-6 and 1e-4 per hour,
 with the verifier still assuming 1e-5. Loss scales roughly with the true rate, and the ranking of the policies
 does not change.
+
+## Measured parameters (November 2026)
+
+`fetch_measured.py` reads the public ICP-Brasil CRL collector and writes `data/weekday_hour.csv` and
+`data/measured.json`; `simulate_measured.py` runs offline from those files (seed 20261105, about 5 minutes) and
+writes `results_measured.json`.
+
+```sh
+python3 -I fetch_measured.py      # needs cryptography; network
+python3 -I simulate_measured.py   # numpy only
+```
+
+**Inputs.**
+
+- **Rate.** 11 end-user CRLs hold 182,907 revocations (2012 to 2026). January to October 2026 average 3,465
+  a month, against 17,175,212 active certificates (ITI, 4 Nov 2026): λ = 3,465 × 12 / 17.2 M = 0.24% a year,
+  2.76e-7 per hour, 36 times below the placeholder. **This is a floor**: the collector covers a few of the
+  end-user ACs, and a CRL drops a certificate once it expires, so older months undercount even more. Not every
+  revocation is a compromise (Certisign RFB G5: 52.5% keyCompromise; SERPRO and Soluti give no reason); the run
+  counts every revocation.
+- **When ACs revoke.** Revocation dates, in Brasília time: 94.0% fall on weekdays 08–18 h (29.8% of the week's
+  hours), 0.8% on weekends. The model: compromise is uniform over the week; each hour-of-week slot is staffed
+  with probability `w(h) / max w` from `data/weekday_hour.csv`, and the AC revokes in the first staffed slot.
+- **Publication.** The collected CRLs are reissued every 30 minutes; `nextUpdate` is 1 h (Certisign) or 6 h
+  (SERPRO, Soluti, Serasa). The run uses the 30 minutes and repeats with the `nextUpdate` bound; the CRL then
+  takes U(0, 4) h to be published (DOC-ICP-05 4.9.8).
+
+**Exposure window** (compromise until the revocation is in a published CRL, 30-minute reissue).
+
+| | Hours |
+| --- | ---: |
+| Mean over the week | 15.5 |
+| Median | 9.3 |
+| p95 | 53.8 |
+| Compromise in business hours (mean) | 3.5 |
+| Compromise outside business hours (mean) | 20.5 |
+| Compromise Friday 19 h (mean / p95) | 48.2 / 66.0 |
+| Worst slot, Friday 22 h (mean) | 50.0 |
+| Weekend compromise ÷ weekday compromise (mean) | 3.6× |
+
+With the `nextUpdate` bound the mean is 18.0 h, p95 56.4 h, Friday 19 h 50.6 h, weekend ÷ weekday 3.0×. The
+CRL cadence is a small part: the window is set by when the AC acts, not by how often it publishes.
+
+**Policies** (per 1,000 actions, certificate evidence, same traffic as above).
+
+| Policy | Fetches | Synthetic loss (R$) | Measured loss (R$) | Measured delay, λ = 1e-5 (R$) |
+| --- | ---: | ---: | ---: | ---: |
+| Always fetch | 1000.0 | 35.74 | 3.01 | 108.57 |
+| Fixed 1 h | 333.7 | 38.13 | 3.08 | 110.90 |
+| Fixed 6 h | 77.2 | 55.41 | 3.55 | 127.86 |
+| Fixed 24 h | 20.8 | 118.77 | 5.25 | 189.45 |
+| Proportional, L = 0.01 | 34.3 / 209.3 | 37.55 | 3.92 | 110.34 |
+| Tiers, medium | 288.6 | 37.52 | 3.06 | 110.31 |
+
+(Proportional fetch counts depend on the λ the verifier assumes: 34 under the measured λ, 209 under 1e-5.)
+
+- The measured delay triples the loss that no verifier policy removes (R$ 108.57 against R$ 35.74 at the same
+  λ): weekend and night compromises wait for Monday.
+- The measured λ, a floor, cuts every loss by about 36×. The proportional policy still covers the Pareto front
+  at low fetch counts, value tiers and short fixed windows at high counts.
+- Under measured values a 6 h window costs R$ 0.54 per 1,000 actions over always fetching; the irreducible
+  R$ 3.01 comes from the AC's working hours, which only credential evidence from the agent's issuer (no
+  publication delay) or the mandate's ceilings can cover.

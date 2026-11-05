@@ -102,6 +102,8 @@ def simulate(policy_fn, rng_seed, lam, prm):
         d = rng.uniform(0, ci, prm["delay_samples"]) + rng.uniform(0, pl, prm["delay_samples"])
         if prm.get("no_publication_delay"):
             d = np.zeros(prm["delay_samples"])
+        if prm.get("delay_pool") is not None:  # measured delays (simulate_measured.py)
+            d = rng.choice(prm["delay_pool"], prm["delay_samples"])
         t_f = -math.inf  # no evidence yet: the first action always fetches
         for t, v in zip(times, values):
             max_age = policy_fn(v)

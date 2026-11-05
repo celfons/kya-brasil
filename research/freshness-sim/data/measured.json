@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-11-05T04:20:27.832Z",
+  "collector": "https://kya-icp-collector.marcelfons.workers.dev",
+  "monthly_2026_usuario_final": {
+    "2026-01": 3306,
+    "2026-02": 2974,
+    "2026-03": 4016,
+    "2026-04": 3443,
+    "2026-05": 3184,
+    "2026-06": 3228,
+    "2026-07": 4065,
+    "2026-08": 3558,
+    "2026-09": 3364,
+    "2026-10": 3509,
+    "2026-11": 309
+  },
+  "iti": {
+    "dados_de": "2026-11-04T09:47:04Z",
+    "coletado_em": "2026-11-05T04:20:35.668Z",
+    "ativos": "17175212",
+    "emitidos_no_ano": "10795955",
+    "ativos_pessoa_fisica": "8349742",
+    "ativos_pessoa_juridica": "8721214",
+    "ativos_equipamento": "100491",
+    "ativos_a1": "10291096",
+    "ativos_a3": "6780326"
+  },
+  "cadence_usuario_final": {
+    "uf-ac-soluti-multipla-v5": {
+      "ac": "AC SOLUTI Multipla v5",
+      "last_this_update": "2026-11-05T03:35:14Z",
+      "next_update": "2026-11-05T09:35:14Z",
+      "validity_h": 6.0,
+      "reissue_h": 0.5,
+      "entries": 33886,
+      "entries_with_reason": 0
+    },
+    "uf-ac-soluti-multipla-v1": {
+      "ac": "AC SOLUTI Multipla (v1, encerrada)",
+      "last_this_update": "2023-06-20T23:35:55Z",
+      "next_update": "2023-06-21T05:35:55Z",
+      "validity_h": 6.0,
+      "reissue_h": null,
+      "entries": 46852,
+      "entries_with_reason": 363
+    },
+    "uf-ac-certisign-rfb-g5": {
+      "ac": "AC Certisign RFB G5",
+      "last_this_update": "2026-11-05T04:16:14Z",
+      "next_update": "2026-11-05T05:16:14Z",
+      "validity_h": 1.0,
+      "reissue_h": 0.499,
+      "entries": 7629,
+      "entries_with_reason": 6693
+    },
+    "uf-ac-serpro-rfb-v5": {
+      "ac": "Autoridade Certificadora SERPRORFBv5",
+      "last_this_update": "2026-11-05T04:01:39Z",
+      "next_update": "2026-11-05T10:01:39Z",
+      "validity_h": 6.0,
+      "reissue_h": 0.5,
+      "entries": 77316,
+      "entries_with_reason": 0
+    },
+    "uf-ac-serasa-rfb-v5": {
+      "ac": "AC Serasa RFB v5",
+      "last_this_update": "2026-11-05T04:16:10Z",
+      "next_update": "2026-11-05T10:16:09Z",
+      "validity_h": 6.0,
+      "reissue_h": 0.5,
+      "entries": 1086,
+      "entries_with_reason": 1021
+    },
+    "uf-ac-serpro-rfb-v4": {
+      "ac": "Autoridade Certificadora SERPRORFBv4 (encerrada, LCR final de 2024)",
+      "last_this_update": "2024-02-19T23:48:25Z",
+      "next_update": "2024-02-20T05:48:25Z",
+      "validity_h": 6.0,
+      "reissue_h": null,
+      "entries": 11234,
+      "entries_with_reason": 0
+    },
+    "uf-ac-serpro-rfb-v3": {
+      "ac": "Autoridade Certificadora SERPRORFBv3 (encerrada, LCR final de 2019)",
+      "last_this_update": "2019-12-13T16:32:42Z",
+      "next_update": "2019-12-13T22:32:42Z",
+      "validity_h": 6.0,
+      "reissue_h": null,
+      "entries": 3334,
+      "entries_with_reason": 0
+    },
+    "uf-ac-serpro-rfb-v1": {
+      "ac": "Autoridade Certificadora do SERPRO RFB (encerrada, LCR final de 2016)",
+      "last_this_update": "2016-11-08T12:35:04Z",
+      "next_update": "2016-11-08T13:35:04Z",
+      "validity_h": 1.0,
+      "reissue_h": null,
+      "entries": 0,
+      "entries_with_reason": 0
+    },
+    "uf-ac-soluti-rfb-v1": {
+      "ac": "AC SOLUTI RFB v1 (encerrada, LCR final de 2021)",
+      "last_this_update": "2021-10-11T13:33:04Z",
+      "next_update": "2021-10-11T14:33:04Z",
+      "validity_h": 1.0,
+      "reissue_h": null,
+      "entries": 2,
+      "entries_with_reason": 0
+    },
+    "uf-ac-certisign-multipla-g7": {
+      "ac": "AC Certisign Multipla G7",
+      "last_this_update": "2026-11-05T04:11:17Z",
+      "next_update": "2026-11-05T05:11:17Z",
+      "validity_h": 1.0,
+      "reissue_h": 0.501,
+      "entries": 1225,
+      "entries_with_reason": 869
+    },
+    "uf-ac-certisign-multipla-g8": {
+      "ac": "AC Certisign Multipla G8",
+      "last_this_update": "2026-11-05T04:11:17Z",
+      "next_update": "2026-11-05T05:11:17Z",
+      "validity_h": 1.0,
+      "reissue_h": 0.501,
+      "entries": 343,
+      "entries_with_reason": 277
+    }
+  },
+  "weekday_hour_sources": {
+    "uf-ac-soluti-multipla-v5": {
+      "file": "lcr/uf-ac-soluti-multipla-v5/20261105T033514Z_4b1425664020af2a.crl",
+      "revocations": 33886
+    },
+    "uf-ac-soluti-multipla-v1": {
+      "file": "lcr/uf-ac-soluti-multipla-v1/20230620T233555Z_f043def7351a91d3.crl",
+      "revocations": 46852
+    },
+    "uf-ac-certisign-rfb-g5": {
+      "file": "lcr/uf-ac-certisign-rfb-g5/20261105T041614Z_71d65ff1bfcbe4d4.crl",
+      "revocations": 7629
+    },
+    "uf-ac-serpro-rfb-v5": {
+      "file": "lcr/uf-ac-serpro-rfb-v5/20261105T040139Z_7240b409187f4114.crl",
+      "revocations": 77316
+    },
+    "uf-ac-serasa-rfb-v5": {
+      "file": "lcr/uf-ac-serasa-rfb-v5/20261105T041610Z_a167af99036e6ad8.crl",
+      "revocations": 1086
+    },
+    "uf-ac-serpro-rfb-v4": {
+      "file": "lcr/uf-ac-serpro-rfb-v4/20240219T234825Z_603dfeeeba377b63.crl",
+      "revocations": 11234
+    },
+    "uf-ac-serpro-rfb-v3": {
+      "file": "lcr/uf-ac-serpro-rfb-v3/20191213T163242Z_5457cff1db19b9cb.crl",
+      "revocations": 3334
+    },
+    "uf-ac-serpro-rfb-v1": {
+      "file": "lcr/uf-ac-serpro-rfb-v1/20161108T123504Z_d285c655b0804a13.crl",
+      "revocations": 0
+    },
+    "uf-ac-soluti-rfb-v1": {
+      "file": "lcr/uf-ac-soluti-rfb-v1/20211011T133304Z_cf28e5f44555719f.crl",
+      "revocations": 2
+    },
+    "uf-ac-certisign-multipla-g7": {
+      "file": "lcr/uf-ac-certisign-multipla-g7/20261105T041117Z_896947b4f31d0c04.crl",
+      "revocations": 1225
+    },
+    "uf-ac-certisign-multipla-g8": {
+      "file": "lcr/uf-ac-certisign-multipla-g8/20261105T041117Z_4bcc28ac3cdb7223.crl",
+      "revocations": 343
+    }
+  },
+  "weekday_hour_total": 182907
+}
