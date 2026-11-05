@@ -1,0 +1,28 @@
+name: Release
+
+# Manual release (a tag plus a GitHub release). With the repository enabled in Zenodo, each release gets a DOI.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create, e.g. v2026.11.05"
+        required: true
+      title:
+        description: "Release title"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+          TITLE: ${{ inputs.title }}
+        run: |
+          case "$TAG" in *[!A-Za-z0-9._-]*|"") echo "::error::invalid tag"; exit 1;; esac
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$TITLE" --generate-notes
