@@ -1,7 +1,7 @@
-# Tests only: runs a command in a pseudo-terminal (a real TTY for readline), types each answer when the output has
-# been quiet for a moment, and reports whether the process exited by itself.
+# Tests only: runs a command in a pseudo-terminal (a real TTY for readline), types each answer when a prompt is
+# showing and the output has been quiet for a moment, and reports whether the process exited by itself.
 # usage: python3 -I pty-run.py <cwd> <timeout-s> <answers separated by |> <cmd...>
-import json, os, pty, select, sys, time
+import json, os, pty, re, select, sys, time
 
 cwd, limit, answers, cmd = sys.argv[1], float(sys.argv[2]), sys.argv[3].split("|") if sys.argv[3] else [], sys.argv[4:]
 pid, fd = pty.fork()
@@ -24,7 +24,10 @@ while time.time() - start < limit:
     if done:
         status, exited = st, True
         break
-    if sent < len(answers) and time.time() - last > 1.0:
+    # Type the next answer only at a prompt ("> " or the consent prompt at the end of the output), after a quiet moment.
+    tail = re.sub(rb"\x1b\[[0-9;]*[A-Za-z]", b"", out[-200:]).rstrip()
+    at_prompt = tail.endswith((b">", b":"))
+    if sent < len(answers) and at_prompt and time.time() - last > 0.5:
         os.write(fd, (answers[sent] + "\r").encode())
         sent += 1
         last = time.time()

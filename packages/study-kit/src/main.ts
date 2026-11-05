@@ -34,6 +34,7 @@ function defaultIo(): Io {
   let waiting: ((v: string | null) => void) | null = null;
   let lines: string[] | null = null;
   let interrupted = false;
+  const typed: string[] = [];
   return {
     interrupted: () => interrupted,
     cwd: process.cwd(),
@@ -50,18 +51,28 @@ function defaultIo(): Io {
             interrupted = true;
             rl?.close();
           });
+          // Lines typed (or pasted) before the next question are kept for it, never dropped.
+          rl.on("line", (line) => {
+            const w = waiting;
+            waiting = null;
+            if (w) w(line);
+            else typed.push(line);
+          });
           rl.on("close", () => {
             closed = true;
             waiting?.(null);
             waiting = null;
           });
         }
+        if (typed.length) {
+          const line = typed.shift()!;
+          process.stdout.write(`${q}${line}\n`);
+          return line;
+        }
         return new Promise((resolve) => {
           waiting = resolve;
-          rl!.question(q, (answer) => {
-            waiting = null;
-            resolve(answer);
-          });
+          rl!.setPrompt(q);
+          rl!.prompt();
         });
       }
       // Piped input: read it all once, one answer per line; null after the last line (EOF).

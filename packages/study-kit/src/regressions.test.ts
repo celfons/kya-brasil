@@ -59,6 +59,15 @@ describe("QA 1 and 6: the terminal", () => {
     expect(answers).toMatchObject({ q1: "T3", ai_used: true, ai_tasks: ["t3"], library_changed: false });
   });
 
+  it.skipIf(!hasPython)("answers pasted all at once in a TTY are all kept (none dropped between questions)", async () => {
+    const ws = await workspace();
+    const pasted = ["T2", "o teto", "a LCR", "sim", "", "sim", "t1", "n", ""].join("\r");
+    const r = spawnSync("python3", ["-I", join(pkgDir, "test", "pty-run.py"), ws, "90", pasted, ...node(), "finish"], { encoding: "utf8", env: process.env });
+    const res = JSON.parse(r.stdout.trim().split("\n").at(-1)!) as { exited: boolean; code: number | null; tail: string };
+    expect(res, res.tail).toMatchObject({ exited: true, code: 0 });
+    expect(JSON.parse(readFileSync(paths(ws).answers, "utf8"))).toMatchObject({ q1: "T2", q2: "o teto", q3: "a LCR", q4: "sim", ai_used: true, ai_tasks: ["t1"], library_changed: false });
+  });
+
   it("finish with no input (EOF, e.g. < /dev/null) stops asking and records empty answers", async () => {
     const ws = await workspace();
     const r = spawnSync(node()[0]!, [...node().slice(1), "finish", "--dir", ws], { input: "", encoding: "utf8", timeout: 60_000, env: process.env });
