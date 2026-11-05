@@ -114,11 +114,28 @@ function locate(ws: string, e: ErrorInfo): string | null {
   return null;
 }
 
+/** A named import the module does not have: Node reports it as a SyntaxError, but the code parses fine. */
+const MISSING_EXPORT = /module '([^']+)' does not provide an export named '([^']+)'/;
+
+function errorKind(e: ErrorInfo): string {
+  if (e.code === "ERR_MODULE_NOT_FOUND") return "importação não encontrada";
+  // JSON.parse also throws SyntaxError, at run time: only a module that does not parse is a syntax error.
+  if (e.name === "SyntaxError" && !/JSON/.test(e.message)) return "erro de sintaxe";
+  return "erro";
+}
+
 function describeError(ws: string, what: string, e: ErrorInfo): string {
   const where = locate(ws, e);
-  // JSON.parse also throws SyntaxError, at run time: only a module that does not parse is a syntax error.
-  const kind = e.name === "SyntaxError" && !/JSON/.test(e.message) ? "erro de sintaxe" : e.code === "ERR_MODULE_NOT_FOUND" ? "importação não encontrada" : "erro";
-  return `${what}: ${kind}${where ? ` em ${where}` : ""}: ${rel(ws, `${e.name !== "Error" && e.name !== "SyntaxError" ? `${e.name}: ` : ""}${e.message}`).split("\n")[0]!.slice(0, 300)}`;
+  const missing = MISSING_EXPORT.exec(e.message);
+  if (missing) {
+    return `${what}: importação${where ? ` em ${where}` : ""}: '${missing[1]}' não exporta '${missing[2]}'. Confira os nomes exportados no README do pacote.`;
+  }
+  const kind = errorKind(e);
+  const prefix = e.name !== "Error" && e.name !== "SyntaxError" ? `${e.name}: ` : "";
+  const text = rel(ws, `${prefix}${e.message}`).split("\n")[0]!.slice(0, 300);
+  // A Promise where a value was expected is almost always a missing await.
+  const awaitHint = /instance of Promise|\[object Promise\]/.test(e.message) ? " (faltou um await?)" : "";
+  return `${what}: ${kind}${where ? ` em ${where}` : ""}: ${text}${awaitHint}`;
 }
 
 /** Category and feedback for a call that did not return normally. */

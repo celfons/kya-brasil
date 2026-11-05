@@ -1,6 +1,6 @@
 {
   "name": "@kya-brasil/study-kit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Experiment kit for the KYA Brasil case study: an independent developer integrates KYA from the docs alone. Creates a local workspace with a throwaway test PKI, grades four tasks (issue a mandate, policy quality, offline verifier, revocation) automatically, asks a short open questionnaire and writes one anonymous report file. Everything stays local: no telemetry, no network calls.",
   "license": "MIT",
   "type": "module",
