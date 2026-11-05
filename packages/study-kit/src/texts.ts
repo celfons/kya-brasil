@@ -223,7 +223,7 @@ export const HINT_PT: Record<string, string> = {
   revocation: "o status do certificado vem da LCR: veja certificateStatus, verifyCrl e evidenceFromRevocation.",
   freshness: "confira datas e relógio: use ctx.agora/ctx.agora(), e respeite o nextUpdate da LCR.",
   replay: "o verificador precisa lembrar das requisições já aceitas (replayCache).",
-  runtime: "a sua função lançou um erro; a mensagem está acima.",
+  runtime: "o seu código falhou ao carregar ou ao executar; a mensagem está acima.",
   timeout: "a sua função não respondeu a tempo (uma Promise que nunca resolve, ou um laço sem fim?). O kit interrompeu o código.",
   contract: "a função não foi encontrada ou devolveu outra coisa: exporte emitirCredencial e criarVerificador com esses nomes; emitirCredencial devolve { credential, proof }; o verificador devolve { aceito: boolean, motivo?: string }.",
   other: "releia a mensagem acima e a tarefa no TASKS.md."

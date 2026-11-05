@@ -153,6 +153,24 @@ describe("QA 5, 9 and 11: categories and feedback", () => {
     expect(t.text()).not.toContain("lançou um erro");
   });
 
+  it("a named import the library does not have is an import problem, not a syntax error", async () => {
+    const ws = await workspace();
+    writeFileSync(join(ws, "src", "emitir.mjs"), 'import { emitirMandato } from "@kya-brasil/core";\nexport async function emitirCredencial() { return emitirMandato(); }\n');
+    const t = io(ws);
+    expect(await main(["check", "t1"], t.io)).toBe(1);
+    expect(t.text()).toContain("importação em src/emitir.mjs:1: '@kya-brasil/core' não exporta 'emitirMandato'");
+    expect(t.text()).not.toContain("erro de sintaxe");
+    expect(last(ws).error_category).toBe("runtime");
+  });
+
+  it("a Promise passed where a value was expected suggests a missing await", async () => {
+    const ws = await workspace();
+    writeFileSync(join(ws, "src", "emitir.mjs"), 'import { createHash } from "node:crypto";\nexport async function emitirCredencial() { createHash("sha256").update(Promise.resolve("x")); }\n');
+    const t = io(ws);
+    expect(await main(["check", "t1"], t.io)).toBe(1);
+    expect(t.text()).toContain("(faltou um await?)");
+  });
+
   it("a syntax error names the file and the line", async () => {
     const ws = await workspace();
     use(ws, "syntax", "verificar.mjs");
