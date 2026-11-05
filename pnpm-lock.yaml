@@ -265,6 +265,31 @@ importers:
         specifier: 4.20.6
         version: 4.20.6
 
+  research/crl-compat:
+    dependencies:
+      '@kya-brasil/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@peculiar/x509':
+        specifier: 2.1.0
+        version: 2.1.0
+      asn1js:
+        specifier: 3.0.10
+        version: 3.0.10
+      node-forge:
+        specifier: 1.4.1
+        version: 1.4.1
+      pkijs:
+        specifier: 3.4.1
+        version: 3.4.1
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
+    devDependencies:
+      tsx:
+        specifier: 4.20.6
+        version: 4.20.6
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':
