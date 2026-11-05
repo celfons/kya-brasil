@@ -8,6 +8,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { performance } from "node:perf_hooks";
+import { randomInt } from "node:crypto";
 import { assembleCredential, buildMandate, mandateSigningInput, openPfx, verifySelfIssuedCredential } from "@kya-brasil/core";
 import { signRequest } from "@kya-brasil/agent-tools";
 import { generatePrivateKey } from "viem/accounts";
@@ -115,7 +116,8 @@ function locate(ws: string, e: ErrorInfo): string | null {
 
 function describeError(ws: string, what: string, e: ErrorInfo): string {
   const where = locate(ws, e);
-  const kind = e.name === "SyntaxError" ? "erro de sintaxe" : e.code === "ERR_MODULE_NOT_FOUND" ? "importação não encontrada" : "erro";
+  // JSON.parse also throws SyntaxError, at run time: only a module that does not parse is a syntax error.
+  const kind = e.name === "SyntaxError" && !/JSON/.test(e.message) ? "erro de sintaxe" : e.code === "ERR_MODULE_NOT_FOUND" ? "importação não encontrada" : "erro";
   return `${what}: ${kind}${where ? ` em ${where}` : ""}: ${rel(ws, `${e.name !== "Error" && e.name !== "SyntaxError" ? `${e.name}: ` : ""}${e.message}`).split("\n")[0]!.slice(0, 300)}`;
 }
 
@@ -125,7 +127,7 @@ function failure(ws: string, what: string, r: Exclude<CallResult, { kind: "ok" }
   if (r.kind === "crash") return { cat: "runtime", text: `${what}: ${r.detail}`, notImpl: false };
   if (r.contract) return { cat: "contract", text: `${what}: ${r.contract}`, notImpl: false };
   const ni = notImplemented(r.error);
-  return { cat: categorizeThrown(r.error), text: ni ? `${what} ainda não foi implementada.` : describeError(ws, what, r.error), notImpl: ni };
+  return { cat: categorizeThrown(r.error), text: ni ? `${what}: ainda não implementado.` : describeError(ws, what, r.error), notImpl: ni };
 }
 
 // ---------------------------------------------------------------- T1
@@ -176,7 +178,7 @@ export async function runT1(m: Material): Promise<TaskOutcome> {
 
 // ---------------------------------------------------------------- T2
 
-const DIR_PT: Record<string, string> = { permissive: "mais permissivo", restrictive: "mais restritivo", neutral: "fora do cenário" };
+const DIR_PT: Record<string, string> = { permissive: "mais permissivo que o cenário", restrictive: "mais restritivo que o cenário", neutral: "diferente do cenário" };
 const GRADE_PT: Record<PolicyResult["grade"], string> = { correct: "correta", permissive: "permissiva demais", restrictive: "restritiva demais", invalid: "inválida" };
 
 export async function runT2(m: Material): Promise<TaskOutcome> {
@@ -193,7 +195,7 @@ export async function runT2(m: Material): Promise<TaskOutcome> {
     a.pass = result.grade === "correct";
     if (!a.pass) failWith(a, "mandate");
     fb.push(`política ${GRADE_PT[result.grade]}.`);
-    for (const d of result.deviations) fb.push(`  - ${d.field}: ${DIR_PT[d.direction]} que o cenário (${d.detail})`);
+    for (const d of result.deviations) fb.push(`  - ${d.field}: ${DIR_PT[d.direction]} (${d.detail})`);
   }
   return { attempt: a, feedback: fb };
 }
@@ -283,6 +285,32 @@ const wrongCategory = (c: Call, whenAccepted: ErrorCategory): ErrorCategory => (
 /** The kit issues a fresh CRL at each check (it holds the test AC's key), so T3 never fails because pki/ac.crl aged. */
 const freshCrl = (m: Material, now: number) => makeCrl(m.ac, { thisUpdate: new Date(now - MIN), nextUpdate: new Date(now + 7 * DAY), revokeCompany: false });
 
+const rnd = (lo: number, hi: number) => randomInt(lo, hi + 1);
+function shuffle<T>(xs: T[]): T[] {
+  for (let i = xs.length - 1; i > 0; i--) {
+    const j = randomInt(i + 1);
+    [xs[i], xs[j]] = [xs[j]!, xs[i]!];
+  }
+  return xs;
+}
+
+interface T3Case {
+  id: string;
+  label: string;
+  expected: "accept" | "refuse";
+  req: () => Promise<Req>;
+  /** Category recorded when a request that must be refused is accepted. */
+  whenAccepted: ErrorCategory;
+  /** For the replay: the valid purchase it repeats (it must be sent after it). */
+  after?: T3Case;
+}
+
+/**
+ * T3. Three valid purchases (random amounts) and eight that must be refused, sent in a random order (the replay
+ * always after the purchase it repeats), so only a verifier that really checks each request passes: one that
+ * accepts "the first request" or counts calls does not. A refusal counts only when every valid purchase was
+ * accepted.
+ */
 export async function runT3(m: Material): Promise<TaskOutcome> {
   const a = base("t3");
   const fb: string[] = [];
@@ -299,32 +327,65 @@ export async function runT3(m: Material): Promise<TaskOutcome> {
       fb.push(created.text);
       return { attempt: a, feedback: fb };
     }
-    const valid = await purchase(m, cred, { valor: 120, fornecedor: SCENARIO.supplierCnpj, now });
-    const subs: SubCase[] = [];
-    const first = await v.verify(a, valid);
-    if (first.failure?.notImpl) a.not_implemented = true;
-    const okFirst = first.accepted && !first.failure;
-    if (okFirst && first.ms !== null) a.accept_ms!.push(round(first.ms));
-    subs.push({ id: "compra_valida", expected: "accept", pass: okFirst, category: okFirst ? null : wrongCategory(first, "other") });
-    fb.push(`${mark(okFirst)} compra de R$ 120 do fornecedor X: ${describe(first)}${okFirst ? "" : " (esperado: aceitar)"}`);
-
-    const cases: [string, string, () => Promise<Req>, ErrorCategory][] = [
-      ["acima_do_teto", "compra de R$ 800 (acima do teto por compra)", () => purchase(m, cred, { valor: 800, fornecedor: SCENARIO.supplierCnpj, now }), "mandate"],
-      ["fornecedor_errado", "compra de R$ 100 de outro fornecedor", () => purchase(m, cred, { valor: 100, fornecedor: SCENARIO.otherSupplierCnpj, now }), "mandate"],
-      ["assinatura_adulterada", "requisição com a assinatura adulterada", async () => tamperSignature(await purchase(m, cred, { valor: 90, fornecedor: SCENARIO.supplierCnpj, now })), "signature"],
-      ["corpo_alterado", "corpo alterado depois de assinado (R$ 120 assinado, R$ 50 enviado)", () => purchase(m, cred, { valor: 120, fornecedor: SCENARIO.supplierCnpj, now, sendBody: (b) => ({ ...b, valor: 50 }) }), "signature"],
-      ["ac_nao_confiavel", "credencial de uma AC fora das âncoras", () => purchase(m, untrusted, { valor: 80, fornecedor: SCENARIO.supplierCnpj, now }), "icp_chain"],
-      ["chave_errada", "requisição assinada por outra chave, não a do agente", () => purchase(m, cred, { valor: 70, fornecedor: SCENARIO.supplierCnpj, now, key: generatePrivateKey() }), "signature"],
+    const once = (make: () => Promise<Req>) => {
+      let r: Promise<Req> | null = null;
+      return () => (r ??= make());
+    };
+    const ok = (valor: number, extra: Partial<Parameters<typeof purchase>[2]> = {}) => once(() => purchase(m, cred, { valor, fornecedor: SCENARIO.supplierCnpj, now, ...extra }));
+    const valids: T3Case[] = [0, 1, 2].map(() => {
+      const valor = rnd(60, 400);
+      return { id: "compra_valida", label: `compra de R$ ${valor} do fornecedor X`, expected: "accept", req: ok(valor), whenAccepted: "other" };
+    });
+    const repeated = valids[randomInt(valids.length)]!;
+    const signed = rnd(100, 450);
+    const sent = rnd(20, signed - 10);
+    const tamperedValue = rnd(60, 450);
+    const refusals: T3Case[] = [
+      { id: "acima_do_teto", label: "", expected: "refuse", req: ok(rnd(501, 1400)), whenAccepted: "mandate" },
+      { id: "fornecedor_errado", label: "", expected: "refuse", req: once(() => purchase(m, cred, { valor: rnd(60, 400), fornecedor: SCENARIO.otherSupplierCnpj, now })), whenAccepted: "mandate" },
+      { id: "assinatura_adulterada", label: "requisição com a assinatura adulterada", expected: "refuse", req: once(async () => tamperSignature(await ok(rnd(60, 400))())), whenAccepted: "signature" },
+      { id: "corpo_alterado", label: `corpo alterado depois de assinado (R$ ${signed} assinado, R$ ${sent} enviado)`, expected: "refuse", req: ok(signed, { sendBody: (b) => ({ ...b, valor: sent }) }), whenAccepted: "signature" },
+      { id: "ac_nao_confiavel", label: "credencial de uma AC fora das âncoras", expected: "refuse", req: once(() => purchase(m, untrusted, { valor: rnd(60, 400), fornecedor: SCENARIO.supplierCnpj, now })), whenAccepted: "icp_chain" },
+      { id: "chave_errada", label: "requisição assinada por outra chave, não a do agente", expected: "refuse", req: ok(rnd(60, 400), { key: generatePrivateKey() }), whenAccepted: "signature" },
       // Within the signed ceiling, so only the proof (the e-CNPJ signature over the mandate) can catch it.
-      ["mandato_adulterado", "credencial com o teto adulterado para R$ 5.000 (compra de R$ 300)", async () => tamperMandate(await purchase(m, cred, { valor: 300, fornecedor: SCENARIO.supplierCnpj, now })), "icp_chain"],
-      ["repeticao", "a mesma requisição da compra de R$ 120, repetida", async () => valid, "replay"]
+      { id: "mandato_adulterado", label: `credencial com o teto adulterado para R$ 5.000 (compra de R$ ${tamperedValue})`, expected: "refuse", req: once(async () => tamperMandate(await ok(tamperedValue)())), whenAccepted: "icp_chain" },
+      { id: "repeticao", label: `a mesma requisição da ${repeated.label}, repetida`, expected: "refuse", req: () => repeated.req(), whenAccepted: "replay", after: repeated }
     ];
-    for (const [id, label, make, whenAccepted] of cases) {
-      const c = await v.verify(a, await make());
-      // A refusal only counts when the valid purchase was accepted: a verifier that refuses everything scores nothing.
-      const pass = !c.accepted && !c.failure && okFirst;
-      subs.push({ id, expected: "refuse", pass, category: pass ? null : c.accepted || c.failure ? wrongCategory(c, whenAccepted) : (subs[0]!.category ?? "other") });
-      fb.push(`${mark(pass)} ${label}: ${describe(c)}${pass ? "" : okFirst ? " (esperado: recusar)" : " (só conta depois que a compra válida for aceita)"}`);
+    // Labels that depend on the generated amounts.
+    for (const c of refusals) {
+      if (c.id === "acima_do_teto" || c.id === "fornecedor_errado") {
+        const r = JSON.parse((await c.req()).body) as { valor: number };
+        c.label = c.id === "acima_do_teto" ? `compra de R$ ${r.valor} (acima do teto por compra)` : `compra de R$ ${r.valor} de outro fornecedor`;
+      }
+    }
+    const order = shuffle([...valids, ...refusals]);
+    // The replay goes to a random position after the purchase it repeats.
+    const replay = order.splice(order.findIndex((c) => c.after), 1)[0]!;
+    const from = order.indexOf(replay.after!) + 1;
+    order.splice(rnd(from, order.length), 0, replay);
+
+    const results: { c: T3Case; call: Call }[] = [];
+    for (const c of order) {
+      const call = await v.verify(a, await c.req());
+      if (call.failure?.notImpl) a.not_implemented = true;
+      results.push({ c, call });
+    }
+    const validResults = results.filter((r) => r.c.expected === "accept");
+    const allValid = validResults.every((r) => r.call.accepted && !r.call.failure);
+    for (const r of validResults) if (r.call.accepted && !r.call.failure && r.call.ms !== null) a.accept_ms!.push(round(r.call.ms));
+    const firstBadValid = validResults.find((r) => !(r.call.accepted && !r.call.failure));
+    const subs: SubCase[] = [{ id: "compra_valida", expected: "accept", pass: allValid, category: firstBadValid ? wrongCategory(firstBadValid.call, "other") : null }];
+    fb.push("  (os pedidos chegam em ordem aleatória, como num marketplace de verdade)");
+    for (const { c, call } of results) {
+      let pass: boolean;
+      if (c.expected === "accept") pass = call.accepted && !call.failure;
+      else {
+        // A refusal only counts when the valid purchases were accepted: a verifier that refuses everything scores nothing.
+        pass = !call.accepted && !call.failure && allValid;
+        subs.push({ id: c.id, expected: "refuse", pass, category: pass ? null : call.accepted || call.failure ? wrongCategory(call, c.whenAccepted) : (subs[0]!.category ?? "other") });
+      }
+      const hint = pass ? "" : c.expected === "accept" ? " (esperado: aceitar)" : allValid || call.accepted || call.failure ? " (esperado: recusar)" : " (só conta quando as compras válidas forem aceitas)";
+      fb.push(`${mark(pass)} ${c.label}: ${describe(call)}${hint}`);
     }
     a.sub_cases = subs;
     for (const s of subs) if (!s.pass && s.category) failWith(a, s.category);
@@ -335,69 +396,109 @@ export async function runT3(m: Material): Promise<TaskOutcome> {
   }
 }
 
+/** A refusal for revocation must carry the library's revocation code in motivo, not just any word. */
+const REVOCATION_CODE = /KYA_CERTIFICATE_REVOKED|\bCERTIFICATE_REVOKED\b/;
+
+interface T4Stage {
+  id: "antes_da_revogacao" | "lcr_reemitida" | "lcr_outra_revogacao" | "depois_da_revogacao";
+  label: string;
+  clock: number;
+  crl: Uint8Array;
+  purchases: number;
+  expect: "accept" | "revoked";
+}
+
+/**
+ * T4. A random number of CRLs, at random clock steps (each past the previous CRL's nextUpdate): the current one;
+ * two to four re-issued ones, one of them revoking another certificate (the list grows, the company is still in
+ * force); then the CRL that revokes the company's certificate, and one more re-issue of it. One or two purchases
+ * per CRL. So "the bytes changed", "the list got longer", "the Nth fetch" or "after some minutes" never pass.
+ */
 export async function runT4(m: Material): Promise<TaskOutcome> {
   const a = base("t4");
   const fb: string[] = [];
   const t = Date.now();
-  // Three CRLs: the current one, the same contents re-issued later (bytes change, nothing revoked), and the one that
-  // revokes the company's certificate. Each step moves the verifier's clock past the previous CRL's nextUpdate.
-  const crlA = await makeCrl(m.ac, { thisUpdate: new Date(t - MIN), nextUpdate: new Date(t + 10 * MIN), revokeCompany: false });
-  const crlB = await makeCrl(m.ac, { thisUpdate: new Date(t + 11 * MIN), nextUpdate: new Date(t + 20 * MIN), revokeCompany: false });
-  const crlC = await makeCrl(m.ac, { thisUpdate: new Date(t + 21 * MIN), nextUpdate: new Date(t + 7 * DAY), revokeCompany: true, revokedAt: new Date(t + 21 * MIN) });
+  const stages: T4Stage[] = [];
+  let clock = t;
+  const add = async (id: T4Stage["id"], label: string, p: { revokeCompany: boolean; revokeOthers?: string[]; revokedAt?: number }) => {
+    const nextUpdate = clock + rnd(10, 240) * MIN;
+    const crl = await makeCrl(m.ac, { thisUpdate: new Date(clock - rnd(1, 5) * MIN), nextUpdate: new Date(nextUpdate), revokeCompany: p.revokeCompany, revokeOthers: p.revokeOthers, revokedAt: p.revokedAt === undefined ? undefined : new Date(p.revokedAt) });
+    stages.push({ id, label, clock, crl, purchases: rnd(1, 2), expect: id === "depois_da_revogacao" ? "revoked" : "accept" });
+    clock = nextUpdate + rnd(1, 120) * MIN;
+  };
+  const hours = (ms: number) => (ms < 60 * MIN ? `${Math.round(ms / MIN)} min` : `${(ms / (60 * MIN)).toFixed(1).replace(".", ",")} h`);
+  await add("antes_da_revogacao", "LCR atual", { revokeCompany: false });
+  const reissues = rnd(2, 4);
+  const other = randomInt(reissues);
+  const otherSerial = `2${randomInt(0x1000, 0xffff).toString(16)}`;
+  for (let i = 0; i < reissues; i++) {
+    const rel = hours(clock - t);
+    // From the re-issue that revokes another certificate on, that one stays listed (a CRL keeps its entries).
+    if (i >= other) await add(i === other ? "lcr_outra_revogacao" : "lcr_reemitida", i === other ? `LCR reemitida que revoga outro certificado (não o da empresa), relógio +${rel}` : `LCR reemitida sem revogação nova, relógio +${rel}`, { revokeCompany: false, revokeOthers: [otherSerial] });
+    else await add("lcr_reemitida", `LCR reemitida sem revogação nova, relógio +${rel}`, { revokeCompany: false });
+  }
+  const revokedAt = clock - MIN;
+  await add("depois_da_revogacao", `LCR que revoga o certificado da empresa, relógio +${hours(clock - t)}`, { revokeCompany: true, revokeOthers: [otherSerial], revokedAt });
+  await add("depois_da_revogacao", `LCR reemitida, ainda com a revogação, relógio +${hours(clock - t)}`, { revokeCompany: true, revokeOthers: [otherSerial], revokedAt });
+
   const cred = await referenceCredential(m, new Date(t));
   const v = new Verifier(m);
-  const subs: SubCase[] = [];
   const cfg = readConfig(m.ws);
+  const passed = new Map<T4Stage["id"], boolean>();
+  const category = new Map<T4Stage["id"], ErrorCategory>();
+  const record = (s: T4Stage, pass: boolean, cat: ErrorCategory | null) => {
+    passed.set(s.id, (passed.get(s.id) ?? true) && pass);
+    if (!pass && cat && !category.has(s.id)) category.set(s.id, cat);
+  };
   try {
-    const created = await v.create(t, crlA);
+    const created = await v.create(t, stages[0]!.crl);
     if (created) {
       if (created.notImpl) a.not_implemented = true;
       failWith(a, created.cat);
       fb.push(created.text);
       return { attempt: a, feedback: fb };
     }
-    const step = async (id: string, label: string, clock: number, crl: Uint8Array, expect: "accept" | "revoked") => {
-      await v.state(clock, crl);
-      const c = await v.verify(a, await purchase(m, cred, { valor: 100, fornecedor: SCENARIO.supplierCnpj, now: new Date(clock) }));
-      if (c.failure?.notImpl) a.not_implemented = true;
-      let pass: boolean, category: ErrorCategory | null;
-      if (expect === "accept") {
-        pass = c.accepted && !c.failure;
-        if (pass && c.ms !== null) a.accept_ms!.push(round(c.ms));
-        category = pass ? null : wrongCategory(c, "other");
-      } else {
-        const reason = c.failure || c.accepted ? null : categorize(c.reason);
-        pass = reason === "revocation";
-        category = pass ? null : c.accepted ? "revocation" : c.failure ? c.failure.cat : (reason ?? "other");
+    let blockedBy: ErrorCategory | null = null;
+    for (const s of stages) {
+      if (blockedBy) {
+        record(s, false, blockedBy);
+        continue;
       }
-      subs.push({ id, expected: expect === "accept" ? "accept" : "refuse", pass, category });
-      fb.push(`${mark(pass)} ${label}: ${describe(c)}${pass ? "" : expect === "accept" ? " (esperado: aceitar)" : c.accepted ? " (esperado: recusar por revogação)" : " (esperado: recusar com o código de erro de revogação em motivo)"}`);
-      return pass;
-    };
-    const blocked = (id: string, why: string) => {
-      subs.push({ id, expected: id === "depois_da_revogacao" ? "refuse" : "accept", pass: false, category: subs.find((s) => !s.pass)?.category ?? "other" });
-      fb.push(`  ${why}`);
-    };
-    if (!(await step("antes_da_revogacao", "LCR atual, compra de R$ 100", t, crlA, "accept"))) {
-      blocked("lcr_reemitida", "a LCR reemitida só é publicada depois que a compra anterior for aceita.");
-      blocked("depois_da_revogacao", "a LCR revogada também.");
-    } else if (!(await step("lcr_reemitida", "LCR reemitida sem revogação nova, relógio +12 min, compra de R$ 100", t + 12 * MIN, crlB, "accept"))) {
-      blocked("depois_da_revogacao", "a LCR revogada só é publicada depois que a compra com a LCR reemitida for aceita.");
-    } else {
-      // The revoked CRL is "published" once the verifier has handled the first two steps; the timer starts here.
-      if (!cfg.t4_published_at) {
-        cfg.t4_published_at = new Date().toISOString();
+      if (s.expect === "revoked" && !cfg.t4_published_at) {
+        // The revoked CRL is "published" in the first run that gets this far; the timer starts with that run.
+        cfg.t4_published_at = a.ts;
         writeConfig(m.ws, cfg);
       }
-      await step("depois_da_revogacao", "LCR que revoga o certificado da empresa, relógio +22 min, compra de R$ 100", t + 22 * MIN, crlC, "revoked");
+      await v.state(s.clock, s.crl);
+      for (let i = 0; i < s.purchases && !blockedBy; i++) {
+        const valor = rnd(20, 100); // up to 14 purchases: under the daily ceiling even for a verifier that passes spent_today
+        const c = await v.verify(a, await purchase(m, cred, { valor, fornecedor: SCENARIO.supplierCnpj, now: new Date(s.clock) }));
+        if (c.failure?.notImpl) a.not_implemented = true;
+        let pass: boolean;
+        let cat: ErrorCategory | null;
+        if (s.expect === "accept") {
+          pass = c.accepted && !c.failure;
+          if (pass && c.ms !== null) a.accept_ms!.push(round(c.ms));
+          cat = pass ? null : wrongCategory(c, "other");
+        } else {
+          pass = !c.accepted && !c.failure && REVOCATION_CODE.test(c.reason);
+          cat = pass ? null : c.accepted ? "revocation" : c.failure ? c.failure.cat : categorize(c.reason) === "revocation" ? "revocation" : categorize(c.reason);
+        }
+        record(s, pass, cat);
+        const hint = pass ? "" : s.expect === "accept" ? " (esperado: aceitar)" : c.accepted ? " (esperado: recusar por revogação)" : " (esperado: recusar com o código de erro de revogação da biblioteca em motivo)";
+        fb.push(`${mark(pass)} ${s.label}, compra de R$ ${valor}: ${describe(c)}${hint}`);
+        if (!pass) blockedBy = cat ?? "other";
+      }
     }
+    if (blockedBy) fb.push("  as etapas seguintes só rodam quando esta passar.");
   } finally {
     v.close();
   }
-  a.sub_cases = subs;
+  const ids: T4Stage["id"][] = ["antes_da_revogacao", "lcr_reemitida", "lcr_outra_revogacao", "depois_da_revogacao"];
+  a.sub_cases = ids.map((id) => ({ id, expected: id === "depois_da_revogacao" ? "refuse" : "accept", pass: passed.get(id) ?? false, category: passed.get(id) ? null : (category.get(id) ?? "other") }));
   a.t4_published_at = cfg.t4_published_at ?? null;
-  for (const s of subs) if (!s.pass && s.category) failWith(a, s.category);
-  a.pass = subs.length === 3 && subs.every((s) => s.pass);
+  for (const s of a.sub_cases) if (!s.pass && s.category) failWith(a, s.category);
+  a.pass = a.sub_cases.every((s) => s.pass);
   if (a.pass) fb.push(`  (a LCR do certificado é ${CRL_URL})`);
   return { attempt: a, feedback: fb };
 }

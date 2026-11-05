@@ -72,6 +72,8 @@ export interface StudyReport {
   ai_assistant: { used: boolean | null; tasks: string[] };
   changes: ChangeStats;
   library_change: { changed: boolean | null; where: string; requested: string };
+  /** Measured, not asked: whether the installed library files changed after the first check (integrity.ts). */
+  library_integrity: { checked: boolean; modified: boolean; versions_changed: boolean };
   answers: { q1: string; q2: string; q3: string; q4: string; q5: string };
 }
 
@@ -91,7 +93,9 @@ export function quantile(sorted: number[], q: number): number | null {
  */
 export function scrub(text: string): string {
   let s = String(text ?? "").slice(0, 4000);
-  // Absolute paths: /a/b, C:\a, \\server\share, ~/a. Starts after a space, quote or bracket (not inside a URL).
+  // file:// URLs (Node prints them in ESM stack traces), then absolute paths: /a/b, C:\a, \\server\share, ~/a.
+  // A path starts after a space, quote or bracket (not inside a URL).
+  s = s.replace(/file:\/\/[^\s"'`<>()]*/gi, "<caminho>");
   s = s.replace(/(^|[\s"'`(\[<{,;])(?:\/(?!\/)[^\s"'`()<>,;]+|[A-Za-z]:[\\/][^\s"'`<>,;]*|\\\\[^\s"'`<>,;]+|~[\\/][^\s"'`<>,;]*)/g, "$1<caminho>");
   try {
     const h = homedir();
@@ -178,6 +182,7 @@ export function buildReport(ws: string, now = new Date()): StudyReport {
     ai_assistant: { used: answers?.ai_used ?? null, tasks: (answers?.ai_tasks ?? []).filter((t) => (TASKS as readonly string[]).includes(t)) },
     changes: changeStats(ws, cfg.baseline),
     library_change: { changed: answers?.library_changed ?? null, where: scrub(answers?.library_where ?? ""), requested: scrub(answers?.library_request ?? "") },
+    library_integrity: { checked: !!cfg.library_baseline, modified: !!cfg.library_modified_at, versions_changed: !!cfg.library_versions_changed_at },
     answers: { q1: scrub(answers?.q1 ?? ""), q2: scrub(answers?.q2 ?? ""), q3: scrub(answers?.q3 ?? ""), q4: scrub(answers?.q4 ?? ""), q5: scrub(answers?.q5 ?? "") }
   };
 }

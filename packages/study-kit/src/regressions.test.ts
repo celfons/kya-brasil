@@ -1,6 +1,6 @@
 // Regression tests for the QA findings on the first version of the kit (each test names the finding it covers).
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -116,7 +116,10 @@ describe("QA 4: T3 and T4 require the cryptography", () => {
     expect(t3.error_categories.sort()).toEqual(["icp_chain", "signature"]);
     expect(await main(["check", "t4"], t.io)).toBe(1);
     const t4 = last(ws);
-    expect(t4.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", false], ["depois_da_revogacao", false]]);
+    // "The CRL bytes changed, so it is revoked": the first re-issued CRL (plain or revoking another certificate) fails.
+    const t4s = Object.fromEntries(t4.sub_cases!.map((s) => [s.id, s.pass]));
+    expect(t4s).toMatchObject({ antes_da_revogacao: true, depois_da_revogacao: false });
+    expect(t4s.lcr_reemitida && t4s.lcr_outra_revogacao).toBe(false);
     expect(readConfig(ws).t4_published_at).toBeUndefined();
   });
 });
@@ -155,6 +158,7 @@ describe("QA 7, 8 and 15", () => {
   it("scrub keeps the user name as a word, removes every absolute path, keeps URLs", () => {
     expect(scrub("o root certificate da AC")).toBe("o root certificate da AC");
     expect(scrub("rodei em localhost:8787")).toBe("rodei em localhost:8787");
+    expect(scrub("at f (file:///home/ana/estudo/src/emitir.mjs:3:9) e file:///C:/Users/ana/x.mjs")).toBe("at f (<caminho>) e <caminho>");
     expect(scrub("veja /etc/kya/x.conf e C:\\Users\\ana\\p e \\\\srv\\share e ~/proj")).toBe("veja <caminho> e <caminho> e <caminho> e <caminho>");
     expect(scrub("docs em https://github.com/celfons/kya-brasil#start-here, e/ou nada")).toBe("docs em https://github.com/celfons/kya-brasil#start-here, e/ou nada");
   });
@@ -189,6 +193,7 @@ describe("QA 12 and 13: analyze.py", () => {
     const write = (name: string, v: unknown) => writeFileSync(join(dir, `kya-study-report-${name}.json`), typeof v === "string" ? v : JSON.stringify(v));
     write("p-1", report("p-1", true));
     write("p-2", report("p-2", false));
+    write("p-1-again", { ...report("p-1", true), finished: false });
     const noId = report("x", null) as Record<string, unknown>;
     delete noId.participant_id;
     write("noid", noId);
@@ -203,7 +208,102 @@ describe("QA 12 and 13: analyze.py", () => {
     expect(summary).toContain("kya-study-report-list.json: tasks is not an object");
     expect(summary).toContain("kya-study-report-str.json: tasks.t1.first_success_s is not a number");
     expect(summary).toContain("kya-study-report-broken.json");
+    expect(summary).toContain("participant p-1: duplicate id");
     expect(summary).toMatch(/\| used AI \| 1 \| 1\/1, 10\.0 \|/);
     expect(summary).toMatch(/\| no AI \| 1 \|/);
+  });
+});
+
+describe("QA 2 (second round): verifiers that game the order or the count of requests", () => {
+  // From the second independent QA: each passed the first version of the randomized-free T3/T4.
+  const cheats: [string, "t3" | "t4"][] = [["accept_first", "t3"], ["combo_nocrypto", "t3"], ["combo_nocrypto", "t4"], ["count2_revoked", "t4"], ["crl_length", "t4"], ["crl_count", "t4"], ["crl_clock", "t4"]];
+  it.each(cheats)("%s fails %s", async (cheat, task) => {
+    const ws = await workspace();
+    cpSync(join(fixtures, "cheats", `${cheat}.mjs`), join(ws, "src", "verificar.mjs"));
+    const t = io(ws);
+    expect(await main(["check", task], t.io), t.text()).toBe(1);
+    expect(last(ws)).toMatchObject({ task, pass: false });
+  });
+
+  it("T4 requires the library's revocation code in motivo, not just a word", async () => {
+    const ws = await workspace();
+    const solution = readFileSync(join(fixtures, "solution", "verificar.mjs"), "utf8");
+    writeFileSync(join(ws, "src", "verificar.mjs"), solution.replace("motivo: r.error }", 'motivo: r.error === "KYA_CERTIFICATE_REVOKED" ? "revoked" : r.error }'));
+    expect(await main(["check", "t4"], io(ws).io)).toBe(1);
+    expect(last(ws).sub_cases?.find((s) => s.id === "depois_da_revogacao")?.pass).toBe(false);
+  });
+});
+
+describe("QA 3 (second round): finish keeps earlier answers unless the participant confirms", () => {
+  const replies = (xs: (string | null)[]) => async () => (xs.length ? xs.shift()! : null);
+  const full = ["T3", "nada", "nada", "sim", "", "nao", "n", ""];
+
+  it("EOF or 'no' at the confirmation, and EOF in the middle, keep the first answers; 'yes' replaces them", async () => {
+    const ws = await workspace();
+    expect(await main(["finish"], { ...io(ws).io, ask: replies([...full]) })).toBe(0);
+    const first = readFileSync(paths(ws).answers, "utf8");
+    expect(await main(["finish"], { ...io(ws).io, ask: replies([]) })).toBe(0);
+    expect(await main(["finish"], { ...io(ws).io, ask: replies(["n"]) })).toBe(0);
+    expect(await main(["finish"], { ...io(ws).io, ask: replies(["s", "outra"]) })).toBe(0);
+    expect(readFileSync(paths(ws).answers, "utf8")).toBe(first);
+    expect(await main(["finish"], { ...io(ws).io, ask: replies(["s", "T4", ...full.slice(1)]) })).toBe(0);
+    expect(JSON.parse(readFileSync(paths(ws).answers, "utf8")).q1).toBe("T4");
+  });
+
+  it("Ctrl-C saves nothing", async () => {
+    const ws = await workspace();
+    let stop = false;
+    const ask = async () => {
+      stop = true;
+      return null;
+    };
+    expect(await main(["finish"], { ...io(ws).io, ask, interrupted: () => stop })).toBe(130);
+    expect(existsSync(paths(ws).answers)).toBe(false);
+  });
+
+  it("'todas' means every task", async () => {
+    const ws = await workspace();
+    expect(await main(["finish"], { ...io(ws).io, ask: replies(["a", "b", "c", "d", "", "sim", "todas", "n", ""]) })).toBe(0);
+    expect(JSON.parse(readFileSync(paths(ws).answers, "utf8")).ai_tasks).toEqual(["t1", "t2", "t3", "t4"]);
+  });
+});
+
+describe("QA 4 (second round): a change to the installed library is measured", () => {
+  it("records the library's digest at the first check and flags a later change", async () => {
+    const ws = await workspace();
+    for (const name of ["core", "agent-tools"]) {
+      mkdirSync(join(ws, "node_modules", "@kya-brasil", name, "dist"), { recursive: true });
+      writeFileSync(join(ws, "node_modules", "@kya-brasil", name, "package.json"), JSON.stringify({ name: `@kya-brasil/${name}`, version: "1.0.0" }));
+      writeFileSync(join(ws, "node_modules", "@kya-brasil", name, "dist", "index.js"), "export {};\n");
+    }
+    await main(["check", "t2"], io(ws).io);
+    expect(readConfig(ws).library_baseline?.sha256).toMatch(/^[0-9a-f]{64}$/);
+    await main(["check", "t2"], io(ws).io);
+    expect(readConfig(ws).library_modified_at).toBeUndefined();
+    writeFileSync(join(ws, "node_modules", "@kya-brasil", "core", "dist", "index.js"), "export {};\n// patched\n");
+    const t = io(ws);
+    await main(["check", "t2"], t.io);
+    expect(t.text()).toContain("os arquivos da biblioteca");
+    expect(readConfig(ws).library_modified_at).toBeTruthy();
+    expect(await main(["report"], io(ws).io)).toBe(0);
+    const r = JSON.parse(readFileSync(join(ws, `kya-study-report-${readConfig(ws).participant_id}.json`), "utf8"));
+    expect(r.library_integrity).toEqual({ checked: true, modified: true, versions_changed: false });
+  });
+});
+
+describe("QA 5 (second round): analyze.py edge cases", () => {
+  it.skipIf(!hasPython)("only broken files: exit 1 with the reasons; duplicate ids are reported; a missing folder is told apart", () => {
+    const dir = mkdtempSync(join(tmpdir(), "kya-study-an2-"));
+    roots.push(dir);
+    const script = join(pkgDir, "..", "..", "research", "study", "analyze.py");
+    writeFileSync(join(dir, "kya-study-report-a.json"), "{ nope");
+    writeFileSync(join(dir, "kya-study-report-b.json"), JSON.stringify({ schema: "kya-study-report/1", tasks: {} }));
+    const r = spawnSync("python3", ["-I", script, dir], { encoding: "utf8" });
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("kya-study-report-a.json");
+    expect(r.stderr).toContain("kya-study-report-b.json: participant_id missing");
+    const missing = spawnSync("python3", ["-I", script, join(dir, "nao-existe")], { encoding: "utf8" });
+    expect(missing.status).toBe(2);
+    expect(missing.stderr).toContain("not a folder");
   });
 });

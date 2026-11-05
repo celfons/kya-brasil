@@ -44,8 +44,8 @@ baseline for change counts; without git it keeps a snapshot of line hashes inste
 
 ### `check`
 
-Runs the participant's modules in a child process, with a timeout per call (10 s by default,
-`KYA_STUDY_TIMEOUT_MS`), and grades each task, appending one JSON line per attempt to
+Runs the participant's modules in a child process, with a timeout per call (10 s by default, 30 s for
+loading the modules and for T1; `KYA_STUDY_TIMEOUT_MS` sets the base), and grades each task, appending one JSON line per attempt to
 `.kya-study/log.jsonl` (time, task, pass, error category, sub-cases, verification durations in ms) and printing
 feedback in Portuguese.
 
@@ -53,8 +53,8 @@ feedback in Portuguese.
 | --- | --- | --- |
 | T1 issue | `emitirCredencial(ctx)` → `{ credential, proof }`, self-issued with the test e-CNPJ | `verifySelfIssuedCredential` with the test anchors; the agent must be `pki/agente.json` |
 | T2 policy | (the T1 mandate) | the answer key in `src/policy.ts`: `correct`, `permissive`, `restrictive` or `invalid`, with the deviating fields |
-| T3 verify | `criarVerificador(ctx)` → `async (request) => ({ aceito, motivo })`, offline | requests signed with the kit's own reference credential: in-mandate purchase (accept); above the ceiling, another supplier, tampered signature, body changed after signing, AC outside the anchors, another signing key, tampered mandate, replay (refuse). Refusals count only when the valid purchase was accepted |
-| T4 revocation | the same verifier | with `ctx.agora()` moved past the previous CRL's `nextUpdate` each time: a purchase (accept); a re-issued CRL with no new revocation, a purchase (accept); the CRL revoking the company certificate, a purchase (refuse with a revocation code) |
+| T3 verify | `criarVerificador(ctx)` → `async (request) => ({ aceito, motivo })`, offline | requests signed with the kit's own reference credential, in a random order: three in-mandate purchases (accept); above the ceiling, another supplier, tampered signature, body changed after signing, AC outside the anchors, another signing key, tampered mandate, replay (refuse). Refusals count only when every valid purchase was accepted |
+| T4 revocation | the same verifier | CRLs at random clock steps (`ctx.agora()` past the previous `nextUpdate`), one or two purchases each: current CRL and two to four re-issues, one revoking another certificate (accept); the CRL revoking the company certificate and a re-issue of it (refuse with `KYA_CERTIFICATE_REVOKED` in `motivo`) |
 
 The CRLs are issued fresh at every `check` (the `pki/ac.crl` written at `init` is only an example to read).
 
@@ -70,7 +70,8 @@ shown with the file and line.
 
 `finish` asks the five open questions, whether the participant used an AI assistant (allowed) and in which
 tasks, and whether they changed (or worked around) the library, and where; at the end of input it stops asking
-and records the rest as unanswered. `report` writes `kya-study-report-<id>.json` in the workspace:
+and records the rest as unanswered; Ctrl-C saves nothing; a second `finish` asks before replacing the answers.
+`report` writes `kya-study-report-<id>.json` in the workspace:
 
 - kit and library versions, Node.js version, OS family, year-month of the session;
 - per task: attempts, passes, pass rate, seconds from start to the first success, attempts until it, error counts
@@ -81,6 +82,8 @@ and records the rest as unanswered. `report` writes `kya-study-report-<id>.json`
 - files and lines changed against the baseline (excluding `node_modules`, `out`, `dist`, `pki`, `.kya-study`,
   lock files);
 - `ai_assistant: { used, tasks }`;
+- `library_integrity: { checked, modified, versions_changed }`: whether `node_modules/@kya-brasil/{core,agent-tools}`
+  changed after the first `check` (a digest kept in `.kya-study/config.json`; no file names in the report);
 - the open answers and the library-change answer, scrubbed of every absolute path (the user name goes with
   it), the host name and e-mail addresses.
 

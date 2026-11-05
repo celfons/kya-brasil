@@ -115,7 +115,8 @@ usa rede).
 Em \`motivo\`, ao recusar, devolva o código de erro da biblioteca (por exemplo o \`error\` da autenticação) ou a
 regra do mandato que recusou.
 
-O kit envia uma compra dentro do mandato, que deve ser **aceita**, e estas, que devem ser **recusadas**:
+O kit envia, **em ordem aleatória**, três compras dentro do mandato, que devem ser **aceitas**, e estas, que devem
+ser **recusadas**:
 
 - uma compra acima do teto por compra;
 - uma compra de outro fornecedor;
@@ -126,17 +127,19 @@ O kit envia uma compra dentro do mandato, que deve ser **aceita**, e estas, que 
 - uma credencial com o mandato adulterado (teto maior que o assinado pela empresa);
 - a mesma requisição da compra válida, repetida.
 
-Cada recusa só conta se a compra válida tiver sido aceita (um verificador que recusa tudo não pontua).
+Cada recusa só conta se as compras válidas tiverem sido aceitas (um verificador que recusa tudo não pontua).
 
 ## T4 · Revogação
 
 O certificado e-CNPJ da empresa vazou e foi **revogado**. O kit cria um verificador com a sua
-\`criarVerificador\` e, sempre avançando o relógio \`agora()\` para depois do \`nextUpdate\` da LCR anterior:
+\`criarVerificador\` e publica em \`buscarCrl\` uma sequência de LCRs, sempre avançando o relógio \`agora()\` para
+depois do \`nextUpdate\` da LCR anterior (os intervalos variam), com uma ou duas compras válidas para cada LCR:
 
-1. envia uma compra válida: deve ser **aceita**;
-2. publica em \`buscarCrl\` uma LCR **reemitida, sem nenhuma revogação nova**, e envia outra compra: deve ser **aceita**;
-3. publica a LCR que **revoga** o certificado da empresa e envia outra compra: deve ser **recusada por revogação**
-   (\`motivo\` com o código de erro de revogação).
+1. a LCR atual: as compras devem ser **aceitas**;
+2. algumas LCRs **reemitidas** (uma delas revoga **outro** certificado, não o da empresa): as compras devem ser
+   **aceitas**;
+3. a LCR que **revoga** o certificado da empresa, e depois mais uma reemissão dela: as compras devem ser
+   **recusadas por revogação** (\`motivo\` com o código de erro de revogação da biblioteca).
 
 O kit mede quanto tempo passa entre a primeira publicação da LCR revogada (a primeira execução que chega ao
 passo 3) e a primeira execução em que o seu verificador passa na T4.
@@ -189,7 +192,7 @@ export const QUESTIONS = [
 
 export const AI_QUESTIONS = {
   used: "Usou assistente de IA (ChatGPT, Copilot, Claude etc.)? (sim/não)",
-  tasks: "Em quais tarefas? (t1,t2,t3,t4)"
+  tasks: "Em quais tarefas? (t1,t2,t3,t4 ou todas)"
 } as const;
 
 export const LIBRARY_QUESTIONS = {
@@ -220,6 +223,6 @@ export const HINT_PT: Record<string, string> = {
   replay: "o verificador precisa lembrar das requisições já aceitas (replayCache).",
   runtime: "a sua função lançou um erro; a mensagem está acima.",
   timeout: "a sua função não respondeu a tempo (uma Promise que nunca resolve, ou um laço sem fim?). O kit interrompeu o código.",
-  contract: "a função existe mas devolveu outra coisa: emitirCredencial devolve { credential, proof }; o verificador devolve { aceito: boolean, motivo?: string }.",
-  other: "confira o formato do retorno descrito no TASKS.md."
+  contract: "a função não foi encontrada ou devolveu outra coisa: exporte emitirCredencial e criarVerificador com esses nomes; emitirCredencial devolve { credential, proof }; o verificador devolve { aceito: boolean, motivo?: string }.",
+  other: "releia a mensagem acima e a tarefa no TASKS.md."
 };

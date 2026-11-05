@@ -97,12 +97,13 @@ export async function makeTestPki(now = new Date()): Promise<TestPki> {
  * A CRL of the test AC. It always lists one made-up serial (so a lookup is a real one); with `revokeCompany` it also
  * lists the company's e-CNPJ (key compromise), which is how the kit "revokes" the certificate in T4.
  */
-export async function makeCrl(acState: TestPki["ac"], p: { thisUpdate: Date; nextUpdate: Date; revokeCompany: boolean; revokedAt?: Date }): Promise<Uint8Array> {
+export async function makeCrl(acState: TestPki["ac"], p: { thisUpdate: Date; nextUpdate: Date; revokeCompany: boolean; revokedAt?: Date; revokeOthers?: string[] }): Promise<Uint8Array> {
   const ac = new x509.X509Certificate(acState.certificatePem);
   const signingKey = await crypto.subtle.importKey("pkcs8", Buffer.from(acState.privateKeyPkcs8, "base64"), { name: alg.name, hash: alg.hash }, false, ["sign"]);
   const entries: { serialNumber: string; revocationDate: Date; reason: x509.X509CrlReason }[] = [
     { serialNumber: "0bad", revocationDate: new Date(p.thisUpdate.getTime() - DAY), reason: x509.X509CrlReason.keyCompromise }
   ];
+  for (const serialNumber of p.revokeOthers ?? []) entries.push({ serialNumber, revocationDate: p.thisUpdate, reason: x509.X509CrlReason.keyCompromise });
   if (p.revokeCompany) entries.push({ serialNumber: COMPANY_SERIAL, revocationDate: p.revokedAt ?? p.thisUpdate, reason: x509.X509CrlReason.keyCompromise });
   const crl = await x509.X509CrlGenerator.create({ issuer: ac.subject, thisUpdate: p.thisUpdate, nextUpdate: p.nextUpdate, signingAlgorithm: alg, signingKey, entries });
   return new Uint8Array(crl.rawData);

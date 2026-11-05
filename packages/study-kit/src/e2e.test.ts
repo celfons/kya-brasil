@@ -74,7 +74,7 @@ describe("kya-study, a participant who completes every task", () => {
     // Starter files: every task fails as "not implemented", from a subfolder too (the workspace is found upwards).
     const first = io(join(ws, "src"));
     expect(await main(["check"], first.io)).toBe(1);
-    expect(first.out.join("\n")).toContain("ainda não foi implementada");
+    expect(first.out.join("\n")).toContain("ainda não implementado");
     let log = readAttempts(ws);
     expect(log.map((a) => a.task)).toEqual(["t1", "t2", "t3", "t4"]);
     expect(log.every((a) => !a.pass && a.not_implemented && a.error_category === "runtime")).toBe(true);
@@ -90,12 +90,13 @@ describe("kya-study, a participant who completes every task", () => {
     expect(log).toHaveLength(8);
     expect(log.slice(4).every((a) => a.pass && a.error_category === null)).toBe(true);
     const t3 = log[6]!;
-    expect(t3.sub_cases?.map((s) => s.id)).toEqual(["compra_valida", "acima_do_teto", "fornecedor_errado", "assinatura_adulterada", "corpo_alterado", "ac_nao_confiavel", "chave_errada", "mandato_adulterado", "repeticao"]);
+    expect(t3.sub_cases?.[0]?.id).toBe("compra_valida");
+    expect(t3.sub_cases?.map((s) => s.id).sort()).toEqual(["ac_nao_confiavel", "acima_do_teto", "assinatura_adulterada", "chave_errada", "compra_valida", "corpo_alterado", "fornecedor_errado", "mandato_adulterado", "repeticao"]);
     expect(t3.sub_cases?.every((s) => s.pass)).toBe(true);
-    expect(t3.verify_ms).toHaveLength(9);
-    expect(t3.accept_ms).toHaveLength(1);
-    expect(log[7]!.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", true], ["depois_da_revogacao", true]]);
-    expect(log[7]!.accept_ms).toHaveLength(2);
+    expect(t3.verify_ms).toHaveLength(11); // three valid purchases and eight to refuse
+    expect(t3.accept_ms).toHaveLength(3);
+    expect(log[7]!.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", true], ["lcr_outra_revogacao", true], ["depois_da_revogacao", true]]);
+    expect(log[7]!.accept_ms!.length).toBeGreaterThanOrEqual(4); // one CRL before, two to four re-issued, one or two purchases each
     expect(log[7]!.t4_published_at).toBeTruthy();
 
     // One task by name.
@@ -137,7 +138,7 @@ describe("kya-study, a participant who completes every task", () => {
     expect(r.policy.first_deviations).toEqual([]);
     expect(r.revocation.published_after_s).toBeGreaterThanOrEqual(0);
     expect(r.revocation.time_to_effect_s).toBeGreaterThanOrEqual(0);
-    expect(r.verification_latency_ms.n).toBe(3); // the accepted valid purchases only: T3 one, T4 two
+    expect(r.verification_latency_ms.n).toBe(3 + log[7]!.accept_ms!.length); // the accepted valid purchases only
     expect(r.verification_latency_ms.median).toBeGreaterThan(0);
     expect(r.changes.method).toBe("git");
     expect(r.changes.files_changed).toBe(2); // src/emitir.mjs and src/verificar.mjs; node_modules, .kya-study and pki are not counted
@@ -147,6 +148,7 @@ describe("kya-study, a participant who completes every task", () => {
     expect(r.answers.q2).toBe("a validade; o root certificate da AC");
     expect(r.answers.q3).toContain("log em <caminho>");
     expect(r.ai_assistant).toEqual({ used: true, tasks: ["t1", "t3"] });
+    expect(r.library_integrity).toEqual({ checked: true, modified: false, versions_changed: false });
 
     // Nothing that identifies the person or the machine, and no code.
     expect(raw).not.toContain(homedir());
@@ -192,7 +194,7 @@ describe("kya-study, a participant who issues a too permissive mandate", () => {
     const [t3, t4] = readAttempts(ws).slice(-2);
     expect(t3!.sub_cases?.filter((s) => !s.pass).map((s) => s.id)).toEqual(["repeticao"]);
     expect(t3!.error_category).toBe("replay");
-    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false, false]);
+    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false, false, false]);
     expect(t4!.error_category).toBe("freshness");
     expect(naive.out.join("\n")).toContain("KYA_CERTIFICATE_STATUS_STALE");
 

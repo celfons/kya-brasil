@@ -10,6 +10,7 @@ import { type Interface, createInterface } from "node:readline";
 import { GITIGNORE, makeBaseline } from "./diffstats.js";
 import { COMPANY_CNPJ, CRL_URL, REPRESENTATIVE_CPF, TEST_PASSWORD, WARNING, makeTestPki } from "./pki.js";
 import { type Answers, writeReport } from "./report.js";
+import { trackLibrary } from "./integrity.js";
 import { RUNNERS, loadMaterial } from "./tasks.js";
 import { AI_QUESTIONS, CATEGORY_PT, CONSENT, CONSENT_PROMPT, HINT_PT, LIBRARY_QUESTIONS, QUESTIONS, STARTER_EMITIR, STARTER_VERIFICAR, tasksMd } from "./texts.js";
 import { STATE_DIR, TASKS, type StudyConfig, type TaskId, appendAttempt, findWorkspace, kitPackage, kitSpec, paths, readConfig, starterRange, writeConfig } from "./workspace.js";
@@ -21,6 +22,8 @@ export interface Io {
   err: (s: string) => void;
   /** Asks one question in the terminal and returns the answer (without the newline), or null when the input ended. */
   ask: (q: string) => Promise<string | null>;
+  /** True after Ctrl-C in a question: the command stops without saving anything. */
+  interrupted?: () => boolean;
   /** Releases the terminal (an open readline keeps the process alive). */
   close?: () => void;
 }
@@ -30,7 +33,9 @@ function defaultIo(): Io {
   let closed = false;
   let waiting: ((v: string | null) => void) | null = null;
   let lines: string[] | null = null;
+  let interrupted = false;
   return {
+    interrupted: () => interrupted,
     cwd: process.cwd(),
     env: process.env,
     out: (s) => process.stdout.write(s + "\n"),
@@ -40,7 +45,11 @@ function defaultIo(): Io {
         if (closed) return null;
         if (!rl) {
           rl = createInterface({ input: process.stdin, output: process.stdout });
-          // Ctrl-D / Ctrl-C: the input ended; a pending question answers null.
+          // Ctrl-C: interrupted (nothing is saved); Ctrl-D: the input ended. Either way a pending question answers null.
+          rl.on("SIGINT", () => {
+            interrupted = true;
+            rl?.close();
+          });
           rl.on("close", () => {
             closed = true;
             waiting?.(null);
@@ -239,6 +248,8 @@ async function check(io: Io, ws: string, which?: string): Promise<number> {
   const cfg = readConfig(ws);
   if (cfg.finished_at) io.out("(o estudo já foi encerrado com finish; novas verificações ainda são registradas)");
   const m = loadMaterial(ws);
+  const libNote = trackLibrary(ws);
+  if (libNote) io.out(libNote);
   let allPass = true;
   for (const t of list) {
     let outcome;
@@ -275,6 +286,15 @@ async function finish(io: Io, ws: string, answersFile?: string): Promise<number>
       answered_at: new Date().toISOString()
     };
   } else {
+    const previous = existsSync(paths(ws).answers);
+    const stopped = () => io.interrupted?.() === true;
+    if (previous) {
+      const v = await io.ask("Você já respondeu às perguntas finais. Responder de novo substitui as respostas anteriores. Continuar? (s/n)\n> ");
+      if (stopped() || v === null || !/^(s|sim|y|yes)$/i.test(v.trim())) {
+        io.out("\nNada mudou: as respostas anteriores continuam salvas. Gere o relatório com: npx kya-study report");
+        return stopped() ? 130 : 0;
+      }
+    }
     // Every question stops at the end of the input (EOF): unanswered ones stay empty.
     const ask = async (q: string): Promise<string | null> => {
       if (ended) return null;
@@ -309,6 +329,14 @@ async function finish(io: Io, ws: string, answersFile?: string): Promise<number>
       library_changed: changed, library_where: where, library_request: request,
       answered_at: new Date().toISOString()
     };
+    if (stopped()) {
+      io.out("\nInterrompido: nada foi salvo. Rode npx kya-study finish de novo quando quiser.");
+      return 130;
+    }
+    if (ended && previous) {
+      io.out("\n(a entrada terminou antes do fim: as respostas anteriores continuam salvas)");
+      return 0;
+    }
     if (ended) io.out("\n(a entrada terminou: as perguntas restantes ficaram em branco)");
   }
   writeFileSync(paths(ws).answers, JSON.stringify(answers, null, 2) + "\n");
@@ -323,6 +351,7 @@ async function finish(io: Io, ws: string, answersFile?: string): Promise<number>
 function normalizeTasks(v: unknown): TaskId[] {
   const items = Array.isArray(v) ? v.map(String) : [String(v ?? "")];
   const out = new Set<TaskId>();
+  if (items.some((it) => /\b(todas|todos|all)\b/i.test(it))) return [...TASKS];
   for (const it of items) for (const m of it.toLowerCase().matchAll(/t?([1-4])/g)) out.add(`t${m[1]}` as TaskId);
   return TASKS.filter((t) => out.has(t));
 }

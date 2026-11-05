@@ -81,7 +81,7 @@ def problems(r):
                 out.append(f"tasks.{t}.errors is not an object of numbers")
             if "sub_cases" in m and not (isinstance(m["sub_cases"], dict) and all(isinstance(v, dict) and _num(v.get("attempts")) and _num(v.get("passes")) for v in m["sub_cases"].values())):
                 out.append(f"tasks.{t}.sub_cases is malformed")
-    for key in ("policy", "revocation", "verification_latency_ms", "changes", "library_change", "answers", "library_versions", "ai_assistant"):
+    for key in ("policy", "revocation", "verification_latency_ms", "changes", "library_change", "library_integrity", "answers", "library_versions", "ai_assistant"):
         if key in r and r[key] is not None and not isinstance(r[key], dict):
             out.append(f"{key} is not an object")
     if isinstance(r.get("policy"), dict):
@@ -126,6 +126,8 @@ def load(folder):
         pid = r.get("participant_id")
         attempts = sum((r.get("tasks", {}).get(t) or {}).get("attempts", 0) for t in TASKS)
         key = (bool(r.get("finished")), attempts, r.get("total_s") or 0)
+        if pid in by_id:
+            skipped.append(f"a report of participant {pid}: duplicate id, kept the most complete one")
         if pid not in by_id or key > by_id[pid][0]:
             by_id[pid] = (key, r)
     return [r for _, r in by_id.values()], skipped
@@ -133,6 +135,14 @@ def load(folder):
 
 def task(r, t):
     return (r.get("tasks") or {}).get(t) or {}
+
+
+def integrity_line(reports):
+    """The measured counterpart of the self-report: library files changed after the first check (kit >= 0.1.0)."""
+    li = [r.get("library_integrity") or {} for r in reports]
+    checked = sum(1 for x in li if x.get("checked"))
+    return (f"Measured (library files changed after the participant's first check): modified {sum(1 for x in li if x.get('modified'))}/{checked}, "
+            f"other versions installed {sum(1 for x in li if x.get('versions_changed'))}/{checked}; not measured: {len(reports) - checked}.")
 
 
 def ai_used(r):
@@ -166,9 +176,14 @@ def main():
     ap.add_argument("--out", type=Path)
     a = ap.parse_args()
     out = a.out or a.reports / "analysis"
+    if not a.reports.is_dir():
+        print(f"not a folder: {a.reports}", file=sys.stderr)
+        return 2
     reports, skipped = load(a.reports)
+    for s in skipped:
+        print(f"skipped {s}", file=sys.stderr)
     if not reports:
-        print(f"no kya-study-report-*.json in {a.reports}", file=sys.stderr)
+        print(f"no valid kya-study-report-*.json in {a.reports}" + (f" ({len(skipped)} skipped, reasons above)" if skipped else ""), file=sys.stderr)
         return 1
     out.mkdir(parents=True, exist_ok=True)
     n = len(reports)
@@ -276,7 +291,8 @@ def main():
 
     changed = [r for r in reports if (r.get("library_change") or {}).get("changed") is True]
     L += ["## Changes to the library (pre-registered: \"alterações pedidas na biblioteca\")", "",
-          f"Changed or worked around the library: {len(changed)}/{n} (no answer: {sum(1 for r in reports if (r.get('library_change') or {}).get('changed') is None)}).", ""]
+          f"Changed or worked around the library: {len(changed)}/{n} (no answer: {sum(1 for r in reports if (r.get('library_change') or {}).get('changed') is None)}).",
+          integrity_line(reports), ""]
     for r in changed:
         L.append(f"- {r['participant_id']}: {(r.get('library_change') or {}).get('where') or '(no detail)'}")
     req = [r for r in reports if ((r.get("library_change") or {}).get("requested") or "").strip()]

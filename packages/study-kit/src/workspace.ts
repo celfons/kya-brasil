@@ -19,6 +19,12 @@ export interface StudyConfig {
   /** T4: when the kit first published the revoked CRL (the first run whose pre-revocation request was accepted). */
   t4_published_at?: string;
   finished_at?: string;
+  /** Digest of node_modules/@kya-brasil/{core,agent-tools} at the first check that found them (integrity.ts). */
+  library_baseline?: { versions: Record<string, string>; sha256: string; at: string };
+  /** First check that found the library files changed (same versions). */
+  library_modified_at?: string;
+  /** First check that found other library versions installed. */
+  library_versions_changed_at?: string;
 }
 
 export interface SubCase {
