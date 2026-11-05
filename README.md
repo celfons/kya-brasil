@@ -30,7 +30,7 @@ the verifier's call, with whatever screening it trusts.
 ## Start here
 
 Pick the role you are in. A runnable version of the offline and self-issued paths, with a throwaway test PKI, is in
-[examples/quickstart](examples/quickstart) (CI runs it). "D-xx" in these docs is a numbered decision in
+[examples/quickstart](examples/quickstart) (CI runs it). Every risk value is yours to choose; [docs/choosing-parameters.md](docs/choosing-parameters.md) explains each one with values measured in ICP-Brasil. "D-xx" in these docs is a numbered decision in
 [docs/DECISOES.md](docs/DECISOES.md).
 
 **(a) You verify agents that call your API.** Hosted mode asks the issuer; offline mode needs no service at all: the
