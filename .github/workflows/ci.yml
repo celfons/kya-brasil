@@ -22,6 +22,9 @@ jobs:
         run: pnpm --filter @kya-br/worker build
       - name: MCP server builds and starts over stdio
         run: pnpm --filter @kya-brasil/mcp build && pnpm --filter @kya-brasil/mcp smoke
+      # The study kit's typecheck and tests (a simulated participant, end to end) run in the recursive steps above.
+      - name: Study kit builds
+        run: pnpm --filter @kya-brasil/agent-tools build && pnpm --filter @kya-brasil/study-kit build
   pulumi-preview:
     if: github.event_name == 'pull_request'
     needs: check

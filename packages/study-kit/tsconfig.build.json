@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  // The build resolves @kya-brasil/agent-tools by its package (built first, as in the publish workflow).
+  "compilerOptions": { "noEmit": false, "declaration": true, "outDir": "dist", "module": "ESNext", "moduleResolution": "Bundler", "paths": {} },
+  "exclude": ["src/**/*.test.ts"]
+}

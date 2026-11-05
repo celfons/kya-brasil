@@ -1,0 +1,13 @@
+{
+  "//": "Tests only: the child process that runs the participant's files (src/runner.ts, through tsx) resolves the libraries to the workspace's TypeScript sources, like the vitest aliases do for the kit itself.",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@kya-brasil/core": ["../../core/src/index.ts"],
+      "@kya-brasil/agent-tools": ["../../agent-tools/src/index.ts"]
+    }
+  }
+}

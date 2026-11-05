@@ -1,5 +1,5 @@
-# Publish @kya-brasil/core (the library, D-25), @kya-brasil/agent-tools (the client) and @kya-brasil/mcp (the local MCP
-# server, D-31) to npm. Manual: needs the
+# Publish @kya-brasil/core (the library, D-25), @kya-brasil/agent-tools (the client), @kya-brasil/mcp (the local MCP
+# server, D-31) and @kya-brasil/study-kit (the case-study kit, research/study) to npm. Manual: needs the
 # NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
 # them first. A version already on npm is skipped, so publishing one package never fails on the other.
 # Then mirrors the same builds to GitHub Packages as @celfons/kya-core, @celfons/kya-agent-tools and @celfons/kya-mcp
@@ -25,6 +25,7 @@ jobs:
       - run: pnpm --filter @kya-brasil/core typecheck && pnpm --filter @kya-brasil/core test && pnpm --filter @kya-brasil/core build
       - run: pnpm --filter @kya-brasil/agent-tools typecheck && pnpm --filter @kya-brasil/agent-tools test && pnpm --filter @kya-brasil/agent-tools build
       - run: pnpm --filter @kya-brasil/mcp typecheck && pnpm --filter @kya-brasil/mcp test && pnpm --filter @kya-brasil/mcp build && pnpm --filter @kya-brasil/mcp smoke
+      - run: pnpm --filter @kya-brasil/study-kit typecheck && pnpm --filter @kya-brasil/study-kit test && pnpm --filter @kya-brasil/study-kit build
       - name: Publish @kya-brasil/core
         working-directory: packages/core
         env:
@@ -70,6 +71,24 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           if npm view "@kya-brasil/mcp@$VERSION" version >/dev/null 2>&1; then
             echo "::notice::@kya-brasil/mcp@$VERSION is already on npm; bump the version to publish a new one"
+          else
+            npm publish --access public --provenance
+          fi
+      - name: Publish the study kit
+        working-directory: packages/study-kit
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then echo "::error::NPM_TOKEN secret missing in the prod environment"; exit 1; fi
+          # The kit depends on the core and the client published just before it: real versions instead of workspace:*.
+          # The same versions become the starter project's dependencies (kya-study init).
+          CORE=$(node -p "require('../core/package.json').version")
+          CLIENT=$(node -p "require('../agent-tools/package.json').version")
+          node -e 'const f="package.json",p=JSON.parse(require("fs").readFileSync(f));p.dependencies["@kya-brasil/core"]="^"+process.argv[1];p.dependencies["@kya-brasil/agent-tools"]="^"+process.argv[2];require("fs").writeFileSync(f,JSON.stringify(p,null,2)+"\n")' "$CORE" "$CLIENT"
+          node dist/cli.js help >/dev/null
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@kya-brasil/study-kit@$VERSION" version >/dev/null 2>&1; then
+            echo "::notice::@kya-brasil/study-kit@$VERSION is already on npm; bump the version to publish a new one"
           else
             npm publish --access public --provenance
           fi
