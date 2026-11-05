@@ -85,6 +85,26 @@ await fetch(url, { method: "POST", headers: { ...headers, "content-type": "appli
 
 Keys: `{ kind: "evm" | "erc8004", privateKey }` or `{ kind: "web-bot-auth", privateKey: CryptoKey | pkcs8 }`.
 
+### Replay protection (opt-in)
+
+Without a cache, a signed request can be sent again while its window is open (up to `maxTtlSeconds`, 600 s by
+default). Pass a replay cache and each accepted request is remembered until its own `KYA-Expires`; the same request
+again gets `401 KYA_REQUEST_REPLAYED`:
+
+```ts
+import { createKyaAuth, memoryReplayCache } from "@kya-brasil/agent-tools";
+const auth = createKyaAuth({ replayCache: memoryReplayCache() });   // works with the offline option too
+```
+
+The key is the SHA-256 of the signed request text (credential, delegation, method, URL, created, expires, body
+hash), recorded only after the request fully verified, so forged requests cannot fill the cache. Entries live
+until the request expires, never less (a shorter memory lets a replay through; see `docs/formal/threats.als`), and
+`maxTtlSeconds` must be finite. `memoryReplayCache()` serves one process (`maxEntries`, default 100 000; when full
+of live entries it refuses rather than forgets). With several instances, implement `ReplayCache.seen(key,
+expiresAt, now)` on a shared store that records atomically (Redis `SET key 1 NX PXAT expiresAt`, a unique key in
+a database); a store error answers `502 KYA_REPLAY_CACHE_UNAVAILABLE`. An agent that sends two identical requests
+in the same second must vary them (any body or query difference), or the second is refused as a replay.
+
 ### Agent to agent (mutual)
 
 The callee signs its response, bound to the request; the caller verifies who answered.

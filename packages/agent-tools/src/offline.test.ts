@@ -31,7 +31,7 @@ import {
   validateMandate,
   verifyIcpSignature
 } from "@kya-brasil/core";
-import { type KyaOfflineOptions, KYA_HEADERS, createKyaAuth, signDelegation, signRequest } from "./auth";
+import { type KyaOfflineOptions, KYA_HEADERS, createKyaAuth, memoryReplayCache, signDelegation, signRequest } from "./auth";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };
@@ -281,5 +281,20 @@ describe("Sign in with KYA offline: configuration", () => {
     expect(issuerFetch).toHaveBeenCalledTimes(1);
     expect((await auth.authenticate(await presented())).ok).toBe(true); // still offline when the credential comes along
     expect(issuerFetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Sign in with KYA offline: replay cache", () => {
+  it("refuses a replayed request at the verifier's clock; past its expiry the window refuses it", async () => {
+    let clock = NOW;
+    const k = await pki();
+    const auth = createKyaAuth({ baseUrl: "https://kya.test", fetch: fetchSpy as unknown as typeof fetch, replayCache: memoryReplayCache(), offline: { anchors: k.anchors, now: () => clock, certificateStatus: crlStatus(k.cleanCrl, k.anchors) } });
+    const req = await presented();
+    expect((await auth.authenticate(req.clone())).ok).toBe(true);
+    expect(await auth.authenticate(req.clone())).toMatchObject({ ok: false, status: 401, error: "KYA_REQUEST_REPLAYED" });
+    expect((await auth.authenticate(await presented({ body: '{"sku":"B2"}' }))).ok).toBe(true);
+    clock = new Date(NOW.getTime() + 61_000);
+    expect(await auth.authenticate(req.clone())).toMatchObject({ ok: false, error: "KYA_SIGNATURE_EXPIRED" });
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

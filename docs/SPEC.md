@@ -315,7 +315,13 @@ passed, MUST recompute the body hash when a body is present, MUST verify the sig
 agent key (`agent.id`, or `agent.wallet` for `erc8004`), or, when `KYA-Delegation` is present, with the key of
 the last delegate after verifying the chain (section 17), and MUST accept only `status == "active"`. It MAY
 cache the credential for a short time (60 s in the reference client) and SHOULD honour `/v1/revocations`.
-This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
+A verifier SHOULD refuse
+replays: it records each accepted request under the SHA-256 of its request text and keeps the record at least
+until that request's `expires` (a record kept for less lets the same request through again inside its window), and
+it refuses a request already recorded (`401 KYA_REQUEST_REPLAYED`). It records only after the request verified,
+needs a bounded lifetime (`expires - created` at most 600 s), and, when several instances serve one API, a shared
+store that records atomically. Reference: the `replayCache` option of `createKyaAuth` (`memoryReplayCache()` for a
+single process), in both the issuer and the offline modes. This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
 is planned and will carry the same `KYA-Credential` header.
 
 **Without the issuer.** A verifier MAY accept the credential from the request instead of fetching it: the agent
