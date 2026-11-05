@@ -289,6 +289,7 @@ agent / verifier ──x402 or MCP──▶ kya-br-agents (Cloudflare Worker: Ho
 | `packages/core` | npm `@kya-brasil/core`: the library (pure functions, no storage, no platform bindings). |
 | `packages/mcp` | npm `@kya-brasil/mcp`: the local MCP server (stdio), with offline tools (mandate, delegation chains, credential signature) and the issuer's free and paid ones. |
 | `packages/agent-tools` | npm `@kya-brasil/agent-tools`: client with x402, middleware, signing helpers, PKCS#11 tokens, the `kya-sign` command, adapters for OpenAI, Vercel AI, LangChain and Anthropic. |
+| `packages/study-kit` | npm `@kya-brasil/study-kit`: the case-study kit (`kya-study`) that measures an independent integration from the docs alone; protocol and analysis in `research/study`. |
 | `apps/worker` | The issuer: HTTP routes, MCP server, `/sign` page, D1 store and migrations, registration sources, CRL checks, daily review, cloud provider registry. |
 | `infra` | Pulumi: KV, D1 + migrations, Worker, cron, secrets. |
 | `anchors` | ICP-Brasil trust anchors (PEM) uploaded to KV by the CD. No anchors, no issuance. |
