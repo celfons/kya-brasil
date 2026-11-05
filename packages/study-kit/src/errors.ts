@@ -2,7 +2,7 @@
  * Error categories recorded per failed attempt. They are mapped from the library's error codes, check rules and
  * messages; the participant's own text is only matched, never stored.
  */
-export const ERROR_CATEGORIES = ["signature", "icp_chain", "mandate", "revocation", "freshness", "replay", "runtime", "other"] as const;
+export const ERROR_CATEGORIES = ["signature", "icp_chain", "mandate", "revocation", "freshness", "replay", "runtime", "timeout", "contract", "other"] as const;
 export type ErrorCategory = (typeof ERROR_CATEGORIES)[number];
 
 // Library codes first (a message such as "KYA_PRINCIPAL_PROOF_INVALID: certificate: expired" is a chain problem),
@@ -32,10 +32,15 @@ export function categorize(text: string | null | undefined): ErrorCategory {
   return "other";
 }
 
+/** Opening the .pfx, its password, or parsing a certificate: a chain/certificate problem, whatever the error code. */
+export const PFX_PROBLEM = /\.pfx|\.p12|pkcs#?12|certificate file|password|senha|MAC could not|asn\.?1|\bder\b|certificat/i;
+
 /** Category of an exception thrown by the participant's code: library errors by their code/message, anything else is "runtime". */
 export function categorizeThrown(e: unknown): ErrorCategory {
-  const err = e as { name?: string; code?: string; message?: string } | null;
-  if (err && (err.name === "KyaError" || typeof err.code === "string") && err.code !== "ERR_MODULE_NOT_FOUND") {
+  const err = e as { name?: string; code?: string | null; message?: string } | null;
+  if (err && (err.name === "KyaError" || typeof err.code === "string") && !String(err.code ?? "").startsWith("ERR_")) {
+    // A wrong .pfx password is a KyaError INVALID_INPUT, like a bad mandate: tell them apart by the message.
+    if (PFX_PROBLEM.test(err.message ?? "")) return "icp_chain";
     const cat = categorize(`${err.code ?? ""} ${err.message ?? ""}`);
     return cat === "other" ? "runtime" : cat;
   }

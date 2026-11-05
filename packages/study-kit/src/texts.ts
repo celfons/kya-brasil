@@ -68,7 +68,8 @@ escritório para ela. A política decidida pela diretoria é:
 - Use **somente a documentação**: o [README (seção "Start here")](${DOCS}#start-here), os READMEs de
   [\`@kya-brasil/core\`](${DOCS}/tree/main/packages/core) e [\`@kya-brasil/agent-tools\`](${DOCS}/tree/main/packages/agent-tools),
   o [guia de parâmetros](${DOCS}/blob/main/docs/choosing-parameters.md) e os [exemplos](${DOCS}/tree/main/examples/quickstart).
-  Se consultar outras fontes (busca na web, assistentes de IA), conte na última pergunta do fim.
+  **Busca na web e assistentes de IA (ChatGPT, Copilot, Claude etc.) são permitidos**; no fim o kit pergunta se
+  você usou assistente de IA e em quais tarefas.
 - **Não altere a biblioteca** (arquivos em \`node_modules/@kya-brasil\`). Se você sentir que precisa, anote:
   vamos perguntar no fim.
 - Implemente as funções em \`src/emitir.mjs\` e \`src/verificar.mjs\`. Você pode criar outros arquivos em \`src/\`.
@@ -111,16 +112,31 @@ usa rede).
 Em \`motivo\`, ao recusar, devolva o código de erro da biblioteca (por exemplo o \`error\` da autenticação) ou a
 regra do mandato que recusou.
 
-O kit envia: uma compra dentro do mandato (deve **aceitar**), uma acima do teto, uma para outro fornecedor
-e a mesma requisição repetida (devem ser **recusadas**).
+O kit envia uma compra dentro do mandato, que deve ser **aceita**, e estas, que devem ser **recusadas**:
+
+- uma compra acima do teto por compra;
+- uma compra de outro fornecedor;
+- uma requisição com a assinatura adulterada;
+- uma requisição cujo corpo foi alterado depois de assinado;
+- uma credencial emitida por uma AC fora das âncoras de confiança;
+- uma requisição assinada por outra chave, que não é a do agente;
+- uma credencial com o mandato adulterado (teto maior que o assinado pela empresa);
+- a mesma requisição da compra válida, repetida.
+
+Cada recusa só conta se a compra válida tiver sido aceita (um verificador que recusa tudo não pontua).
 
 ## T4 · Revogação
 
-O certificado e-CNPJ da empresa vazou e foi **revogado**: a AC publica uma LCR nova que o lista. O kit cria um
-verificador com a sua \`criarVerificador\`, envia uma compra válida (deve ser aceita), publica a LCR nova em
-\`buscarCrl\`, avança o relógio \`agora()\` para depois do \`nextUpdate\` da LCR antiga e envia outra compra: ela
-deve ser **recusada por revogação** (\`motivo\` com o código de erro de revogação). O kit mede quanto tempo passa
-entre a primeira publicação da LCR revogada e a primeira execução em que o seu verificador passa a recusar.
+O certificado e-CNPJ da empresa vazou e foi **revogado**. O kit cria um verificador com a sua
+\`criarVerificador\` e, sempre avançando o relógio \`agora()\` para depois do \`nextUpdate\` da LCR anterior:
+
+1. envia uma compra válida: deve ser **aceita**;
+2. publica em \`buscarCrl\` uma LCR **reemitida, sem nenhuma revogação nova**, e envia outra compra: deve ser **aceita**;
+3. publica a LCR que **revoga** o certificado da empresa e envia outra compra: deve ser **recusada por revogação**
+   (\`motivo\` com o código de erro de revogação).
+
+O kit mede quanto tempo passa entre a primeira publicação da LCR revogada (a primeira execução que chega ao
+passo 3) e a primeira execução em que o seu verificador passa na T4.
 `;
 
 export const STARTER_EMITIR = `// Tarefas T1 e T2 (veja TASKS.md). Implemente emitirCredencial; não mude o nome nem a assinatura da função.
@@ -168,6 +184,11 @@ export const QUESTIONS = [
   { id: "q5", text: "(5) Algo mais? (opcional, Enter para pular)", optional: true }
 ] as const;
 
+export const AI_QUESTIONS = {
+  used: "Usou assistente de IA (ChatGPT, Copilot, Claude etc.)? (sim/não)",
+  tasks: "Em quais tarefas? (t1,t2,t3,t4)"
+} as const;
+
 export const LIBRARY_QUESTIONS = {
   changed: "Você alterou a biblioteca (arquivos em node_modules/@kya-brasil) ou teve de contorná-la para concluir? (s/n)",
   where: "Onde (pacote, arquivo ou função) e por quê?",
@@ -182,16 +203,20 @@ export const CATEGORY_PT: Record<string, string> = {
   freshness: "validade / relógio",
   replay: "repetição (replay)",
   runtime: "erro de execução",
+  timeout: "tempo esgotado",
+  contract: "formato de retorno",
   other: "outro"
 };
 
 export const HINT_PT: Record<string, string> = {
-  signature: "confira se a requisição/credencial foi assinada com a chave certa e se o corpo não mudou depois da assinatura.",
-  icp_chain: "confira o .pfx, a senha e as âncoras (pki/anchors.pem): a cadeia precisa chegar até elas.",
+  signature: "a assinatura da requisição precisa ser conferida (chave do agente, corpo não alterado): use a autenticação da biblioteca, não só o corpo JSON.",
+  icp_chain: "confira o .pfx e a senha (ctx.pfx, ctx.senha) e as âncoras (pki/anchors.pem): a cadeia precisa chegar até elas, e o verificador deve recusar o que não chega.",
   mandate: "releia o cenário e os campos do mandato (docs/choosing-parameters.md).",
   revocation: "o status do certificado vem da LCR: veja certificateStatus, verifyCrl e evidenceFromRevocation.",
   freshness: "confira datas e relógio: use ctx.agora/ctx.agora(), e respeite o nextUpdate da LCR.",
   replay: "o verificador precisa lembrar das requisições já aceitas (replayCache).",
   runtime: "a sua função lançou um erro; a mensagem está acima.",
+  timeout: "a sua função não respondeu a tempo (uma Promise que nunca resolve, ou um laço sem fim?). O kit interrompeu o código.",
+  contract: "a função existe mas devolveu outra coisa: emitirCredencial devolve { credential, proof }; o verificador devolve { aceito: boolean, motivo?: string }.",
   other: "confira o formato do retorno descrito no TASKS.md."
 };

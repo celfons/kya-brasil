@@ -63,6 +63,9 @@ describe("error categories", () => {
   it("thrown errors: library errors by code, anything else is runtime", () => {
     expect(categorizeThrown(Object.assign(new Error("mandate.actions: bad"), { name: "KyaError", code: "INVALID_INPUT" }))).toBe("mandate");
     expect(categorizeThrown(new TypeError("x is not a function"))).toBe("runtime");
+    // QA 5: a wrong .pfx password is INVALID_INPUT too, but a certificate problem.
+    expect(categorizeThrown({ name: "KyaError", code: "INVALID_INPUT", message: "could not open the certificate file (wrong password or not a .pfx/.p12): PKCS#12 MAC could not be verified. Invalid password?" })).toBe("icp_chain");
+    expect(categorizeThrown({ name: "Error", code: "ERR_MODULE_NOT_FOUND", message: "Cannot find package" })).toBe("runtime");
   });
 });
 
@@ -79,6 +82,6 @@ describe("report helpers", () => {
     expect(quantile([5], 0.25)).toBe(5);
   });
   it("scrub removes e-mails and other users' home folders", () => {
-    expect(scrub("C:\\Users\\fulana\\proj e /home/beltrano/x, mail a@b.com")).toBe("~\\proj e ~/x, mail <email>");
+    expect(scrub("C:\\Users\\fulana\\proj e /home/beltrano/x, mail a@b.com")).toBe("<caminho> e <caminho>, mail <email>");
   });
 });

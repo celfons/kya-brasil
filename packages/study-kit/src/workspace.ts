@@ -1,6 +1,6 @@
 /** The participant's workspace: where things live, the kit's state (.kya-study/) and the attempt log. */
 import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ErrorCategory } from "./errors.js";
 
@@ -39,6 +39,8 @@ export interface Attempt {
   error_categories: ErrorCategory[];
   /** Durations (ms) of each verification call of the attempt. */
   verify_ms: number[];
+  /** Durations (ms) of the calls where the valid in-mandate purchase was accepted (the latency metric). */
+  accept_ms?: number[];
   not_implemented?: boolean;
   sub_cases?: SubCase[];
   /** T2 only. */
@@ -115,8 +117,48 @@ export function installedVersion(name: string, start: string): string | null {
   }
 }
 
-/** Version range to put in the starter project for a library: the kit's own dependency, or (in the monorepo) the workspace's version. */
+/** The project that installed the kit: the package.json just above the node_modules folder holding it, if any. */
+function installer(): { dir: string; deps: Record<string, string> } | null {
+  const parts = resolve(here, "..").split(sep);
+  const i = parts.lastIndexOf("node_modules");
+  if (i < 0) return null;
+  const dir = parts.slice(0, i).join(sep) || sep;
+  try {
+    const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+    return { dir, deps: { ...(pkg.devDependencies ?? {}), ...(pkg.dependencies ?? {}) } };
+  } catch {
+    return null;
+  }
+}
+
+/** How the installing project got a package, with local paths made absolute (the participant's folder is elsewhere). */
+function installedSpec(name: string): string | null {
+  const inst = installer();
+  const spec = inst?.deps[name];
+  if (!inst || typeof spec !== "string" || spec.startsWith("workspace:")) return null;
+  const local = spec.startsWith("file:") ? spec.slice(5) : /^(\.{1,2}[\\/]|[\\/])/.test(spec) ? spec : null;
+  return local === null ? spec : `file:${isAbsolute(local) ? local : resolve(inst.dir, local)}`;
+}
+
+/**
+ * The kit's own entry in the starter project's devDependencies, so that `npm install` there finds it the way it was
+ * installed (registry, tarball or folder) instead of a registry version that may not exist: an explicit spec
+ * (`init --kit <spec>` or KYA_STUDY_KIT_SPEC), else what the installing project declared, else the kit's folder
+ * when it does not run from node_modules (a checkout), else the published version.
+ */
+export function kitSpec(explicit?: string): string {
+  if (explicit) return explicit;
+  const declared = installedSpec("@kya-brasil/study-kit");
+  if (declared) return declared;
+  const dir = resolve(here, "..");
+  if (!dir.split(sep).includes("node_modules")) return `file:${dir}`;
+  return `^${kitPackage().version}`;
+}
+
+/** Version range to put in the starter project for a library: as installed next to the kit, else the kit's own dependency, else the workspace's version. */
 export function starterRange(name: string): string {
+  const inst = installedSpec(name);
+  if (inst) return inst;
   const declared = kitPackage().dependencies?.[name];
   if (declared && !declared.startsWith("workspace:")) return declared;
   const v = installedVersion(name, here);

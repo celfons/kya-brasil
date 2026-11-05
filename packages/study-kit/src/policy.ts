@@ -5,6 +5,8 @@
  * R$ 1,500 per day, for 30 days, without delegating. The answer key below is that sentence as a mandate. Every
  * field that deviates is recorded with its direction: "permissive" (the agent can do more than the scenario
  * allows), "restrictive" (less: legitimate purchases would be refused) or "neutral" (not in the scenario).
+ * Details carry only counts and numbers from the answer key or the mandate's amounts, never a string the
+ * participant wrote (action names, extension fields): they go into the report.
  */
 import { normalizeCounterparty } from "@kya-brasil/core";
 
@@ -55,7 +57,7 @@ export function gradePolicy(credential: { mandate?: Record<string, unknown>; iss
   if (!actions || actions.length === 0) add("actions", "permissive", "any action allowed (no action list)");
   else {
     const extra = actions.filter((a) => a !== SCENARIO.action);
-    if (extra.length) add("actions", "permissive", `extra actions: ${extra.join(", ")}`);
+    if (extra.length) add("actions", "permissive", `extra actions: ${extra.length}`);
     if (!actions.includes(SCENARIO.action)) add("actions", "restrictive", `"${SCENARIO.action}" is not allowed`);
   }
 
@@ -64,8 +66,9 @@ export function gradePolicy(credential: { mandate?: Record<string, unknown>; iss
   function money(field: "max_per_operation" | "max_per_day", expected: number) {
     const v = m[field] as { amount?: unknown; currency?: unknown } | undefined;
     if (!v || typeof v !== "object") return add(field, "permissive", "no ceiling");
-    if (v.currency !== SCENARIO.currency) return add(field, "restrictive", `ceiling in ${String(v.currency)}, purchases are in ${SCENARIO.currency}`);
+    if (v.currency !== SCENARIO.currency) return add(field, "restrictive", `ceiling in another currency, purchases are in ${SCENARIO.currency}`);
     const amount = Number(v.amount);
+    if (!Number.isFinite(amount)) return add(field, "restrictive", "ceiling is not a number");
     if (amount > expected) add(field, "permissive", `${amount} > ${expected} ${SCENARIO.currency}`);
     else if (amount < expected) add(field, "restrictive", `${amount} < ${expected} ${SCENARIO.currency}`);
   }
@@ -74,7 +77,7 @@ export function gradePolicy(credential: { mandate?: Record<string, unknown>; iss
   if (!currencies || currencies.length === 0) add("currencies", "permissive", "any currency");
   else {
     const extra = currencies.filter((c) => c !== SCENARIO.currency);
-    if (extra.length) add("currencies", "permissive", `extra currencies: ${extra.join(", ")}`);
+    if (extra.length) add("currencies", "permissive", `extra currencies: ${extra.length}`);
     if (!currencies.includes(SCENARIO.currency)) add("currencies", "restrictive", `${SCENARIO.currency} not allowed`);
   }
 
@@ -106,7 +109,7 @@ export function gradePolicy(credential: { mandate?: Record<string, unknown>; iss
 
   const known = new Set(["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until", "delegation"]);
   const extensions = Object.keys(m).filter((k) => !known.has(k));
-  if (extensions.length) add("extensions", "neutral", `extension fields (not evaluated): ${extensions.join(", ")}`);
+  if (extensions.length) add("extensions", "neutral", `extension fields (not evaluated): ${extensions.length}`);
 
   const grade: PolicyGrade = d.some((x) => x.direction === "permissive") ? "permissive" : d.some((x) => x.direction === "restrictive") ? "restrictive" : "correct";
   return { grade, deviations: d };

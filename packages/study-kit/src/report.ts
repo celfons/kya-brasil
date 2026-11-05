@@ -3,7 +3,7 @@
  * paths, no host name, no user name. This is the only file the participant sends.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { homedir, hostname, userInfo } from "node:os";
+import { homedir, hostname } from "node:os";
 import { join } from "node:path";
 import { ERROR_CATEGORIES, type ErrorCategory } from "./errors.js";
 import { changeStats, type ChangeStats } from "./diffstats.js";
@@ -15,6 +15,9 @@ export interface Answers {
   q3: string;
   q4: string;
   q5: string;
+  /** Used an AI assistant (ChatGPT, Copilot, Claude...), and in which tasks. */
+  ai_used: boolean | null;
+  ai_tasks: string[];
   library_changed: boolean | null;
   library_where: string;
   library_request: string;
@@ -64,7 +67,9 @@ export interface StudyReport {
     /** Seconds from that publication to the first T4 pass: "tempo até a revogação valer". */
     time_to_effect_s: number | null;
   };
+  /** Durations of the participant's verifier on the valid in-mandate purchases it accepted (T3, T4). */
   verification_latency_ms: { n: number; median: number | null; p25: number | null; p75: number | null };
+  ai_assistant: { used: boolean | null; tasks: string[] };
   changes: ChangeStats;
   library_change: { changed: boolean | null; where: string; requested: string };
   answers: { q1: string; q2: string; q3: string; q4: string; q5: string };
@@ -79,27 +84,26 @@ export function quantile(sorted: number[], q: number): number | null {
   return Math.round((sorted[lo]! + (sorted[hi]! - sorted[lo]!) * (pos - lo)) * 100) / 100;
 }
 
-/** Removes anything that could identify the machine or the person from free text: home directory, user name, host name. */
+/**
+ * Removes what could identify the machine or the person from free text: every absolute path (Unix, Windows, UNC,
+ * home-relative), the host name, and e-mail addresses. The user name is not replaced as a word ("root
+ * certificate" must stay readable); it only appears in paths, which go entirely.
+ */
 export function scrub(text: string): string {
   let s = String(text ?? "").slice(0, 4000);
+  // Absolute paths: /a/b, C:\a, \\server\share, ~/a. Starts after a space, quote or bracket (not inside a URL).
+  s = s.replace(/(^|[\s"'`(\[<{,;])(?:\/(?!\/)[^\s"'`()<>,;]+|[A-Za-z]:[\\/][^\s"'`<>,;]*|\\\\[^\s"'`<>,;]+|~[\\/][^\s"'`<>,;]*)/g, "$1<caminho>");
   try {
     const h = homedir();
-    if (h && h.length > 1) s = s.split(h).join("~");
+    if (h && h.length > 1) s = s.split(h).join("<caminho>");
   } catch { /* no home */ }
-  const words: [string, string][] = [];
   try {
-    words.push([userInfo().username, "<usuario>"]);
-  } catch { /* no user */ }
-  try {
-    words.push([hostname(), "<maquina>"], [hostname().split(".")[0] ?? "", "<maquina>"]);
+    const host = hostname();
+    for (const w of new Set([host, host.split(".")[0] ?? ""])) {
+      if (w.trim().length < 2) continue;
+      s = s.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_-])`, "giu"), "<maquina>");
+    }
   } catch { /* no host */ }
-  // User and host names as whole words (a short host name such as "vm" must not eat parts of other words).
-  for (const [w, to] of words.filter(([w]) => w && w.trim().length >= 2).sort((a, b) => b[0].length - a[0].length)) {
-    s = s.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_-])`, "giu"), to);
-  }
-  // Absolute paths left (other users' homes, Windows profiles): keep only the last segment.
-  s = s.replace(/(?:[A-Za-z]:\\|\/)(?:Users|home|usuarios|Usuários)[\\/][^\s\\/]+/gi, "~");
-  // E-mail addresses.
   s = s.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, "<email>");
   return s;
 }
@@ -142,7 +146,8 @@ export function buildReport(ws: string, now = new Date()): StudyReport {
 
   const published = cfg.t4_published_at ?? null;
   const t4pass = attempts.find((a) => a.task === "t4" && a.pass);
-  const latencies = attempts.filter((a) => a.task === "t3" || a.task === "t4").flatMap((a) => a.verify_ms ?? []).sort((x, y) => x - y);
+  // Only the calls where the valid purchase was accepted: a refusal (or an early error) costs a different time.
+  const latencies = attempts.filter((a) => a.task === "t3" || a.task === "t4").flatMap((a) => a.accept_ms ?? []).sort((x, y) => x - y);
 
   const answers = readAnswers(ws);
   const end = cfg.finished_at ? Date.parse(cfg.finished_at) : now.getTime();
@@ -170,6 +175,7 @@ export function buildReport(ws: string, now = new Date()): StudyReport {
       time_to_effect_s: published && t4pass ? Math.max(0, Math.round((Date.parse(t4pass.ts) - Date.parse(published)) / 100) / 10) : null
     },
     verification_latency_ms: { n: latencies.length, median: quantile(latencies, 0.5), p25: quantile(latencies, 0.25), p75: quantile(latencies, 0.75) },
+    ai_assistant: { used: answers?.ai_used ?? null, tasks: (answers?.ai_tasks ?? []).filter((t) => (TASKS as readonly string[]).includes(t)) },
     changes: changeStats(ws, cfg.baseline),
     library_change: { changed: answers?.library_changed ?? null, where: scrub(answers?.library_where ?? ""), requested: scrub(answers?.library_request ?? "") },
     answers: { q1: scrub(answers?.q1 ?? ""), q2: scrub(answers?.q2 ?? ""), q3: scrub(answers?.q3 ?? ""), q4: scrub(answers?.q4 ?? ""), q5: scrub(answers?.q5 ?? "") }

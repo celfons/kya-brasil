@@ -66,6 +66,8 @@ describe("kya-study, a participant who completes every task", () => {
     const starter = JSON.parse(readFileSync(join(ws, "package.json"), "utf8"));
     expect(starter.dependencies["@kya-brasil/core"]).toMatch(/^\^\d+\.\d+\.\d+$/);
     expect(starter.dependencies["@kya-brasil/agent-tools"]).toMatch(/^\^\d+\.\d+\.\d+$/);
+    // Run from a checkout (not from node_modules): the kit is referenced by its folder, never a version that may not be on npm.
+    expect(starter.devDependencies["@kya-brasil/study-kit"]).toMatch(/^file:\//);
     expect(readFileSync(join(ws, "TASKS.md"), "utf8")).toContain("R$ 500 por compra");
     linkLibraries(ws);
 
@@ -88,8 +90,12 @@ describe("kya-study, a participant who completes every task", () => {
     expect(log).toHaveLength(8);
     expect(log.slice(4).every((a) => a.pass && a.error_category === null)).toBe(true);
     const t3 = log[6]!;
-    expect(t3.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["compra_valida", true], ["acima_do_teto", true], ["fornecedor_errado", true], ["repeticao", true]]);
-    expect(t3.verify_ms).toHaveLength(4);
+    expect(t3.sub_cases?.map((s) => s.id)).toEqual(["compra_valida", "acima_do_teto", "fornecedor_errado", "assinatura_adulterada", "corpo_alterado", "ac_nao_confiavel", "chave_errada", "mandato_adulterado", "repeticao"]);
+    expect(t3.sub_cases?.every((s) => s.pass)).toBe(true);
+    expect(t3.verify_ms).toHaveLength(9);
+    expect(t3.accept_ms).toHaveLength(1);
+    expect(log[7]!.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", true], ["depois_da_revogacao", true]]);
+    expect(log[7]!.accept_ms).toHaveLength(2);
     expect(log[7]!.t4_published_at).toBeTruthy();
 
     // One task by name.
@@ -97,7 +103,8 @@ describe("kya-study, a participant who completes every task", () => {
 
     const answersFile = join(root, "answers.json");
     writeFileSync(answersFile, JSON.stringify({
-      q1: `T4, a LCR em ${homedir()}/projetos/kya demorou`, q2: "a validade", q3: `nada; minha máquina ${hostname()} e meu e-mail fulana@example.com`, q4: "sim", q5: "",
+      q1: `T4, a LCR em ${homedir()}/projetos/kya demorou`, q2: "a validade; o root certificate da AC", q3: `nada; minha máquina ${hostname()} e meu e-mail fulana@example.com, log em /var/tmp/x.log`, q4: "sim", q5: "",
+      ai_used: true, ai_tasks: "t1, T3 e nada mais",
       library_changed: false, library_where: "", library_request: "um exemplo de cache de LCR"
     }));
     expect(await main(["finish", "--answers", answersFile], io(ws).io)).toBe(0);
@@ -130,13 +137,16 @@ describe("kya-study, a participant who completes every task", () => {
     expect(r.policy.first_deviations).toEqual([]);
     expect(r.revocation.published_after_s).toBeGreaterThanOrEqual(0);
     expect(r.revocation.time_to_effect_s).toBeGreaterThanOrEqual(0);
-    expect(r.verification_latency_ms.n).toBeGreaterThanOrEqual(6);
+    expect(r.verification_latency_ms.n).toBe(3); // the accepted valid purchases only: T3 one, T4 two
     expect(r.verification_latency_ms.median).toBeGreaterThan(0);
     expect(r.changes.method).toBe("git");
     expect(r.changes.files_changed).toBe(2); // src/emitir.mjs and src/verificar.mjs; node_modules, .kya-study and pki are not counted
     expect(r.changes.lines_added).toBeGreaterThan(20);
     expect(r.library_change).toEqual({ changed: false, where: "", requested: "um exemplo de cache de LCR" });
-    expect(r.answers.q1).toContain("~/projetos/kya");
+    expect(r.answers.q1).toBe("T4, a LCR em <caminho> demorou");
+    expect(r.answers.q2).toBe("a validade; o root certificate da AC");
+    expect(r.answers.q3).toContain("log em <caminho>");
+    expect(r.ai_assistant).toEqual({ used: true, tasks: ["t1", "t3"] });
 
     // Nothing that identifies the person or the machine, and no code.
     expect(raw).not.toContain(homedir());
@@ -182,7 +192,7 @@ describe("kya-study, a participant who issues a too permissive mandate", () => {
     const [t3, t4] = readAttempts(ws).slice(-2);
     expect(t3!.sub_cases?.filter((s) => !s.pass).map((s) => s.id)).toEqual(["repeticao"]);
     expect(t3!.error_category).toBe("replay");
-    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false]);
+    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false, false]);
     expect(t4!.error_category).toBe("freshness");
     expect(naive.out.join("\n")).toContain("KYA_CERTIFICATE_STATUS_STALE");
 
@@ -193,7 +203,7 @@ describe("kya-study, a participant who issues a too permissive mandate", () => {
     expect(r.tasks.t1.passes).toBe(1);
     expect(r.tasks.t3).toMatchObject({ attempts: 1, passes: 0, first_success_s: null });
     expect(r.tasks.t3.errors.replay).toBe(1);
-    expect(r.revocation.published_after_s).toBeGreaterThanOrEqual(0);
+    expect(r.revocation.published_after_s).toBeNull(); // the naive verifier never got past the re-issued CRL
     expect(r.revocation.time_to_effect_s).toBeNull();
     expect(r.changes).toMatchObject({ method: "snapshot", files_changed: 2 });
     expect(r.changes.lines_added).toBeGreaterThan(10);

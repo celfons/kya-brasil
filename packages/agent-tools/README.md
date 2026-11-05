@@ -161,15 +161,19 @@ import { evidenceFromRevocation, verifyCrl, type VerifiedCrl } from "@kya-brasil
 // agent: credential and proof as assembleCredential returned them (or the issuer's credential + your .p7s proof)
 const headers = await signRequest({ credentialId, key, method: "POST", url, body, present: { credential, proof } });
 
-// server: the certificate's CRL, fetched from crl_urls, verified against the AC and cached until its nextUpdate
+// server: one clock for everything (the same function goes to createKyaAuth below), so the CRL cache, the CRL's
+// validity and the request window all agree, including under a test or simulated clock
+const now = () => new Date();
+// the certificate's CRL, fetched from crl_urls, verified against the AC and cached until its nextUpdate
 const crls = new Map<string, VerifiedCrl>();
 async function certificateStatus({ revocation }: CertificateStatusQuery) {
   const url = revocation.crl_urls[0];
   if (!url || !revocation.issuer_certificate) throw new Error("no CRL or AC certificate"); // -> 502, fail closed
+  const at = now();
   let crl = crls.get(url);
-  if (!crl || (crl.next_update && Date.parse(crl.next_update) <= Date.now())) {
+  if (!crl || (crl.next_update && Date.parse(crl.next_update) <= at.getTime())) {
     const crlDer = new Uint8Array(await (await fetch(url)).arrayBuffer());
-    crl = await verifyCrl({ crlDer, issuerCertificate: revocation.issuer_certificate, pastNextUpdate: "refuse", now: new Date() });
+    crl = await verifyCrl({ crlDer, issuerCertificate: revocation.issuer_certificate, pastNextUpdate: "refuse", now: at });
     crls.set(url, crl);
   }
   return evidenceFromRevocation(crl.lookup(revocation.serial_number), url);
@@ -180,7 +184,7 @@ const auth = createKyaAuth({
   replayCache: memoryReplayCache(),                  // see "Replay protection"
   offline: {
     anchors: icpBrasilAnchors,                       // string[]: PEM blocks or base64 DER, see "Trust anchors" below
-    now: () => new Date(),                           // your clock
+    now,                                             // your clock, the same one certificateStatus uses
     certificateStatus,
     // freshness: { ... },                         // optional, SPEC section 18 (freshnessPolicy): check() also runs checkFreshAction
     issuerKeys: { "https://kya-br-agents.marcelfons.workers.dev": issuerJwk }, // optional; others are refused

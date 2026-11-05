@@ -21,7 +21,7 @@ from pathlib import Path
 
 TASKS = ["t1", "t2", "t3", "t4"]
 TASK_NAMES = {"t1": "T1 emitir", "t2": "T2 política", "t3": "T3 verificar", "t4": "T4 revogação"}
-CATEGORIES = ["signature", "icp_chain", "mandate", "revocation", "freshness", "replay", "runtime", "other"]
+CATEGORIES = ["signature", "icp_chain", "mandate", "revocation", "freshness", "replay", "runtime", "timeout", "contract", "other"]
 GRADES = ["correct", "permissive", "restrictive", "invalid"]
 QUESTIONS = {
     "q1": "(1) Em qual tarefa você mais travou, e por quê?",
@@ -50,6 +50,63 @@ def fmt(x, digits=1):
     return str(x)
 
 
+def _num(v):
+    return v is None or (isinstance(v, (int, float)) and not isinstance(v, bool))
+
+
+def problems(r):
+    """Why a parsed JSON is not a usable report (structure and types), or [] when it is."""
+    if not isinstance(r, dict):
+        return ["not a JSON object"]
+    if r.get("schema") != "kya-study-report/1":
+        return ["not a kya-study-report/1"]
+    out = []
+    if not isinstance(r.get("participant_id"), str) or not r["participant_id"]:
+        out.append("participant_id missing")
+    tasks = r.get("tasks")
+    if not isinstance(tasks, dict):
+        out.append("tasks is not an object")
+    else:
+        for t in TASKS:
+            m = tasks.get(t)
+            if m is None:
+                continue
+            if not isinstance(m, dict):
+                out.append(f"tasks.{t} is not an object")
+                continue
+            for k in ("attempts", "passes", "pass_rate", "first_success_s", "attempts_to_first_success", "not_implemented_attempts"):
+                if not _num(m.get(k)):
+                    out.append(f"tasks.{t}.{k} is not a number")
+            if "errors" in m and not (isinstance(m["errors"], dict) and all(_num(v) for v in m["errors"].values())):
+                out.append(f"tasks.{t}.errors is not an object of numbers")
+            if "sub_cases" in m and not (isinstance(m["sub_cases"], dict) and all(isinstance(v, dict) and _num(v.get("attempts")) and _num(v.get("passes")) for v in m["sub_cases"].values())):
+                out.append(f"tasks.{t}.sub_cases is malformed")
+    for key in ("policy", "revocation", "verification_latency_ms", "changes", "library_change", "answers", "library_versions", "ai_assistant"):
+        if key in r and r[key] is not None and not isinstance(r[key], dict):
+            out.append(f"{key} is not an object")
+    if isinstance(r.get("policy"), dict):
+        for k in ("first_deviations", "last_deviations"):
+            v = r["policy"].get(k, [])
+            if not (isinstance(v, list) and all(isinstance(d, dict) for d in v)):
+                out.append(f"policy.{k} is not a list of objects")
+    for key, fields in (("revocation", ("published_after_s", "time_to_effect_s")), ("verification_latency_ms", ("n", "median", "p25", "p75")), ("changes", ("files_changed", "lines_added", "lines_removed"))):
+        if isinstance(r.get(key), dict):
+            out += [f"{key}.{f} is not a number" for f in fields if not _num(r[key].get(f))]
+    if isinstance(r.get("answers"), dict) and not all(isinstance(v, str) for v in r["answers"].values()):
+        out.append("answers must be strings")
+    if isinstance(r.get("library_change"), dict):
+        lc = r["library_change"]
+        if lc.get("changed") not in (True, False, None) or not isinstance(lc.get("where", ""), str) or not isinstance(lc.get("requested", ""), str):
+            out.append("library_change is malformed")
+    if isinstance(r.get("ai_assistant"), dict):
+        ai = r["ai_assistant"]
+        if ai.get("used") not in (True, False, None) or not (isinstance(ai.get("tasks", []), list) and all(isinstance(x, str) for x in ai.get("tasks", []))):
+            out.append("ai_assistant is malformed")
+    if not _num(r.get("total_s")):
+        out.append("total_s is not a number")
+    return out
+
+
 def load(folder):
     reports, skipped = [], []
     for f in sorted(folder.glob("kya-study-report-*.json")):
@@ -58,8 +115,9 @@ def load(folder):
         except (OSError, ValueError) as e:
             skipped.append(f"{f.name}: {e}")
             continue
-        if not isinstance(r, dict) or r.get("schema") != "kya-study-report/1":
-            skipped.append(f"{f.name}: not a kya-study-report/1")
+        why = problems(r)
+        if why:
+            skipped.append(f"{f.name}: {'; '.join(why[:3])}")
             continue
         reports.append(r)
     # The same participant sent twice: keep the most complete one (finished, then most attempts).
@@ -67,7 +125,7 @@ def load(folder):
     for r in reports:
         pid = r.get("participant_id")
         attempts = sum((r.get("tasks", {}).get(t) or {}).get("attempts", 0) for t in TASKS)
-        key = (bool(r.get("finished")), attempts, r.get("total_s", 0))
+        key = (bool(r.get("finished")), attempts, r.get("total_s") or 0)
         if pid not in by_id or key > by_id[pid][0]:
             by_id[pid] = (key, r)
     return [r for _, r in by_id.values()], skipped
@@ -75,6 +133,31 @@ def load(folder):
 
 def task(r, t):
     return (r.get("tasks") or {}).get(t) or {}
+
+
+def ai_used(r):
+    return ((r.get("ai_assistant") or {}).get("used"))
+
+
+def ai_section(reports):
+    """Completion, time to first success and policy grade, split by AI assistant used / not used / no answer."""
+    groups = [("used AI", [r for r in reports if ai_used(r) is True]), ("no AI", [r for r in reports if ai_used(r) is False]), ("no answer", [r for r in reports if ai_used(r) is None])]
+    L = ["## By AI assistant use", "", "Participants may use web search and AI assistants (ChatGPT, Copilot, Claude...); `finish` asks whether they did and in which tasks.", "",
+         "| Group | N | " + " | ".join(f"{TASK_NAMES[t]}: completed, median s" for t in TASKS) + " | Policy (first): correct / permissive / restrictive / invalid |",
+         "| --- | --- |" + " --- |" * (len(TASKS) + 1)]
+    for name, rs in groups:
+        if not rs:
+            L.append(f"| {name} | 0 |" + " – |" * (len(TASKS) + 1))
+            continue
+        cells = []
+        for t in TASKS:
+            times = [task(r, t).get("first_success_s") for r in rs if task(r, t).get("first_success_s") is not None]
+            cells.append(f"{len(times)}/{len(rs)}, {fmt(quantile(times, .5))}")
+        grades = [sum(1 for r in rs if (r.get("policy") or {}).get("first_grade") == g) for g in GRADES]
+        L.append(f"| {name} | {len(rs)} | " + " | ".join(cells) + " | " + " / ".join(str(g) for g in grades) + " |")
+    per_task = {t: sum(1 for r in reports if ai_used(r) and t in ((r.get("ai_assistant") or {}).get("tasks") or [])) for t in TASKS}
+    L += ["", "Tasks in which AI was used: " + ", ".join(f"{TASK_NAMES[t]} {c}" for t, c in per_task.items()) + ".", ""]
+    return L
 
 
 def main():
@@ -102,11 +185,11 @@ def main():
 
     with open(out / "participants.csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.writer(fh)
-        w.writerow(["participant_id", "kit_version", "core", "agent_tools", "node", "os", "month", "finished", "total_s", "policy_first", "policy_last", "policy_first_deviations", "revocation_published_after_s", "revocation_time_to_effect_s", "latency_median_ms", "files_changed", "lines_added", "lines_removed", "diff_method", "library_changed", "library_where", "library_requested"])
+        w.writerow(["participant_id", "kit_version", "core", "agent_tools", "node", "os", "month", "finished", "total_s", "ai_used", "ai_tasks", "policy_first", "policy_last", "policy_first_deviations", "revocation_published_after_s", "revocation_time_to_effect_s", "latency_median_ms", "files_changed", "lines_added", "lines_removed", "diff_method", "library_changed", "library_where", "library_requested"])
         for r in reports:
             p, rev, lat, ch, lib = r.get("policy") or {}, r.get("revocation") or {}, r.get("verification_latency_ms") or {}, r.get("changes") or {}, r.get("library_change") or {}
             libs = r.get("library_versions") or {}
-            w.writerow([r["participant_id"], r.get("kit_version"), libs.get("@kya-brasil/core"), libs.get("@kya-brasil/agent-tools"), r.get("node_version"), r.get("os_family"), r.get("study_month"), r.get("finished"), r.get("total_s"),
+            w.writerow([r["participant_id"], r.get("kit_version"), libs.get("@kya-brasil/core"), libs.get("@kya-brasil/agent-tools"), r.get("node_version"), r.get("os_family"), r.get("study_month"), r.get("finished"), r.get("total_s"), ai_used(r), " ".join((r.get("ai_assistant") or {}).get("tasks") or []),
                         p.get("first_grade"), p.get("last_grade"), "; ".join(f"{d.get('field')}:{d.get('direction')}" for d in p.get("first_deviations") or []),
                         rev.get("published_after_s"), rev.get("time_to_effect_s"), lat.get("median"), ch.get("files_changed"), ch.get("lines_added"), ch.get("lines_removed"), ch.get("method"),
                         lib.get("changed"), lib.get("where"), lib.get("requested")])
@@ -188,6 +271,8 @@ def main():
         L.append(f"| {k} | {fmt(quantile(v, .5))} | {fmt(quantile(v, .25))} | {fmt(quantile(v, .75))} |")
     methods = sorted({str(c.get("method")) for c in ch})
     L += ["", f"Counting method: {', '.join(methods)} (snapshot = line-hash multiset when git was missing).", ""]
+
+    L += ai_section(reports)
 
     changed = [r for r in reports if (r.get("library_change") or {}).get("changed") is True]
     L += ["## Changes to the library (pre-registered: \"alterações pedidas na biblioteca\")", "",
