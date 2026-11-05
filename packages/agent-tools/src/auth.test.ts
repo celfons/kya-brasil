@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { privateKeyToAccount } from "viem/accounts";
-import { KYA_HEADERS, agentKeyOf, checkMandate, createKyaAgent, createKyaAuth, requestText, signDelegation, signRequest, signResponse, verifyResponse } from "./auth";
+import { KYA_HEADERS, agentKeyOf, checkMandate, createKyaAgent, createKyaAuth, memoryReplayCache, requestText, signDelegation, signRequest, signResponse, verifyResponse } from "./auth";
 import { hashPaymentRef } from "./index";
 
 const EVM_PK = "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d";
@@ -219,5 +219,52 @@ describe("delegation to sub-agents (D-30)", () => {
   it("refuses delegation when the credential's mandate does not allow it", async () => {
     const plain = { ...parent, mandate };
     await expect(signDelegation({ credential: plain, key: { kind: "evm", privateKey: EVM_PK }, delegate: { kind: "evm", id: EVM }, mandate: { actions: ["order"] }, ttlSeconds: 600 })).rejects.toThrow(/does not allow delegation/);
+  });
+});
+
+describe("replay cache (opt-in)", () => {
+  const fetchImpl = (async () => new Response(JSON.stringify({ credential_id: CRED, status: "active", status_reason: null, agent: { kind: "evm", id: EVM }, principal: { cnpj: "11222333000181", legal_name: "ACME LTDA" }, credential: { mandate }, events: [] }))) as unknown as typeof fetch;
+  const url = "https://beta.com.br/orders";
+
+  it("refuses the same signed request twice, accepts different requests, and nothing changes without the option", async () => {
+    const cache = memoryReplayCache();
+    const auth = createKyaAuth({ baseUrl: "https://kya.test", fetch: fetchImpl, replayCache: cache });
+    const h = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: EVM_PK }, method: "POST", url, body: "a" });
+    expect((await auth.authenticate(new Request(url, { method: "POST", headers: h, body: "a" }))).ok).toBe(true);
+    expect(await auth.authenticate(new Request(url, { method: "POST", headers: h, body: "a" }))).toMatchObject({ ok: false, status: 401, error: "KYA_REQUEST_REPLAYED" });
+    const other = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: EVM_PK }, method: "POST", url, body: "b" });
+    expect((await auth.authenticate(new Request(url, { method: "POST", headers: other, body: "b" }))).ok).toBe(true);
+    expect(cache.size()).toBe(2);
+    // A forged request is refused before the cache and does not burn the key.
+    const g = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" }, method: "GET", url });
+    expect(await auth.authenticate(new Request(url, { headers: g }))).toMatchObject({ ok: false, error: "KYA_BAD_SIGNATURE" });
+    expect(cache.size()).toBe(2);
+    const plain = createKyaAuth({ baseUrl: "https://kya.test", fetch: fetchImpl });
+    expect((await plain.authenticate(new Request(url, { method: "POST", headers: h, body: "a" }))).ok).toBe(true);
+    expect((await plain.authenticate(new Request(url, { method: "POST", headers: h, body: "a" }))).ok).toBe(true);
+  });
+
+  it("keeps entries until the request expires, then evicts them", async () => {
+    const cache = memoryReplayCache();
+    const t0 = new Date("2026-11-04T12:00:00Z");
+    const exp = new Date(t0.getTime() + 60_000);
+    expect(await cache.seen("k", exp, t0)).toBe(false);
+    expect(await cache.seen("k", exp, new Date(t0.getTime() + 59_000))).toBe(true);
+    expect(await cache.seen("k", exp, exp)).toBe(true); // still inside the window at the expiry instant
+    const after = new Date(exp.getTime() + 2000);
+    expect(await cache.seen("other", new Date(after.getTime() + 60_000), after)).toBe(false);
+    expect(cache.size()).toBe(1); // "k" evicted
+    expect(await cache.seen("k", new Date(after.getTime() + 60_000), after)).toBe(false);
+  });
+
+  it("fails closed when full or when the store errors, and needs a bounded lifetime", async () => {
+    const full = memoryReplayCache({ maxEntries: 1 });
+    const t = new Date("2026-11-04T12:00:00Z");
+    expect(await full.seen("a", new Date(t.getTime() + 60_000), t)).toBe(false);
+    expect(await full.seen("b", new Date(t.getTime() + 60_000), t)).toBe(true);
+    const broken = createKyaAuth({ baseUrl: "https://kya.test", fetch: fetchImpl, replayCache: { seen: async () => { throw new Error("down"); } } });
+    const h = await signRequest({ credentialId: CRED, key: { kind: "evm", privateKey: EVM_PK }, method: "GET", url });
+    expect(await broken.authenticate(new Request(url, { headers: h }))).toMatchObject({ ok: false, status: 502, error: "KYA_REPLAY_CACHE_UNAVAILABLE" });
+    expect(() => createKyaAuth({ replayCache: memoryReplayCache(), maxTtlSeconds: Infinity })).toThrow(/finite/);
   });
 });

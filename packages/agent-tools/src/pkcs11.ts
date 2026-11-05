@@ -15,6 +15,8 @@ export interface TokenOptions {
   slot?: number;
   /** Pick the certificate by its label on the token; default: the one whose common name carries a CNPJ. */
   label?: string;
+  /** Without a label: "company" (default) picks the e-CNPJ, "person" the e-CPF (common name ending in ":<CPF>"). */
+  kind?: "company" | "person";
 }
 
 export interface TokenCertificate {
@@ -117,8 +119,9 @@ export async function openToken(o: TokenOptions): Promise<ECnpjSigner & { close(
   const s = await openSession(o);
   try {
     const { p11, lib, session } = s;
-    const cert = o.label ? s.certs.find((c) => c.label === o.label) : s.certs.find((c) => c.signer?.cnpj);
-    if (!cert?.signer) throw new Error(o.label ? `no certificate labelled "${o.label}" on the token` : "no e-CNPJ certificate on the token (none with a CNPJ in its name); pass a label");
+    const isPerson = (c: (typeof s.certs)[number]) => !!c.signer && !c.signer.cnpj && /CN=[^,]*:\d{11}\s*(,|$)/.test(c.signer.subject);
+    const cert = o.label ? s.certs.find((c) => c.label === o.label) : o.kind === "person" ? s.certs.find(isPerson) : s.certs.find((c) => c.signer?.cnpj);
+    if (!cert?.signer) throw new Error(o.label ? `no certificate labelled "${o.label}" on the token` : o.kind === "person" ? "no e-CPF certificate on the token (none with a CPF in its name); pass a label" : "no e-CNPJ certificate on the token (none with a CNPJ in its name); pass a label");
     lib.C_FindObjectsInit(session, [{ type: p11.CKA_CLASS, value: p11.CKO_PRIVATE_KEY }, { type: p11.CKA_ID, value: cert.id }]);
     const [key] = lib.C_FindObjects(session, 1);
     lib.C_FindObjectsFinal(session);

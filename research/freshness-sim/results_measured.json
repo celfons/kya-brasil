@@ -1,0 +1,3182 @@
+{
+  "seed": 20261105,
+  "lambda": {
+    "months": {
+      "2026-01": 3306,
+      "2026-02": 2974,
+      "2026-03": 4016,
+      "2026-04": 3443,
+      "2026-05": 3184,
+      "2026-06": 3228,
+      "2026-07": 4065,
+      "2026-08": 3558,
+      "2026-09": 3364,
+      "2026-10": 3509
+    },
+    "per_month_mean": 3464.7,
+    "active": 17175212,
+    "per_year": 0.0024207212114761667,
+    "per_hour": 2.7633803783974505e-07,
+    "note": "floor: 11 end-user CRLs only; expired certificates leave the CRL"
+  },
+  "weekday_hour": {
+    "total": 182907,
+    "business_share": 0.9397,
+    "weekend_share": 0.0079,
+    "business_hours_share_of_week": 0.2976
+  },
+  "counterfactual": {
+    "medido (reemissão 0,5 h)": {
+      "mean_h": 15.45,
+      "p50_h": 9.33,
+      "p95_h": 53.83,
+      "max_sampled_h": 72.6,
+      "worst_slot": {
+        "weekday": "sex",
+        "hour_brt": 22,
+        "mean_h": 50.04,
+        "p95_h": 63.11
+      },
+      "friday_19h": {
+        "mean_h": 48.17,
+        "p95_h": 65.95
+      },
+      "business_hours_mean_h": 3.52,
+      "off_hours_mean_h": 20.5,
+      "weekday_mean_h": 8.88,
+      "weekend_mean_h": 31.87,
+      "weekend_over_weekday": 3.59,
+      "per_slot": [
+        {
+          "weekday": 0,
+          "hour_brt": 0,
+          "mean_h": 10.86,
+          "p95_h": 13.34,
+          "mean_to_revocation_h": 8.59
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 1,
+          "mean_h": 9.86,
+          "p95_h": 12.35,
+          "mean_to_revocation_h": 7.6
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 2,
+          "mean_h": 8.84,
+          "p95_h": 11.3,
+          "mean_to_revocation_h": 6.6
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 3,
+          "mean_h": 7.85,
+          "p95_h": 10.25,
+          "mean_to_revocation_h": 5.61
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 4,
+          "mean_h": 6.84,
+          "p95_h": 9.21,
+          "mean_to_revocation_h": 4.59
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 5,
+          "mean_h": 5.82,
+          "p95_h": 8.24,
+          "mean_to_revocation_h": 3.61
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 6,
+          "mean_h": 4.83,
+          "p95_h": 7.25,
+          "mean_to_revocation_h": 2.6
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 7,
+          "mean_h": 3.89,
+          "p95_h": 6.25,
+          "mean_to_revocation_h": 1.65
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 8,
+          "mean_h": 3.08,
+          "p95_h": 5.36,
+          "mean_to_revocation_h": 0.84
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 9,
+          "mean_h": 2.69,
+          "p95_h": 4.63,
+          "mean_to_revocation_h": 0.44
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 10,
+          "mean_h": 2.55,
+          "p95_h": 4.37,
+          "mean_to_revocation_h": 0.3
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 11,
+          "mean_h": 2.65,
+          "p95_h": 4.62,
+          "mean_to_revocation_h": 0.39
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 12,
+          "mean_h": 3.1,
+          "p95_h": 5.58,
+          "mean_to_revocation_h": 0.84
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 13,
+          "mean_h": 2.89,
+          "p95_h": 5.08,
+          "mean_to_revocation_h": 0.63
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 14,
+          "mean_h": 2.64,
+          "p95_h": 4.52,
+          "mean_to_revocation_h": 0.36
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 15,
+          "mean_h": 2.61,
+          "p95_h": 4.42,
+          "mean_to_revocation_h": 0.37
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 16,
+          "mean_h": 3.43,
+          "p95_h": 9.76,
+          "mean_to_revocation_h": 1.19
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 17,
+          "mean_h": 7.0,
+          "p95_h": 19.07,
+          "mean_to_revocation_h": 4.77
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 18,
+          "mean_h": 12.36,
+          "p95_h": 18.84,
+          "mean_to_revocation_h": 10.12
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 19,
+          "mean_h": 14.16,
+          "p95_h": 17.99,
+          "mean_to_revocation_h": 11.91
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 20,
+          "mean_h": 13.86,
+          "p95_h": 16.99,
+          "mean_to_revocation_h": 11.62
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 21,
+          "mean_h": 13.19,
+          "p95_h": 16.08,
+          "mean_to_revocation_h": 10.94
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 22,
+          "mean_h": 12.34,
+          "p95_h": 15.04,
+          "mean_to_revocation_h": 10.09
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 23,
+          "mean_h": 11.51,
+          "p95_h": 14.09,
+          "mean_to_revocation_h": 9.28
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 0,
+          "mean_h": 10.66,
+          "p95_h": 13.08,
+          "mean_to_revocation_h": 8.4
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 1,
+          "mean_h": 9.67,
+          "p95_h": 12.1,
+          "mean_to_revocation_h": 7.42
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 2,
+          "mean_h": 8.72,
+          "p95_h": 11.14,
+          "mean_to_revocation_h": 6.45
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 3,
+          "mean_h": 7.73,
+          "p95_h": 10.1,
+          "mean_to_revocation_h": 5.46
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 4,
+          "mean_h": 6.74,
+          "p95_h": 9.06,
+          "mean_to_revocation_h": 4.48
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 5,
+          "mean_h": 5.77,
+          "p95_h": 8.16,
+          "mean_to_revocation_h": 3.48
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 6,
+          "mean_h": 4.78,
+          "p95_h": 7.12,
+          "mean_to_revocation_h": 2.52
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 7,
+          "mean_h": 3.81,
+          "p95_h": 6.13,
+          "mean_to_revocation_h": 1.57
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 8,
+          "mean_h": 3.0,
+          "p95_h": 5.17,
+          "mean_to_revocation_h": 0.73
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 9,
+          "mean_h": 2.59,
+          "p95_h": 4.51,
+          "mean_to_revocation_h": 0.37
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 10,
+          "mean_h": 2.53,
+          "p95_h": 4.37,
+          "mean_to_revocation_h": 0.26
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 11,
+          "mean_h": 2.62,
+          "p95_h": 4.46,
+          "mean_to_revocation_h": 0.34
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 12,
+          "mean_h": 3.11,
+          "p95_h": 5.56,
+          "mean_to_revocation_h": 0.83
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 13,
+          "mean_h": 2.88,
+          "p95_h": 5.12,
+          "mean_to_revocation_h": 0.63
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 14,
+          "mean_h": 2.67,
+          "p95_h": 4.54,
+          "mean_to_revocation_h": 0.39
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 15,
+          "mean_h": 2.66,
+          "p95_h": 4.48,
+          "mean_to_revocation_h": 0.4
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 16,
+          "mean_h": 3.23,
+          "p95_h": 5.23,
+          "mean_to_revocation_h": 1.0
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 17,
+          "mean_h": 6.07,
+          "p95_h": 19.04,
+          "mean_to_revocation_h": 3.83
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 18,
+          "mean_h": 12.65,
+          "p95_h": 18.95,
+          "mean_to_revocation_h": 10.36
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 19,
+          "mean_h": 14.32,
+          "p95_h": 18.02,
+          "mean_to_revocation_h": 12.07
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 20,
+          "mean_h": 13.97,
+          "p95_h": 17.06,
+          "mean_to_revocation_h": 11.72
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 21,
+          "mean_h": 13.27,
+          "p95_h": 16.19,
+          "mean_to_revocation_h": 11.04
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 22,
+          "mean_h": 12.44,
+          "p95_h": 15.06,
+          "mean_to_revocation_h": 10.22
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 23,
+          "mean_h": 11.63,
+          "p95_h": 14.12,
+          "mean_to_revocation_h": 9.39
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 0,
+          "mean_h": 10.77,
+          "p95_h": 13.14,
+          "mean_to_revocation_h": 8.49
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 1,
+          "mean_h": 9.74,
+          "p95_h": 12.17,
+          "mean_to_revocation_h": 7.49
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 2,
+          "mean_h": 8.8,
+          "p95_h": 11.17,
+          "mean_to_revocation_h": 6.53
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 3,
+          "mean_h": 7.82,
+          "p95_h": 10.16,
+          "mean_to_revocation_h": 5.53
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 4,
+          "mean_h": 6.76,
+          "p95_h": 9.07,
+          "mean_to_revocation_h": 4.54
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 5,
+          "mean_h": 5.79,
+          "p95_h": 8.14,
+          "mean_to_revocation_h": 3.54
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 6,
+          "mean_h": 4.8,
+          "p95_h": 7.13,
+          "mean_to_revocation_h": 2.57
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 7,
+          "mean_h": 3.87,
+          "p95_h": 6.16,
+          "mean_to_revocation_h": 1.6
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 8,
+          "mean_h": 3.03,
+          "p95_h": 5.17,
+          "mean_to_revocation_h": 0.79
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 9,
+          "mean_h": 2.64,
+          "p95_h": 4.56,
+          "mean_to_revocation_h": 0.38
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 10,
+          "mean_h": 2.52,
+          "p95_h": 4.34,
+          "mean_to_revocation_h": 0.25
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 11,
+          "mean_h": 2.66,
+          "p95_h": 4.57,
+          "mean_to_revocation_h": 0.38
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 12,
+          "mean_h": 3.09,
+          "p95_h": 5.56,
+          "mean_to_revocation_h": 0.85
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 13,
+          "mean_h": 2.9,
+          "p95_h": 5.02,
+          "mean_to_revocation_h": 0.65
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 14,
+          "mean_h": 2.65,
+          "p95_h": 4.59,
+          "mean_to_revocation_h": 0.41
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 15,
+          "mean_h": 2.66,
+          "p95_h": 4.48,
+          "mean_to_revocation_h": 0.43
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 16,
+          "mean_h": 3.49,
+          "p95_h": 16.27,
+          "mean_to_revocation_h": 1.25
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 17,
+          "mean_h": 6.73,
+          "p95_h": 19.12,
+          "mean_to_revocation_h": 4.45
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 18,
+          "mean_h": 12.36,
+          "p95_h": 18.93,
+          "mean_to_revocation_h": 10.12
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 19,
+          "mean_h": 14.17,
+          "p95_h": 18.15,
+          "mean_to_revocation_h": 11.95
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 20,
+          "mean_h": 13.91,
+          "p95_h": 17.15,
+          "mean_to_revocation_h": 11.69
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 21,
+          "mean_h": 13.14,
+          "p95_h": 16.12,
+          "mean_to_revocation_h": 10.93
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 22,
+          "mean_h": 12.49,
+          "p95_h": 15.15,
+          "mean_to_revocation_h": 10.22
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 23,
+          "mean_h": 11.65,
+          "p95_h": 14.17,
+          "mean_to_revocation_h": 9.39
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 0,
+          "mean_h": 10.68,
+          "p95_h": 13.16,
+          "mean_to_revocation_h": 8.43
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 1,
+          "mean_h": 9.73,
+          "p95_h": 12.16,
+          "mean_to_revocation_h": 7.51
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 2,
+          "mean_h": 8.79,
+          "p95_h": 11.13,
+          "mean_to_revocation_h": 6.53
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 3,
+          "mean_h": 7.77,
+          "p95_h": 10.11,
+          "mean_to_revocation_h": 5.55
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 4,
+          "mean_h": 6.8,
+          "p95_h": 9.21,
+          "mean_to_revocation_h": 4.57
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 5,
+          "mean_h": 5.85,
+          "p95_h": 8.25,
+          "mean_to_revocation_h": 3.57
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 6,
+          "mean_h": 4.79,
+          "p95_h": 7.29,
+          "mean_to_revocation_h": 2.56
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 7,
+          "mean_h": 3.85,
+          "p95_h": 6.19,
+          "mean_to_revocation_h": 1.64
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 8,
+          "mean_h": 3.05,
+          "p95_h": 5.32,
+          "mean_to_revocation_h": 0.79
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 9,
+          "mean_h": 2.66,
+          "p95_h": 4.56,
+          "mean_to_revocation_h": 0.4
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 10,
+          "mean_h": 2.51,
+          "p95_h": 4.39,
+          "mean_to_revocation_h": 0.29
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 11,
+          "mean_h": 2.72,
+          "p95_h": 4.87,
+          "mean_to_revocation_h": 0.46
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 12,
+          "mean_h": 3.12,
+          "p95_h": 5.51,
+          "mean_to_revocation_h": 0.87
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 13,
+          "mean_h": 2.9,
+          "p95_h": 5.12,
+          "mean_to_revocation_h": 0.66
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 14,
+          "mean_h": 2.65,
+          "p95_h": 4.6,
+          "mean_to_revocation_h": 0.43
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 15,
+          "mean_h": 2.72,
+          "p95_h": 4.58,
+          "mean_to_revocation_h": 0.47
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 16,
+          "mean_h": 3.51,
+          "p95_h": 16.47,
+          "mean_to_revocation_h": 1.25
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 17,
+          "mean_h": 6.76,
+          "p95_h": 19.26,
+          "mean_to_revocation_h": 4.5
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 18,
+          "mean_h": 12.48,
+          "p95_h": 18.84,
+          "mean_to_revocation_h": 10.23
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 19,
+          "mean_h": 14.16,
+          "p95_h": 18.13,
+          "mean_to_revocation_h": 11.91
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 20,
+          "mean_h": 13.76,
+          "p95_h": 17.07,
+          "mean_to_revocation_h": 11.51
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 21,
+          "mean_h": 13.22,
+          "p95_h": 16.14,
+          "mean_to_revocation_h": 10.97
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 22,
+          "mean_h": 12.49,
+          "p95_h": 15.1,
+          "mean_to_revocation_h": 10.26
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 23,
+          "mean_h": 11.53,
+          "p95_h": 14.15,
+          "mean_to_revocation_h": 9.31
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 0,
+          "mean_h": 10.68,
+          "p95_h": 13.17,
+          "mean_to_revocation_h": 8.42
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 1,
+          "mean_h": 9.73,
+          "p95_h": 12.17,
+          "mean_to_revocation_h": 7.47
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 2,
+          "mean_h": 8.74,
+          "p95_h": 11.18,
+          "mean_to_revocation_h": 6.51
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 3,
+          "mean_h": 7.8,
+          "p95_h": 10.17,
+          "mean_to_revocation_h": 5.55
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 4,
+          "mean_h": 6.79,
+          "p95_h": 9.13,
+          "mean_to_revocation_h": 4.55
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 5,
+          "mean_h": 5.79,
+          "p95_h": 8.2,
+          "mean_to_revocation_h": 3.56
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 6,
+          "mean_h": 4.83,
+          "p95_h": 7.16,
+          "mean_to_revocation_h": 2.59
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 7,
+          "mean_h": 3.82,
+          "p95_h": 6.24,
+          "mean_to_revocation_h": 1.6
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 8,
+          "mean_h": 3.04,
+          "p95_h": 5.18,
+          "mean_to_revocation_h": 0.78
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 9,
+          "mean_h": 2.64,
+          "p95_h": 4.5,
+          "mean_to_revocation_h": 0.37
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 10,
+          "mean_h": 2.56,
+          "p95_h": 4.43,
+          "mean_to_revocation_h": 0.31
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 11,
+          "mean_h": 2.64,
+          "p95_h": 4.57,
+          "mean_to_revocation_h": 0.38
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 12,
+          "mean_h": 3.15,
+          "p95_h": 5.64,
+          "mean_to_revocation_h": 0.89
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 13,
+          "mean_h": 2.95,
+          "p95_h": 5.17,
+          "mean_to_revocation_h": 0.71
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 14,
+          "mean_h": 2.77,
+          "p95_h": 4.58,
+          "mean_to_revocation_h": 0.49
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 15,
+          "mean_h": 3.02,
+          "p95_h": 4.57,
+          "mean_to_revocation_h": 0.77
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 16,
+          "mean_h": 6.06,
+          "p95_h": 35.54,
+          "mean_to_revocation_h": 3.77
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 17,
+          "mean_h": 18.45,
+          "p95_h": 67.03,
+          "mean_to_revocation_h": 16.24
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 18,
+          "mean_h": 40.79,
+          "p95_h": 66.86,
+          "mean_to_revocation_h": 38.52
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 19,
+          "mean_h": 48.17,
+          "p95_h": 65.95,
+          "mean_to_revocation_h": 45.93
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 20,
+          "mean_h": 49.43,
+          "p95_h": 65.06,
+          "mean_to_revocation_h": 47.18
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 21,
+          "mean_h": 49.13,
+          "p95_h": 63.98,
+          "mean_to_revocation_h": 46.92
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 22,
+          "mean_h": 50.04,
+          "p95_h": 63.11,
+          "mean_to_revocation_h": 47.81
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 23,
+          "mean_h": 49.19,
+          "p95_h": 62.03,
+          "mean_to_revocation_h": 46.96
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 0,
+          "mean_h": 48.02,
+          "p95_h": 61.01,
+          "mean_to_revocation_h": 45.79
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 1,
+          "mean_h": 47.83,
+          "p95_h": 60.09,
+          "mean_to_revocation_h": 45.59
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 2,
+          "mean_h": 47.49,
+          "p95_h": 59.06,
+          "mean_to_revocation_h": 45.24
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 3,
+          "mean_h": 45.75,
+          "p95_h": 58.1,
+          "mean_to_revocation_h": 43.49
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 4,
+          "mean_h": 44.64,
+          "p95_h": 57.1,
+          "mean_to_revocation_h": 42.37
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 5,
+          "mean_h": 43.61,
+          "p95_h": 56.14,
+          "mean_to_revocation_h": 41.35
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 6,
+          "mean_h": 42.4,
+          "p95_h": 55.12,
+          "mean_to_revocation_h": 40.15
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 7,
+          "mean_h": 42.04,
+          "p95_h": 54.07,
+          "mean_to_revocation_h": 39.81
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 8,
+          "mean_h": 41.27,
+          "p95_h": 53.05,
+          "mean_to_revocation_h": 39.02
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 9,
+          "mean_h": 40.92,
+          "p95_h": 52.05,
+          "mean_to_revocation_h": 38.68
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 10,
+          "mean_h": 41.39,
+          "p95_h": 51.07,
+          "mean_to_revocation_h": 39.11
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 11,
+          "mean_h": 41.68,
+          "p95_h": 50.16,
+          "mean_to_revocation_h": 39.45
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 12,
+          "mean_h": 41.61,
+          "p95_h": 49.16,
+          "mean_to_revocation_h": 39.35
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 13,
+          "mean_h": 41.51,
+          "p95_h": 48.1,
+          "mean_to_revocation_h": 39.27
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 14,
+          "mean_h": 40.68,
+          "p95_h": 47.19,
+          "mean_to_revocation_h": 38.45
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 15,
+          "mean_h": 40.19,
+          "p95_h": 46.13,
+          "mean_to_revocation_h": 37.97
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 16,
+          "mean_h": 39.39,
+          "p95_h": 45.19,
+          "mean_to_revocation_h": 37.12
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 17,
+          "mean_h": 38.99,
+          "p95_h": 44.15,
+          "mean_to_revocation_h": 36.73
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 18,
+          "mean_h": 38.16,
+          "p95_h": 43.2,
+          "mean_to_revocation_h": 35.92
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 19,
+          "mean_h": 37.58,
+          "p95_h": 42.23,
+          "mean_to_revocation_h": 35.33
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 20,
+          "mean_h": 36.88,
+          "p95_h": 41.27,
+          "mean_to_revocation_h": 34.65
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 21,
+          "mean_h": 36.06,
+          "p95_h": 40.26,
+          "mean_to_revocation_h": 33.8
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 22,
+          "mean_h": 35.3,
+          "p95_h": 39.25,
+          "mean_to_revocation_h": 33.03
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 23,
+          "mean_h": 34.33,
+          "p95_h": 38.21,
+          "mean_to_revocation_h": 32.08
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 0,
+          "mean_h": 33.55,
+          "p95_h": 37.29,
+          "mean_to_revocation_h": 31.33
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 1,
+          "mean_h": 32.52,
+          "p95_h": 36.3,
+          "mean_to_revocation_h": 30.25
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 2,
+          "mean_h": 31.67,
+          "p95_h": 35.24,
+          "mean_to_revocation_h": 29.44
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 3,
+          "mean_h": 30.81,
+          "p95_h": 34.22,
+          "mean_to_revocation_h": 28.56
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 4,
+          "mean_h": 29.74,
+          "p95_h": 33.27,
+          "mean_to_revocation_h": 27.46
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 5,
+          "mean_h": 28.62,
+          "p95_h": 32.3,
+          "mean_to_revocation_h": 26.38
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 6,
+          "mean_h": 27.81,
+          "p95_h": 31.23,
+          "mean_to_revocation_h": 25.55
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 7,
+          "mean_h": 26.55,
+          "p95_h": 30.15,
+          "mean_to_revocation_h": 24.3
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 8,
+          "mean_h": 25.77,
+          "p95_h": 29.13,
+          "mean_to_revocation_h": 23.5
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 9,
+          "mean_h": 24.73,
+          "p95_h": 28.21,
+          "mean_to_revocation_h": 22.47
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 10,
+          "mean_h": 23.85,
+          "p95_h": 27.27,
+          "mean_to_revocation_h": 21.59
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 11,
+          "mean_h": 22.95,
+          "p95_h": 26.21,
+          "mean_to_revocation_h": 20.73
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 12,
+          "mean_h": 22.09,
+          "p95_h": 25.2,
+          "mean_to_revocation_h": 19.83
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 13,
+          "mean_h": 21.12,
+          "p95_h": 24.21,
+          "mean_to_revocation_h": 18.87
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 14,
+          "mean_h": 20.24,
+          "p95_h": 23.23,
+          "mean_to_revocation_h": 18.0
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 15,
+          "mean_h": 19.27,
+          "p95_h": 22.25,
+          "mean_to_revocation_h": 17.02
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 16,
+          "mean_h": 18.42,
+          "p95_h": 21.21,
+          "mean_to_revocation_h": 16.13
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 17,
+          "mean_h": 17.42,
+          "p95_h": 20.23,
+          "mean_to_revocation_h": 15.16
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 18,
+          "mean_h": 16.51,
+          "p95_h": 19.24,
+          "mean_to_revocation_h": 14.26
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 19,
+          "mean_h": 15.59,
+          "p95_h": 18.27,
+          "mean_to_revocation_h": 13.34
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 20,
+          "mean_h": 14.63,
+          "p95_h": 17.31,
+          "mean_to_revocation_h": 12.4
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 21,
+          "mean_h": 13.7,
+          "p95_h": 16.21,
+          "mean_to_revocation_h": 11.46
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 22,
+          "mean_h": 12.8,
+          "p95_h": 15.3,
+          "mean_to_revocation_h": 10.56
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 23,
+          "mean_h": 11.83,
+          "p95_h": 14.32,
+          "mean_to_revocation_h": 9.56
+        }
+      ]
+    },
+    "conservador (nextUpdate 1 h/6 h)": {
+      "mean_h": 18.02,
+      "p50_h": 11.96,
+      "p95_h": 56.36,
+      "max_sampled_h": 76.58,
+      "worst_slot": {
+        "weekday": "sex",
+        "hour_brt": 22,
+        "mean_h": 52.49,
+        "p95_h": 66.99
+      },
+      "friday_19h": {
+        "mean_h": 50.62,
+        "p95_h": 69.85
+      },
+      "business_hours_mean_h": 6.13,
+      "off_hours_mean_h": 23.06,
+      "weekday_mean_h": 11.46,
+      "weekend_mean_h": 34.41,
+      "weekend_over_weekday": 3.0,
+      "per_slot": [
+        {
+          "weekday": 0,
+          "hour_brt": 0,
+          "mean_h": 13.33,
+          "p95_h": 17.18,
+          "mean_to_revocation_h": 8.57
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 1,
+          "mean_h": 12.42,
+          "p95_h": 16.25,
+          "mean_to_revocation_h": 7.59
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 2,
+          "mean_h": 11.42,
+          "p95_h": 15.24,
+          "mean_to_revocation_h": 6.59
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 3,
+          "mean_h": 10.38,
+          "p95_h": 14.28,
+          "mean_to_revocation_h": 5.6
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 4,
+          "mean_h": 9.44,
+          "p95_h": 13.27,
+          "mean_to_revocation_h": 4.62
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 5,
+          "mean_h": 8.45,
+          "p95_h": 12.3,
+          "mean_to_revocation_h": 3.59
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 6,
+          "mean_h": 7.48,
+          "p95_h": 11.32,
+          "mean_to_revocation_h": 2.61
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 7,
+          "mean_h": 6.49,
+          "p95_h": 10.5,
+          "mean_to_revocation_h": 1.66
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 8,
+          "mean_h": 5.68,
+          "p95_h": 9.46,
+          "mean_to_revocation_h": 0.83
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 9,
+          "mean_h": 5.3,
+          "p95_h": 8.93,
+          "mean_to_revocation_h": 0.44
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 10,
+          "mean_h": 5.1,
+          "p95_h": 8.69,
+          "mean_to_revocation_h": 0.29
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 11,
+          "mean_h": 5.2,
+          "p95_h": 8.8,
+          "mean_to_revocation_h": 0.37
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 12,
+          "mean_h": 5.68,
+          "p95_h": 9.51,
+          "mean_to_revocation_h": 0.85
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 13,
+          "mean_h": 5.44,
+          "p95_h": 9.17,
+          "mean_to_revocation_h": 0.63
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 14,
+          "mean_h": 5.19,
+          "p95_h": 8.81,
+          "mean_to_revocation_h": 0.36
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 15,
+          "mean_h": 5.14,
+          "p95_h": 8.77,
+          "mean_to_revocation_h": 0.39
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 16,
+          "mean_h": 6.22,
+          "p95_h": 19.06,
+          "mean_to_revocation_h": 1.4
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 17,
+          "mean_h": 9.34,
+          "p95_h": 22.42,
+          "mean_to_revocation_h": 4.56
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 18,
+          "mean_h": 14.95,
+          "p95_h": 22.87,
+          "mean_to_revocation_h": 10.11
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 19,
+          "mean_h": 16.65,
+          "p95_h": 21.89,
+          "mean_to_revocation_h": 11.84
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 20,
+          "mean_h": 16.37,
+          "p95_h": 21.13,
+          "mean_to_revocation_h": 11.56
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 21,
+          "mean_h": 15.83,
+          "p95_h": 20.0,
+          "mean_to_revocation_h": 10.96
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 22,
+          "mean_h": 14.95,
+          "p95_h": 19.06,
+          "mean_to_revocation_h": 10.13
+        },
+        {
+          "weekday": 0,
+          "hour_brt": 23,
+          "mean_h": 14.11,
+          "p95_h": 18.15,
+          "mean_to_revocation_h": 9.29
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 0,
+          "mean_h": 13.16,
+          "p95_h": 17.21,
+          "mean_to_revocation_h": 8.4
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 1,
+          "mean_h": 12.18,
+          "p95_h": 16.11,
+          "mean_to_revocation_h": 7.44
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 2,
+          "mean_h": 11.31,
+          "p95_h": 15.08,
+          "mean_to_revocation_h": 6.46
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 3,
+          "mean_h": 10.27,
+          "p95_h": 14.03,
+          "mean_to_revocation_h": 5.48
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 4,
+          "mean_h": 9.32,
+          "p95_h": 13.23,
+          "mean_to_revocation_h": 4.48
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 5,
+          "mean_h": 8.29,
+          "p95_h": 12.12,
+          "mean_to_revocation_h": 3.46
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 6,
+          "mean_h": 7.32,
+          "p95_h": 11.05,
+          "mean_to_revocation_h": 2.52
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 7,
+          "mean_h": 6.32,
+          "p95_h": 10.01,
+          "mean_to_revocation_h": 1.54
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 8,
+          "mean_h": 5.51,
+          "p95_h": 9.17,
+          "mean_to_revocation_h": 0.74
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 9,
+          "mean_h": 5.18,
+          "p95_h": 8.85,
+          "mean_to_revocation_h": 0.36
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 10,
+          "mean_h": 5.08,
+          "p95_h": 8.79,
+          "mean_to_revocation_h": 0.26
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 11,
+          "mean_h": 5.17,
+          "p95_h": 8.84,
+          "mean_to_revocation_h": 0.35
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 12,
+          "mean_h": 5.62,
+          "p95_h": 9.35,
+          "mean_to_revocation_h": 0.83
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 13,
+          "mean_h": 5.44,
+          "p95_h": 9.13,
+          "mean_to_revocation_h": 0.65
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 14,
+          "mean_h": 5.21,
+          "p95_h": 8.89,
+          "mean_to_revocation_h": 0.41
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 15,
+          "mean_h": 5.2,
+          "p95_h": 8.81,
+          "mean_to_revocation_h": 0.38
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 16,
+          "mean_h": 5.83,
+          "p95_h": 9.73,
+          "mean_to_revocation_h": 0.97
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 17,
+          "mean_h": 9.06,
+          "p95_h": 22.3,
+          "mean_to_revocation_h": 4.25
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 18,
+          "mean_h": 15.22,
+          "p95_h": 22.73,
+          "mean_to_revocation_h": 10.47
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 19,
+          "mean_h": 16.77,
+          "p95_h": 22.09,
+          "mean_to_revocation_h": 11.94
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 20,
+          "mean_h": 16.63,
+          "p95_h": 21.06,
+          "mean_to_revocation_h": 11.78
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 21,
+          "mean_h": 15.81,
+          "p95_h": 20.03,
+          "mean_to_revocation_h": 11.04
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 22,
+          "mean_h": 15.09,
+          "p95_h": 19.12,
+          "mean_to_revocation_h": 10.26
+        },
+        {
+          "weekday": 1,
+          "hour_brt": 23,
+          "mean_h": 14.24,
+          "p95_h": 18.1,
+          "mean_to_revocation_h": 9.4
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 0,
+          "mean_h": 13.25,
+          "p95_h": 17.21,
+          "mean_to_revocation_h": 8.44
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 1,
+          "mean_h": 12.28,
+          "p95_h": 16.13,
+          "mean_to_revocation_h": 7.47
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 2,
+          "mean_h": 11.32,
+          "p95_h": 15.13,
+          "mean_to_revocation_h": 6.52
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 3,
+          "mean_h": 10.33,
+          "p95_h": 14.22,
+          "mean_to_revocation_h": 5.53
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 4,
+          "mean_h": 9.38,
+          "p95_h": 13.29,
+          "mean_to_revocation_h": 4.54
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 5,
+          "mean_h": 8.38,
+          "p95_h": 12.26,
+          "mean_to_revocation_h": 3.53
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 6,
+          "mean_h": 7.38,
+          "p95_h": 11.27,
+          "mean_to_revocation_h": 2.56
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 7,
+          "mean_h": 6.39,
+          "p95_h": 10.23,
+          "mean_to_revocation_h": 1.57
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 8,
+          "mean_h": 5.6,
+          "p95_h": 9.21,
+          "mean_to_revocation_h": 0.78
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 9,
+          "mean_h": 5.22,
+          "p95_h": 8.77,
+          "mean_to_revocation_h": 0.36
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 10,
+          "mean_h": 5.14,
+          "p95_h": 8.74,
+          "mean_to_revocation_h": 0.25
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 11,
+          "mean_h": 5.26,
+          "p95_h": 8.96,
+          "mean_to_revocation_h": 0.38
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 12,
+          "mean_h": 5.68,
+          "p95_h": 9.45,
+          "mean_to_revocation_h": 0.83
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 13,
+          "mean_h": 5.47,
+          "p95_h": 9.19,
+          "mean_to_revocation_h": 0.66
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 14,
+          "mean_h": 5.26,
+          "p95_h": 8.91,
+          "mean_to_revocation_h": 0.41
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 15,
+          "mean_h": 5.23,
+          "p95_h": 8.89,
+          "mean_to_revocation_h": 0.39
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 16,
+          "mean_h": 6.16,
+          "p95_h": 17.71,
+          "mean_to_revocation_h": 1.31
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 17,
+          "mean_h": 9.28,
+          "p95_h": 22.37,
+          "mean_to_revocation_h": 4.46
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 18,
+          "mean_h": 14.94,
+          "p95_h": 22.87,
+          "mean_to_revocation_h": 10.09
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 19,
+          "mean_h": 16.59,
+          "p95_h": 22.02,
+          "mean_to_revocation_h": 11.8
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 20,
+          "mean_h": 16.53,
+          "p95_h": 21.16,
+          "mean_to_revocation_h": 11.68
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 21,
+          "mean_h": 15.73,
+          "p95_h": 20.26,
+          "mean_to_revocation_h": 10.96
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 22,
+          "mean_h": 15.07,
+          "p95_h": 19.11,
+          "mean_to_revocation_h": 10.23
+        },
+        {
+          "weekday": 2,
+          "hour_brt": 23,
+          "mean_h": 14.26,
+          "p95_h": 18.34,
+          "mean_to_revocation_h": 9.38
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 0,
+          "mean_h": 13.37,
+          "p95_h": 17.23,
+          "mean_to_revocation_h": 8.46
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 1,
+          "mean_h": 12.37,
+          "p95_h": 16.26,
+          "mean_to_revocation_h": 7.49
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 2,
+          "mean_h": 11.4,
+          "p95_h": 15.19,
+          "mean_to_revocation_h": 6.54
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 3,
+          "mean_h": 10.36,
+          "p95_h": 14.16,
+          "mean_to_revocation_h": 5.55
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 4,
+          "mean_h": 9.42,
+          "p95_h": 13.27,
+          "mean_to_revocation_h": 4.56
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 5,
+          "mean_h": 8.37,
+          "p95_h": 12.25,
+          "mean_to_revocation_h": 3.57
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 6,
+          "mean_h": 7.34,
+          "p95_h": 11.19,
+          "mean_to_revocation_h": 2.57
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 7,
+          "mean_h": 6.42,
+          "p95_h": 10.24,
+          "mean_to_revocation_h": 1.59
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 8,
+          "mean_h": 5.59,
+          "p95_h": 9.33,
+          "mean_to_revocation_h": 0.78
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 9,
+          "mean_h": 5.2,
+          "p95_h": 8.75,
+          "mean_to_revocation_h": 0.4
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 10,
+          "mean_h": 5.08,
+          "p95_h": 8.75,
+          "mean_to_revocation_h": 0.29
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 11,
+          "mean_h": 5.31,
+          "p95_h": 8.99,
+          "mean_to_revocation_h": 0.46
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 12,
+          "mean_h": 5.62,
+          "p95_h": 9.33,
+          "mean_to_revocation_h": 0.86
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 13,
+          "mean_h": 5.42,
+          "p95_h": 9.06,
+          "mean_to_revocation_h": 0.65
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 14,
+          "mean_h": 5.25,
+          "p95_h": 8.85,
+          "mean_to_revocation_h": 0.43
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 15,
+          "mean_h": 5.29,
+          "p95_h": 8.84,
+          "mean_to_revocation_h": 0.49
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 16,
+          "mean_h": 6.16,
+          "p95_h": 18.09,
+          "mean_to_revocation_h": 1.3
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 17,
+          "mean_h": 9.46,
+          "p95_h": 22.51,
+          "mean_to_revocation_h": 4.65
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 18,
+          "mean_h": 15.21,
+          "p95_h": 22.78,
+          "mean_to_revocation_h": 10.45
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 19,
+          "mean_h": 16.74,
+          "p95_h": 22.12,
+          "mean_to_revocation_h": 11.91
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 20,
+          "mean_h": 16.46,
+          "p95_h": 21.21,
+          "mean_to_revocation_h": 11.65
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 21,
+          "mean_h": 15.72,
+          "p95_h": 20.02,
+          "mean_to_revocation_h": 10.93
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 22,
+          "mean_h": 15.04,
+          "p95_h": 19.13,
+          "mean_to_revocation_h": 10.22
+        },
+        {
+          "weekday": 3,
+          "hour_brt": 23,
+          "mean_h": 14.18,
+          "p95_h": 18.16,
+          "mean_to_revocation_h": 9.38
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 0,
+          "mean_h": 13.23,
+          "p95_h": 17.24,
+          "mean_to_revocation_h": 8.39
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 1,
+          "mean_h": 12.34,
+          "p95_h": 16.21,
+          "mean_to_revocation_h": 7.47
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 2,
+          "mean_h": 11.3,
+          "p95_h": 14.98,
+          "mean_to_revocation_h": 6.51
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 3,
+          "mean_h": 10.35,
+          "p95_h": 14.09,
+          "mean_to_revocation_h": 5.54
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 4,
+          "mean_h": 9.4,
+          "p95_h": 13.34,
+          "mean_to_revocation_h": 4.58
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 5,
+          "mean_h": 8.35,
+          "p95_h": 12.23,
+          "mean_to_revocation_h": 3.56
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 6,
+          "mean_h": 7.4,
+          "p95_h": 11.22,
+          "mean_to_revocation_h": 2.55
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 7,
+          "mean_h": 6.4,
+          "p95_h": 10.25,
+          "mean_to_revocation_h": 1.61
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 8,
+          "mean_h": 5.57,
+          "p95_h": 9.21,
+          "mean_to_revocation_h": 0.78
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 9,
+          "mean_h": 5.21,
+          "p95_h": 8.8,
+          "mean_to_revocation_h": 0.39
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 10,
+          "mean_h": 5.07,
+          "p95_h": 8.67,
+          "mean_to_revocation_h": 0.31
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 11,
+          "mean_h": 5.25,
+          "p95_h": 8.88,
+          "mean_to_revocation_h": 0.41
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 12,
+          "mean_h": 5.73,
+          "p95_h": 9.41,
+          "mean_to_revocation_h": 0.89
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 13,
+          "mean_h": 5.52,
+          "p95_h": 9.2,
+          "mean_to_revocation_h": 0.74
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 14,
+          "mean_h": 5.27,
+          "p95_h": 8.91,
+          "mean_to_revocation_h": 0.47
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 15,
+          "mean_h": 5.58,
+          "p95_h": 8.92,
+          "mean_to_revocation_h": 0.78
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 16,
+          "mean_h": 9.08,
+          "p95_h": 66.06,
+          "mean_to_revocation_h": 4.25
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 17,
+          "mean_h": 21.82,
+          "p95_h": 70.41,
+          "mean_to_revocation_h": 17.01
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 18,
+          "mean_h": 43.55,
+          "p95_h": 70.56,
+          "mean_to_revocation_h": 38.78
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 19,
+          "mean_h": 50.62,
+          "p95_h": 69.85,
+          "mean_to_revocation_h": 45.83
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 20,
+          "mean_h": 52.02,
+          "p95_h": 68.74,
+          "mean_to_revocation_h": 47.23
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 21,
+          "mean_h": 52.22,
+          "p95_h": 68.09,
+          "mean_to_revocation_h": 47.33
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 22,
+          "mean_h": 52.49,
+          "p95_h": 66.99,
+          "mean_to_revocation_h": 47.68
+        },
+        {
+          "weekday": 4,
+          "hour_brt": 23,
+          "mean_h": 51.09,
+          "p95_h": 65.92,
+          "mean_to_revocation_h": 46.28
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 0,
+          "mean_h": 50.88,
+          "p95_h": 64.77,
+          "mean_to_revocation_h": 46.09
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 1,
+          "mean_h": 49.75,
+          "p95_h": 63.93,
+          "mean_to_revocation_h": 44.97
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 2,
+          "mean_h": 48.89,
+          "p95_h": 62.95,
+          "mean_to_revocation_h": 44.1
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 3,
+          "mean_h": 48.29,
+          "p95_h": 61.9,
+          "mean_to_revocation_h": 43.47
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 4,
+          "mean_h": 47.26,
+          "p95_h": 61.06,
+          "mean_to_revocation_h": 42.46
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 5,
+          "mean_h": 46.08,
+          "p95_h": 59.86,
+          "mean_to_revocation_h": 41.35
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 6,
+          "mean_h": 45.45,
+          "p95_h": 59.03,
+          "mean_to_revocation_h": 40.62
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 7,
+          "mean_h": 44.67,
+          "p95_h": 57.96,
+          "mean_to_revocation_h": 39.86
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 8,
+          "mean_h": 43.6,
+          "p95_h": 57.0,
+          "mean_to_revocation_h": 38.75
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 9,
+          "mean_h": 43.44,
+          "p95_h": 55.93,
+          "mean_to_revocation_h": 38.65
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 10,
+          "mean_h": 43.51,
+          "p95_h": 55.01,
+          "mean_to_revocation_h": 38.73
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 11,
+          "mean_h": 44.33,
+          "p95_h": 54.04,
+          "mean_to_revocation_h": 39.47
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 12,
+          "mean_h": 44.51,
+          "p95_h": 53.0,
+          "mean_to_revocation_h": 39.66
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 13,
+          "mean_h": 43.77,
+          "p95_h": 52.12,
+          "mean_to_revocation_h": 38.91
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 14,
+          "mean_h": 43.46,
+          "p95_h": 51.06,
+          "mean_to_revocation_h": 38.67
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 15,
+          "mean_h": 43.28,
+          "p95_h": 50.14,
+          "mean_to_revocation_h": 38.47
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 16,
+          "mean_h": 42.06,
+          "p95_h": 49.07,
+          "mean_to_revocation_h": 37.3
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 17,
+          "mean_h": 41.6,
+          "p95_h": 48.25,
+          "mean_to_revocation_h": 36.8
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 18,
+          "mean_h": 40.62,
+          "p95_h": 47.19,
+          "mean_to_revocation_h": 35.75
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 19,
+          "mean_h": 40.06,
+          "p95_h": 46.11,
+          "mean_to_revocation_h": 35.28
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 20,
+          "mean_h": 39.6,
+          "p95_h": 45.32,
+          "mean_to_revocation_h": 34.81
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 21,
+          "mean_h": 38.65,
+          "p95_h": 44.02,
+          "mean_to_revocation_h": 33.9
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 22,
+          "mean_h": 37.81,
+          "p95_h": 43.15,
+          "mean_to_revocation_h": 33.04
+        },
+        {
+          "weekday": 5,
+          "hour_brt": 23,
+          "mean_h": 36.82,
+          "p95_h": 42.27,
+          "mean_to_revocation_h": 32.03
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 0,
+          "mean_h": 36.18,
+          "p95_h": 41.25,
+          "mean_to_revocation_h": 31.37
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 1,
+          "mean_h": 35.21,
+          "p95_h": 40.14,
+          "mean_to_revocation_h": 30.39
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 2,
+          "mean_h": 34.25,
+          "p95_h": 39.34,
+          "mean_to_revocation_h": 29.38
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 3,
+          "mean_h": 33.18,
+          "p95_h": 38.19,
+          "mean_to_revocation_h": 28.39
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 4,
+          "mean_h": 32.17,
+          "p95_h": 37.17,
+          "mean_to_revocation_h": 27.4
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 5,
+          "mean_h": 30.94,
+          "p95_h": 36.2,
+          "mean_to_revocation_h": 26.16
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 6,
+          "mean_h": 30.25,
+          "p95_h": 35.17,
+          "mean_to_revocation_h": 25.46
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 7,
+          "mean_h": 29.38,
+          "p95_h": 34.3,
+          "mean_to_revocation_h": 24.53
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 8,
+          "mean_h": 28.16,
+          "p95_h": 33.16,
+          "mean_to_revocation_h": 23.39
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 9,
+          "mean_h": 27.32,
+          "p95_h": 32.25,
+          "mean_to_revocation_h": 22.46
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 10,
+          "mean_h": 26.51,
+          "p95_h": 31.29,
+          "mean_to_revocation_h": 21.62
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 11,
+          "mean_h": 25.57,
+          "p95_h": 30.25,
+          "mean_to_revocation_h": 20.72
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 12,
+          "mean_h": 24.58,
+          "p95_h": 29.17,
+          "mean_to_revocation_h": 19.79
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 13,
+          "mean_h": 23.6,
+          "p95_h": 28.28,
+          "mean_to_revocation_h": 18.81
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 14,
+          "mean_h": 22.76,
+          "p95_h": 27.23,
+          "mean_to_revocation_h": 17.95
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 15,
+          "mean_h": 21.9,
+          "p95_h": 26.29,
+          "mean_to_revocation_h": 17.07
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 16,
+          "mean_h": 20.96,
+          "p95_h": 25.21,
+          "mean_to_revocation_h": 16.12
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 17,
+          "mean_h": 19.92,
+          "p95_h": 24.17,
+          "mean_to_revocation_h": 15.13
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 18,
+          "mean_h": 19.05,
+          "p95_h": 23.31,
+          "mean_to_revocation_h": 14.22
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 19,
+          "mean_h": 18.11,
+          "p95_h": 22.21,
+          "mean_to_revocation_h": 13.31
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 20,
+          "mean_h": 17.23,
+          "p95_h": 21.31,
+          "mean_to_revocation_h": 12.36
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 21,
+          "mean_h": 16.3,
+          "p95_h": 20.33,
+          "mean_to_revocation_h": 11.48
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 22,
+          "mean_h": 15.28,
+          "p95_h": 19.24,
+          "mean_to_revocation_h": 10.51
+        },
+        {
+          "weekday": 6,
+          "hour_brt": 23,
+          "mean_h": 14.33,
+          "p95_h": 18.29,
+          "mean_to_revocation_h": 9.53
+        }
+      ]
+    }
+  },
+  "pools": {
+    "medido (reemissão 0,5 h)": {
+      "intervals_h": [
+        0.5,
+        0.499,
+        0.5,
+        0.5,
+        0.501,
+        0.501
+      ],
+      "weights": [
+        0.2789,
+        0.0628,
+        0.6364,
+        0.0089,
+        0.0101,
+        0.0028
+      ],
+      "mean_h": 15.47,
+      "p95_h": 53.89
+    },
+    "conservador (nextUpdate 1 h/6 h)": {
+      "intervals_h": [
+        6.0,
+        1.0,
+        6.0,
+        6.0,
+        1.0,
+        1.0
+      ],
+      "weights": [
+        0.2789,
+        0.0628,
+        0.6364,
+        0.0089,
+        0.0101,
+        0.0028
+      ],
+      "mean_h": 18.03,
+      "p95_h": 56.34
+    }
+  },
+  "scenarios": {
+    "medido": {
+      "lambda_per_hour": 2.7633803783974505e-07,
+      "rows": [
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 3.010417
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 3.018474
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.5 h",
+          "fetches_per_1000": 500.73,
+          "expected_loss_per_1000_brl": 3.034712
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "1 h",
+          "fetches_per_1000": 333.7,
+          "expected_loss_per_1000_brl": 3.075148
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "2 h",
+          "fetches_per_1000": 200.27,
+          "expected_loss_per_1000_brl": 3.165586
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 3.356888
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "6 h",
+          "fetches_per_1000": 77.23,
+          "expected_loss_per_1000_brl": 3.545412
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "12 h",
+          "fetches_per_1000": 40.32,
+          "expected_loss_per_1000_brl": 4.121854
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "24 h",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.25315
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 7.551016
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 34.32,
+          "expected_loss_per_1000_brl": 3.919701
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 23.56,
+          "expected_loss_per_1000_brl": 4.589846
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 21.04,
+          "expected_loss_per_1000_brl": 5.064968
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 5.215262
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.250725
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=3",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.25315
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=10",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.25315
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, folgada",
+          "fetches_per_1000": 77.07,
+          "expected_loss_per_1000_brl": 3.426773
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 3.058776
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 3.029109
+        }
+      ],
+      "pareto": [
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 7.551016
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.250725
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 5.215262
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 21.04,
+          "expected_loss_per_1000_brl": 5.064968
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 23.56,
+          "expected_loss_per_1000_brl": 4.589846
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 34.32,
+          "expected_loss_per_1000_brl": 3.919701
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, folgada",
+          "fetches_per_1000": 77.07,
+          "expected_loss_per_1000_brl": 3.426773
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 3.356888
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "2 h",
+          "fetches_per_1000": 200.27,
+          "expected_loss_per_1000_brl": 3.165586
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 3.058776
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 3.029109
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 3.018474
+        },
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 3.010417
+        }
+      ]
+    },
+    "medido, cadência conservadora": {
+      "lambda_per_hour": 2.7633803783974505e-07,
+      "rows": [
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 3.493464
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 3.501488
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.5 h",
+          "fetches_per_1000": 500.73,
+          "expected_loss_per_1000_brl": 3.517673
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "1 h",
+          "fetches_per_1000": 333.7,
+          "expected_loss_per_1000_brl": 3.557955
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "2 h",
+          "fetches_per_1000": 200.27,
+          "expected_loss_per_1000_brl": 3.648046
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 3.838604
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "6 h",
+          "fetches_per_1000": 77.23,
+          "expected_loss_per_1000_brl": 4.026544
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "12 h",
+          "fetches_per_1000": 40.32,
+          "expected_loss_per_1000_brl": 4.600393
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "24 h",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.725997
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 8.009778
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 34.32,
+          "expected_loss_per_1000_brl": 4.399065
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 23.56,
+          "expected_loss_per_1000_brl": 5.065958
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 21.04,
+          "expected_loss_per_1000_brl": 5.53883
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 5.688538
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.723572
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=3",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.725997
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=10",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.725997
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, folgada",
+          "fetches_per_1000": 77.07,
+          "expected_loss_per_1000_brl": 3.908323
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 3.54164
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 3.512087
+        }
+      ],
+      "pareto": [
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 8.009778
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 5.723572
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 5.688538
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 21.04,
+          "expected_loss_per_1000_brl": 5.53883
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 23.56,
+          "expected_loss_per_1000_brl": 5.065958
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 34.32,
+          "expected_loss_per_1000_brl": 4.399065
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, folgada",
+          "fetches_per_1000": 77.07,
+          "expected_loss_per_1000_brl": 3.908323
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 3.838604
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "2 h",
+          "fetches_per_1000": 200.27,
+          "expected_loss_per_1000_brl": 3.648046
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 3.54164
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 3.512087
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 3.501488
+        },
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 3.493464
+        }
+      ]
+    },
+    "atraso medido, λ sintético 1e-5": {
+      "lambda_per_hour": 1e-05,
+      "rows": [
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 108.566627
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 108.857204
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.5 h",
+          "fetches_per_1000": 500.73,
+          "expected_loss_per_1000_brl": 109.442805
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "1 h",
+          "fetches_per_1000": 333.7,
+          "expected_loss_per_1000_brl": 110.901059
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "2 h",
+          "fetches_per_1000": 200.27,
+          "expected_loss_per_1000_brl": 114.162581
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 121.061627
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "6 h",
+          "fetches_per_1000": 77.23,
+          "expected_loss_per_1000_brl": 127.860666
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "12 h",
+          "fetches_per_1000": 40.32,
+          "expected_loss_per_1000_brl": 148.650093
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "24 h",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 189.451531
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 272.327535
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 209.76,
+          "expected_loss_per_1000_brl": 110.344797
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 125.44,
+          "expected_loss_per_1000_brl": 113.281801
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 67.79,
+          "expected_loss_per_1000_brl": 121.209426
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 37.6,
+          "expected_loss_per_1000_brl": 137.558384
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 24.0,
+          "expected_loss_per_1000_brl": 163.861617
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=3",
+          "fetches_per_1000": 21.15,
+          "expected_loss_per_1000_brl": 181.127512
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=10",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 187.876363
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, folgada",
+          "fetches_per_1000": 77.07,
+          "expected_loss_per_1000_brl": 123.581989
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 110.310631
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 109.24072
+        }
+      ],
+      "pareto": [
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 272.327535
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "24 h",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 189.451531
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=10",
+          "fetches_per_1000": 20.85,
+          "expected_loss_per_1000_brl": 187.876363
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=3",
+          "fetches_per_1000": 21.15,
+          "expected_loss_per_1000_brl": 181.127512
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 24.0,
+          "expected_loss_per_1000_brl": 163.861617
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 37.6,
+          "expected_loss_per_1000_brl": 137.558384
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 67.79,
+          "expected_loss_per_1000_brl": 121.209426
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.48,
+          "expected_loss_per_1000_brl": 121.061627
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 125.44,
+          "expected_loss_per_1000_brl": 113.281801
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 209.76,
+          "expected_loss_per_1000_brl": 110.344797
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.64,
+          "expected_loss_per_1000_brl": 110.310631
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 403.66,
+          "expected_loss_per_1000_brl": 109.24072
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 666.86,
+          "expected_loss_per_1000_brl": 108.857204
+        },
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 108.566627
+        }
+      ]
+    },
+    "sintético (results.json)": {
+      "lambda_per_hour": 1e-05,
+      "pareto": [
+        {
+          "policy": "prazo fixo",
+          "setting": "48 h",
+          "fetches_per_1000": 10.42,
+          "expected_loss_per_1000_brl": 203.2849
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "24 h",
+          "fetches_per_1000": 20.83,
+          "expected_loss_per_1000_brl": 118.7654
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=10",
+          "fetches_per_1000": 20.84,
+          "expected_loss_per_1000_brl": 116.4979
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=3",
+          "fetches_per_1000": 21.19,
+          "expected_loss_per_1000_brl": 109.0546
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=1",
+          "fetches_per_1000": 23.92,
+          "expected_loss_per_1000_brl": 91.7432
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.3",
+          "fetches_per_1000": 37.5,
+          "expected_loss_per_1000_brl": 64.9877
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.1",
+          "fetches_per_1000": 67.67,
+          "expected_loss_per_1000_brl": 48.5248
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "4 h",
+          "fetches_per_1000": 111.42,
+          "expected_loss_per_1000_brl": 48.3141
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.03",
+          "fetches_per_1000": 125.24,
+          "expected_loss_per_1000_brl": 40.522
+        },
+        {
+          "policy": "proporcional ao valor",
+          "setting": "L=0.01",
+          "fetches_per_1000": 209.27,
+          "expected_loss_per_1000_brl": 37.5509
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, média",
+          "fetches_per_1000": 288.24,
+          "expected_loss_per_1000_brl": 37.5214
+        },
+        {
+          "policy": "faixas de valor",
+          "setting": "3 faixas, rígida",
+          "fetches_per_1000": 402.99,
+          "expected_loss_per_1000_brl": 36.4242
+        },
+        {
+          "policy": "prazo fixo",
+          "setting": "0.25 h",
+          "fetches_per_1000": 667.19,
+          "expected_loss_per_1000_brl": 36.0438
+        },
+        {
+          "policy": "consultar sempre",
+          "setting": "0 h",
+          "fetches_per_1000": 1000.0,
+          "expected_loss_per_1000_brl": 35.7433
+        }
+      ]
+    }
+  }
+}

@@ -152,6 +152,51 @@ export interface KyaAuthOptions extends KyaOptions {
    * without them); see KyaOfflineOptions. Absent: behaviour unchanged.
    */
   offline?: KyaOfflineOptions;
+  /**
+   * Opt-in replay protection (SPEC section 14): every accepted request is recorded under the SHA-256 of its signed
+   * request text, until the request's own `KYA-Expires`, and a request already recorded is refused with 401
+   * KYA_REQUEST_REPLAYED. Use memoryReplayCache() for one process, or your own store (Redis SET NX with an expiry,
+   * a database unique key) when several instances serve the same API. Requires a finite maxTtlSeconds.
+   */
+  replayCache?: ReplayCache;
+}
+
+/**
+ * Where the verifier remembers the requests it accepted. `seen` MUST atomically record `key` until `expiresAt`
+ * (inclusive) and return whether it was already recorded and not yet expired. `now` is the verifier's clock
+ * (offline.now in offline mode), so that eviction follows the same clock as the signature window.
+ */
+export interface ReplayCache {
+  seen(key: string, expiresAt: Date, now: Date): Promise<boolean>;
+}
+
+/**
+ * In-memory ReplayCache for a single process: entries live until the request's expiry (never shorter, which would
+ * let a replay through inside the window) and expired ones are evicted as the clock passes them. `maxEntries`
+ * bounds memory: when full of live entries, a new request is refused as if seen (fail closed) rather than
+ * forgetting a live one.
+ */
+export function memoryReplayCache(opts: { maxEntries?: number } = {}): ReplayCache & { size(): number; clear(): void } {
+  const max = opts.maxEntries ?? 100_000;
+  const entries = new Map<string, number>();
+  let lastSweep = -Infinity;
+  const evict = (now: number) => {
+    for (const [k, exp] of entries) if (exp < now) entries.delete(k);
+    lastSweep = now;
+  };
+  return {
+    async seen(key, expiresAt, now) {
+      const t = now.getTime();
+      const hit = entries.get(key);
+      if (hit !== undefined && hit >= t) return true;
+      if (Math.abs(t - lastSweep) > 1000 || entries.size >= max) evict(t);
+      if (entries.size >= max) return true;
+      entries.set(key, expiresAt.getTime());
+      return false;
+    },
+    size: () => entries.size,
+    clear: () => entries.clear()
+  };
 }
 
 export interface KyaContext {
@@ -302,6 +347,8 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
   const maxTtl = opts.maxTtlSeconds ?? 600;
   const requireBodyHash = opts.requireBodyHash ?? true;
   const cache = new Map<string, { at: number; v: Verification }>();
+  const replayCache = opts.replayCache ?? null;
+  if (replayCache && (typeof replayCache.seen !== "function" || !Number.isFinite(maxTtl) || maxTtl <= 0)) throw new Error("replayCache needs a seen() function and a finite, positive maxTtlSeconds: entries are kept until each request expires");
 
   async function verification(id: string): Promise<Verification> {
     const hit = cache.get(id);
@@ -362,7 +409,8 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
 
     const delegationSha256 = delegationHeader ? await sha256Hex(delegationHeader) : null;
     const text = requestText({ credentialId, method: p.method, url: p.url, created, expires, contentSha256: contentHeader, delegationSha256 });
-    if (useOffline) return authenticateOffline({ credentialId, document, proofHeader: headerOf(p.headers, KYA_HEADERS.principalProof), delegationHeader, text, signature, bodyState, at });
+    const once = (r: KyaAuthResult) => (r.ok && replayCache ? replayCheck(r, text, expires, at) : r);
+    if (useOffline) return once(await authenticateOffline({ credentialId, document, proofHeader: headerOf(p.headers, KYA_HEADERS.principalProof), delegationHeader, text, signature, bodyState, at }));
 
     let v: Verification;
     try {
@@ -378,7 +426,23 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
       if (!d.ok) return d.result;
       delegation = d.delegation;
     }
-    return finish(credentialId, v, text, signature, bodyState, delegation);
+    return once(await finish(credentialId, v, text, signature, bodyState, delegation));
+  }
+
+  /**
+   * Replay cache (opt-in): runs only after the request fully verified, so a forged request cannot fill the cache
+   * or burn a genuine request's key. The key is the SHA-256 of the signed request text (not of the signature, which
+   * an ECDSA signer could re-randomize); it is kept until the request's own expiry, the last instant at which the
+   * window would accept it again.
+   */
+  async function replayCheck(r: KyaAuthResult, text: string, expires: number, at: Date): Promise<KyaAuthResult> {
+    let replayed: boolean;
+    try {
+      replayed = await (replayCache as ReplayCache).seen(await sha256Hex(text), new Date(expires * 1000), at);
+    } catch (e) {
+      return fail(502, "KYA_REPLAY_CACHE_UNAVAILABLE", `replay cache: ${(e as Error).message}`);
+    }
+    return replayed ? fail(401, "KYA_REQUEST_REPLAYED", "this signed request was already accepted; sign each request anew") : r;
   }
 
   const anchorOf = (credentialId: string, agent: AgentKey, credential: Pick<Credential, "mandate" | "expires_at">): DelegationAnchor => ({ credential_id: credentialId, agent: agent as DelegationAnchor["agent"], mandate: credential.mandate as DelegationAnchor["mandate"], expires_at: credential.expires_at });

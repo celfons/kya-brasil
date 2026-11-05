@@ -20,6 +20,12 @@ import { type Credential, KyaError, isPersonPrincipal } from "./types.js";
 export interface PrincipalProof {
   text: string;
   cms: string;
+  /**
+   * Co-signatures by legal representatives (SPEC section 21): CMS by e-CPF over the same `text`. Optional, additive.
+   * They carry the representatives' certificates (and so their CPF): presented to the verifier, never stored in the
+   * credential.
+   */
+  cosignatures?: string[];
 }
 
 export interface PrincipalProofCheck {
@@ -106,7 +112,7 @@ export async function verifyPrincipalProof(p: { credential: Pick<Credential, "ag
 
 /** Header value for a request: base64url of the JSON { text, cms }. */
 export function encodePrincipalProofHeader(proof: PrincipalProof): string {
-  return base64url.encode(new TextEncoder().encode(JSON.stringify({ text: proof.text, cms: proof.cms })));
+  return base64url.encode(new TextEncoder().encode(JSON.stringify(proof.cosignatures?.length ? { text: proof.text, cms: proof.cms, cosignatures: proof.cosignatures } : { text: proof.text, cms: proof.cms })));
 }
 
 /** Parses the header value; throws INVALID_INPUT when it is not a proof. */
@@ -119,5 +125,7 @@ export function decodePrincipalProofHeader(value: string): PrincipalProof {
   }
   const o = parsed as Record<string, unknown> | null;
   if (!o || typeof o.text !== "string" || typeof o.cms !== "string") throw new KyaError("INVALID_INPUT", "KYA-Principal-Proof must carry text and cms");
-  return { text: o.text, cms: o.cms };
+  if (o.cosignatures === undefined) return { text: o.text, cms: o.cms };
+  if (!Array.isArray(o.cosignatures) || !o.cosignatures.every((c) => typeof c === "string")) throw new KyaError("INVALID_INPUT", "KYA-Principal-Proof cosignatures must be a list of base64 CMS");
+  return { text: o.text, cms: o.cms, cosignatures: o.cosignatures as string[] };
 }

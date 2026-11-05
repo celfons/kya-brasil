@@ -85,6 +85,26 @@ await fetch(url, { method: "POST", headers: { ...headers, "content-type": "appli
 
 Keys: `{ kind: "evm" | "erc8004", privateKey }` or `{ kind: "web-bot-auth", privateKey: CryptoKey | pkcs8 }`.
 
+### Replay protection (opt-in)
+
+Without a cache, a signed request can be sent again while its window is open (up to `maxTtlSeconds`, 600 s by
+default). Pass a replay cache and each accepted request is remembered until its own `KYA-Expires`; the same request
+again gets `401 KYA_REQUEST_REPLAYED`:
+
+```ts
+import { createKyaAuth, memoryReplayCache } from "@kya-brasil/agent-tools";
+const auth = createKyaAuth({ replayCache: memoryReplayCache() });   // works with the offline option too
+```
+
+The key is the SHA-256 of the signed request text (credential, delegation, method, URL, created, expires, body
+hash), recorded only after the request fully verified, so forged requests cannot fill the cache. Entries live
+until the request expires, never less (a shorter memory lets a replay through; see `docs/formal/threats.als`), and
+`maxTtlSeconds` must be finite. `memoryReplayCache()` serves one process (`maxEntries`, default 100 000; when full
+of live entries it refuses rather than forgets). With several instances, implement `ReplayCache.seen(key,
+expiresAt, now)` on a shared store that records atomically (Redis `SET key 1 NX PXAT expiresAt`, a unique key in
+a database); a store error answers `502 KYA_REPLAY_CACHE_UNAVAILABLE`. An agent that sends two identical requests
+in the same second must vary them (any body or query difference), or the second is refused as a replay.
+
 ### Agent to agent (mutual)
 
 The callee signs its response, bound to the request; the caller verifies who answered.
@@ -232,6 +252,22 @@ try { ecnpj_signature = await token.sign(reg.challenge.text); } finally { token.
 The PIN comes from `KYA_TOKEN_PIN` or is asked for. The key never leaves the token. Tested against SoftHSM2 (a
 software PKCS#11 token) in CI. The signing code is in `@kya-brasil/core` (`openPfx`, `ecnpjSigner`,
 `buildDetachedCms`), re-exported here; any other token or cloud signer plugs into `ecnpjSigner`.
+
+**Issue the credential yourself, no service (D-37).** With the token (or `--pfx` / `--cloud`), the holder issues a
+self-issued credential (`issuer: urn:kya-brasil:self`) from a mandate input file (`MandateInput` of
+`@kya-brasil/core`: `credential_id`, `agent`, `principal`, every risk field of `mandate`, `ttl_seconds`; `now`
+optional, default the current clock). `--anchors` is the ICP-Brasil bundle (PEM) the result is checked against.
+A legal representative then co-signs with their e-CPF (SPEC section 21; on a token, the e-CPF certificate is picked
+unless `--label` says otherwise), so a verifier can check that the company, not only whoever holds its e-CNPJ, wants
+the mandate (`verifyCompanyWill` in the core):
+
+```sh
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --issue mandate-input.json --anchors icp-brasil.pem --out credential.json
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --cosign credential.json --anchors icp-brasil.pem   # e-CPF of a representative
+```
+
+`credential.json` holds `{ credential, proof }`: hand both to the agent. The text signed is printed before signing.
+Check the certificate's CRL before using the credential (the command does not go online).
 
 **Cloud certificate (PSC).** `kya-sign --cloud ./my-psc.mjs --link "<sign_url>"` with a module that implements
 `CloudSignatureProvider` for your PSC ([template](https://github.com/celfons/kya-brasil/tree/main/examples/cloud-provider));

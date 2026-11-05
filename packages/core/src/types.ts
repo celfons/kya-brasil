@@ -110,6 +110,20 @@ export interface Credential {
   verify_url: string;
   revocation_url: string;
   attestation?: Attestation;
+  /**
+   * Co-signatures of a self-issued company credential by legal representatives (SPEC section 21, additive): which
+   * e-CPF certificates co-signed the same text, by hash. No CPF, no name: the CMS travel in the proof.
+   */
+  cosignatures?: Cosignature[];
+}
+
+/** A legal representative's co-signature as the credential records it: no personal data. */
+export interface Cosignature {
+  method: "icp-brasil-e-cpf";
+  certificate_sha256: string;
+  issuer: string;
+  signed_at: string;
+  not_after: string;
 }
 
 export class KyaError extends Error {

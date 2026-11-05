@@ -86,7 +86,7 @@ checked by the round-trip and tampering tests and by `docs/vectors/self-issued-v
 
 ## Threat model (pre-project §2.1)
 
-`threats.als` is a separate module for two threats that `mandate.als` does not cover. For each one it states the
+`threats.als` is a separate module for threats that `mandate.als` does not cover: replay, the certificate holder versus the company's representatives, and issuer unavailability. For each one it states the
 product's current rule, the property one would want, and a mitigation. A counterexample to a current-rule check is
 expected: it records a limitation of the product, not a bug in the model. Time is scaled down: 3 units stand for
 the 300 s allowed for a creation time in the future, and 6 for the 600 s maximum lifetime (SPEC §14).
@@ -104,6 +104,28 @@ java -jar org.alloytools.alloy.dist.jar exec -f -o out-threats docs/formal/threa
 | `check IssuanceImpliesCompanyWill` | counterexample (expected) | Whoever holds the e-CNPJ obtains a credential, even if they do not represent the company. The product checks the certificate, never who operates it, and it does not read the QSA (ii-b). |
 | `check CoSignedImpliesCompanyWill` | UNSAT, holds | Under the proposal (a co-signature with the e-CPF of a representative listed in the QSA), it holds by construction. Its strength rests on the verifier knowing the representatives. |
 | `run AccountantWithCoSignature` | SAT | Sanity check: the proposal still admits an accountant who holds the certificate, with a representative co-signing. |
+| `check NoReplayImplemented` | UNSAT, holds | The replay cache as implemented in agent-tools 0.13.0 (`replayCache`: key = the signed request text, entry kept until the request's own `expires`, evicted by the verifier's clock) accepts each request at most once. |
+| `check NoReplayClockDrift` | counterexample (expected) | A store that evicts by a clock 2 units ahead of the verifier's forgets a request the window still accepts; hence `seen(key, expiresAt, now)` receives the verifier's clock. |
+| `run ImplementedAccepts` | SAT | Sanity check: the implemented cache still accepts distinct requests. |
+| `check CoSignatureSound` | UNSAT, holds | Co-signature design: a second CMS over the same challenge text by an e-CPF whose CPF is in the verifier's `representatives(cnpj)` list. If the list is accurate and each e-CPF is operated by its owner, acceptance implies a real representative agreed to this mandate. |
+| `check CoSignatureStaleList` | counterexample (expected) | With a stale list (someone no longer in the QSA still listed), the property fails: the list is a trust assumption. |
+| `check CoSignatureLentECpf` | counterexample (expected) | With an e-CPF operated by someone else (lent token, copied A1), it fails: the residual risk moves to the representative's own certificate. |
+| `check CoSignatureNeedsSameText` | counterexample (expected) | A verifier that does not require the co-signed text to equal the challenge accepts a co-signature taken from another mandate. |
+| `check NoCoSignatureNoCompanyWill` | UNSAT, holds | Without a co-signature the credential is never accepted as the company's will, whoever operates the e-CNPJ. |
+| `run AccountantCoSigned` | SAT | Sanity check: an accountant operating the e-CNPJ, with a listed representative co-signing, is accepted. |
+| `check IssuerDownFailsClosed` | UNSAT, holds | With the hosted issuer down, online-only mode (and the `issuerFallback` path for requests without the credential) refuses: 502, fail closed. |
+| `check OfflineIndependentOfIssuer` | UNSAT, holds | Offline mode with the credential presented gives the same answer with the issuer up or down. |
+| `check NoStaleRevokedAccepted` | UNSAT, holds | Offline, with the freshness policy (CRL at most `MAXAGE` old), a certificate revoked `MAXAGE` or more ago is never accepted. |
+| `check NoStaleRevokedWithoutPolicy` | counterexample (expected) | Without the freshness policy, an old CRL lets a long-revoked certificate through. |
+| `check NoRevokedAcceptedOffline` | counterexample (expected) | The residual window: a certificate revoked after the CRL was issued, less than `MAXAGE` ago, is accepted. The policy bounds the exposure; it does not remove it. |
+| `run IssuerDownOfflineStillAccepts` | SAT | With the issuer down, an offline verifier accepts a presented credential with a fresh CRL while an online-only verifier refuses the same one at the same time. |
 
-The model does not cover issuer unavailability, which is an availability concern and not a property of a single
-state.
+Scopes: replay commands 4 with 5-bit Int (times kept in 0..10 for the new ones so arithmetic cannot wrap), co-signature
+commands 5, issuer-unavailability commands 4 with 5-bit Int and `MAXAGE` = 3.
+
+Notes on what the new parts mirror. The replay cache records only after the request fully verified (a forged request
+neither fills the cache nor burns a genuine key) and refuses when its memory is full of live entries; both only
+remove acceptances and are left out of the model. The co-signature is a design being implemented in the core; the
+model fixes its acceptance rule (same text, listed CPF) and shows its two trust assumptions. In the product the
+freshness policy is applied by `check()` / `allowed()` (`checkFreshAction`), not by `authenticate`, which takes the
+CRL the caller's `certificateStatus` returns; "accepts" in the model is the action decision.

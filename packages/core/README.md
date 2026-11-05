@@ -106,6 +106,23 @@ mandate's `valid_until` nor the certificate's end of validity. To revoke before 
 certificate or issues mandates with short lifetimes; there is no status service to ask. The certificate signer
 stays outside the core: an A3 token (PKCS#11 and PIN) is `openToken` in `@kya-brasil/agent-tools`.
 
+**Co-signature by a legal representative (SPEC section 21).** Holding the company's e-CNPJ does not make someone its
+representative. A self-issued company credential may carry co-signatures by e-CPF over the same text; the verifier
+supplies the representatives (the QSA, from its own source) and the core counts them:
+
+```ts
+import { addCosignature, verifyCompanyWill } from "@kya-brasil/core";
+
+const repCms = await representativeSigner.sign(proof.text);                 // e-CPF, the SAME text
+const cosigned = await addCosignature({ credential, proof }, repCms, [], { anchors: icpBrasilAnchors, now: new Date() });
+const will = await verifyCompanyWill(cosigned, { anchors: icpBrasilAnchors, now: new Date(), representatives: (cnpj) => qsaCpfs(cnpj), minCosigners: 1 });
+// will.ok, or will.code: NO_COSIGNATURE | COSIGNER_NOT_REPRESENTATIVE | COSIGNATURE_TEXT_MISMATCH |
+// COSIGNER_CERTIFICATE_INVALID | COSIGNATURE_NOT_RECORDED | INSUFFICIENT_COSIGNERS | COMPANY_SIGNATURE_INVALID
+```
+
+The credential records only the e-CPF certificate's hash, issuer and dates; the CMS (which carries the certificate,
+and so the CPF) travels in the proof (`proof.cosignatures`, also in `KYA-Principal-Proof`). The result has no CPF.
+
 Delegation, issued by the parent agent with its own key:
 
 ```ts

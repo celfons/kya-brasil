@@ -315,7 +315,13 @@ passed, MUST recompute the body hash when a body is present, MUST verify the sig
 agent key (`agent.id`, or `agent.wallet` for `erc8004`), or, when `KYA-Delegation` is present, with the key of
 the last delegate after verifying the chain (section 17), and MUST accept only `status == "active"`. It MAY
 cache the credential for a short time (60 s in the reference client) and SHOULD honour `/v1/revocations`.
-This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
+A verifier SHOULD refuse
+replays: it records each accepted request under the SHA-256 of its request text and keeps the record at least
+until that request's `expires` (a record kept for less lets the same request through again inside its window), and
+it refuses a request already recorded (`401 KYA_REQUEST_REPLAYED`). It records only after the request verified,
+needs a bounded lifetime (`expires - created` at most 600 s), and, when several instances serve one API, a shared
+store that records atomically. Reference: the `replayCache` option of `createKyaAuth` (`memoryReplayCache()` for a
+single process), in both the issuer and the offline modes. This profile is deliberately simple; an RFC 9421 (HTTP Message Signatures) binding for `web-bot-auth` keys
 is planned and will carry the same `KYA-Credential` header.
 
 **Without the issuer.** A verifier MAY accept the credential from the request instead of fetching it: the agent
@@ -586,3 +592,38 @@ The certificate's revocation is checked as in section 19.
 that wants to withdraw a self-issued credential before it expires revokes the certificate, so it SHOULD choose short
 lifetimes. This is the trade-off of issuing without a service; a principal that wants revocation of single
 credentials uses an issuer (sections 6 and 10).
+
+## 21. Co-signature by a legal representative
+
+Whoever holds a company's e-CNPJ can sign the text of section 20, whether or not they represent the company (the
+Alloy model finds this: the e-CNPJ proves possession of the certificate, not the power to bind the company). A
+self-issued company credential MAY therefore carry co-signatures by its legal representatives. The reference
+implementation is `packages/core/src/cosign.ts` (`addCosignature`, `verifyCompanyWill`).
+
+**What is signed.** Each co-signature is a CMS/PKCS#7 SignedData, as in section 20, by a natural person's e-CPF
+(section 16) over the SAME bytes the e-CNPJ signed (the proof's `text`). An e-CNPJ is not a co-signer.
+
+**Where it travels.** Additive to /v1, and following section 12 (the credential never contains the CPF or name of a
+natural person acting for a company):
+
+- the credential gains `cosignatures`: a list of `{ method: "icp-brasil-e-cpf", certificate_sha256, issuer,
+  signed_at, not_after }`, one per co-signer, with no CPF and no name;
+- the proof (section 19, `KYA-Principal-Proof`) gains `cosignatures`: the list of co-signature CMS (base64 DER). They
+  carry the representatives' certificates, so they reach the verifier, which needs the CPF to match it; like the
+  principal's CMS, an issuer MUST NOT store them.
+
+**Who represents the company** is the verifier's input: a function from the CNPJ to the CPFs of its legal
+representatives (the QSA, from the verifier's own source). The core never calls the Receita Federal.
+
+**Verification** (`verifyCompanyWill`): the credential is accepted as the company's will only when
+
+1. it passes section 20 (`verifySelfIssuedCredential`), else `COMPANY_SIGNATURE_INVALID`;
+2. it carries at least one co-signature, else `NO_COSIGNATURE`;
+3. every co-signature in the proof verifies over the proof's text (else `COSIGNATURE_TEXT_MISMATCH`) with an e-CPF in
+   force at the verifier's clock and chained to the anchors (else `COSIGNER_CERTIFICATE_INVALID`), and the proof's
+   co-signatures and the credential's `cosignatures` name the same certificates (else `COSIGNATURE_NOT_RECORDED`);
+4. at least `minCosigners` (default 1) distinct CPFs read from those certificates are among the representatives
+   (none: `COSIGNER_NOT_REPRESENTATIVE`; some but fewer: `INSUFFICIENT_COSIGNERS`).
+
+The result carries the certificate hash of each co-signer and what its CRL check needs (section 10), never the CPF.
+The revocation of the e-CPF certificates is checked by the verifier, as for the principal's certificate.
