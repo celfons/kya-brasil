@@ -1,33 +1,33 @@
 # Runbook
 
-## Segredos por ambiente (GitHub environment `prod`; o `dev` saiu do CD)
-`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Opcionais:
-`INTERNAL_API_KEY`, `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`. Vars opcionais: `WORKER_NAME`, `CNPJ_API_URL`
-(fonte própria da situação cadastral no formato BrasilAPI, tentada antes da BrasilAPI e do CNPJ.ws, D-23),
-`REGISTRATION_CHECK` (`off` desliga a checagem da situação cadastral; falha nunca bloqueia, vira aviso, D-24),
+## Secrets per environment (GitHub environment `prod`; `dev` was removed from CD)
+`PULUMI_ACCESS_TOKEN`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `PAY_TO`. Optional:
+`INTERNAL_API_KEY`, `CDP_API_KEY_ID`, `CDP_API_KEY_SECRET`. Optional vars: `WORKER_NAME`, `CNPJ_API_URL`
+(your own source for registration status in BrasilAPI format, tried before BrasilAPI and CNPJ.ws, D-23),
+`REGISTRATION_CHECK` (`off` turns off the registration status check; a failure never blocks, it becomes a warning, D-24),
 `X402_NETWORK`, `FACILITATOR_URL`, `ISSUER_URL`.
 
-## Âncoras ICP-Brasil
-Fonte principal: `anchors/icp-brasil.pem`, um pacote PEM versionado no repositório com as raízes da
-AC Raiz (v2, v5, v10, v11, v12) e, de preferência, as ACs intermediárias credenciadas (ACcompactado.zip).
-Baixe de https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz num navegador (o site
-usa certificado ICP-Brasil, que o Node do runner não reconhece), converta com
-`openssl x509 -inform der -in arquivo.crt` quando vier em DER, concatene e faça commit. O CD envia
-esse arquivo ao KV em cada deploy. Sem o arquivo, ele tenta baixar do ITI e só avisa se falhar; o KV
-mantém o valor anterior. À mão: `KV_NAMESPACE_ID=... node scripts/icp-anchors.mjs --file anchors/icp-brasil.pem`.
-`GET /status` não mostra as âncoras; uma prova com âncoras ausentes responde 422 `CERTIFICATE_INVALID`
-com a mensagem de que não há âncoras.
+## ICP-Brasil anchors
+Main source: `anchors/icp-brasil.pem`, a PEM bundle versioned in the repository with the roots of the
+AC Raiz (v2, v5, v10, v11, v12) and, preferably, the accredited intermediate CAs (ACcompactado.zip).
+Download from https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz in a browser (the site
+uses an ICP-Brasil certificate, which the runner's Node does not recognize), convert with
+`openssl x509 -inform der -in arquivo.crt` when it comes in DER, concatenate and commit. CD sends
+this file to KV on every deploy. Without the file, it tries to download from ITI and only warns if that fails; KV
+keeps the previous value. By hand: `KV_NAMESPACE_ID=... node scripts/icp-anchors.mjs --file anchors/icp-brasil.pem`.
+`GET /status` does not show the anchors; a proof with missing anchors returns 422 `CERTIFICATE_INVALID`
+with a message saying there are no anchors.
 
-## Chave de assinatura
-Gerada uma vez por stack pelo CD e guardada na config do Pulumi (`pulumi config refresh --force` a
-restaura em cada deploy). Rotação: `node scripts/rotate-attest-key.mjs` imprime a chave nova e o JSON de
-chaves aposentadas a colocar em `kya-br-agents:attestPreviousKeys`.
+## Signing key
+Generated once per stack by CD and stored in the Pulumi config (`pulumi config refresh --force`
+restores it on every deploy). Rotation: `node scripts/rotate-attest-key.mjs` prints the new key and the JSON of
+retired keys to put in `kya-br-agents:attestPreviousKeys`.
 
-## Revisão diária
-Cron `17 3 * * *` UTC chama `dailyReview`: até 500 credenciais ativas ou suspensas por execução, ordenadas
-pela revisão mais antiga: LCR do e-CNPJ (D-16) e situação cadastral (D-15). O log do Worker mostra
+## Daily review
+Cron `17 3 * * *` UTC calls `dailyReview`: up to 500 active or suspended credentials per run, ordered
+by oldest review: e-CNPJ CRL (D-16) and registration status (D-15). The Worker log shows
 `daily review {"reviewed","suspended","reinstated","revoked","errors"}`.
 
-## Teste local
-`pnpm dev` com `.dev.vars` (ver `.dev.vars.example`). A situação cadastral vem da BrasilAPI / CNPJ.ws sem chave;
-para testar uma fonte própria, `CNPJ_API_URL=http://localhost:3000/api/cnpj/v1/{cnpj}`.
+## Local testing
+`pnpm dev` with `.dev.vars` (see `.dev.vars.example`). Registration status comes from BrasilAPI / CNPJ.ws with no key;
+to test your own source, `CNPJ_API_URL=http://localhost:3000/api/cnpj/v1/{cnpj}`.
