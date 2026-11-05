@@ -6,7 +6,7 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { delimiter, isAbsolute, join, relative, sep } from "node:path";
 import { STATE_DIR, paths } from "./workspace.js";
 
 /** Never counted: dependencies, build output, the kit's state and test PKI, lock files, reports. */
@@ -25,9 +25,29 @@ export interface ChangeStats {
 
 const sha = (s: string | Buffer) => createHash("sha256").update(s).digest("hex");
 
+/**
+ * Absolute path of the git executable, looked up only in the absolute directories of PATH (never the current
+ * folder, which on Windows is searched first and here is the participant's workspace), or null.
+ */
+export function findGit(env: NodeJS.ProcessEnv = process.env): string | null {
+  const names = process.platform === "win32" ? ["git.exe"] : ["git"]; // git.cmd would need a shell
+  for (const dir of (env.PATH ?? env.Path ?? "").split(delimiter)) {
+    if (!dir || !isAbsolute(dir)) continue;
+    for (const name of names) {
+      const f = join(dir, name);
+      try {
+        if (statSync(f).isFile()) return f;
+      } catch { /* not here */ }
+    }
+  }
+  return null;
+}
+
 function git(ws: string, args: string[], env?: Record<string, string>) {
+  const bin = findGit();
+  if (!bin) return { ok: false, out: "" };
   // Neutral identity and no signing: nothing of the participant's git config ends up in the baseline commit.
-  const r = spawnSync("git", ["-c", "user.name=kya-study", "-c", "user.email=kya-study@localhost", "-c", "commit.gpgsign=false", "-c", "core.autocrlf=false", ...args], {
+  const r = spawnSync(bin, ["-c", "user.name=kya-study", "-c", "user.email=kya-study@localhost", "-c", "commit.gpgsign=false", "-c", "core.autocrlf=false", ...args], {
     cwd: ws, encoding: "utf8", env: { ...process.env, GIT_TERMINAL_PROMPT: "0", ...env }
   });
   return { ok: r.status === 0 && !r.error, out: r.stdout ?? "" };
@@ -35,7 +55,9 @@ function git(ws: string, args: string[], env?: Record<string, string>) {
 
 export function gitAvailable(): boolean {
   if (process.env.KYA_STUDY_NO_GIT === "1") return false;
-  const r = spawnSync("git", ["--version"], { encoding: "utf8" });
+  const bin = findGit();
+  if (!bin) return false;
+  const r = spawnSync(bin, ["--version"], { encoding: "utf8" });
   return r.status === 0 && !r.error;
 }
 

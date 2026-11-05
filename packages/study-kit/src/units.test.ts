@@ -1,6 +1,9 @@
 import { isValidCnpj } from "@kya-brasil/core";
 import { describe, expect, it } from "vitest";
-import { compareSnapshots } from "./diffstats.js";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { delimiter, join } from "node:path";
+import { compareSnapshots, findGit } from "./diffstats.js";
 import { categorize, categorizeThrown } from "./errors.js";
 import { SCENARIO, gradePolicy, referenceMandate } from "./policy.js";
 import { quantile, scrub } from "./report.js";
@@ -83,5 +86,14 @@ describe("report helpers", () => {
   });
   it("scrub removes e-mails and other users' home folders", () => {
     expect(scrub("C:\\Users\\fulana\\proj e /home/beltrano/x, mail a@b.com")).toBe("<caminho> e <caminho>, mail <email>");
+  });
+});
+
+describe("git lookup", () => {
+  it.skipIf(process.platform === "win32")("only absolute PATH entries, never the current folder", () => {
+    const dir = mkdtempSync(join(tmpdir(), "kya-study-git-"));
+    writeFileSync(join(dir, "git"), "#!/bin/sh\n");
+    expect(findGit({ PATH: [".", "bin", dir].join(delimiter) })).toBe(join(dir, "git"));
+    expect(findGit({ PATH: "." })).toBeNull();
   });
 });
