@@ -2,5 +2,6 @@ packages:
   - "apps/*"
   - "packages/*"
   - "infra"
+  - "examples/quickstart"
 onlyBuiltDependencies:
   - pkcs11js

@@ -14,6 +14,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - name: Quickstart examples (test PKI, self-issue, agent and offline verifier)
+        run: pnpm --filter @kya-brasil/examples-quickstart quickstart
       - name: Worker bundle builds
         run: pnpm --filter @kya-br/worker build
       - name: MCP server builds and starts over stdio

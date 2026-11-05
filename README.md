@@ -27,6 +27,59 @@ verifiable offline, live status at a stable URL, revocable at once. Every per-ac
 KYA Brasil answers *who speaks for whom*, not *whether they are a good risk*. Sanctions, debt and litigation are
 the verifier's call, with whatever screening it trusts.
 
+## Start here
+
+Pick the role you are in. A runnable version of the offline and self-issued paths, with a throwaway test PKI, is in
+[examples/quickstart](examples/quickstart) (CI runs it). "D-xx" in these docs is a numbered decision in
+[docs/DECISOES.md](docs/DECISOES.md).
+
+**(a) You verify agents that call your API.** Hosted mode asks the issuer; offline mode needs no service at all: the
+agent sends its credential and the principal's proof, you bring the ICP-Brasil anchors, a clock, the CRL and a
+replay cache.
+
+```ts
+import { createKyaAuth, memoryReplayCache } from "@kya-brasil/agent-tools";
+const hosted = createKyaAuth();                                   // credential and status from the issuer
+const offline = createKyaAuth({ replayCache: memoryReplayCache(), offline: {
+  anchors, now: () => new Date(),                                 // anchors: PEM strings, e.g. from anchors/icp-brasil.pem
+  certificateStatus: async ({ revocation }) => evidenceFromRevocation(/* verifyCrl / checkRevocation on a cached CRL */) } });
+const r = await offline.authenticate(request);                    // or .hono(), .express(), .fetchHandler()
+if (r.ok && r.kya.check({ action: "pay", amount: 100, currency: "BRL" }).allowed) { /* go */ }
+```
+
+More: [For verifiers](#for-verifiers-you-receive-an-action-from-someone-elses-agent),
+[agent-tools: offline mode](packages/agent-tools/README.md), [example](examples/quickstart/agent-and-verifier-offline.mjs).
+
+**(b) You build the agent.** Sign every request with the agent's key. Add `present` when the verifier works
+offline, so the credential and the principal's proof travel with the request.
+
+```ts
+import { signRequest } from "@kya-brasil/agent-tools";
+const headers = await signRequest({ credentialId: credential.credential_id, key: { kind: "evm", privateKey },
+  method: "POST", url, body, present: { credential, proof } });   // present: only for offline verifiers
+await fetch(url, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body });
+```
+
+More: [Sign in with KYA](#sign-in-with-kya-one-middleware), [Give your agent a credential](#give-your-agent-a-credential).
+
+**(c) Your company issues its own agents' credentials (D-37), no issuer service.** The e-CNPJ signs the exact
+mandate text; a legal representative can co-sign with an e-CPF so a verifier can check the company's will.
+
+```ts
+import { buildMandate, mandateSigningInput, openPfx, assembleCredential, addCosignature, verifyCompanyWill } from "@kya-brasil/core";
+const built = await buildMandate({ credential_id, agent, principal: { kind: "company", cnpj }, mandate, ttl_seconds, now });
+const { text } = await mandateSigningInput(built);                // show it to whoever signs
+const cms = await (await openPfx(pfxBytes, password)).sign(text);
+const issued = await assembleCredential(built, cms, [], { anchors, now });            // { credential, proof }
+const cosigned = await addCosignature(issued, await representative.sign(issued.proof.text), [], { anchors, now });
+const will = await verifyCompanyWill(cosigned, { anchors, now, representatives: (cnpj) => qsaCpfs(cnpj) });
+```
+
+From the terminal: `kya-sign --pfx empresa.pfx --issue mandate-input.json --anchors icp-brasil.pem --out credential.json`,
+then `kya-sign --pfx representante.pfx --cosign credential.json --anchors icp-brasil.pem --out credential.json`
+([sample input](examples/quickstart/mandate-input.json)). More: [packages/core/README.md](packages/core/README.md),
+[example](examples/quickstart/self-issue.mjs).
+
 | | |
 | --- | --- |
 | Service | `https://kya-br-agents.marcelfons.workers.dev` (landing, `/docs` Swagger, `/status`) |
@@ -65,10 +118,15 @@ await verifyAttestation(verdict);                                 // the issuer'
 ```
 
 - Check that the key that signed the agent's request is `v.agent.id` (or `v.agent.wallet` for ERC-8004).
-- Check `principal.kind` before reading `principal.cnpj`: `"person"` credentials carry no CNPJ and nothing personal.
+- Tell the principal apart by `principal.kind === "person"`: a person's credential carries no CNPJ and nothing
+  personal. A company principal from the issuer has no `kind` field (`/v1` only adds fields), so do not test for
+  `kind === "company"`: anything not `"person"` carries `principal.cnpj`. (Self-issued credentials do carry
+  `kind: "company"`.)
 - `max_per_day` uses the `spent_today` you pass: the issuer does not record what agents do.
-- Offline (issuer unreachable): `verifyCredentialOffline(credential)` checks signature and expiry, with
-  `live_status: "unknown"`.
+- Offline (issuer unreachable): `verifyCredentialOffline(credential)` checks the issuer's signature and expiry, with
+  `live_status: "unknown"`. It only covers credentials attested by an issuer; a self-issued credential
+  (`issuer: "urn:kya-brasil:self"`, D-37) has no issuer signature: verify it with `verifySelfIssuedCredential` (core),
+  or let `createKyaAuth({ offline, replayCache })` do it per request.
 
 Over MCP: `kya_verify`, `kya_check_action`, `kya_verify_paid`. Claude Desktop, Cursor and others: add the remote
 server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth, or run it locally with `npx -y @kya-brasil/mcp`
@@ -76,7 +134,9 @@ server `https://kya-br-agents.marcelfons.workers.dev/mcp`, no auth, or run it lo
 
 ### Sign in with KYA (one middleware)
 
-The agent signs every request with its key (four `KYA-*` headers); your server verifies it and gets who the agent
+The agent signs every request with its key (`KYA-Credential`, `KYA-Created`, `KYA-Expires`, `KYA-Signature`; plus
+`KYA-Content-SHA256` when there is a body, `KYA-Delegation` for a sub-agent, and `KYA-Credential-Document` and
+`KYA-Principal-Proof` with `present`, up to eight); your server verifies it and gets who the agent
 is, who answers for it and its mandate. Hono, Express, Workers, Next, Bun, Deno.
 
 ```ts

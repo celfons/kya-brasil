@@ -41,6 +41,12 @@ const offline = await verifyCredentialOffline(credential);   // issuer down: sig
                                                              // live_status "unknown" (your risk until expires_at)
 ```
 
+`verifyCredentialOffline` checks the attestation of an issuer: it does not apply to a self-issued credential
+(`issuer: "urn:kya-brasil:self"`, D-37), which has none. For those use [offline mode](#verify-without-the-issuer-offline)
+(`createKyaAuth({ offline, replayCache })`) or `verifySelfIssuedCredential` from `@kya-brasil/core`. A company
+principal from the issuer has no `kind` field; only person credentials carry `kind: "person"`, so test for
+`"person"`, not for `"company"`.
+
 Also check that the key that signed the agent's request is `v.agent.id`; the credential_id alone proves nothing.
 
 Company side, after issuance: see every agent in your name and get signed events (issued, renewed, suspended,
@@ -80,6 +86,8 @@ ceilings) and `allowed(q)` (the issuer's signed verdict, $0.01). The agent signs
 ```ts
 import { signRequest } from "@kya-brasil/agent-tools";
 const headers = await signRequest({ credentialId, key: { kind: "evm", privateKey: agentPk }, method: "POST", url, body });
+// headers: KYA-Credential, KYA-Created, KYA-Expires, KYA-Signature, and KYA-Content-SHA256 when there is a body
+// (+ KYA-Delegation for a sub-agent, + KYA-Credential-Document and KYA-Principal-Proof with `present`)
 await fetch(url, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body });
 ```
 
@@ -110,6 +118,8 @@ in the same second must vary them (any body or query difference), or the second 
 The callee signs its response, bound to the request; the caller verifies who answered.
 
 ```ts
+import { createKyaAgent, signResponse } from "@kya-brasil/agent-tools";
+
 // callee (inside a handler, after auth.authenticate succeeded)
 const headers = await signResponse({ credentialId: myCredentialId, key: myKey, requestSignature: request.headers.get("kya-signature")!, body });
 return new Response(body, { headers: { ...headers, "content-type": "application/json" } });
@@ -145,26 +155,57 @@ Works with self-issued credentials (`issuer: "urn:kya-brasil:self"`, issued with
 `assembleCredential`) and with credentials from an issuer whose public key you list.
 
 ```ts
-import { createKyaAuth, signRequest } from "@kya-brasil/agent-tools";
-import { checkRevocation, evidenceFromRevocation } from "@kya-brasil/core";
+import { createKyaAuth, memoryReplayCache, signRequest } from "@kya-brasil/agent-tools";
+import { evidenceFromRevocation, verifyCrl, type VerifiedCrl } from "@kya-brasil/core";
 
 // agent: credential and proof as assembleCredential returned them (or the issuer's credential + your .p7s proof)
 const headers = await signRequest({ credentialId, key, method: "POST", url, body, present: { credential, proof } });
 
-// server: nothing has a default; construction throws without anchors, now or certificateStatus
+// server: the certificate's CRL, fetched from crl_urls, verified against the AC and cached until its nextUpdate
+const crls = new Map<string, VerifiedCrl>();
+async function certificateStatus({ revocation }: CertificateStatusQuery) {
+  const url = revocation.crl_urls[0];
+  if (!url || !revocation.issuer_certificate) throw new Error("no CRL or AC certificate"); // -> 502, fail closed
+  let crl = crls.get(url);
+  if (!crl || (crl.next_update && Date.parse(crl.next_update) <= Date.now())) {
+    const crlDer = new Uint8Array(await (await fetch(url)).arrayBuffer());
+    crl = await verifyCrl({ crlDer, issuerCertificate: revocation.issuer_certificate, pastNextUpdate: "refuse", now: new Date() });
+    crls.set(url, crl);
+  }
+  return evidenceFromRevocation(crl.lookup(revocation.serial_number), url);
+}
+
+// nothing has a default; construction throws without anchors, now or certificateStatus
 const auth = createKyaAuth({
+  replayCache: memoryReplayCache(),                  // see "Replay protection"
   offline: {
-    anchors: icpBrasilRoots,                         // base64 DER / PEM
+    anchors: icpBrasilAnchors,                       // string[]: PEM blocks or base64 DER, see "Trust anchors" below
     now: () => new Date(),                           // your clock
-    certificateStatus: async ({ revocation }) =>     // you fetch and cache the CRL
-      evidenceFromRevocation(await checkRevocation({ crlDer: await myCrl(revocation.crl_urls), serial: revocation.serial_number,
-        issuerCertificate: revocation.issuer_certificate!, pastNextUpdate: "refuse", now: new Date() })),
+    certificateStatus,
     // freshness: { ... },                         // optional, SPEC section 18 (freshnessPolicy): check() also runs checkFreshAction
     issuerKeys: { "https://kya-br-agents.marcelfons.workers.dev": issuerJwk }, // optional; others are refused
     issuerFallback: false                            // optional: true sends requests without the credential to the issuer
   }
 });
 ```
+
+(`CertificateStatusQuery` is a type exported by this package. `checkRevocation({ crlDer, serial, issuerCertificate,
+pastNextUpdate, now })` is the one-shot form of `verifyCrl(...).lookup(serial)`.) A runnable version, with a test PKI
+and its CRL, is in [examples/quickstart](https://github.com/celfons/kya-brasil/tree/main/examples/quickstart).
+
+**Trust anchors.** `anchors` is an array of strings, each one certificate as a PEM block or as base64 DER. The
+ICP-Brasil bundle (roots and intermediate ACs, from the ITI) is `anchors/icp-brasil.pem` in the repository; it is
+not in the npm package. Fetch it from a pinned commit, not from `main`, and review changes to it like code:
+`https://raw.githubusercontent.com/celfons/kya-brasil/<commit>/anchors/icp-brasil.pem`. Split it into blocks with
+`pem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g)`.
+
+**Header size.** `KYA-Principal-Proof` carries the signed text and the full CMS, certificate chain included: about
+4 to 6 KB with the e-CNPJ alone and about 8.5 KB with one e-CPF co-signature (up to 12 KB when each CMS carries a
+three-certificate chain), plus about 2 KB of `KYA-Credential-Document`. Many proxies and servers limit request headers to 8 KB per header or 8 to 16 KB in total
+(nginx `large_client_header_buffers`, Node `--max-http-header-size`, 16 KB by default, cloud load balancers): raise
+the limit on the verifier's path. SPEC section 19 also allows the same `{ text, cms }` object in the request body;
+the middleware reads only the header, so a verifier that takes it from the body decodes it itself
+(`decodePrincipalProofHeader`) and calls `verifySelfIssuedCredential` / `verifyPrincipalProof`.
 
 Headers: `KYA-Credential-Document` (base64url of the credential's JSON) and `KYA-Principal-Proof`, plus
 `KYA-Delegation` for a sub-agent. The middleware verifies the request signature (agent or last delegate), the
@@ -190,7 +231,7 @@ const { credential } = await kya.prove(reg.credential_id, { challenge_id: reg.ch
 const m = await kya.principalMatch(credentialId, "529.982.247-25");   // $0.01, signed: { match, subject_ref? }
 
 // The person, to see their agents and every check made on them:
-const text = personAgentsText();                                        // sign it with the e-CPF
+const text = personAgentsText();                                        // import { personAgentsText }; sign it with the e-CPF
 const mine = await kya.personAgents({ signed_text: text, ecpf_signature });
 ```
 
@@ -221,7 +262,7 @@ const link = signingLink({ credentialId: reg.credential_id, challenge: reg.chall
 // (reg.sign_url is the same link without the agent signature)
 
 // Or in code, when you hold the A1 file yourself:
-const ecnpj_signature = signWithECnpjPfx(readFileSync("empresa.pfx"), process.env.PFX_PASSWORD!, reg.challenge.text);
+const ecnpj_signature = await signWithECnpjPfx(readFileSync("empresa.pfx"), process.env.PFX_PASSWORD!, reg.challenge.text);
 const { credential, warnings } = await kya.prove(reg.credential_id, { challenge_id: reg.challenge.id, agent_signature, ecnpj_signature }); // free
 ```
 
@@ -245,6 +286,8 @@ npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --link 
 ```
 
 ```ts
+import { openToken } from "@kya-brasil/agent-tools";
+let ecnpj_signature: string;
 const token = await openToken({ library: "/usr/lib/libeTPkcs11.so", pin: process.env.TOKEN_PIN! });
 try { ecnpj_signature = await token.sign(reg.challenge.text); } finally { token.close(); }
 ```
@@ -263,8 +306,13 @@ the mandate (`verifyCompanyWill` in the core):
 
 ```sh
 npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --issue mandate-input.json --anchors icp-brasil.pem --out credential.json
-npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --cosign credential.json --anchors icp-brasil.pem   # e-CPF of a representative
+npx -p @kya-brasil/agent-tools kya-sign --pkcs11 /usr/lib/libeTPkcs11.so --cosign credential.json --anchors icp-brasil.pem --out credential.json   # e-CPF of a representative
 ```
+
+A sample input is [examples/quickstart/mandate-input.json](https://github.com/celfons/kya-brasil/blob/main/examples/quickstart/mandate-input.json):
+every risk field is required (`[]` means "any", `delegation: null` means "may not delegate"). **`--cosign` without
+`--out` overwrites the input file** with the co-signed credential; pass `--out` to keep the original. Anchors: see
+[Trust anchors](#verify-without-the-issuer-offline).
 
 `credential.json` holds `{ credential, proof }`: hand both to the agent. The text signed is printed before signing.
 Check the certificate's CRL before using the credential (the command does not go online).
@@ -291,4 +339,6 @@ Renew every 90 days (`kya.renew` then `kya.renewProve`), revoke at once (`kya.re
 | register | 0.25 |
 
 Schemas and keys: `/.well-known/kya-mandate.schema.json`, `/.well-known/kya.json`, `/openapi.json`, `/llms.txt`.
-Legal entities only: no CPF is stored; the e-CNPJ signer is recorded by certificate hash.
+What the issuer stores: for a company, no CPF or name of the e-CNPJ holder (recorded by certificate hash only); for
+a person (D-29), only a keyed HMAC of the CPF, never the name or the CPF, deleted when the credential is revoked or
+expires.
