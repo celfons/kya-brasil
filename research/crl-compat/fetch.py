@@ -1,7 +1,7 @@
 """Downloads the current CRL of every source in sources.json (a snapshot of kya-icp/sources.json) and the ICP-Brasil
 root certificates, then pairs each CRL with the certificates whose subject equals its issuer.
 
-Writes data/crl/<id>.crl, data/cert/<sha256 prefix>.pem and data/pairs.json, whose paths are relative to data/.
+Writes data/crl/<sha256 prefix>.crl, data/cert/<sha256 prefix>.pem and data/pairs.json, whose paths are relative to data/.
 Run with python3 -I from this directory.
 
 CRLs and the ITI roots are served over plain HTTP: RFC 5280 distribution points are HTTP, and ITI's HTTPS uses the
@@ -25,7 +25,8 @@ ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")  # same rule as the kya-icp col
 PEM_RE = re.compile(r"-----BEGIN CERTIFICATE-----.+?-----END CERTIFICATE-----\n?", re.S)
 # The kya-icp collector keeps every CRL version it fetched (R2): used when an AC's server does not answer this run.
 COLLECTOR = os.environ.get("KYA_ICP_COLLECTOR", "https://kya-icp-collector.marcelfons.workers.dev")
-ROOT_URL = "http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv{}.crt"  # NOSONAR: see module docstring; pinned below
+# Plain HTTP on purpose (see the module docstring): each root is accepted only with the SHA-256 pinned below.
+ROOT_URL = "http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv{}.crt"  # NOSONAR
 ROOT_SHA256 = {
     2: "fb47d92a9909fd4fa9bec02737543e1f3514ced747407a8d9cfa397b0915067c",
     3: "1226ebf38af7335ffb346de68840d5652d9be7413a65b989375edac6a7f16172",
@@ -52,20 +53,13 @@ def checked_url(url):
 
 
 def get(url, timeout=90):
-    with urllib.request.urlopen(checked_url(url), timeout=timeout) as r:  # NOSONAR: URL validated by checked_url
+    # The URL comes from sources.json or a CRL's caIssuers, and checked_url limits it to http(s) on a public host.
+    with urllib.request.urlopen(checked_url(url), timeout=timeout) as r:  # NOSONAR
         return r.status, r.read()
 
 
 def ossl(args, data=None):
     return subprocess.run(["openssl", *args], input=data, capture_output=True)
-
-
-def under(base, name):
-    """Path of `name` inside `base`; refuses anything that would leave it."""
-    path = os.path.realpath(os.path.join(base, name))
-    if os.path.commonpath([path, os.path.realpath(base)]) != os.path.realpath(base):
-        raise ValueError(f"refusing path {name!r}")
-    return path
 
 
 def from_collector(source_id):
@@ -89,7 +83,7 @@ class Certs:
         subj = ossl(["x509", "-noout", "-subject", "-nameopt", "RFC2253"], pem.encode()).stdout.decode().strip()
         der = ossl(["x509", "-outform", "DER"], pem.encode()).stdout
         name = hashlib.sha256(der).hexdigest()[:16] + ".pem"
-        with open(under(os.path.join(DATA, "cert"), name), "w") as f:
+        with open(os.path.join(DATA, "cert", name), "w") as f:  # name is a hash of the certificate
             f.write(pem)
         self.by_subject.setdefault(subj, set()).add(name)
 
@@ -140,8 +134,9 @@ def describe(source, body, via, certs):
     info = ossl(["crl", "-inform", "DER", "-noout", "-issuer", "-nameopt", "RFC2253"], body)
     if info.returncode != 0:
         raise RuntimeError("not a CRL")
-    name = source["id"] + ".crl"
-    with open(under(os.path.join(DATA, "crl"), name), "wb") as f:
+    # Content-addressed, like the certificates: no part of the file name comes from sources.json.
+    name = hashlib.sha256(body).hexdigest()[:16] + ".crl"
+    with open(os.path.join(DATA, "crl", name), "wb") as f:
         f.write(body)
     issuer = info.stdout.decode().strip().replace("issuer=", "subject=", 1)
     text = ossl(["crl", "-inform", "DER", "-noout", "-text"], body).stdout.decode(errors="replace")

@@ -18,21 +18,34 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 RESEARCH = HERE.parent
-SOURCES = {
-    "monthly.csv": HERE / "data" / "monthly.csv",
-    "weekday_hour.csv": RESEARCH / "freshness-sim" / "data" / "weekday_hour.csv",
-    "results_measured.json": RESEARCH / "freshness-sim" / "results_measured.json",
-    "bench.json": RESEARCH / "bench" / "results.json",
-    "crl_compat.json": RESEARCH / "crl-compat" / "results" / "results.json",
-    "sensitivity.json": RESEARCH / "freshness-sim" / "sensitivity.json",
-}
+MONTHLY = HERE / "data" / "monthly.csv"
+WEEKDAY_HOUR = RESEARCH / "freshness-sim" / "data" / "weekday_hour.csv"
+MEASURED = RESEARCH / "freshness-sim" / "results_measured.json"
+BENCH = RESEARCH / "bench" / "results.json"
+CRL_COMPAT = RESEARCH / "crl-compat" / "results" / "results.json"
+SENSITIVITY = RESEARCH / "freshness-sim" / "sensitivity.json"
+PROP = "proporcional ao valor"
+CORE = "@kya-brasil/core"
+PKIJS = "PKI.js"
 FIGS = HERE / "out"
 FIGS.mkdir(exist_ok=True)
+NUMEROS = FIGS / "numeros.tex"
+
+
+def write_macros(macros, mode="a"):
+    """Writes one \\newcommand per number to out/numeros.tex ("w" starts the file)."""
+    with open(NUMEROS, mode, encoding="utf-8") as f:
+        if mode == "w":
+            f.write("% Gerado por research/paper/figuras.py; não editar à mão.\n")
+        for k, v in macros.items():
+            f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+
+
 plt.rcParams.update({"font.size": 9, "font.family": "serif", "axes.spines.top": False, "axes.spines.right": False})
 
 # Revogações por ano (LCR de usuário final)
 anos = Counter()
-for r in csv.DictReader(open(SOURCES["monthly.csv"], encoding="utf-8")):
+for r in csv.DictReader(open(MONTHLY, encoding="utf-8")):
     if r["tipo"] == "usuario-final":
         anos[r["mes"][:4]] += int(r["revogacoes"])
 xs = sorted(anos)
@@ -46,7 +59,7 @@ fig.savefig(FIGS / "revogacoes-ano.pdf")
 # Dia da semana × hora (horário de Brasília)
 grid = [[0] * 24 for _ in range(7)]
 nomes = [""] * 7
-for r in csv.DictReader(open(SOURCES["weekday_hour.csv"], encoding="utf-8")):
+for r in csv.DictReader(open(WEEKDAY_HOUR, encoding="utf-8")):
     d, h = int(r["weekday"]), int(r["hour_brt"])
     grid[d][h] = int(r["revocations"])
     nomes[d] = r["dia"]
@@ -60,7 +73,7 @@ fig.tight_layout()
 fig.savefig(FIGS / "dia-hora.pdf")
 
 # Números citados no texto
-res = json.load(open(SOURCES["results_measured.json"], encoding="utf-8"))
+res = json.load(open(MEASURED, encoding="utf-8"))
 cf = res["counterfactual"]["medido (reemissão 0,5 h)"]
 wh = res["weekday_hour"]
 lam = res["lambda"]
@@ -87,10 +100,7 @@ macros = {
     "JanelaComercial": br(cf["business_hours_mean_h"]),
     "JanelaForaComercial": br(cf["off_hours_mean_h"]),
 }
-with open(FIGS / "numeros.tex", "w", encoding="utf-8") as f:
-    f.write("% Gerado por scripts/figuras.py; não editar à mão.\n")
-    for k, v in macros.items():
-        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+write_macros(macros, "w")
 print("\n".join(f"{k} = {v}" for k, v in macros.items()))
 
 # Fronteira de Pareto: consultas × perda esperada por 1.000 ações (cenário medido)
@@ -100,7 +110,7 @@ frente = []
 for p in sorted(pts, key=lambda p: (p[0], p[1])):
     if not frente or p[1] < frente[-1][1] - 1e-9:
         frente.append(p)
-estilos = {"consultar sempre": ("s", "#333333"), "prazo fixo": ("o", "#4a6fa5"), "proporcional ao valor": ("^", "#c0504d"), "faixas de valor": ("D", "#9bbb59")}
+estilos = {"consultar sempre": ("s", "#333333"), "prazo fixo": ("o", "#4a6fa5"), PROP: ("^", "#c0504d"), "faixas de valor": ("D", "#9bbb59")}
 fig, ax = plt.subplots(figsize=(4.6, 2.6))
 for pol, (m, c) in estilos.items():
     sel = [p for p in pts if p[2] == pol]
@@ -112,9 +122,9 @@ ax.set_ylabel("perda esperada (R\\$/1.000 ações)")
 ax.legend(fontsize=7, frameon=False)
 fig.tight_layout()
 fig.savefig(FIGS / "pareto.pdf")
-prop_frente = [p for p in frente if p[2] == "proporcional ao valor"]
+prop_frente = [p for p in frente if p[2] == PROP]
 fixo12 = next(p for p in pts if p[2] == "prazo fixo" and p[3] == "12 h")
-prop001 = next(p for p in pts if p[2] == "proporcional ao valor" and p[3] == "L=0.01")
+prop001 = next(p for p in pts if p[2] == PROP and p[3] == "L=0.01")
 extra = {
     "PerdaPiso": br(pts[0][1], 2),
     "PropConsultas": br(prop001[0], 0),
@@ -123,14 +133,12 @@ extra = {
     "FixoDozePerda": br(fixo12[1], 2),
     "PropNaFrente": str(len(prop_frente)),
 }
-with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
-    for k, v in extra.items():
-        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+write_macros(extra)
 print("frente:", [(p[2], p[3], round(p[0]), round(p[1], 2)) for p in frente])
 print(extra)
 
 # Desempenho (data/bench.json, cópia de kya-brasil/research/bench/results.json)
-bench = json.load(open(SOURCES["bench.json"], encoding="utf-8"))
+bench = json.load(open(BENCH, encoding="utf-8"))
 med = {r["id"]: r for r in bench["results"]}
 sz = bench["sizes"]
 env = bench["env"]
@@ -147,7 +155,7 @@ linhas = [
     (f"LCR real do SERPRO ({br(77319, 0)} entradas): leitura e verificação", "crl_serpro_verify"),
 ]
 with open(FIGS / "desempenho.tex", "w", encoding="utf-8") as f:
-    f.write("% Gerado por scripts/figuras.py a partir de data/bench.json; não editar à mão.\n\\newcommand{\\LinhasDesempenho}{%\n")
+    f.write("% Gerado por research/paper/figuras.py a partir de research/bench/results.json; não editar à mão.\n\\newcommand{\\LinhasDesempenho}{%\n")
     for rot, k in linhas:
         d = 0 if med[k]["median_ms"] >= 100 else 1
         f.write(f"{rot} & {ms(k, d)} & {p95(k, d)} \\\\\n")
@@ -155,7 +163,7 @@ with open(FIGS / "desempenho.tex", "w", encoding="utf-8") as f:
 extra = {
     "BenchCPU": env["cpu"].replace("(R)", "").replace("  ", " ").strip(),
     "BenchNode": env["node"].lstrip("v"),
-    "BenchCore": env["packages"]["@kya-brasil/core"],
+    "BenchCore": env["packages"][CORE],
     "LookupSerpro": br(med["crl_serpro_lookup"]["median_ms"] * 1000, 1),
     "TamCredencial": kb(sz["credential_json"]),
     "TamCabecalhos": kb(sz["request_headers_total"]),
@@ -163,48 +171,44 @@ extra = {
     "TamSerpro": br(sz["crl_serpro"] / 1024 / 1024, 1),
     "OfflineMs": ms("authenticate_offline"),
 }
-with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
-    for k, v in extra.items():
-        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+write_macros(extra)
 print(extra)
 
 # Compatibilidade das bibliotecas com as LCR reais (data/crl_compat.json, cópia de
 # kya-brasil/research/crl-compat/results/results.json)
-cc = json.load(open(SOURCES["crl_compat.json"], encoding="utf-8"))
+cc = json.load(open(CRL_COMPAT, encoding="utf-8"))
 libs = cc["libraries"]
 nomes_lib = {"OpenSSL CLI": "OpenSSL", "Go crypto/x509": "Go \\texttt{crypto/x509}", "Python cryptography": "Python \\texttt{cryptography}",
-             "@peculiar/x509": "\\texttt{@peculiar/x509}", "PKI.js": "PKI.js", "node-forge": "node-forge", "@kya-brasil/core": "Esta biblioteca"}
+             "@peculiar/x509": "\\texttt{@peculiar/x509}", PKIJS: "PKI.js", "node-forge": "node-forge", CORE: "Esta biblioteca"}
 grupos = ["rsa_small", "rsa_large", "ecdsa_p521", "ecdsa_brainpool", "ed448", "ed521"]
 with open(FIGS / "compat.tex", "w", encoding="utf-8") as f:
-    f.write("% Gerado por scripts/figuras.py a partir de data/crl_compat.json; não editar à mão.\n\\newcommand{\\LinhasCompat}{%\n")
+    f.write("% Gerado por research/paper/figuras.py a partir de research/crl-compat/results/results.json; não editar à mão.\n\\newcommand{\\LinhasCompat}{%\n")
     for lib, nome in nomes_lib.items():
         t = libs[lib]
         ver = t["version"].lstrip("go")
         cel = [f"{t['groups'][g]['ok']}/{t['groups'][g]['n']}" for g in grupos]
         f.write(f"{nome} {ver} & " + " & ".join(cel) + f" & {t['end_entity_ok']}/{t['end_entity_n']} \\\\\n")
     f.write("}\n")
-g0 = libs["@kya-brasil/core"]["groups"]
+g0 = libs[CORE]["groups"]
 extra = {
     "CompatFontes": str(cc["crls"]),
     "CompatFontesTotal": str(cc["crls"] + len(cc["unreachable"])),
     "CompatVerificaveis": str(cc["verifiable"]),
     "CompatLimiar": br(cc["large_threshold"], 0),
     "CompatGrandes": str(g0["rsa_large"]["n"]),
-    "CompatUF": str(libs["@kya-brasil/core"]["end_entity_n"]),
-    "CompatCoreOk": str(libs["@kya-brasil/core"]["total_ok"]),
+    "CompatUF": str(libs[CORE]["end_entity_n"]),
+    "CompatCoreOk": str(libs[CORE]["total_ok"]),
     "CompatOpensslOk": str(libs["OpenSSL CLI"]["total_ok"]),
     "CompatPeculiarUF": str(libs["@peculiar/x509"]["end_entity_ok"]),
-    "CompatPkijsUF": str(libs["PKI.js"]["end_entity_ok"]),
+    "CompatPkijsUF": str(libs[PKIJS]["end_entity_ok"]),
     "CompatData": cc["fetched_at"][:10],
 }
-with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
-    for k, v in extra.items():
-        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+write_macros(extra)
 print(extra)
 
 # Sensibilidade: ganho da política proporcional sobre o prazo fixo de mesmo número de consultas
 # (data/sensitivity.json, cópia de kya-brasil/research/freshness-sim/sensitivity.json sem as linhas de cada política)
-sens = json.load(open(SOURCES["sensitivity.json"], encoding="utf-8"))
+sens = json.load(open(SENSITIVITY, encoding="utf-8"))
 fig, ax = plt.subplots(figsize=(4.6, 2.2))
 for med, (m, c) in zip(sens["medians_brl"], (("o", "#4a6fa5"), ("^", "#c0504d"))):
     sc = [s for s in sens["scenarios"] if s["median_brl"] == med and s["best"]]
@@ -232,7 +236,5 @@ for med in sens["medians_brl"][1:]:
     a, b = pick[(1, med)], pick[(100, med)]
     extra.update({"SensAltaMediana": br(med, 0), "SensAltaUmPct": br(100 * a["best"]["share_of_avoidable"], 0),
                   "SensAltaCemPct": br(100 * b["best"]["share_of_avoidable"], 0), "SensAltaCemGanho": br(b["best"]["gain_brl_per_1000"], 0)})
-with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
-    for k, v in extra.items():
-        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+write_macros(extra)
 print(extra)
