@@ -1,7 +1,7 @@
 """Gera as figuras e os números do artigo a partir dos resultados deste repositório.
 
 Cópia pública de kya-paper/scripts/figuras.py. Lê os resultados que os scripts de research/ escrevem e
-data/monthly.csv (cópia do conjunto de dados DOI 10.5281/zenodo.23977027), e escreve em out/ as figuras (PDF),
+data/monthly.csv (cópia do conjunto de dados DOI 10.5281/zenodo.23985090), e escreve em out/ as figuras (PDF),
 out/numeros.tex (macros com os números citados no texto), out/desempenho.tex e out/compat.tex (linhas das tabelas).
 
 Uso: python3 -I research/paper/figuras.py   (precisa de matplotlib)
@@ -236,5 +236,23 @@ for med in sens["medians_brl"][1:]:
     a, b = pick[(1, med)], pick[(100, med)]
     extra.update({"SensAltaMediana": br(med, 0), "SensAltaUmPct": br(100 * a["best"]["share_of_avoidable"], 0),
                   "SensAltaCemPct": br(100 * b["best"]["share_of_avoidable"], 0), "SensAltaCemGanho": br(b["best"]["gain_brl_per_1000"], 0)})
+write_macros(extra)
+print(extra)
+
+# Quadro de sócios: data/qsa.json, cópia de kya-icp/analysis/qsa/results.json (dados abertos do CNPJ, out./2026)
+qsa = json.load(open(HERE / "data" / "qsa.json", encoding="utf-8"))
+cob = qsa["cobertura"]
+todas = cob["TODAS"]["empresas"]
+sem_mei_ei = [v for k, v in cob.items() if not k.startswith("_") and k not in ("TODAS", "MEI (2135 + opcao MEI)", "EI nao-MEI (2135)")]
+n_sem = sum(v["empresas"] for v in sem_mei_ei)
+adm_sem = sum(v["com_PF_qual_admin_dir_pres_socioadm"]["n"] for v in sem_mei_ei)
+mei_ei = cob["MEI (2135 + opcao MEI)"]["empresas"] + cob["EI nao-MEI (2135)"]["empresas"]
+extra = {
+    "QsaAtivas": br(todas / 1e6, 1),
+    "QsaCoberturaSemMei": br(100 * adm_sem / n_sem, 1),
+    "QsaMeiEiPct": br(100 * mei_ei / todas, 0),
+    "QsaLtda": br(cob["LTDA (2062)"]["com_PF_qual_admin_dir_pres_socioadm"]["pct"], 1),
+    "QsaEntradaTresMeses": br(qsa["frescor_entrada"]["entrada_ultimos_3_meses"]["pct"], 1),
+}
 write_macros(extra)
 print(extra)

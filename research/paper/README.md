@@ -3,7 +3,7 @@
 `figuras.py` generates the paper's figures and every number its text cites, from the results the scripts in
 `research/` write: `bench/results.json`, `freshness-sim/results_measured.json` and `sensitivity.json`,
 `freshness-sim/data/weekday_hour.csv` and `crl-compat/results/results.json`. `data/monthly.csv` is a copy from the
-kya-icp dataset (DOI 10.5281/zenodo.23977027, CC BY 4.0).
+kya-icp dataset (DOI 10.5281/zenodo.23985090, version 2, CC BY 4.0); `data/qsa.json` is a copy of kya-icp `analysis/qsa/results.json` (aggregates of the CNPJ open data, Oct. 2026).
 
 ```bash
 python3 -I research/paper/figuras.py   # needs matplotlib; writes out/
