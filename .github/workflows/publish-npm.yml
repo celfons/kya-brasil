@@ -2,8 +2,9 @@
 # server, D-31) and @kya-brasil/study-kit (the case-study kit, research/study) to npm. Manual: needs the
 # NPM_TOKEN secret (npm "automation" token) in the prod environment. Versions come from each package.json; bump
 # them first. A version already on npm is skipped, so publishing one package never fails on the other.
-# Then mirrors the same builds to GitHub Packages as @celfons/kya-core, @celfons/kya-agent-tools and @celfons/kya-mcp
-# (GitHub requires the scope to be the repository owner), so all three show under the repository's Packages.
+# Then mirrors the same builds to GitHub Packages as @celfons/kya-core, @celfons/kya-agent-tools, @celfons/kya-mcp and
+# @celfons/kya-study-kit (GitHub requires the scope to be the repository owner), so all four show under the
+# repository's Packages.
 # npmjs.com stays the install channel.
 name: Publish npm package
 on:
@@ -129,6 +130,21 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           if npm view "@celfons/kya-mcp@$VERSION" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
             echo "::notice::@celfons/kya-mcp@$VERSION is already on GitHub Packages"
+          else
+            npm publish --registry https://npm.pkg.github.com
+          fi
+      - name: Mirror the study kit to GitHub Packages
+        working-directory: packages/study-kit
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Same build as the npm package (its dependencies already set to the published core and client by the npm
+          # step above); only the name changes. Participants install it from npm: npx @kya-brasil/study-kit init.
+          npm pkg set name=@celfons/kya-study-kit
+          npm config set //npm.pkg.github.com/:_authToken "$GH_PACKAGES_TOKEN" --location project
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@celfons/kya-study-kit@$VERSION" version --registry https://npm.pkg.github.com >/dev/null 2>&1; then
+            echo "::notice::@celfons/kya-study-kit@$VERSION is already on GitHub Packages"
           else
             npm publish --registry https://npm.pkg.github.com
           fi

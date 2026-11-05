@@ -84,7 +84,7 @@ then `kya-sign --pfx representante.pfx --cosign credential.json --anchors icp-br
 | --- | --- |
 | Service | `https://kya-br-agents.marcelfons.workers.dev` (landing, `/docs` Swagger, `/status`) |
 | MCP | remote (streamable HTTP) `https://kya-br-agents.marcelfons.workers.dev/mcp`, Registry `io.github.celfons/kya-brasil`; local (stdio) `npx -y @kya-brasil/mcp` |
-| npm | [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (the library), [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client, middleware, `kya-sign`), [`@kya-brasil/mcp`](packages/mcp) (local MCP server) |
+| npm | [`@kya-brasil/core`](https://www.npmjs.com/package/@kya-brasil/core) (the library), [`@kya-brasil/agent-tools`](https://www.npmjs.com/package/@kya-brasil/agent-tools) (client, middleware, `kya-sign`), [`@kya-brasil/mcp`](packages/mcp) (local MCP server), [`@kya-brasil/study-kit`](https://www.npmjs.com/package/@kya-brasil/study-kit) (case-study kit, `kya-study`) |
 | Payments | [x402](https://x402.org), USDC on Base, no signup. Free verification up to 50/day per IP. Errors are never charged. |
 | Spec | [docs/SPEC.md](docs/SPEC.md), [test vectors](docs/vectors/credential-v1.json), [decisions](docs/DECISOES.md), [examples](examples) |
 | License | MIT |
@@ -313,6 +313,21 @@ failure. [docs/RUNBOOK.md](docs/RUNBOOK.md), [docs/SELF-HOSTING.md](docs/SELF-HO
 **Code and service.** The MIT license covers this code. The hosted issuer at `kya-br-agents.marcelfons.workers.dev`
 is a service with its own [terms](https://kya-br-agents.marcelfons.workers.dev/terms), and the name KYA Brasil
 identifies it; a fork is a different issuer with a different key, and verifiers choose which issuers they trust.
+
+## Case study: integrate it from the docs alone
+
+A pre-registered hypothesis of this project (H3, [osf.io/t59kv](https://osf.io/t59kv)) is that an independent
+developer integrates KYA using only the documentation, without changing the library.
+[`@kya-brasil/study-kit`](packages/study-kit) is the instrument: it creates a local workspace with a throwaway
+test PKI, grades four tasks (issue a mandate, policy quality, offline verifier, revocation), asks a short
+questionnaire and writes one anonymous report. No network calls, no telemetry.
+
+```sh
+npx @kya-brasil/study-kit init estudo-kya   # consent (Portuguese), then the workspace and TASKS.md
+```
+
+Invited participants follow the guide they receive; protocol, ethics and analysis are in
+[research/study](research/study).
 
 ## Contributing and security
 
