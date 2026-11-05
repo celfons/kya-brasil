@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-05T15:02:50+00:00",
+ "fetched_at": "2026-11-05T15:19:31+00:00",
  "crls": 57,
  "verifiable": 56,
  "parse_only": [
@@ -15,8 +15,8 @@
  "large_threshold": 1240,
  "largest": {
   "id": "uf-ac-serpro-rfb-v5",
-  "entries": 77322,
-  "bytes": 2336870
+  "entries": 77323,
+  "bytes": 2336902
  },
  "group_labels": {
   "rsa_small": "RSA, up to 1240 entries",
@@ -59,7 +59,7 @@
      "ok": 0,
      "n": 1,
      "failures": [
-      "Error getting CRL issuer public key\n40B70E57857F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:"
+      "Error getting CRL issuer public key\n4097DE63E97F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:"
      ]
     }
    },
@@ -67,7 +67,7 @@
    "end_entity_n": 10,
    "total_ok": 55,
    "total_n": 56,
-   "serpro_rfb_v5_ms": 68.7
+   "serpro_rfb_v5_ms": 67.0
   },
   "Go crypto/x509": {
    "version": "go1.24.7",
@@ -113,7 +113,7 @@
    "end_entity_n": 10,
    "total_ok": 51,
    "total_n": 56,
-   "serpro_rfb_v5_ms": 88.5
+   "serpro_rfb_v5_ms": 106.6
   },
   "Python cryptography": {
    "version": "50.0.1",
@@ -157,7 +157,7 @@
    "end_entity_n": 10,
    "total_ok": 54,
    "total_n": 56,
-   "serpro_rfb_v5_ms": 34.7
+   "serpro_rfb_v5_ms": 45.5
   },
   "@peculiar/x509": {
    "version": "2.1.0",
@@ -351,7 +351,7 @@
    "end_entity_n": 10,
    "total_ok": 54,
    "total_n": 56,
-   "serpro_rfb_v5_ms": 116.9
+   "serpro_rfb_v5_ms": 173.2
   }
  },
  "ed521": {
@@ -380,11 +380,11 @@
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 39.5510089997515
+   "ms": 29.922515000180283
   },
   {
    "id": "uf-ac-soluti-multipla-v1",
@@ -394,27 +394,27 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 42.348119000052975
+   "ms": 37.79939000014565
   },
   {
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 22.504152999772487
+   "ms": 15.911503000097582
   },
   {
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 68.66129699983503
+   "ms": 67.04241999977967
   },
   {
    "id": "uf-ac-serasa-rfb-v5",
@@ -424,7 +424,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.776334000027418
+   "ms": 7.257784000103129
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -434,7 +434,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.52079799990679
+   "ms": 4.864991999966151
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -444,7 +444,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.246206999800052
+   "ms": 4.7309420006058645
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -454,7 +454,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.436320000124397
+   "ms": 4.170972000792972
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -464,7 +464,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.288382000297133
+   "ms": 4.270940999958839
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -474,7 +474,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.1934609996351355
+   "ms": 4.654909999771917
   },
   {
    "id": "ac-acraiz-lcracraizv7",
@@ -483,7 +483,7 @@
    "entries": 0,
    "lib": "OpenSSL CLI",
    "outcome": "verify_failed",
-   "detail": "Error getting CRL issuer public key\n40B70E57857F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:",
+   "detail": "Error getting CRL issuer public key\n4097DE63E97F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:",
    "ms": null
   },
   {
@@ -494,7 +494,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.220481999662297
+   "ms": 4.437649999999849
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -504,7 +504,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.241650999778358
+   "ms": 5.25824200030911
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -514,7 +514,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.7053959999393555
+   "ms": 5.2042449997316
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -524,7 +524,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.2519939999911
+   "ms": 4.649239000173111
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -534,7 +534,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.873546000202623
+   "ms": 4.301319999285624
   },
   {
    "id": "ac-certificados2-acserprov4",
@@ -544,7 +544,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.7095259999186965
+   "ms": 4.508041000008234
   },
   {
    "id": "ac-certificados2-acserprov5",
@@ -554,7 +554,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.924310000205878
+   "ms": 4.294047000257706
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -564,7 +564,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.459619999783172
+   "ms": 4.277863000424986
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -574,7 +574,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.027553000218177
+   "ms": 3.9446709997719154
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -584,7 +584,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.219355999997788
+   "ms": 4.182177000075171
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -594,7 +594,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.106453000280453
+   "ms": 4.47766499928548
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -604,7 +604,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.985421999663231
+   "ms": 4.865445999712392
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -614,7 +614,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.308084999796847
+   "ms": 4.151927000748401
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -624,7 +624,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.952310000135185
+   "ms": 4.375538999738637
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -634,7 +634,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.104772999857232
+   "ms": 5.122114000187139
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -644,7 +644,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.99704699996073
+   "ms": 4.306972999984282
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -654,7 +654,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.978056000254583
+   "ms": 4.334916999141569
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -664,7 +664,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.8079889998007275
+   "ms": 4.640287000256649
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -674,7 +674,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.470539999805624
+   "ms": 4.493659999752708
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -684,7 +684,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.988834999949177
+   "ms": 5.828981999911775
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -694,7 +694,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.244807000053697
+   "ms": 5.845446999956039
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -704,7 +704,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.131806999746914
+   "ms": 5.582235000474611
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -714,7 +714,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.89553199981674
+   "ms": 4.20835899967642
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -724,7 +724,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.379774000128236
+   "ms": 4.133601000830822
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -734,7 +734,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.741399999806163
+   "ms": 5.425664000540564
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -744,7 +744,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.956086000376672
+   "ms": 5.619065999781014
   },
   {
    "id": "ac-repositorio-acserprov4",
@@ -754,7 +754,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.995712000185449
+   "ms": 5.168081000192615
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -764,7 +764,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.370130999584944
+   "ms": 5.403955000474525
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -774,7 +774,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.745299999944109
+   "ms": 5.205587999626005
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -784,7 +784,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.579089000093518
+   "ms": 5.239188999439648
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -794,7 +794,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.351836000045296
+   "ms": 5.706201000066358
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -804,7 +804,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.0579139997353195
+   "ms": 4.551396999886492
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -814,7 +814,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.376654999712628
+   "ms": 4.489374000513635
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -824,7 +824,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.916946999808715
+   "ms": 5.99655200039706
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -834,7 +834,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.4539369998565235
+   "ms": 4.585623000821215
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -844,7 +844,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.61564800020642
+   "ms": 5.999476999932085
   },
   {
    "id": "ac-www-acrfbv4",
@@ -854,7 +854,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.736945000033302
+   "ms": 5.469362999974692
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -864,7 +864,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 13.186760000280628
+   "ms": 11.550024999451125
   },
   {
    "id": "uf-ac-serpro-rfb-v3",
@@ -874,7 +874,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.705845000145928
+   "ms": 8.34195599964005
   },
   {
    "id": "uf-ac-serpro-rfb-v1",
@@ -894,7 +894,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.808171000149741
+   "ms": 5.137488999935158
   },
   {
    "id": "uf-ac-certisign-multipla-g7",
@@ -904,17 +904,17 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.496173999948951
+   "ms": 5.862528999386996
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.905378999865206
+   "ms": 5.684894999831158
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -924,7 +924,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.977532000088104
+   "ms": 5.062209000243456
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -934,7 +934,7 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 6.816436999997677
+   "ms": 4.692124000030162
   },
   {
    "id": "ac-acraiz-lcracraizv4",
@@ -944,17 +944,17 @@
    "lib": "OpenSSL CLI",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.217497000056028
+   "ms": 7.0499789999303175
   },
   {
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 19.73649999990812
+   "ms": 27.668218000144407
   },
   {
    "id": "uf-ac-soluti-multipla-v1",
@@ -964,27 +964,27 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 26.238690999889513
+   "ms": 36.89144500003749
   },
   {
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 12.387478000164265
+   "ms": 17.297999000220443
   },
   {
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 34.73661099997116
+   "ms": 45.53629700058082
   },
   {
    "id": "uf-ac-serasa-rfb-v5",
@@ -994,7 +994,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.6255279997494654
+   "ms": 2.0818049997615162
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -1004,7 +1004,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.12358100002529682
+   "ms": 0.1261039997189073
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -1014,7 +1014,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11116499990748707
+   "ms": 0.10668400045688031
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -1024,7 +1024,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1188800001727941
+   "ms": 0.11995800014119595
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -1034,7 +1034,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10104100010721595
+   "ms": 0.10188300075242296
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -1044,7 +1044,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.23925599998619873
+   "ms": 0.3208349999113125
   },
   {
    "id": "ac-acraiz-lcracraizv7",
@@ -1064,7 +1064,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.13856299983672216
+   "ms": 0.10341699999116827
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -1074,7 +1074,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10704600026656408
+   "ms": 0.11412200001359452
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -1084,7 +1084,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11301800032015308
+   "ms": 0.11868599995068507
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -1094,7 +1094,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10800800009747036
+   "ms": 0.2013809998970828
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -1104,7 +1104,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.22912299982635886
+   "ms": 0.3581159999157535
   },
   {
    "id": "ac-certificados2-acserprov4",
@@ -1114,7 +1114,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09608199979993515
+   "ms": 0.10213999939878704
   },
   {
    "id": "ac-certificados2-acserprov5",
@@ -1124,7 +1124,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09869400037132436
+   "ms": 0.12830799914809177
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -1134,7 +1134,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10107699972650153
+   "ms": 0.10546700013946975
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -1144,7 +1144,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.13589899981525377
+   "ms": 0.13022799976170063
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -1154,7 +1154,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1164649997917877
+   "ms": 0.11287600045761792
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -1164,7 +1164,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1342099999419588
+   "ms": 0.12444599997252226
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -1174,7 +1174,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11239999957979308
+   "ms": 0.10426100016047712
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -1184,7 +1184,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1019739997900615
+   "ms": 0.12374200014164671
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -1194,7 +1194,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09350499976790161
+   "ms": 0.11802499921031995
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -1204,7 +1204,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.12869399961346062
+   "ms": 0.14799099972151453
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -1214,7 +1214,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09835999981078203
+   "ms": 0.10519700026634382
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -1224,7 +1224,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1322309999522986
+   "ms": 0.15569700008200016
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -1234,7 +1234,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.116944000183139
+   "ms": 0.10513200049899751
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -1244,7 +1244,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10016399983214797
+   "ms": 0.09996700009651249
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -1254,7 +1254,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11666399996101973
+   "ms": 0.13846799993189052
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -1264,7 +1264,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11433800000304473
+   "ms": 0.12013500054308679
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -1274,7 +1274,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.13743499994234298
+   "ms": 0.14146300054562744
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -1284,7 +1284,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10591000000204076
+   "ms": 0.10812100026669214
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -1294,7 +1294,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.13678400000571855
+   "ms": 0.15007700039859628
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -1304,7 +1304,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11008100000253762
+   "ms": 0.10856300013983855
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -1314,7 +1314,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.22583999998460058
+   "ms": 0.28628499967453536
   },
   {
    "id": "ac-repositorio-acserprov4",
@@ -1324,7 +1324,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.12474499999370892
+   "ms": 0.106772999970417
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -1334,7 +1334,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09548700018058298
+   "ms": 0.10533499971643323
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -1344,7 +1344,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11525600029926863
+   "ms": 0.10371099961048458
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -1354,7 +1354,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1058419998116733
+   "ms": 0.11483300022518961
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -1364,7 +1364,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.12068700016243383
+   "ms": 0.1120570004786714
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -1374,7 +1374,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.09886000043479726
+   "ms": 0.1036870007737889
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -1384,7 +1384,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1139159999183903
+   "ms": 0.09912299992720364
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -1394,7 +1394,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.10739700019257725
+   "ms": 0.10785099948407151
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -1404,7 +1404,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.11606199996094801
+   "ms": 0.11151099988637725
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -1414,7 +1414,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.07873599997765268
+   "ms": 0.17675500021141488
   },
   {
    "id": "ac-www-acrfbv4",
@@ -1424,7 +1424,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.0903479999578849
+   "ms": 0.2033259997915593
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -1434,7 +1434,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.2465409999058465
+   "ms": 8.421826999438053
   },
   {
    "id": "uf-ac-serpro-rfb-v3",
@@ -1444,7 +1444,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7058789999282453
+   "ms": 2.6833709998754784
   },
   {
    "id": "uf-ac-serpro-rfb-v1",
@@ -1464,7 +1464,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.13256600004751817
+   "ms": 0.12442199931683717
   },
   {
    "id": "uf-ac-certisign-multipla-g7",
@@ -1474,17 +1474,17 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7738579999786452
+   "ms": 2.5175820001095417
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.6162399999993795
+   "ms": 0.8947879996412667
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -1494,7 +1494,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.1281720001315989
+   "ms": 0.17746200046531158
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -1504,7 +1504,7 @@
    "lib": "Python cryptography",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.5136419999871578
+   "ms": 1.0534419998293743
   },
   {
    "id": "ac-acraiz-lcracraizv4",
@@ -1520,11 +1520,11 @@
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 49.122
+   "ms": 34.872
   },
   {
    "id": "uf-ac-soluti-multipla-v1",
@@ -1534,27 +1534,27 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 54.43
+   "ms": 47.183
   },
   {
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 12.993
+   "ms": 9.911
   },
   {
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 88.523
+   "ms": 106.599
   },
   {
    "id": "uf-ac-serasa-rfb-v5",
@@ -1564,7 +1564,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.639
+   "ms": 1.576
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -1574,7 +1574,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.522
+   "ms": 0.876
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -1584,7 +1584,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.529
+   "ms": 0.569
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -1594,7 +1594,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.636
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -1604,7 +1604,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.475
+   "ms": 0.615
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -1634,7 +1634,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.609
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -1644,7 +1644,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.512
+   "ms": 0.811
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -1654,7 +1654,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.455
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -1664,7 +1664,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.414
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -1694,7 +1694,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.504
+   "ms": 0.47
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -1704,7 +1704,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.492
+   "ms": 0.475
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -1714,7 +1714,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.475
+   "ms": 0.591
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -1724,7 +1724,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.474
+   "ms": 0.463
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -1734,7 +1734,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.41
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -1744,7 +1744,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.473
+   "ms": 0.464
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -1754,7 +1754,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.436
+   "ms": 0.483
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -1764,7 +1764,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.469
+   "ms": 0.56
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -1774,7 +1774,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.494
+   "ms": 0.465
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -1784,7 +1784,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.502
+   "ms": 0.443
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -1794,7 +1794,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.495
+   "ms": 0.445
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -1804,7 +1804,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.64
+   "ms": 0.44
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -1814,7 +1814,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.512
+   "ms": 0.461
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -1824,7 +1824,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.501
+   "ms": 0.476
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -1834,7 +1834,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.504
+   "ms": 0.459
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -1844,7 +1844,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.497
+   "ms": 0.521
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -1854,7 +1854,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.48
+   "ms": 0.488
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -1864,7 +1864,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.518
+   "ms": 0.437
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -1874,7 +1874,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.509
+   "ms": 0.45
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -1894,7 +1894,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.481
+   "ms": 0.416
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -1904,7 +1904,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.454
+   "ms": 0.438
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -1914,7 +1914,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.497
+   "ms": 0.608
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -1924,7 +1924,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.49
+   "ms": 0.462
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -1934,7 +1934,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.491
+   "ms": 0.458
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -1944,7 +1944,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.53
+   "ms": 0.448
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -1954,7 +1954,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.483
+   "ms": 0.433
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -1964,7 +1964,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.529
+   "ms": 0.506
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -1974,7 +1974,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.479
+   "ms": 0.464
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -1984,7 +1984,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.495
+   "ms": 0.427
   },
   {
    "id": "ac-www-acrfbv4",
@@ -1994,7 +1994,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.704
+   "ms": 0.478
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -2004,7 +2004,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 12.193
+   "ms": 10.611
   },
   {
    "id": "uf-ac-serpro-rfb-v3",
@@ -2014,7 +2014,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.899
+   "ms": 3.288
   },
   {
    "id": "uf-ac-serpro-rfb-v1",
@@ -2034,7 +2034,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.733
+   "ms": 0.421
   },
   {
    "id": "uf-ac-certisign-multipla-g7",
@@ -2044,17 +2044,17 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.916
+   "ms": 1.224
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.785
+   "ms": 0.761
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -2064,7 +2064,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 0.516
+   "ms": 0.439
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -2074,7 +2074,7 @@
    "lib": "Go crypto/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.13
+   "ms": 1.76
   },
   {
    "id": "ac-acraiz-lcracraizv4",
@@ -2104,13 +2104,13 @@
    "lib": "Ed521, full hash",
    "outcome": "ok",
    "detail": "",
-   "ms": 29.427
+   "ms": 26.145
   },
   {
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "@peculiar/x509",
    "outcome": "parse_error",
    "detail": "Error: Maximum ASN.1 node count exceeded",
@@ -2130,7 +2130,7 @@
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "@peculiar/x509",
    "outcome": "parse_error",
    "detail": "Error: Maximum ASN.1 node count exceeded",
@@ -2140,7 +2140,7 @@
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "@peculiar/x509",
    "outcome": "parse_error",
    "detail": "Error: Maximum ASN.1 node count exceeded",
@@ -2154,7 +2154,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 125.32359300000007
+   "ms": 110.31559700000003
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -2164,7 +2164,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.6274349999998776
+   "ms": 3.4345290000001114
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -2174,7 +2174,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.226247999999941
+   "ms": 2.656235999999808
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -2184,7 +2184,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.235460000000103
+   "ms": 3.571121999999832
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -2194,7 +2194,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.337239000000409
+   "ms": 3.740169000000151
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -2224,7 +2224,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.406880000000001
+   "ms": 2.3107700000000477
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -2234,7 +2234,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.933542000000216
+   "ms": 5.783582999999908
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -2244,7 +2244,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.128682000000026
+   "ms": 2.7542869999997492
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -2254,7 +2254,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.924543000000085
+   "ms": 2.5912499999999454
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -2274,7 +2274,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 9.166678000000047
+   "ms": 2.983064999999897
   },
   {
    "id": "ac-certificados2-acserprov5",
@@ -2284,7 +2284,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.432427999999618
+   "ms": 4.520739000000049
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -2294,7 +2294,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.25239799999963
+   "ms": 2.6405429999999797
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -2304,7 +2304,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.137667999999849
+   "ms": 2.3129640000001928
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -2314,7 +2314,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.3129189999999653
+   "ms": 3.106532000000243
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -2324,7 +2324,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.9680670000002465
+   "ms": 2.9435590000002776
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -2334,7 +2334,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.702917999999954
+   "ms": 5.44089299999996
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -2344,7 +2344,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.977139999999963
+   "ms": 2.9188669999998638
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -2354,7 +2354,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.833251999999902
+   "ms": 3.1175060000000485
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -2364,7 +2364,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.565980999999738
+   "ms": 3.4441400000000613
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -2374,7 +2374,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.9420060000002195
+   "ms": 2.9982850000001235
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -2384,7 +2384,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.767558000000008
+   "ms": 3.7903810000002522
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -2394,7 +2394,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.14554599999974
+   "ms": 2.4991660000000593
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -2404,7 +2404,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.581651999999849
+   "ms": 2.0773079999999027
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -2414,7 +2414,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.899144999999862
+   "ms": 6.156015999999909
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -2424,7 +2424,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.413958999999977
+   "ms": 3.03807900000038
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -2434,7 +2434,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.733187000000271
+   "ms": 2.854011999999784
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -2444,7 +2444,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.537613999999849
+   "ms": 2.3147330000001602
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -2454,7 +2454,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.9020610000002307
+   "ms": 4.0993499999999585
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -2464,7 +2464,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.5562950000003184
+   "ms": 2.3705449999997654
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -2484,7 +2484,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.362235000000055
+   "ms": 2.445412999999917
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -2494,7 +2494,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.5545210000000225
+   "ms": 2.150662000000011
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -2504,7 +2504,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.039033000000018
+   "ms": 2.9023339999998825
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -2514,7 +2514,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.9030069999998886
+   "ms": 2.4726129999999102
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -2524,7 +2524,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.404844000000139
+   "ms": 2.3525580000000446
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -2534,7 +2534,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.79186800000025
+   "ms": 2.3598259999998845
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -2544,7 +2544,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.604597999999896
+   "ms": 2.2921329999999216
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -2554,7 +2554,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.4314170000002377
+   "ms": 2.342029999999795
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -2564,7 +2564,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.6988369999999122
+   "ms": 1.9638279999999213
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -2574,7 +2574,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.869057999999768
+   "ms": 2.614183000000139
   },
   {
    "id": "ac-www-acrfbv4",
@@ -2584,7 +2584,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.7920759999997244
+   "ms": 2.6704609999997047
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -2634,17 +2634,17 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 104.22778199999993
+   "ms": 76.99371400000018
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 37.577448000000004
+   "ms": 33.832514000000174
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -2654,7 +2654,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.948395999999775
+   "ms": 2.144510000000082
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -2664,7 +2664,7 @@
    "lib": "@peculiar/x509",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.321558999999979
+   "ms": 5.4235459999999875
   },
   {
    "id": "ac-acraiz-lcracraizv4",
@@ -2680,7 +2680,7 @@
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "PKI.js",
    "outcome": "parse_error",
    "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
@@ -2700,7 +2700,7 @@
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "PKI.js",
    "outcome": "parse_error",
    "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
@@ -2710,7 +2710,7 @@
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "PKI.js",
    "outcome": "parse_error",
    "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
@@ -2724,7 +2724,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 131.11593300000004
+   "ms": 142.04300299999977
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -2734,7 +2734,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.112082000000555
+   "ms": 4.658488000000034
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -2744,7 +2744,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.8155219999998735
+   "ms": 4.1512549999997646
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -2754,7 +2754,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.2030469999999696
+   "ms": 3.34509799999978
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -2764,7 +2764,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.1852439999993294
+   "ms": 3.6242640000000392
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -2794,7 +2794,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7292939999997543
+   "ms": 2.0108999999993102
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -2804,7 +2804,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.166718000000401
+   "ms": 4.697025999999823
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -2814,7 +2814,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7476059999999052
+   "ms": 1.8307489999997415
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -2824,7 +2824,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.1930899999997564
+   "ms": 1.9834249999994427
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -2844,7 +2844,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.061556999999993
+   "ms": 4.06227299999955
   },
   {
    "id": "ac-certificados2-acserprov5",
@@ -2854,7 +2854,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.0274799999997413
+   "ms": 1.957231999999749
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -2864,7 +2864,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.6411010000001625
+   "ms": 2.165644999999131
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -2874,7 +2874,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.906133000000409
+   "ms": 2.030217999999877
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -2884,7 +2884,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.762886999999864
+   "ms": 4.485394000000269
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -2894,7 +2894,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.0338339999998425
+   "ms": 2.413473000000522
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -2904,7 +2904,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.1871000000001004
+   "ms": 2.1493030000001454
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -2914,7 +2914,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8584710000004634
+   "ms": 2.2228329999998095
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -2924,7 +2924,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8470529999995051
+   "ms": 2.0603809999993246
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -2934,7 +2934,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.4698499999994965
+   "ms": 2.188842999999906
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -2944,7 +2944,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.622283000000607
+   "ms": 1.7144510000007358
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -2954,7 +2954,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.810476999999992
+   "ms": 4.505371000000196
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -2964,7 +2964,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.339654999999766
+   "ms": 2.173641000000316
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -2974,7 +2974,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.298438000000715
+   "ms": 1.755315999999766
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -2984,7 +2984,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.475663999999597
+   "ms": 4.342735000000175
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -2994,7 +2994,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.0456369999992603
+   "ms": 2.3758010000001377
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -3004,7 +3004,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.797335999999632
+   "ms": 2.7711159999998927
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -3014,7 +3014,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.919088999999985
+   "ms": 5.4195700000000215
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -3024,7 +3024,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.018503999999666
+   "ms": 2.433234000000084
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -3034,7 +3034,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8541089999998803
+   "ms": 2.0898290000004636
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -3054,7 +3054,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.158502000000226
+   "ms": 5.508010999999897
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -3064,7 +3064,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.396005000000514
+   "ms": 2.496310999999878
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -3074,7 +3074,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.0520049999995535
+   "ms": 2.13857199999984
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -3084,7 +3084,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.29410900000039
+   "ms": 5.0155839999997625
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -3094,7 +3094,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.810207000000446
+   "ms": 1.9957020000001648
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -3104,7 +3104,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.801737000000685
+   "ms": 2.0085280000002967
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -3114,7 +3114,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.3229989999999816
+   "ms": 1.859995999999228
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -3124,7 +3124,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.298255999999128
+   "ms": 5.136523999999554
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -3134,7 +3134,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8609159999996336
+   "ms": 2.1964439999992464
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -3144,7 +3144,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.914096000000427
+   "ms": 2.2211179999994783
   },
   {
    "id": "ac-www-acrfbv4",
@@ -3154,7 +3154,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.234172999999828
+   "ms": 5.509536999999909
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -3194,7 +3194,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.6102929999997286
+   "ms": 5.141740000000027
   },
   {
    "id": "uf-ac-certisign-multipla-g7",
@@ -3204,17 +3204,17 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 102.2514570000003
+   "ms": 164.77208100000007
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 31.602469000000383
+   "ms": 41.939870000000155
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -3224,7 +3224,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8843370000004143
+   "ms": 2.675717000000077
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -3234,7 +3234,7 @@
    "lib": "PKI.js",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.175511999999799
+   "ms": 4.419472000000496
   },
   {
    "id": "ac-acraiz-lcracraizv4",
@@ -3250,7 +3250,7 @@
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "node-forge",
    "outcome": "parse_error",
    "detail": "Error: node-forge has no CRL API (forge.pki)",
@@ -3270,7 +3270,7 @@
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "node-forge",
    "outcome": "parse_error",
    "detail": "Error: node-forge has no CRL API (forge.pki)",
@@ -3280,7 +3280,7 @@
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "node-forge",
    "outcome": "parse_error",
    "detail": "Error: node-forge has no CRL API (forge.pki)",
@@ -3780,7 +3780,7 @@
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "node-forge",
    "outcome": "parse_error",
    "detail": "Error: node-forge has no CRL API (forge.pki)",
@@ -3820,11 +3820,11 @@
    "id": "uf-ac-soluti-multipla-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 33903,
+   "entries": 33908,
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 47.850351000000046
+   "ms": 101.62660599999981
   },
   {
    "id": "uf-ac-soluti-multipla-v1",
@@ -3834,27 +3834,27 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 67.3486269999994
+   "ms": 100.79455400000006
   },
   {
    "id": "uf-ac-certisign-rfb-g5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 7626,
+   "entries": 7624,
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 17.57480200000009
+   "ms": 17.29447600000003
   },
   {
    "id": "uf-ac-serpro-rfb-v5",
    "group": "rsa_large",
    "kind": "usuario-final",
-   "entries": 77322,
+   "entries": 77323,
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 116.89387799999986
+   "ms": 173.20556299999953
   },
   {
    "id": "uf-ac-serasa-rfb-v5",
@@ -3864,7 +3864,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.6870019999996657
+   "ms": 4.595589000000473
   },
   {
    "id": "ac-acraiz-lcracraizv10",
@@ -3874,7 +3874,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.102506999999605
+   "ms": 2.224736000000121
   },
   {
    "id": "ac-acraiz-lcracraizv11",
@@ -3884,7 +3884,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.6549680000007356
+   "ms": 2.381742000000486
   },
   {
    "id": "ac-acraiz-lcracraizv12",
@@ -3894,7 +3894,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.8705019999997603
+   "ms": 1.7866659999999683
   },
   {
    "id": "ac-acraiz-lcracraizv5",
@@ -3904,7 +3904,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7342850000004546
+   "ms": 2.1241939999999886
   },
   {
    "id": "ac-acraiz-lcracraizv6",
@@ -3914,7 +3914,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.9120069999999032
+   "ms": 2.0058230000004187
   },
   {
    "id": "ac-acraiz-lcracraizv7",
@@ -3934,7 +3934,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.0761830000001282
+   "ms": 2.9232329999995272
   },
   {
    "id": "ac-ccd-ac-soluti-v5",
@@ -3944,7 +3944,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7233759999999165
+   "ms": 2.2835720000002766
   },
   {
    "id": "ac-ccd2-ac-soluti-v5-g2",
@@ -3954,7 +3954,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5449179999995977
+   "ms": 2.035494999999173
   },
   {
    "id": "ac-ccd2-ac-soluti-v5",
@@ -3964,7 +3964,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4414269999997487
+   "ms": 2.018011999999544
   },
   {
    "id": "ac-certificados2-acinmetro",
@@ -3974,7 +3974,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5494189999999435
+   "ms": 1.9665969999996378
   },
   {
    "id": "ac-certificados2-acserprov4",
@@ -3984,7 +3984,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.502846999999747
+   "ms": 1.9347090000001117
   },
   {
    "id": "ac-certificados2-acserprov5",
@@ -3994,7 +3994,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4423550000001342
+   "ms": 1.8952039999994668
   },
   {
    "id": "ac-icp-brasil-accertisigng7",
@@ -4004,7 +4004,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.256208000000697
+   "ms": 3.538513000000421
   },
   {
    "id": "ac-icp-brasil-accertisigng8",
@@ -4014,7 +4014,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7726149999998597
+   "ms": 2.236152999999831
   },
   {
    "id": "ac-icp-brasil-accertisigng7-2",
@@ -4024,7 +4024,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4803110000002562
+   "ms": 1.9065320000008796
   },
   {
    "id": "ac-icp-brasil-accertisigng8-2",
@@ -4034,7 +4034,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.845419999999649
+   "ms": 1.901546999999482
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
@@ -4044,7 +4044,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4525729999995747
+   "ms": 2.051926000000094
   },
   {
    "id": "ac-icp-brasil-lcr-ac-syngularid",
@@ -4054,7 +4054,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.484704999999849
+   "ms": 1.9052910000000338
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv12",
@@ -4064,7 +4064,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.225259000000733
+   "ms": 2.088416999999936
   },
   {
    "id": "ac-icp-brasil-lcr-ac-validv5",
@@ -4074,7 +4074,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.55184300000019
+   "ms": 2.6438020000005054
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv12",
@@ -4084,7 +4084,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4692629999999554
+   "ms": 2.1121240000002217
   },
   {
    "id": "ac-icp-brasil2-lcr-ac-validv5",
@@ -4094,7 +4094,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5235929999998916
+   "ms": 2.08721499999956
   },
   {
    "id": "ac-lcr-acjusv5",
@@ -4104,7 +4104,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.6263730000000578
+   "ms": 2.2888560000001235
   },
   {
    "id": "ac-lcr-acjusv6",
@@ -4114,7 +4114,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.3988589999999022
+   "ms": 2.1190859999996974
   },
   {
    "id": "ac-lcr-serasaacpv5",
@@ -4124,7 +4124,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.3088079999997717
+   "ms": 2.2500520000003235
   },
   {
    "id": "ac-lcr1-acprodespsp",
@@ -4134,7 +4134,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.380278999999973
+   "ms": 3.8254649999998946
   },
   {
    "id": "ac-lcr2-acprodespsp",
@@ -4144,7 +4144,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4337439999999333
+   "ms": 2.2698929999996835
   },
   {
    "id": "ac-repositorio-ac-digital-mais",
@@ -4154,7 +4154,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.352208000000246
+   "ms": 2.1425460000000385
   },
   {
    "id": "ac-repositorio-lcr-ac-safeweb",
@@ -4164,7 +4164,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.3620499999997264
+   "ms": 2.2191439999996874
   },
   {
    "id": "ac-repositorio-lcr-ac-safewebv12",
@@ -4174,7 +4174,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.524888999999348
+   "ms": 2.080329000000347
   },
   {
    "id": "ac-repositorio-acinmetro",
@@ -4184,7 +4184,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5440660000003845
+   "ms": 2.049093000000539
   },
   {
    "id": "ac-repositorio-acserprov4",
@@ -4194,7 +4194,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4239269999998214
+   "ms": 2.1265400000002046
   },
   {
    "id": "ac-repositorio-acserprov5",
@@ -4204,7 +4204,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.031760999999278
+   "ms": 4.6892619999998715
   },
   {
    "id": "ac-repositorio2-ac-digital-mais",
@@ -4214,7 +4214,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5157399999998233
+   "ms": 2.1363750000000437
   },
   {
    "id": "ac-repositorio2-lcr-ac-safeweb",
@@ -4224,7 +4224,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.9267319999999017
+   "ms": 2.1761340000002747
   },
   {
    "id": "ac-repositorio2-lcr-ac-safewebv12",
@@ -4234,7 +4234,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5884969999997338
+   "ms": 2.1093769999997676
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid-v12",
@@ -4244,7 +4244,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.593195000000378
+   "ms": 2.1106730000001335
   },
   {
    "id": "ac-syngularid-lcr-ac-syngularid",
@@ -4254,7 +4254,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4899310000000696
+   "ms": 2.276557999999568
   },
   {
    "id": "ac-www-serasaacpv5",
@@ -4264,7 +4264,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.4210320000001957
+   "ms": 2.2109019999998054
   },
   {
    "id": "ac-www-acdigitalsignacpg2",
@@ -4274,7 +4274,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.8310209999999643
+   "ms": 3.058328000000074
   },
   {
    "id": "ac-www-acdigitalsignacpg3",
@@ -4284,7 +4284,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.7591590000001815
+   "ms": 1.7369149999994988
   },
   {
    "id": "ac-www-acrfbv4",
@@ -4294,7 +4294,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.5439290000003894
+   "ms": 2.0381420000003345
   },
   {
    "id": "uf-ac-serpro-rfb-v4",
@@ -4304,7 +4304,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 7.3953309999997145
+   "ms": 15.80670099999952
   },
   {
    "id": "uf-ac-serpro-rfb-v3",
@@ -4314,7 +4314,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 4.864564999999857
+   "ms": 7.064679000000069
   },
   {
    "id": "uf-ac-serpro-rfb-v1",
@@ -4334,7 +4334,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 1.568913000000066
+   "ms": 2.3566310000005615
   },
   {
    "id": "uf-ac-certisign-multipla-g7",
@@ -4344,17 +4344,17 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 3.111627000000226
+   "ms": 5.0077799999999115
   },
   {
    "id": "uf-ac-certisign-multipla-g8",
    "group": "rsa_small",
    "kind": "usuario-final",
-   "entries": 345,
+   "entries": 346,
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.995241999999962
+   "ms": 3.045791000000463
   },
   {
    "id": "ac-acraiz-lcracraizv2",
@@ -4364,7 +4364,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 2.6276000000007116
+   "ms": 1.931985000000168
   },
   {
    "id": "ac-acraiz-lcracraizv3",
@@ -4374,7 +4374,7 @@
    "lib": "@kya-brasil/core",
    "outcome": "ok",
    "detail": "",
-   "ms": 5.039396999999553
+   "ms": 3.9344490000003134
   },
   {
    "id": "ac-acraiz-lcracraizv4",
