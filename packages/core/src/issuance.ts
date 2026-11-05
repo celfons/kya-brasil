@@ -234,10 +234,10 @@ export function withCertificates(cmsBase64: string, certChain: (Uint8Array | str
   return btoa(bin);
 }
 
-/** "ACME LTDA" from "CN=ACME LTDA:11222333000181, O=ICP-Brasil, C=BR" (ICP-Brasil e-CNPJ convention), else the CN. */
+/** "ACME LTDA" from "CN=ACME LTDA:11222333000181, O=ICP-Brasil, C=BR" (ICP-Brasil e-CNPJ convention; the CNPJ may be alphanumeric), else the CN. */
 function legalNameOf(subject: string): string {
   const cn = /(?:^|,\s*)CN=([^,]+)/.exec(subject)?.[1]?.trim() ?? "";
-  return cn.replace(/:\d{14}\s*$/, "").trim() || cn;
+  return cn.replace(/:[0-9A-Za-z]{12}\d{2}\s*$/, "").trim() || cn;
 }
 
 /**

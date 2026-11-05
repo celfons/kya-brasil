@@ -6,7 +6,7 @@ import * as x509 from "@peculiar/x509";
 import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import { OID_ICP_CNPJ, verifyIcpSignature } from "./icp-brasil.js";
-import { buildDetachedCms, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, signingLink } from "./ecnpj-sign.js";
+import { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, signingLink } from "./ecnpj-sign.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };
@@ -26,6 +26,16 @@ async function a1File(algorithm: "3des" | "aes256", cnpj = "11222333000181") {
   const p12 = forge.pkcs12.toPkcs12Asn1(key, certs, "senha-teste", { algorithm: algorithm });
   return { pfx: new Uint8Array(Buffer.from(forge.asn1.toDer(p12).getBytes(), "binary")), ca, leaf, leafKeys };
 }
+
+describe("CNPJ in the certificate's common name", () => {
+  it("reads numeric and alphanumeric CNPJs (letters upper-cased), and nothing else", () => {
+    expect(cnpjFromCommonName("ACME LTDA:11222333000181")).toBe("11222333000181");
+    expect(cnpjFromCommonName("NOVA LTDA:12ABC34501DE35")).toBe("12ABC34501DE35");
+    expect(cnpjFromCommonName("nova ltda:12abc34501de35")).toBe("12ABC34501DE35");
+    expect(cnpjFromCommonName("JOSE DA SILVA:12345678909")).toBeNull(); // an e-CPF: 11 digits
+    expect(cnpjFromCommonName("NOVA LTDA:12ABC34501DEAB")).toBeNull(); // check digits are always numeric
+  });
+});
 
 describe("e-CNPJ signing from a .pfx (A1)", () => {
   for (const algorithm of ["3des", "aes256"] as const) {

@@ -102,6 +102,14 @@ describe("sign in with KYA", () => {
     expect(day.checks.find((c) => c.rule === "max_per_day")?.ok).toBe(false);
   });
 
+  it("matches alphanumeric CNPJ counterparties, bare or formatted, in any case", () => {
+    const m = { ...mandate, counterparties: ["12.ABC.345/01DE-35"] };
+    for (const counterparty of ["12ABC34501DE35", "12.abc.345/01de-35"]) {
+      expect(checkMandate(m, { action: "pay", amount: 10, currency: "BRL", counterparty }).checks.find((c) => c.rule === "counterparties")?.ok).toBe(true);
+    }
+    expect(checkMandate(m, { action: "pay", amount: 10, currency: "BRL", counterparty: "11222333000181" }).checks.find((c) => c.rule === "counterparties")?.ok).toBe(false);
+  });
+
   it("checks the payment instrument by hash and network (D-25)", async () => {
     const ref = await hashPaymentRef("V0010013018123456789012345678");
     expect(ref).toMatch(/^[0-9a-f]{64}$/);
