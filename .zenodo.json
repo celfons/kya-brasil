@@ -1,0 +1,9 @@
+{
+  "title": "KYA Brasil: emissão e verificação de mandatos de agentes de IA com certificado ICP-Brasil",
+  "description": "Biblioteca e serviço para que o titular de e-CNPJ ou e-CPF emita e qualquer sistema verifique o mandato de um agente de inteligência artificial; inclui modelo formal em Alloy, vetores de conformidade e simulação da política de atualidade do status.",
+  "upload_type": "software",
+  "creators": [{ "name": "Fonseca Resende de Oliveira, Marcel" }],
+  "license": "MIT",
+  "language": "por",
+  "keywords": ["ICP-Brasil", "agentes de IA", "mandato", "Alloy", "revogação", "PKI"]
+}

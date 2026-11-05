@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "Se usar este software ou estes dados, cite-os assim."
+title: "KYA Brasil: emissão e verificação de mandatos de agentes de IA com certificado ICP-Brasil"
+authors:
+  - family-names: "Fonseca Resende de Oliveira"
+    given-names: "Marcel"
+license: MIT
+repository-code: "https://github.com/celfons/kya-brasil"
+date-released: 2026-11-05
