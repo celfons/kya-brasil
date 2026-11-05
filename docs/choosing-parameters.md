@@ -1,44 +1,46 @@
-# Choosing the risk parameters
+# Como escolher os parâmetros de risco
 
-The library has no defaults for risk: whoever issues or verifies a mandate states every value. This page explains
-each choice and gives reference values measured in ICP-Brasil. Infrastructure is also yours: run the verifier, and
-optionally the reference issuer (`apps/worker`, see `docs/SELF-HOSTING.md`), wherever you prefer.
+A biblioteca não tem valores padrão de risco: quem emite ou verifica um mandato informa cada valor. Esta página
+explica cada escolha e dá valores de referência medidos na ICP-Brasil. A infraestrutura também é sua: rode o
+verificador onde preferir.
 
-## When issuing a mandate (`buildMandate`)
+## Ao emitir um mandato (`buildMandate`)
 
-| Field | What it limits | How to choose |
+| Campo | O que limita | Como escolher |
 | --- | --- | --- |
-| `actions` | what the agent may do | list only the actions it needs; `[]` means any action |
-| `max_per_operation` | the loss of one bad action | the largest single payment you would accept losing |
-| `max_per_day` | the loss before anyone notices | what you can lose in a day; the verifier supplies `spent_today` |
-| `counterparties`, `currencies`, `payment_instruments` | where money can go | as narrow as the use allows; `[]` means any |
-| `valid_from` / `valid_until`, credential lifetime | how long a leaked mandate stays usable | short. A self-issued credential (`urn:kya-brasil:self`) cannot be revoked alone: it dies at expiry or with the certificate. If you need to revoke a single credential early, issue it through the reference issuer instead |
-| `delegation` | sub-agents | `null` unless needed; then the smallest `max_depth` and `max_ttl_seconds` |
+| `actions` | o que o agente pode fazer | só as ações de que ele precisa; `[]` significa qualquer ação |
+| `max_per_operation` | a perda de uma ação indevida | o maior pagamento único que você aceitaria perder |
+| `max_per_day` | a perda até alguém perceber | quanto você pode perder num dia; o verificador informa o `spent_today` |
+| `counterparties`, `currencies`, `payment_instruments` | para onde o dinheiro pode ir | o mais restrito que o uso permitir; `[]` significa qualquer um |
+| `valid_from` / `valid_until`, validade da credencial | quanto tempo um mandato vazado continua utilizável | conforme o seu apetite de risco, pelo mesmo princípio da fórmula proposta, `L / (valor × λ)`: quanto maiores os tetos do mandato e menor a perda tolerada (L), mais curta a validade. Uma credencial emitida pelo próprio titular (`urn:kya-brasil:self`) só deixa de valer ao expirar ou quando o certificado é revogado |
+| `delegation` | subagentes | `null`, a menos que precise; nesse caso, o menor `max_depth` e o menor `max_ttl_seconds` |
 
-The ceilings are the only defence that holds when the agent's key is stolen or the model misbehaves: status
-freshness does not help there (`research/freshness-sim`).
+Os tetos são a única defesa que vale quando a chave do agente é roubada ou o modelo se comporta mal: a atualidade
+do status não ajuda nesses casos (`research/freshness-sim`).
 
-## When verifying (`freshnessPolicy`)
+## Ao verificar (`freshnessPolicy`)
 
-| Field | Meaning | Reference |
+| Campo | Significado | Referência |
 | --- | --- | --- |
-| `max_expected_loss` | the expected loss you accept per action (L) | your risk appetite, in the payment currency |
-| `revocation_rate_per_hour.certificate` | λ, how often a certificate is revoked | measured in ICP-Brasil: about 2.8 × 10⁻⁷ per hour (0.24% per year). It counts every revocation, so it is a ceiling on key compromise and a floor on coverage (`research/freshness-sim`, dataset DOI 10.5281/zenodo.23985090) |
-| `max_age_seconds` | cap on the age of status evidence, whatever the amount | a CRL is reissued every 1 to 6 hours; a cap of a few hours keeps the CRL useful without refetching on every action |
-| `require` | which evidence must be present | `["certificate"]` offline; add `"credential"` when an issuer signs status |
-| `max_clock_skew_seconds` | tolerance between clocks | a few minutes |
-| `unvalued_action` | actions with no amount | `"refuse"`, or `"ceiling"` with `action_risk_value` per action name |
-| `past_valid_until` | a CRL past its `nextUpdate` | `"refuse"` |
+| `max_expected_loss` | a perda esperada que você aceita por ação (L) | o seu apetite de risco, na moeda do pagamento |
+| `revocation_rate_per_hour.certificate` | λ, com que frequência um certificado é revogado | medido na ICP-Brasil: cerca de 2,8 × 10⁻⁷ por hora (0,24% ao ano). Conta todas as revogações, então é um teto para o comprometimento de chave e um piso de cobertura (`research/freshness-sim`, conjunto de dados DOI 10.5281/zenodo.23985090) |
+| `max_age_seconds` | teto para a idade da prova de status, qualquer que seja o valor | a LCR é reemitida a cada 1 a 6 horas; um teto de poucas horas mantém a LCR útil sem buscá-la a cada ação |
+| `require` | quais provas são obrigatórias | `["certificate"]` no modo offline; acrescente `"credential"` quando um emissor assina o status |
+| `max_clock_skew_seconds` | tolerância entre relógios | alguns minutos |
+| `unvalued_action` | ações sem valor | `"refuse"`, ou `"ceiling"` com `action_risk_value` por nome de ação |
+| `past_valid_until` | LCR depois do seu `nextUpdate` | `"refuse"` |
 
-The allowed age is `min(max_age_seconds, L / (amount × λ))`: larger amounts need fresher status. With the measured
-λ, the simulation shows the proportional rule on the Pareto frontier at few status fetches. Whatever the policy, a
-residual window remains: revocation in ICP-Brasil happens mostly on weekdays in office hours, about 15 hours on
-average between a revocation request and the CRL that shows it (`research/freshness-sim/README.md`). Short credential
-lifetimes and low ceilings are what cover that window.
+A idade permitida é `min(max_age_seconds, L / (valor × λ))`: valores maiores exigem status mais recente. Com o λ
+medido, a simulação mostra a regra proporcional na fronteira de Pareto quando há poucas consultas de status.
+Qualquer que seja a política, sobra uma janela residual: na ICP-Brasil, a revogação acontece sobretudo em dias
+úteis, em horário comercial, e leva em média cerca de 15 horas entre o pedido de revogação e a LCR que o mostra
+(`research/freshness-sim/README.md`). Validades curtas e tetos baixos são o que cobre essa janela.
 
-## Optional checks
+## Verificações opcionais
 
-- **Replay:** pass `replayCache` to `createKyaAuth`; entries are kept until each request's own expiry.
-- **Company will:** require a co-signature (`verifyCompanyWill`) and supply `representatives(cnpj)` from a source you
-  trust. The public CNPJ open data masks the partner's CPF (one mask matches 1,000 valid CPFs) and has no partners for
-  MEI/EI companies, so it can filter but not prove (kya-icp `analysis/qsa`).
+- **Reapresentação (*replay*):** passe `replayCache` para `createKyaAuth`; cada entrada fica guardada até a
+  expiração da própria requisição.
+- **Vontade da empresa:** exija a coassinatura (`verifyCompanyWill`) e forneça `representatives(cnpj)` a partir de
+  uma fonte em que você confie. Os dados abertos do CNPJ mascaram o CPF do sócio (cada máscara corresponde a 1.000
+  CPFs válidos), não têm sócios para MEI e EI e não informam alçadas nem assinatura conjunta; servem como filtro,
+  não como prova (kya-icp, `analysis/qsa`).
