@@ -35,7 +35,7 @@ const now = Date.now();
 const notBefore = new Date(now - day);
 const pem = (der, label) => `-----BEGIN ${label}-----\n${Buffer.from(der).toString("base64").replace(/(.{64})/g, "$1\n").trim()}\n-----END ${label}-----\n`;
 const keys = () => crypto.subtle.generateKey(alg, true, ["sign", "verify"]);
-const crlUrl = "http://crl.example.invalid/ac-teste.crl"; // never fetched: the scripts read out/ac.crl
+const crlUrl = "https://crl.example.invalid/ac-teste.crl"; // never fetched: the scripts read out/ac.crl
 
 const rootKeys = await keys();
 const root = await x509.X509CertificateGenerator.createSelfSigned({
