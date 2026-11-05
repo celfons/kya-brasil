@@ -154,6 +154,7 @@ describe("QA 5, 9 and 11: categories and feedback", () => {
 describe("QA 7, 8 and 15", () => {
   it("scrub keeps the user name as a word, removes every absolute path, keeps URLs", () => {
     expect(scrub("o root certificate da AC")).toBe("o root certificate da AC");
+    expect(scrub("rodei em localhost:8787")).toBe("rodei em localhost:8787");
     expect(scrub("veja /etc/kya/x.conf e C:\\Users\\ana\\p e \\\\srv\\share e ~/proj")).toBe("veja <caminho> e <caminho> e <caminho> e <caminho>");
     expect(scrub("docs em https://github.com/celfons/kya-brasil#start-here, e/ou nada")).toBe("docs em https://github.com/celfons/kya-brasil#start-here, e/ou nada");
   });

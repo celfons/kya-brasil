@@ -13,8 +13,9 @@ export const CONSENT = `
  Estudo de caso KYA Brasil: termo de consentimento
 ==================================================================================
 
-Você vai integrar a biblioteca KYA Brasil usando apenas a documentação pública,
-em quatro tarefas curtas, e responder cinco perguntas abertas no fim.
+Você vai integrar a biblioteca KYA Brasil a partir da documentação pública,
+em quatro tarefas curtas, e responder cinco perguntas abertas no fim. Busca na
+web e assistentes de IA são permitidos.
 
 O QUE O KIT REGISTRA (somente nesta pasta, no seu computador):
   - horários de início e de cada verificação (para medir tempo até concluir);
@@ -24,7 +25,8 @@ O QUE O KIT REGISTRA (somente nesta pasta, no seu computador):
     mais permissivos ou mais restritivos que o cenário);
   - quantas linhas e quantos arquivos do seu projeto mudaram (só os números);
   - o tempo que as suas funções de verificação levaram (latência, em ms);
-  - suas respostas às perguntas abertas.
+  - suas respostas às perguntas abertas, e se você usou assistente de IA
+    (e em quais tarefas).
 
 O QUE O KIT NÃO REGISTRA:
   - o conteúdo do seu código;
@@ -61,11 +63,12 @@ escritório para ela. A política decidida pela diretoria é:
 - No marketplace onde o agente compra, a ação de compra se chama **\`"${SCENARIO.action}"\`** e os valores são em **BRL**.
 - O agente já tem uma chave: \`pki/agente.json\` (endereço \`${p.agentId}\`).
 - O e-CNPJ A1 de teste da empresa está em \`pki/empresa.pfx\` (senha em \`pki/pki.json\`); as âncoras de
-  confiança de teste em \`pki/anchors.pem\`; a LCR (CRL) da AC de teste em \`pki/ac.crl\`.
+  confiança de teste em \`pki/anchors.pem\`; uma LCR (CRL) de exemplo da AC de teste em \`pki/ac.crl\` (nas
+  verificações o kit publica LCRs novas, por \`buscarCrl\`).
 
 ## Regras
 
-- Use **somente a documentação**: o [README (seção "Start here")](${DOCS}#start-here), os READMEs de
+- Comece pela **documentação**: o [README (seção "Start here")](${DOCS}#start-here), os READMEs de
   [\`@kya-brasil/core\`](${DOCS}/tree/main/packages/core) e [\`@kya-brasil/agent-tools\`](${DOCS}/tree/main/packages/agent-tools),
   o [guia de parâmetros](${DOCS}/blob/main/docs/choosing-parameters.md) e os [exemplos](${DOCS}/tree/main/examples/quickstart).
   **Busca na web e assistentes de IA (ChatGPT, Copilot, Claude etc.) são permitidos**; no fim o kit pergunta se

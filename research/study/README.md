@@ -10,6 +10,11 @@ participant's computer. This folder holds the protocol and `analyze.py`, which a
 
 ## Protocol
 
+0. **Before inviting anyone.** Publish `@kya-brasil/study-kit` to npm (the *Publish npm package* workflow) at
+   the same time as, or after, the `@kya-brasil/core` and `@kya-brasil/agent-tools` versions it depends on, then
+   run step 2 yourself in an empty folder outside the repository: `npx` must find the kit and `npm install` in
+   the new workspace must finish without a 404. The workspace's `package.json` references the kit as it was
+   installed (the npm version, or the `file:` path of a local `.tgz` for a dry run).
 1. **Recruitment.** Developers who have not worked on KYA Brasil. Nothing about them is recorded by the kit; if
    the study needs a profile (years of experience, Node.js familiarity), collect it separately, anonymously, and
    link it only through the participant's random id, which they can copy from the report.
@@ -23,14 +28,18 @@ participant's computer. This folder holds the protocol and `analyze.py`, which a
    `init` shows the consent text (Portuguese) and continues only when they type `aceito`. The study clock starts
    at that moment. They read `TASKS.md` (scenario and four tasks), implement `src/emitir.mjs` and
    `src/verificar.mjs`, and run `npx kya-study check` as often as they like. There is no time limit; a session
-   usually fits in two hours. Whether other sources (web search, AI assistants) are allowed is a protocol
-   decision; the default `TASKS.md` asks participants to say in the last question which ones they used.
-3. **End.** `npx kya-study finish` (five open questions and the library-change question) and
+   usually fits in two hours. **Web search and AI assistants (ChatGPT, Copilot, Claude etc.) are allowed and
+   recorded**: `TASKS.md` says so, `finish` asks whether the participant used an AI assistant and in which tasks,
+   and `analyze.py` splits the results by AI used / not used / no answer. The pre-registered hypothesis is about
+   the documentation; results with AI are reported separately and labelled exploratory.
+3. **End.** `npx kya-study finish` (five open questions, the AI-assistant question and the library-change
+   question; at the end of input, e.g. `< /dev/null`, it stops and records the rest as unanswered) and
    `npx kya-study report`, which writes `kya-study-report-<id>.json`. The participant reads it if they want and
    sends that one file to the researcher by the agreed channel.
 4. **Analysis.** Put the reports in one folder and run `python3 -I analyze.py <folder>` (standard library only).
    It writes `summary.md`, `participants.csv`, `tasks.csv` and `answers.md` (open answers grouped by question,
-   for qualitative coding) to `<folder>/analysis`.
+   for qualitative coding) to `<folder>/analysis`. A file that is not valid JSON or does not have the report's
+   structure is skipped and listed in `summary.md` with the reason; it never stops the analysis.
 
 ### Scenario and tasks
 
@@ -42,8 +51,12 @@ created by `init` and marked TEST ONLY.
 | --- | --- | --- |
 | T1 issue | builds and signs the mandate and credential with the test e-CNPJ (self-issued) | `verifySelfIssuedCredential` against the test anchors, and the agent must be the given key |
 | T2 policy | nothing new: the mandate T1 produced | compared with the answer key: correct, too permissive (higher ceilings, any counterparty, extra actions or currencies, delegation, longer validity), too restrictive, or invalid; every deviating field recorded |
-| T3 verify | an offline verifier (`createKyaAuth` offline + `check()`) | the kit sends requests signed with its own reference credential: an in-mandate purchase (accept), above the ceiling, another supplier, a replay (refuse); a refusal counts only when the valid purchase was accepted |
-| T4 revocation | the same verifier | purchase accepted; the kit publishes a CRL that revokes the company certificate and moves the verifier's clock past the old CRL's `nextUpdate`; the next purchase must be refused for revocation |
+| T3 verify | an offline verifier (`createKyaAuth` offline + `check()`) | the kit sends requests signed with its own reference credential: an in-mandate purchase (accept); above the ceiling, another supplier, tampered request signature, body changed after signing, credential from an AC outside the anchors, request signed by another key, tampered mandate, a replay (refuse). A refusal counts only when the valid purchase was accepted, so a verifier that only reads the JSON body fails |
+| T4 revocation | the same verifier | always moving the verifier's clock past the previous CRL's `nextUpdate`: a purchase (accept); a re-issued CRL with no new revocation, another purchase (accept, so "the CRL bytes changed" is not taken for a revocation); the CRL that revokes the company certificate, another purchase (refuse for revocation) |
+
+Every CRL is issued fresh at each `check`, so the tasks do not expire with the `pki/ac.crl` written at `init`.
+Each call into the participant's code runs in a child process with a timeout (10 s per call by default, `KYA_STUDY_TIMEOUT_MS` to change it); a
+verifier that never answers or an issuer stuck in a loop is recorded as `timeout`, not as a hang.
 
 The T4 timer starts the first time the kit publishes the revoked CRL, which happens in the first T4 run whose
 pre-revocation purchase is accepted; it stops at the first passing T4 run. T2's first grade (the first
@@ -52,15 +65,19 @@ verifiable mandate) is the policy-quality measure; later grades may reflect the 
 ### What is recorded
 
 Per `check` attempt (`.kya-study/log.jsonl`, local): time, task, pass/fail, error category (`signature`,
-`icp_chain`, `mandate`, `revocation`, `freshness`, `replay`, `runtime`, `other`, mapped from the library's error
-codes and check rules), per-sub-case results, policy grade and deviating fields, duration of each verification
-call. At `report`: the counts of files and lines changed against the starter project (git `--numstat` against a
+`icp_chain`, `mandate`, `revocation`, `freshness`, `replay`, `runtime`, `timeout`, `contract` (the function
+returned the wrong shape), `other`, mapped from the library's error codes and check rules; a wrong `.pfx`
+password is `icp_chain`), per-sub-case results, policy grade and deviating fields (field names and counts only,
+never the values the participant wrote), duration of each verification call (the latency metric uses only the
+calls where the valid purchase was accepted). At `report`: the counts of files and lines changed against the starter project (git `--numstat` against a
 baseline commit made at `init`, or a snapshot of line hashes when git is missing; `node_modules`, the test PKI,
-the kit's state and lock files excluded), the open answers and the library-change answer.
+the kit's state and lock files excluded), the open answers, the AI-assistant answer
+(`ai_assistant: { used, tasks }`) and the library-change answer.
 
 **Not recorded, and not in the report:** code, file names or paths, names, e-mail, user name, host name or any
 machine identifier, network data. The OS is reported as a family (`linux`, `macos`, `windows`), the date as year
-and month. Free-text answers are scrubbed of the home directory, user name, host name and e-mail addresses. The
+and month. Free-text answers are scrubbed of every absolute path (`/a/b`, `C:\a`, `\\server\share`, `~/a`;
+the user name goes with them), the host name and e-mail addresses; ordinary words are kept. The
 kit makes no network connection; nothing leaves the computer until the participant sends the report.
 
 ## Ethics

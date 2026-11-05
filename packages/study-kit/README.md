@@ -18,7 +18,7 @@ Protocol, ethics and the analysis script: [research/study](../../research/study)
 npx @kya-brasil/study-kit init [dir]   # consent (type "aceito"), then the workspace (default: ./estudo-kya)
 cd estudo-kya && npm install
 npx kya-study check [t1|t2|t3|t4]       # grade one task or all; run as often as needed
-npx kya-study finish                    # five open questions + "did you change the library?"
+npx kya-study finish                    # five open questions, "did you use an AI assistant?", "did you change the library?"
 npx kya-study report                    # writes kya-study-report-<id>.json
 ```
 
@@ -28,13 +28,13 @@ of it is used.
 ### `init`
 
 Shows the consent text (Portuguese): what is collected (timestamps, task results, error categories, policy
-grading, line/file counts, latency, open answers) and what is not (code, name, e-mail, machine identifiers,
+grading, line/file counts, latency, open answers, whether an AI assistant was used) and what is not (code, name, e-mail, machine identifiers,
 network data). Only `aceito` continues. Then it creates:
 
 | Path | What |
 | --- | --- |
 | `TASKS.md` | scenario and the four tasks (Portuguese) |
-| `package.json` | depends on the published `@kya-brasil/core` and `@kya-brasil/agent-tools`, and on this kit |
+| `package.json` | depends on the published `@kya-brasil/core` and `@kya-brasil/agent-tools`, and on this kit as it was installed (npm version, or the `file:` path of a local `.tgz`) |
 | `src/emitir.mjs`, `src/verificar.mjs` | the functions to implement, with their signatures |
 | `pki/` | `anchors.pem`, `ac.crl`, `empresa.pfx` (e-CNPJ), `representante.pfx` (e-CPF), `agente.json`, `pki.json`: TEST ONLY |
 | `.kya-study/` | `config.json` (random participant id, start time, kit version, baseline), the AC key for new CRLs, `log.jsonl`, `answers.json` |
@@ -44,7 +44,8 @@ baseline for change counts; without git it keeps a snapshot of line hashes inste
 
 ### `check`
 
-Imports the participant's modules and grades each task, appending one JSON line per attempt to
+Runs the participant's modules in a child process, with a timeout per call (10 s by default,
+`KYA_STUDY_TIMEOUT_MS`), and grades each task, appending one JSON line per attempt to
 `.kya-study/log.jsonl` (time, task, pass, error category, sub-cases, verification durations in ms) and printing
 feedback in Portuguese.
 
@@ -52,30 +53,36 @@ feedback in Portuguese.
 | --- | --- | --- |
 | T1 issue | `emitirCredencial(ctx)` → `{ credential, proof }`, self-issued with the test e-CNPJ | `verifySelfIssuedCredential` with the test anchors; the agent must be `pki/agente.json` |
 | T2 policy | (the T1 mandate) | the answer key in `src/policy.ts`: `correct`, `permissive`, `restrictive` or `invalid`, with the deviating fields |
-| T3 verify | `criarVerificador(ctx)` → `async (request) => ({ aceito, motivo })`, offline | requests signed with the kit's own reference credential: in-mandate purchase (accept), above the ceiling, another supplier, replay (refuse) |
-| T4 revocation | the same verifier | accepted purchase; the kit publishes a CRL revoking the company certificate and moves `ctx.agora()` past the old CRL's `nextUpdate`; the next purchase must be refused with a revocation code |
+| T3 verify | `criarVerificador(ctx)` → `async (request) => ({ aceito, motivo })`, offline | requests signed with the kit's own reference credential: in-mandate purchase (accept); above the ceiling, another supplier, tampered signature, body changed after signing, AC outside the anchors, another signing key, tampered mandate, replay (refuse). Refusals count only when the valid purchase was accepted |
+| T4 revocation | the same verifier | with `ctx.agora()` moved past the previous CRL's `nextUpdate` each time: a purchase (accept); a re-issued CRL with no new revocation, a purchase (accept); the CRL revoking the company certificate, a purchase (refuse with a revocation code) |
 
-Error categories: `signature`, `icp_chain`, `mandate`, `revocation`, `freshness`, `replay`, `runtime`, `other`,
-mapped from the library's error codes (`KYA_*`, `KyaError` codes) and check rules (`src/errors.ts`).
+The CRLs are issued fresh at every `check` (the `pki/ac.crl` written at `init` is only an example to read).
+
+Error categories: `signature`, `icp_chain`, `mandate`, `revocation`, `freshness`, `replay`, `runtime`,
+`timeout`, `contract` (wrong return shape), `other`, mapped from the library's error codes (`KYA_*`, `KyaError`
+codes) and check rules (`src/errors.ts`). A wrong `.pfx` password is `icp_chain`. Syntax and import errors are
+shown with the file and line.
 
 `ctx` for T1: `pfx`, `senha`, `cnpj`, `agente`, `anchors`, `agora` (a `Date`). For T3/T4: `anchors`, `agora()`
 (the verifier's clock, controlled by the kit in T4) and `buscarCrl(url)` (stands in for fetching the CRL).
 
 ### `finish` and `report`
 
-`finish` asks the five open questions and whether the participant changed (or worked around) the library, and
-where; `report` writes `kya-study-report-<id>.json` in the workspace:
+`finish` asks the five open questions, whether the participant used an AI assistant (allowed) and in which
+tasks, and whether they changed (or worked around) the library, and where; at the end of input it stops asking
+and records the rest as unanswered. `report` writes `kya-study-report-<id>.json` in the workspace:
 
 - kit and library versions, Node.js version, OS family, year-month of the session;
 - per task: attempts, passes, pass rate, seconds from start to the first success, attempts until it, error counts
   by category, sub-case pass rates (T3, T4);
-- policy grade and deviating fields (first verifiable mandate and last one);
+- policy grade and deviating fields, as field names and counts only (first verifiable mandate and last one);
 - T4: when the revoked CRL was published and the seconds until the first passing run;
-- verification latency (median, p25, p75);
+- verification latency (median, p25, p75) of the calls where the valid purchase was accepted;
 - files and lines changed against the baseline (excluding `node_modules`, `out`, `dist`, `pki`, `.kya-study`,
   lock files);
-- the open answers and the library-change answer, scrubbed of the home directory, user name, host name and
-  e-mail addresses.
+- `ai_assistant: { used, tasks }`;
+- the open answers and the library-change answer, scrubbed of every absolute path (the user name goes with
+  it), the host name and e-mail addresses.
 
 No code, no paths, no host name, no user name.
 
@@ -93,9 +100,9 @@ workspace packages; the publish workflow replaces `workspace:*` with the version
 
 ## Para participantes
 
-Obrigado por participar! Você vai integrar a biblioteca KYA Brasil usando só a documentação, em quatro tarefas
+Obrigado por participar! Você vai integrar a biblioteca KYA Brasil a partir da documentação, em quatro tarefas
 curtas (emitir um mandato, conferir a política, verificar pedidos offline e lidar com uma revogação), e responder
-cinco perguntas no fim.
+cinco perguntas no fim. Busca na web e assistentes de IA são permitidos; no fim o kit pergunta se você usou.
 
 1. Numa pasta vazia: `npx @kya-brasil/study-kit init estudo-kya`. Leia o termo e digite `aceito`.
 2. `cd estudo-kya && npm install`, e leia o `TASKS.md`.

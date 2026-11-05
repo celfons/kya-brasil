@@ -100,7 +100,7 @@ export function scrub(text: string): string {
   try {
     const host = hostname();
     for (const w of new Set([host, host.split(".")[0] ?? ""])) {
-      if (w.trim().length < 2) continue;
+      if (w.trim().length < 2 || /^localhost$/i.test(w)) continue;
       s = s.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_-])`, "giu"), "<maquina>");
     }
   } catch { /* no host */ }
