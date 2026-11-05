@@ -83,3 +83,27 @@ The daily ceiling (same rule as the per-operation ceiling, with `spent_today` ad
 (checked by the property tests instead), payment instruments (same subset shape as currencies), the depth
 and lifetime limits of delegation (they only shorten chains), and the signature itself (CMS, chain, the signed text:
 checked by the round-trip and tampering tests and by `docs/vectors/self-issued-v1.json`).
+
+## Threat model (pre-project §2.1)
+
+`threats.als` is a separate module for two threats that `mandate.als` does not cover. For each one it states the
+product's current rule, the property one would want, and a mitigation. A counterexample to a current-rule check is
+expected: it records a limitation of the product, not a bug in the model. Time is scaled down: 3 units stand for
+the 300 s allowed for a creation time in the future, and 6 for the 600 s maximum lifetime (SPEC §14).
+
+```
+java -jar org.alloytools.alloy.dist.jar exec -f -o out-threats docs/formal/threats.als
+```
+
+| Command | Result | Reading |
+|---|---|---|
+| `check NoReplayToday` | counterexample (expected) | The verifier keeps no nonce cache, so the same signed request is accepted twice inside its window (iv). |
+| `check NoReplayWithMemory` | UNSAT, holds | If the verifier remembers each accepted request until it expires, it accepts that request at most once. |
+| `check NoReplayShortMemory` | counterexample (expected) | Remembering a request for only 2 units, less than the window, still lets a replay through. The memory must last until the request expires. |
+| `run AcceptsWithMemory` | SAT | Sanity check: with that memory, the verifier still accepts requests. |
+| `check IssuanceImpliesCompanyWill` | counterexample (expected) | Whoever holds the e-CNPJ obtains a credential, even if they do not represent the company. The product checks the certificate, never who operates it, and it does not read the QSA (ii-b). |
+| `check CoSignedImpliesCompanyWill` | UNSAT, holds | Under the proposal (a co-signature with the e-CPF of a representative listed in the QSA), it holds by construction. Its strength rests on the verifier knowing the representatives. |
+| `run AccountantWithCoSignature` | SAT | Sanity check: the proposal still admits an accountant who holds the certificate, with a representative co-signing. |
+
+The model does not cover issuer unavailability, which is an availability concern and not a property of a single
+state.
