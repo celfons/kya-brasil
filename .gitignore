@@ -8,3 +8,4 @@ worker-configuration.d.ts
 .DS_Store
 infra/Pulumi.*.yaml
 out/
+__pycache__/
