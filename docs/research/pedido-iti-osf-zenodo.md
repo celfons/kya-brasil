@@ -48,7 +48,7 @@ Certificados ICP-Brasil emitidos, ativos e revogados por autoridade certificador
 **Sampling plan**
 
 - Dados existentes: sim, em parte. A coleta horária das LCR começou em 4 nov. 2026; uma análise exploratória dos dados de 5 nov. 2026 já foi feita e está declarada (ver "Other").
-- Coleta: download a cada hora, por 12 meses ou mais, das LCR de usuário final e de AC listadas no repositório público https://github.com/celfons/kya-icp (sources.json), com os arquivos brutos preservados (Cloudflare R2). Denominador: painel público do ITI (numeros.iti.gov.br), guardado a cada nova versão, e a resposta ao pedido de acesso à informação (NUP a informar).
+- Coleta: download a cada hora, por 12 meses ou mais, das LCR de usuário final e de AC listadas no repositório público https://github.com/celfons/kya-icp (sources.json), com os arquivos brutos preservados (Cloudflare R2). Denominador: painel público do ITI (numeros.iti.gov.br), guardado a cada nova versão, e a resposta ao pedido de acesso à informação (NUP 00137.011046/2026-56, protocolado em 5 nov. 2026).
 - Tamanho da amostra: todas as entradas de todas as LCR coletadas no período; não há amostragem.
 - Regra de parada: 12 meses de coleta ou o fim do programa, o que vier primeiro.
 
