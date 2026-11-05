@@ -1,0 +1,22 @@
+{
+  "name": "@kya-brasil/research-crl-compat",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Which X.509 libraries can parse and verify the real ICP-Brasil CRLs (OpenSSL, Go, Python cryptography, @peculiar/x509, PKI.js, node-forge, @kya-brasil/core).",
+  "type": "module",
+  "scripts": {
+    "fetch": "python3 -I fetch.py",
+    "run": "sh run.sh",
+    "all": "python3 -I fetch.py && sh run.sh"
+  },
+  "dependencies": {
+    "@kya-brasil/core": "workspace:*",
+    "@peculiar/x509": "2.1.0",
+    "node-forge": "1.4.1",
+    "pkijs": "3.4.1",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "tsx": "4.20.6"
+  }
+}

@@ -1,0 +1,350 @@
+[
+  {
+    "id": "uf-ac-soluti-multipla-v5",
+    "ac": "AC SOLUTI Multipla v5",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-multipla-v1",
+    "ac": "AC SOLUTI Multipla (v1, encerrada)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-multipla-v1.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-rfb-g5",
+    "ac": "AC Certisign RFB G5",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignRFBG5/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v5",
+    "ac": "Autoridade Certificadora SERPRORFBv5",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprorfbv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serasa-rfb-v5",
+    "ac": "AC Serasa RFB v5",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasarfbv5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-valid-rfb-v5",
+    "ac": "AC VALID RFB v5",
+    "url": "http://ccd.acvalid.com.br/lcr/ac-valid-rfb-v5.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv10",
+    "ac": "Autoridade Certificadora Raiz Brasileira v10 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv10.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv11",
+    "ac": "Autoridade Certificadora Raiz Brasileira v11 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv11.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv12",
+    "ac": "Autoridade Certificadora Raiz Brasileira v12 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv5",
+    "ac": "Autoridade Certificadora Raiz Brasileira v5 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv6",
+    "ac": "Autoridade Certificadora Raiz Brasileira v6 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv6.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv7",
+    "ac": "Autoridade Certificadora Raiz Brasileira v7 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv7.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-ccd-ac-soluti-v5-g2",
+    "ac": "AC SOLUTI v5 G2 (LCR de certificados de AC)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-v5-g2.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-ccd-ac-soluti-v5",
+    "ac": "AC SOLUTI v5 (LCR de certificados de AC)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-v5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-ccd2-ac-soluti-v5-g2",
+    "ac": "AC SOLUTI v5 G2 (LCR de certificados de AC)",
+    "url": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-v5-g2.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-ccd2-ac-soluti-v5",
+    "ac": "AC SOLUTI v5 (LCR de certificados de AC)",
+    "url": "http://ccd2.acsoluti.com.br/lcr/ac-soluti-v5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-certificados2-acinmetro",
+    "ac": "Instituto Nacional de Metrologia Qualidade e Tecnologia INMETRO (LCR de certificados de AC)",
+    "url": "http://certificados2.serpro.gov.br/lcr/acinmetro.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-certificados2-acserprov4",
+    "ac": "Autoridade Certificadora SERPRO v4 (LCR de certificados de AC)",
+    "url": "http://certificados2.serpro.gov.br/lcr/acserprov4.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-certificados2-acserprov5",
+    "ac": "Autoridade Certificadora SERPRO v5 (LCR de certificados de AC)",
+    "url": "http://certificados2.serpro.gov.br/lcr/acserprov5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-accertisigng7",
+    "ac": "AC Certisign G7 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignG7/LatestCRL.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-accertisigng8",
+    "ac": "AC Certisign G8 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignG8/LatestCRL.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-accertisigng7-2",
+    "ac": "AC Certisign G7 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.outralcr.com.br/repositorio/lcr/ACCertisignG7/LatestCRL.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-accertisigng8-2",
+    "ac": "desconhecida em 5 nov. 2026 (LCR de certificados de AC, icp-brasil.outralcr.com.br)",
+    "url": "http://icp-brasil.outralcr.com.br/repositorio/lcr/ACCertisignG8/LatestCRL.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+    "ac": "AC SyngularID v12 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.syngularid.com.br/repositorio/ac-syngularid/lcr/lcr-ac-syngularid-v12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-lcr-ac-syngularid",
+    "ac": "AC SyngularID (LCR de certificados de AC)",
+    "url": "http://icp-brasil.syngularid.com.br/repositorio/ac-syngularid/lcr/lcr-ac-syngularid.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-lcr-ac-validv12",
+    "ac": "AC VALID V12 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-valid/lcr-ac-validv12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil-lcr-ac-validv5",
+    "ac": "AC VALID v5 (LCR de certificados de AC)",
+    "url": "http://icp-brasil.validcertificadora.com.br/ac-valid/lcr-ac-validv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil2-lcr-ac-validv12",
+    "ac": "AC VALID V12 (LCR de certificados de AC)",
+    "url": "http://icp-brasil2.validcertificadora.com.br/ac-valid/lcr-ac-validv12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-icp-brasil2-lcr-ac-validv5",
+    "ac": "AC VALID v5 (LCR de certificados de AC)",
+    "url": "http://icp-brasil2.validcertificadora.com.br/ac-valid/lcr-ac-validv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-lcr-acjusv5",
+    "ac": "Autoridade Certificadora da Justica v5 (LCR de certificados de AC)",
+    "url": "http://lcr.acjus.jus.br/acjusv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-lcr-acjusv6",
+    "ac": "Autoridade Certificadora da Justica v6 (LCR de certificados de AC)",
+    "url": "http://lcr.acjus.jus.br/acjusv6.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-lcr-serasaacpv5",
+    "ac": "desconhecida em 5 nov. 2026 (LCR de certificados de AC, lcr.certificados.com.br)",
+    "url": "http://lcr.certificados.com.br/repositorio/lcr/serasaacpv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-lcr1-acprodespsp",
+    "ac": "AC PRODESP SP (LCR de certificados de AC)",
+    "url": "http://lcr1.prodesp.sp.gov.br/acprodespsp/acprodespsp.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-lcr2-acprodespsp",
+    "ac": "AC PRODESP SP (LCR de certificados de AC)",
+    "url": "http://lcr2.prodesp.sp.gov.br/acprodespsp/acprodespsp.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-ac-digital-mais",
+    "ac": "AC DIGITAL MAIS (LCR de certificados de AC)",
+    "url": "http://repositorio.acdigital.com.br/lcr/ac-digital-mais.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-lcr-ac-safeweb",
+    "ac": "AC SAFEWEB (LCR de certificados de AC)",
+    "url": "http://repositorio.acsafeweb.com.br/ac-safeweb/lcr-ac-safeweb.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-lcr-ac-safewebv12",
+    "ac": "AC Safeweb v12 (LCR de certificados de AC)",
+    "url": "http://repositorio.acsafeweb.com.br/ac-safeweb/lcr-ac-safewebv12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-acinmetro",
+    "ac": "Instituto Nacional de Metrologia Qualidade e Tecnologia INMETRO (LCR de certificados de AC)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acinmetro.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-acserprov4",
+    "ac": "Autoridade Certificadora SERPRO v4 (LCR de certificados de AC)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprov4.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio-acserprov5",
+    "ac": "Autoridade Certificadora SERPRO v5 (LCR de certificados de AC)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprov5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio2-ac-digital-mais",
+    "ac": "AC DIGITAL MAIS (LCR de certificados de AC)",
+    "url": "http://repositorio2.acdigital.com.br/lcr/ac-digital-mais.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio2-lcr-ac-safeweb",
+    "ac": "AC SAFEWEB (LCR de certificados de AC)",
+    "url": "http://repositorio2.acsafeweb.com.br/ac-safeweb/lcr-ac-safeweb.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-repositorio2-lcr-ac-safewebv12",
+    "ac": "AC Safeweb v12 (LCR de certificados de AC)",
+    "url": "http://repositorio2.acsafeweb.com.br/ac-safeweb/lcr-ac-safewebv12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-syngularid-lcr-ac-syngularid-v12",
+    "ac": "AC SyngularID v12 (LCR de certificados de AC)",
+    "url": "http://syngularid.com.br/repositorio/ac-syngularid/lcr/lcr-ac-syngularid-v12.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-syngularid-lcr-ac-syngularid",
+    "ac": "AC SyngularID (LCR de certificados de AC)",
+    "url": "http://syngularid.com.br/repositorio/ac-syngularid/lcr/lcr-ac-syngularid.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-www-serasaacpv5",
+    "ac": "desconhecida em 5 nov. 2026 (LCR de certificados de AC, www.certificadodigital.com.br)",
+    "url": "http://www.certificadodigital.com.br/repositorio/lcr/serasaacpv5.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-www-acdigitalsignacpg2",
+    "ac": "AC DIGITALSIGN ACP G2 (LCR de certificados de AC)",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/acp/ACDIGITALSIGNACPG2.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-www-acdigitalsignacpg3",
+    "ac": "AC DIGITALSIGN ACP G3 (LCR de certificados de AC)",
+    "url": "http://www.digitalsigncertificadora.com.br/repositorio/acp/ACDIGITALSIGNACPG3.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-www-acrfbv4",
+    "ac": "AC Secretaria da Receita Federal do Brasil v4 (LCR de certificados de AC)",
+    "url": "http://www.receita.fazenda.gov.br/acrfb/acrfbv4.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v4",
+    "ac": "Autoridade Certificadora SERPRORFBv4 (encerrada, LCR final de 2024)",
+    "url": "http://repositorio.serpro.gov.br/lcr/acserprorfbv4.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v3",
+    "ac": "Autoridade Certificadora SERPRORFBv3 (encerrada, LCR final de 2019)",
+    "url": "http://ccd.serpro.gov.br/lcr/acserprorfbv3.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-serpro-rfb-v1",
+    "ac": "Autoridade Certificadora do SERPRO RFB (encerrada, LCR final de 2016)",
+    "url": "http://ccd.serpro.gov.br/lcr/acserprorfb.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-soluti-rfb-v1",
+    "ac": "AC SOLUTI RFB v1 (encerrada, LCR final de 2021)",
+    "url": "http://ccd.acsoluti.com.br/lcr/ac-soluti-rfb-v1.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-multipla-g7",
+    "ac": "AC Certisign Multipla G7",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignMultiplaG7/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "uf-ac-certisign-multipla-g8",
+    "ac": "AC Certisign Multipla G8",
+    "url": "http://icp-brasil.certisign.com.br/repositorio/lcr/ACCertisignMultiplaG8/LatestCRL.crl",
+    "kind": "usuario-final"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv2",
+    "ac": "Autoridade Certificadora Raiz Brasileira v2 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv2.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv3",
+    "ac": "Autoridade Certificadora Raiz Brasileira v3 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv3.crl",
+    "kind": "ac"
+  },
+  {
+    "id": "ac-acraiz-lcracraizv4",
+    "ac": "Autoridade Certificadora Raiz Brasileira v4 (LCR de certificados de AC)",
+    "url": "http://acraiz.icpbrasil.gov.br/LCRacraizv4.crl",
+    "kind": "ac"
+  }
+]

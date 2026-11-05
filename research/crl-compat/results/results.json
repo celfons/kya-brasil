@@ -1,0 +1,4390 @@
+{
+ "fetched_at": "2026-11-05T15:19:31+00:00",
+ "crls": 57,
+ "verifiable": 56,
+ "parse_only": [
+  "uf-ac-serpro-rfb-v1"
+ ],
+ "unreachable": [
+  {
+   "id": "uf-ac-valid-rfb-v5",
+   "url": "http://ccd.acvalid.com.br/lcr/ac-valid-rfb-v5.crl",
+   "error": "<urlopen error [Errno -2] Name or service not known>; collector: collector has no copy"
+  }
+ ],
+ "large_threshold": 1240,
+ "largest": {
+  "id": "uf-ac-serpro-rfb-v5",
+  "entries": 77323,
+  "bytes": 2336902
+ },
+ "group_labels": {
+  "rsa_small": "RSA, up to 1240 entries",
+  "rsa_large": "RSA, more than 1240 entries",
+  "ecdsa_p521": "ECDSA P-521 (AC Raiz v3)",
+  "ecdsa_brainpool": "ECDSA brainpoolP512r1, explicit parameters (AC Raiz v4)",
+  "ed448": "Ed448 (AC Raiz v6, AC INMETRO)",
+  "ed521": "Ed521, OID 1.3.6.1.4.1.44588.2.1 (AC Raiz v7)"
+ },
+ "libraries": {
+  "OpenSSL CLI": {
+   "version": "3.0.13",
+   "groups": {
+    "rsa_small": {
+     "ok": 44,
+     "n": 44,
+     "failures": []
+    },
+    "rsa_large": {
+     "ok": 6,
+     "n": 6,
+     "failures": []
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ed448": {
+     "ok": 3,
+     "n": 3,
+     "failures": []
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error getting CRL issuer public key\n4097DE63E97F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:"
+     ]
+    }
+   },
+   "end_entity_ok": 10,
+   "end_entity_n": 10,
+   "total_ok": 55,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": 67.0
+  },
+  "Go crypto/x509": {
+   "version": "go1.24.7",
+   "groups": {
+    "rsa_small": {
+     "ok": 44,
+     "n": 44,
+     "failures": []
+    },
+    "rsa_large": {
+     "ok": 6,
+     "n": 6,
+     "failures": []
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "issuer certificate: x509: invalid ECDSA parameters"
+     ]
+    },
+    "ed448": {
+     "ok": 0,
+     "n": 3,
+     "failures": [
+      "x509: cannot verify signature: algorithm unimplemented"
+     ]
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "x509: cannot verify signature: algorithm unimplemented"
+     ]
+    }
+   },
+   "end_entity_ok": 10,
+   "end_entity_n": 10,
+   "total_ok": 51,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": 106.6
+  },
+  "Python cryptography": {
+   "version": "50.0.1",
+   "groups": {
+    "rsa_small": {
+     "ok": 44,
+     "n": 44,
+     "failures": []
+    },
+    "rsa_large": {
+     "ok": 6,
+     "n": 6,
+     "failures": []
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "UnsupportedAlgorithm: ECDSA keys with explicit parameters are only supported when they map to secp256r1, secp384r1, or secp521r1. No custom curves are supported."
+     ]
+    },
+    "ed448": {
+     "ok": 3,
+     "n": 3,
+     "failures": []
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "UnsupportedAlgorithm: Unknown key type: 1.3.6.1.4.1.44588.2.1"
+     ]
+    }
+   },
+   "end_entity_ok": 10,
+   "end_entity_n": 10,
+   "total_ok": 54,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": 45.5
+  },
+  "@peculiar/x509": {
+   "version": "2.1.0",
+   "groups": {
+    "rsa_small": {
+     "ok": 43,
+     "n": 44,
+     "failures": [
+      "verify returned false"
+     ]
+    },
+    "rsa_large": {
+     "ok": 0,
+     "n": 6,
+     "failures": [
+      "Error: Maximum ASN.1 node count exceeded"
+     ]
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "verify returned false"
+     ]
+    },
+    "ed448": {
+     "ok": 0,
+     "n": 3,
+     "failures": [
+      "verify returned false"
+     ]
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "verify returned false"
+     ]
+    }
+   },
+   "end_entity_ok": 3,
+   "end_entity_n": 10,
+   "total_ok": 44,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": null
+  },
+  "PKI.js": {
+   "version": "3.4.1",
+   "groups": {
+    "rsa_small": {
+     "ok": 44,
+     "n": 44,
+     "failures": []
+    },
+    "rsa_large": {
+     "ok": 0,
+     "n": 6,
+     "failures": [
+      "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'."
+     ]
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error: Incorrect type for ECDSA public key parameters"
+     ]
+    },
+    "ed448": {
+     "ok": 0,
+     "n": 3,
+     "failures": [
+      "Error: Unsupported signature algorithm: 1.3.101.113"
+     ]
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error: Unsupported signature algorithm: 1.3.6.1.4.1.44588.2.1"
+     ]
+    }
+   },
+   "end_entity_ok": 4,
+   "end_entity_n": 10,
+   "total_ok": 45,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": null
+  },
+  "node-forge": {
+   "version": "1.4.1",
+   "groups": {
+    "rsa_small": {
+     "ok": 0,
+     "n": 44,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    },
+    "rsa_large": {
+     "ok": 0,
+     "n": 6,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    },
+    "ecdsa_p521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    },
+    "ed448": {
+     "ok": 0,
+     "n": 3,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "Error: node-forge has no CRL API (forge.pki)"
+     ]
+    }
+   },
+   "end_entity_ok": 0,
+   "end_entity_n": 10,
+   "total_ok": 0,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": null
+  },
+  "@kya-brasil/core": {
+   "version": "0.19.1",
+   "groups": {
+    "rsa_small": {
+     "ok": 44,
+     "n": 44,
+     "failures": []
+    },
+    "rsa_large": {
+     "ok": 6,
+     "n": 6,
+     "failures": []
+    },
+    "ecdsa_p521": {
+     "ok": 1,
+     "n": 1,
+     "failures": []
+    },
+    "ecdsa_brainpool": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "KyaError: CRL signature algorithm 1.2.840.10045.4.3.4 (ECDSA on curve given by explicit parameters) is not supported"
+     ]
+    },
+    "ed448": {
+     "ok": 3,
+     "n": 3,
+     "failures": []
+    },
+    "ed521": {
+     "ok": 0,
+     "n": 1,
+     "failures": [
+      "KyaError: CRL signature algorithm 1.3.6.1.4.1.44588.2.1 is not supported"
+     ]
+    }
+   },
+   "end_entity_ok": 10,
+   "end_entity_n": 10,
+   "total_ok": 54,
+   "total_n": 56,
+   "serpro_rfb_v5_ms": 173.2
+  }
+ },
+ "ed521": {
+  "Go e521": {
+   "version": "0.0.35",
+   "ok": 0,
+   "n": 1,
+   "failures": [
+    "issuer certificate signature does not verify"
+   ]
+  },
+  "Ed521, full hash": {
+   "version": "0.0.35",
+   "ok": 1,
+   "n": 1,
+   "failures": []
+  }
+ },
+ "env": {
+  "python": "3.13.18",
+  "machine": "x86_64",
+  "os": "Linux-6.18.44-fc-v236-x86_64-with-glibc2.39"
+ },
+ "per_crl": [
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 29.922515000180283
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 37.79939000014565
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 15.911503000097582
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 67.04241999977967
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 7.257784000103129
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.864991999966151
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.7309420006058645
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.170972000792972
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.270940999958839
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.654909999771917
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "verify_failed",
+   "detail": "Error getting CRL issuer public key\n4097DE63E97F0000:error:03000072:digital envelope routines:X509_PUBKEY_get0:decode error:../crypto/x509/x_pubkey.c:458:",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.437649999999849
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.25824200030911
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.2042449997316
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.649239000173111
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.301319999285624
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.508041000008234
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.294047000257706
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.277863000424986
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.9446709997719154
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.182177000075171
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.47766499928548
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.865445999712392
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.151927000748401
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.375538999738637
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.122114000187139
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.306972999984282
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.334916999141569
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.640287000256649
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.493659999752708
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.828981999911775
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.845446999956039
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.582235000474611
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.20835899967642
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.133601000830822
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.425664000540564
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.619065999781014
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.168081000192615
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.403955000474525
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.205587999626005
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.239188999439648
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.706201000066358
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.551396999886492
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.489374000513635
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.99655200039706
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.585623000821215
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.999476999932085
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.469362999974692
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 11.550024999451125
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 8.34195599964005
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.137488999935158
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.862528999386996
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.684894999831158
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.062209000243456
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.692124000030162
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "OpenSSL CLI",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 7.0499789999303175
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 27.668218000144407
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 36.89144500003749
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 17.297999000220443
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 45.53629700058082
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0818049997615162
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.1261039997189073
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10668400045688031
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11995800014119595
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10188300075242296
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.3208349999113125
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "verify_failed",
+   "detail": "UnsupportedAlgorithm: Unknown key type: 1.3.6.1.4.1.44588.2.1",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10341699999116827
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11412200001359452
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11868599995068507
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.2013809998970828
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.3581159999157535
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10213999939878704
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.12830799914809177
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10546700013946975
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.13022799976170063
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11287600045761792
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.12444599997252226
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10426100016047712
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.12374200014164671
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11802499921031995
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.14799099972151453
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10519700026634382
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.15569700008200016
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10513200049899751
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.09996700009651249
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.13846799993189052
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.12013500054308679
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.14146300054562744
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10812100026669214
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.15007700039859628
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10856300013983855
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.28628499967453536
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.106772999970417
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10533499971643323
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10371099961048458
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11483300022518961
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.1120570004786714
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.1036870007737889
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.09912299992720364
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.10785099948407151
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.11151099988637725
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.17675500021141488
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.2033259997915593
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 8.421826999438053
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.6833709998754784
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.12442199931683717
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.5175820001095417
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.8947879996412667
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.17746200046531158
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Python cryptography",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.0534419998293743
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Python cryptography",
+   "outcome": "verify_failed",
+   "detail": "UnsupportedAlgorithm: ECDSA keys with explicit parameters are only supported when they map to secp256r1, secp384r1, or secp521r1. No custom curves are supported.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 34.872
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 47.183
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 9.911
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 106.599
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.576
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.876
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.569
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.636
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.615
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "verify_failed",
+   "detail": "x509: cannot verify signature: algorithm unimplemented",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "verify_failed",
+   "detail": "x509: cannot verify signature: algorithm unimplemented",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.609
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.811
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.455
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.414
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "verify_failed",
+   "detail": "x509: cannot verify signature: algorithm unimplemented",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.492
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.47
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.475
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.591
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.463
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.41
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.464
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.483
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.56
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.465
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.443
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.445
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.44
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.461
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.476
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.459
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.521
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.488
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.437
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.45
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "verify_failed",
+   "detail": "x509: cannot verify signature: algorithm unimplemented",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.416
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.438
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.608
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.462
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.458
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.448
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.433
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.506
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.464
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.427
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.478
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 10.611
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.288
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.421
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.224
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.761
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 0.439
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "Go crypto/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.76
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go crypto/x509",
+   "outcome": "verify_failed",
+   "detail": "issuer certificate: x509: invalid ECDSA parameters",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Go e521",
+   "outcome": "verify_failed",
+   "detail": "issuer certificate signature does not verify",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "Ed521, full hash",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 26.145
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 110.31559700000003
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.4345290000001114
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.656235999999808
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.571121999999832
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.740169000000151
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3107700000000477
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.783582999999908
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.7542869999997492
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.5912499999999454
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.983064999999897
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.520739000000049
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.6405429999999797
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3129640000001928
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.106532000000243
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.9435590000002776
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.44089299999996
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.9188669999998638
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.1175060000000485
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.4441400000000613
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.9982850000001235
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.7903810000002522
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.4991660000000593
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0773079999999027
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 6.156015999999909
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.03807900000038
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.854011999999784
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3147330000001602
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.0993499999999585
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3705449999997654
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.445412999999917
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.150662000000011
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.9023339999998825
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.4726129999999102
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3525580000000446
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3598259999998845
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2921329999999216
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.342029999999795
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9638279999999213
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.614183000000139
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.6704609999997047
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "@peculiar/x509",
+   "outcome": "parse_error",
+   "detail": "Error: Maximum ASN.1 node count exceeded",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 76.99371400000018
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 33.832514000000174
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.144510000000082
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@peculiar/x509",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.4235459999999875
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@peculiar/x509",
+   "outcome": "verify_failed",
+   "detail": "verify returned false",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 142.04300299999977
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.658488000000034
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.1512549999997646
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.34509799999978
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.6242640000000392
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "verify_failed",
+   "detail": "Error: Unsupported signature algorithm: 1.3.101.113",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "verify_failed",
+   "detail": "Error: Unsupported signature algorithm: 1.3.6.1.4.1.44588.2.1",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0108999999993102
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.697025999999823
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.8307489999997415
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9834249999994427
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "verify_failed",
+   "detail": "Error: Unsupported signature algorithm: 1.3.101.113",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.06227299999955
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.957231999999749
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.165644999999131
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.030217999999877
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.485394000000269
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.413473000000522
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1493030000001454
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2228329999998095
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0603809999993246
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.188842999999906
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.7144510000007358
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.505371000000196
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.173641000000316
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.755315999999766
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.342735000000175
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3758010000001377
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.7711159999998927
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.4195700000000215
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.433234000000084
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0898290000004636
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "verify_failed",
+   "detail": "Error: Unsupported signature algorithm: 1.3.101.113",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.508010999999897
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.496310999999878
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.13857199999984
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.0155839999997625
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9957020000001648
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0085280000002967
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.859995999999228
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.136523999999554
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1964439999992464
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2211179999994783
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.509536999999909
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "PKI.js",
+   "outcome": "parse_error",
+   "detail": "AsnError: Error during parsing of ASN.1 data. Data is not correct for 'CertificateRevocationList'.",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.141740000000027
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 164.77208100000007
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 41.939870000000155
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.675717000000077
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "PKI.js",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.419472000000496
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "PKI.js",
+   "outcome": "verify_failed",
+   "detail": "Error: Incorrect type for ECDSA public key parameters",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "node-forge",
+   "outcome": "parse_error",
+   "detail": "Error: node-forge has no CRL API (forge.pki)",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 33908,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 101.62660599999981
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 46852,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 100.79455400000006
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 7624,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 17.29447600000003
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 77323,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 173.20556299999953
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1084,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.595589000000473
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.224736000000121
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.381742000000486
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.7866659999999683
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1241939999999886
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0058230000004187
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "group": "ed521",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "verify_failed",
+   "detail": "KyaError: CRL signature algorithm 1.3.6.1.4.1.44588.2.1 is not supported",
+   "ms": null
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.9232329999995272
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2835720000002766
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.035494999999173
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.018011999999544
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9665969999996378
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9347090000001117
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.8952039999994668
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.538513000000421
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.236152999999831
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 4,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9065320000008796
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.901546999999482
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.051926000000094
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.9052910000000338
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.088416999999936
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.6438020000005054
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1121240000002217
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.08721499999956
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 6,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2888560000001235
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1190859999996974
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2500520000003235
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.8254649999998946
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 5,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2698929999996835
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1425460000000385
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2191439999996874
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.080329000000347
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "group": "ed448",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.049093000000539
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1265400000002046
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 4.6892619999998715
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1363750000000437
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 8,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1761340000002747
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1093769999997676
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.1106730000001335
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.276557999999568
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.2109019999998054
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.058328000000074
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.7369149999994988
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 9,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.0381420000003345
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 11234,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 15.80670099999952
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "group": "rsa_large",
+   "kind": "usuario-final",
+   "entries": 3334,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 7.064679000000069
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "parsed_no_issuer",
+   "detail": "",
+   "ms": null
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 2,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 2.3566310000005615
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 1223,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 5.0077799999999115
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "group": "rsa_small",
+   "kind": "usuario-final",
+   "entries": 346,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.045791000000463
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "group": "rsa_small",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 1.931985000000168
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "group": "ecdsa_p521",
+   "kind": "ac",
+   "entries": 1,
+   "lib": "@kya-brasil/core",
+   "outcome": "ok",
+   "detail": "",
+   "ms": 3.9344490000003134
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "group": "ecdsa_brainpool",
+   "kind": "ac",
+   "entries": 0,
+   "lib": "@kya-brasil/core",
+   "outcome": "verify_failed",
+   "detail": "KyaError: CRL signature algorithm 1.2.840.10045.4.3.4 (ECDSA on curve given by explicit parameters) is not supported",
+   "ms": null
+  }
+ ]
+}
