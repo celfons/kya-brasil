@@ -75,6 +75,7 @@ O caso típico é o contador que guarda o A1 da empresa.
   - testes: `packages/core/src/cosign.test.ts` ("refused: the co-signer's CPF is not a representative", "refused: no co-signature" e os demais do bloco "co-signature by a legal representative (section 21)").
 - **Risco residual:**
   - lista de representantes desatualizada (`CoSignatureStaleList`);
+  - lista sem CPF completo: os dados abertos do CNPJ publicam o CPF do sócio mascarado (6 de 11 dígitos visíveis; os 3 primeiros e os 2 verificadores ocultos), o que deixa 1.000 CPFs válidos por máscara. Com essa fonte o verificador só confere compatibilidade com a máscara e o nome, não monta a lista que `representatives(cnpj)` pede; ela precisa vir de uma fonte com CPF completo ou de uma declaração assinada pela empresa;
   - e-CPF emprestado (`CoSignatureLentECpf`);
   - verificador que não exige a coassinatura: a defesa é opcional.
 

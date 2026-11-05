@@ -78,6 +78,10 @@ def main():
         reasons = sorted({f for c in t["groups"].values() for f in c["failures"]})
         if reasons:
             md.append(f"- **{lib}**: " + "; ".join(f"`{r[:120]}`" for r in reasons))
+    fallback = [p for p in meta["pairs"] if p.get("via", "ac") != "ac"]
+    if fallback:
+        md += ["", "Taken from the kya-icp collector's latest copy because the AC's server did not answer this run: "
+               + ", ".join(f"{p['id']} (`{p['via'].split(':', 1)[1]}`)" for p in fallback) + "."]
     md += ["", "Causes checked by hand:", "",
            "- `@peculiar/x509` 2.1.0 is what `@kya-brasil/core` up to 0.19.0 used. Its `X509Crl` parses through asn1js, whose default limit "
            "of 10 000 nodes refuses every CRL above about 1 240 entries; PKI.js parses with the same asn1js. Its `verify({ publicKey: X509Certificate })` "

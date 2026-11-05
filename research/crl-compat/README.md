@@ -25,4 +25,6 @@ day's CRLs and on the library versions recorded in them.
 
 Issuer certificates come from `anchors/icp-brasil.pem`, the AC Raiz roots v2 to v12 at
 `http://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/`, and, for retired ACs, the CRL's Authority Information Access
-(caIssuers). A CRL whose issuer is not found is parsed but not verified.
+(caIssuers). A CRL whose issuer is not found is parsed but not verified. When an AC's server does not answer, `fetch.py` takes
+the latest copy kept by the kya-icp collector (`KYA_ICP_COLLECTOR`, fetched with the `curl` CLI) and records which
+in `results/RESULTS.md`.
