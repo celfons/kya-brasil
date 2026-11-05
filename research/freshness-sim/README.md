@@ -142,3 +142,23 @@ CRL cadence is a small part: the window is set by when the AC acts, not by how o
 - Under measured values a 6 h window costs R$ 0.54 per 1,000 actions over always fetching; the irreducible
   R$ 3.01 comes from the AC's working hours, which only credential evidence from the agent's issuer (no
   publication delay) or the mandate's ceilings can cover.
+
+## Sensitivity to the rate and the action value
+
+`sensitivity.py` (seed 20261105, offline, about 40 minutes on 4 vCPUs) repeats the measured comparison from 1x to
+100x the measured revocation rate, which is a floor and counts every revocation, not only compromises, for median
+actions of R$ 200 and R$ 2,000. For each scenario it reports the proportional policy's gain over a fixed deadline that
+makes the same number of fetches (fixed-deadline loss interpolated on log fetches), as a share of the loss a verifier
+can avoid at all, that is, above the always-fetch floor that comes from the AC's own delay. Writes `sensitivity.json`.
+
+| Rate (x measured) | Median R$ 200: share removed | gain (R$/1,000) | floor (R$/1,000) | Median R$ 2,000: share removed |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 34% | 0.48 | 3.01 | 55% |
+| 3 | 45% | 1.00 | 9.02 | 65% |
+| 10 | 55% | 1.85 | 30.05 | 74% |
+| 30 | 65% | 3.26 | 89.96 | 81% |
+| 100 | 74% | 5.34 | 297.83 | 86% |
+
+The result depends on the product of value and rate: R$ 2,000 at k times the rate gives the same numbers as R$ 200 at
+10k times. The best proportional point is the smallest `L` swept (0.01) in every scenario, so a smaller `L` may gain
+more. Even at 100x, the avoidable loss is small next to the floor: the AC's working hours bound freshness.

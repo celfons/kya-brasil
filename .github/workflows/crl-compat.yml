@@ -1,0 +1,56 @@
+# Weekly: the current ICP-Brasil CRLs across X.509 libraries (research/crl-compat). The ACs change CRLs, algorithms
+# and chains without notice; this run says when the core stops verifying a CRL that OpenSSL verifies, or when a
+# source starts using an algorithm none of the libraries knows. Results go to the job summary and an artifact;
+# nothing is committed (results/ in the repository is updated by hand, with the paper).
+name: CRL compatibility
+on:
+  schedule:
+    - cron: "17 11 * * 1" # Mondays 11:17 UTC
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  crl-compat:
+    runs-on: ubuntu-latest
+    env:
+      GOTOOLCHAIN: auto # go.mod asks for Go 1.24
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Python with cryptography
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet cryptography==50.0.1
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - name: Fetch the CRLs and run every library
+        run: pnpm --filter @kya-brasil/research-crl-compat all
+      - name: Results to the job summary
+        if: always()
+        run: cat research/crl-compat/results/RESULTS.md >> "$GITHUB_STEP_SUMMARY" || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: crl-compat
+          path: |
+            research/crl-compat/results/
+            research/crl-compat/data/pairs.json
+            research/crl-compat/data/results.jsonl
+      - name: The core verifies every end-entity CRL that OpenSSL verifies
+        run: |
+          python3 -I - <<'PY'
+          import json, sys
+          r = json.load(open("research/crl-compat/results/results.json"))
+          by = {}
+          for row in r["per_crl"]:
+              by.setdefault(row["id"], {})[row["lib"]] = row["outcome"]
+          lost = [i for i, libs in by.items() if libs.get("OpenSSL CLI") == "ok" and libs.get("@kya-brasil/core") != "ok"
+                  and next(p for p in r["per_crl"] if p["id"] == i)["kind"] == "usuario-final"]
+          known = {"ecdsa_brainpool", "ed521"}  # documented: Web Crypto has no such curve / algorithm
+          new = sorted({p["id"] for p in r["per_crl"] if p["lib"] == "OpenSSL CLI" and p["outcome"] == "verify_failed" and p["group"] not in known})
+          print("end-entity CRLs OpenSSL verifies and the core does not:", lost or "none")
+          print("CRLs OpenSSL does not verify, outside the known algorithms:", new or "none")
+          sys.exit(1 if lost or new else 0)
+          PY

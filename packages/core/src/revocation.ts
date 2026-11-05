@@ -64,7 +64,12 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
   } catch (e) {
     throw new KyaError("REVOCATION_UNAVAILABLE", `CRL or issuer certificate is not valid DER: ${(e as Error).message}`);
   }
-  const crlIssuer = new Name(ab(crl.issuerDer)).toString();
+  let crlIssuer: string;
+  try {
+    crlIssuer = new Name(ab(crl.issuerDer)).toString();
+  } catch (e) {
+    throw new KyaError("REVOCATION_UNAVAILABLE", `CRL or issuer certificate is not valid DER: issuer Name: ${(e as Error).message}`);
+  }
   if (crlIssuer !== issuer.subject) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL issued by "${crlIssuer}", not by the certificate's AC "${issuer.subject}"`);
   if (!(await verifyCrlSignature(crl, issuer))) throw new KyaError("REVOCATION_UNAVAILABLE", "CRL signature does not match the AC certificate");
   if (p.pastNextUpdate === "refuse" && crl.nextUpdate && crl.nextUpdate < now) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL is stale (nextUpdate ${crl.nextUpdate.toISOString()})`);
@@ -107,9 +112,10 @@ async function verifyCrlSignature(crl: ParsedCrl, issuer: X509Certificate): Prom
     }
     const ecHash = ECDSA[crl.signatureAlgorithm];
     if (ecHash) {
-      const namedCurve = (issuer.publicKey.algorithm as EcKeyAlgorithm).namedCurve;
-      const size = CURVE_BYTES[namedCurve];
-      if (!size) return false;
+      const namedCurve = ecCurveOf(issuer);
+      const size = namedCurve ? CURVE_BYTES[namedCurve] : undefined;
+      // Not a forgery: Web Crypto has no such curve (AC Raiz v4: brainpoolP512r1 with explicit parameters).
+      if (!namedCurve || !size) throw new UnsupportedCrlAlgorithm(`ECDSA on curve ${namedCurve ?? "given by explicit parameters"}`);
       const key = await crypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve }, false, ["verify"]);
       return await crypto.subtle.verify({ name: "ECDSA", hash: ecHash }, key, ab(ecdsaDerToRaw(crl.signature, size)), ab(crl.tbs));
     }
@@ -119,10 +125,23 @@ async function verifyCrlSignature(crl: ParsedCrl, issuer: X509Certificate): Prom
       const key = await crypto.subtle.importKey("spki", spki, { name: edName }, false, ["verify"]);
       return await crypto.subtle.verify({ name: edName }, key, ab(crl.signature), ab(crl.tbs));
     }
-  } catch {
+  } catch (e) {
+    if (e instanceof UnsupportedCrlAlgorithm) throw new KyaError("REVOCATION_UNAVAILABLE", `CRL signature algorithm ${crl.signatureAlgorithm} (${e.message}) is not supported`);
     return false;
   }
+  // AC Raiz v7 signs with id-Ed521 (1.3.6.1.4.1.44588.2.1, DOC-ICP-01.01), which no Web Crypto implements.
   throw new KyaError("REVOCATION_UNAVAILABLE", `CRL signature algorithm ${crl.signatureAlgorithm} is not supported`);
+}
+
+class UnsupportedCrlAlgorithm extends Error {}
+
+/** Web Crypto name of the issuer's named curve, or null (explicit parameters, or a curve @peculiar/x509 cannot name). */
+function ecCurveOf(issuer: X509Certificate): string | null {
+  try {
+    return (issuer.publicKey.algorithm as EcKeyAlgorithm).namedCurve ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** One-shot check of `serial` against a DER CRL signed by `issuerCertificate`; see verifyCrl. */
