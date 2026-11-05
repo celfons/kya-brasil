@@ -2,7 +2,7 @@
 
 ![KYA Brasil demo: an agent's signed order is verified (credential, e-CNPJ revocation, company status, mandate) and allowed; an order above the mandate is refused; a new credential in the company's name reaches its webhook as a signed event](docs/assets/demo.gif)
 
-[![Featured on Plug and Ship](https://plugandship.dev/badge/kya-brasil.svg)](https://plugandship.dev/p/kya-brasil)
+[![DOI](https://zenodo.org/badge/1416166998.svg)](https://doi.org/10.5281/zenodo.23973230)
 [![KYA-BRASIL MCP server – quality and maintenance score on Glama](https://glama.ai/mcp/servers/celfons/kya-brasil/badges/score.svg)](https://glama.ai/mcp/servers/celfons/kya-brasil)
 
 **Know-your-agent backed by ICP-Brasil.** Most "KYA" tools prove that an agent holds a key and give it a score.
