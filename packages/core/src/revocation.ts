@@ -87,9 +87,12 @@ export async function verifyCrl(p: { crlDer: ArrayBuffer | Uint8Array; issuerCer
   };
 }
 
-// CRL signature algorithms (RFC 4055 / RFC 5758). ICP-Brasil ACs sign with RSA PKCS#1 v1.5 (SHA-256 / SHA-512).
+// CRL signature algorithms (RFC 4055 / RFC 5758). ICP-Brasil ACs sign with RSA PKCS#1 v1.5
+// (SHA-512 mostly; SHA-256; SHA-1 on old generations), ECDSA SHA-512 (AC Raiz v3/v4) and Ed448 (AC Raiz v6, AC INMETRO).
 const RSA_PKCS1: Record<string, string> = { "1.2.840.113549.1.1.5": "SHA-1", "1.2.840.113549.1.1.11": "SHA-256", "1.2.840.113549.1.1.12": "SHA-384", "1.2.840.113549.1.1.13": "SHA-512" };
 const ECDSA: Record<string, string> = { "1.2.840.10045.4.3.2": "SHA-256", "1.2.840.10045.4.3.3": "SHA-384", "1.2.840.10045.4.3.4": "SHA-512" };
+// EdDSA (RFC 8410): AC Raiz v6 and AC INMETRO sign their CRLs with Ed448. Parameters must be absent.
+const EDDSA: Record<string, string> = { "1.3.101.112": "Ed25519", "1.3.101.113": "Ed448" };
 const CURVE_BYTES: Record<string, number> = { "P-256": 32, "P-384": 48, "P-521": 66 };
 const ab = (u: Uint8Array) => u.buffer.slice(u.byteOffset, u.byteOffset + u.byteLength) as ArrayBuffer;
 
@@ -109,6 +112,12 @@ async function verifyCrlSignature(crl: ParsedCrl, issuer: X509Certificate): Prom
       if (!size) return false;
       const key = await crypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve }, false, ["verify"]);
       return await crypto.subtle.verify({ name: "ECDSA", hash: ecHash }, key, ab(ecdsaDerToRaw(crl.signature, size)), ab(crl.tbs));
+    }
+    const edName = EDDSA[crl.signatureAlgorithm];
+    if (edName) {
+      if (crl.signatureAlgorithmParams) return false;
+      const key = await crypto.subtle.importKey("spki", spki, { name: edName }, false, ["verify"]);
+      return await crypto.subtle.verify({ name: edName }, key, ab(crl.signature), ab(crl.tbs));
     }
   } catch {
     return false;

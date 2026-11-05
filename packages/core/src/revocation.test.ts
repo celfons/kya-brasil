@@ -157,3 +157,35 @@ describe("revocation effect on an issued credential (D-16, D-36)", () => {
     expect(verified.lookup("0c0d")).toMatchObject({ reason: null, invalidity_date: null });
   });
 });
+
+describe("EdDSA CRLs (AC Raiz v6 and AC INMETRO sign with Ed448)", () => {
+  for (const [name, oidTail] of [["Ed448", 0x71], ["Ed25519", 0x70]] as const) {
+    it(`verifies a ${name}-signed CRL and refuses a tampered one`, async () => {
+      const keys = (await crypto.subtle.generateKey({ name }, true, ["sign", "verify"])) as CryptoKeyPair;
+      const algId = Uint8Array.from([0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, oidTail]); // RFC 8410: no parameters
+      // Self-signed AC certificate built by hand: @peculiar/x509's generator does not know Ed448.
+      const dn = new Uint8Array(new x509.Name("CN=AC Raiz Teste v6, O=ICP-Brasil, C=BR").toArrayBuffer());
+      const spki = new Uint8Array(await crypto.subtle.exportKey("spki", keys.publicKey));
+      const tbsCert = tlv(0x30, tlv(0xa0, Uint8Array.from([2, 1, 2])), Uint8Array.from([2, 1, 2]), algId, dn, tlv(0x30, utc(new Date("2026-01-01T00:00:00Z")), utc(new Date("2030-01-01T00:00:00Z"))), dn, spki);
+      const certSig = new Uint8Array(await crypto.subtle.sign({ name }, keys.privateKey, tbsCert));
+      const cert = new x509.X509Certificate(tlv(0x30, tbsCert, algId, tlv(0x03, Uint8Array.of(0), certSig)));
+      const entry = tlv(0x30, tlv(0x02, Uint8Array.of(0x2a)), utc(new Date("2026-10-01T00:00:00Z")), tlv(0x30, REASON_KEY_COMPROMISE));
+      const tbs = tlv(0x30, Uint8Array.from([2, 1, 1]), algId, new Uint8Array(new x509.Name(cert.subject).toArrayBuffer()), utc(new Date("2026-10-11T00:00:00Z")), utc(new Date("2026-10-13T00:00:00Z")), tlv(0x30, entry));
+      const sig = new Uint8Array(await crypto.subtle.sign({ name }, keys.privateKey, tbs));
+      const der = tlv(0x30, tbs, algId, tlv(0x03, Uint8Array.of(0), sig));
+      const crl = await verifyCrl({ crlDer: der, issuerCertificate: b64(cert.rawData), pastNextUpdate: "refuse", now });
+      expect(crl.lookup("2a")).toMatchObject({ revoked: true, reason: "keyCompromise" });
+      const tampered = der.slice();
+      tampered[tampered.length - 1] = tampered[tampered.length - 1]! ^ 1;
+      await expect(verifyCrl({ crlDer: tampered, issuerCertificate: b64(cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/signature/);
+    });
+  }
+
+  it("refuses an unidentified algorithm (AC Raiz v7: 1.3.6.1.4.1.44588.2.1) as unavailable, not as valid", async () => {
+    const a = await ac();
+    const algId = tlv(0x30, tlv(0x06, Uint8Array.from([0x2b, 0x06, 0x01, 0x04, 0x01, 0x82, 0xdc, 0x2c, 0x02, 0x01])));
+    const tbs = tlv(0x30, Uint8Array.from([2, 1, 1]), algId, new Uint8Array(new x509.Name(a.cert.subject).toArrayBuffer()), utc(new Date("2026-10-11T00:00:00Z")), utc(new Date("2026-10-13T00:00:00Z")));
+    const der = tlv(0x30, tbs, algId, tlv(0x03, Uint8Array.of(0), Uint8Array.of(1, 2, 3)));
+    await expect(verifyCrl({ crlDer: der, issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/1\.3\.6\.1\.4\.1\.44588\.2\.1 is not supported/);
+  });
+});
