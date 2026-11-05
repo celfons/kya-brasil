@@ -74,7 +74,7 @@ python3 -m pip install numpy cryptography
 pnpm --filter @kya-brasil/core test
 ```
 
-Resultado esperado em cerca de 30 s: todos os testes passam (123 na versão 0.19.1), entre eles
+Resultado esperado em cerca de 30 s: todos os testes passam (123 na versão 0.19.2), entre eles
 `conformance.test.ts` (os 1.320 vetores) e `icp-raiz-crls.test.ts` (LCR reais da AC Raiz v3, v4, v6 e v7).
 
 # Experimentos
