@@ -7,5 +7,6 @@ out=data/results.jsonl
 python3 -I run_openssl_py.py openssl >> "$out"
 python3 -I run_openssl_py.py python >> "$out"
 (cd go && go run .) >> "$out"
+(cd go-e521 && go run .) >> "$out"  # Ed521 only: github.com/pedroalbanese/e521 and the full-hash form
 pnpm exec tsx run-js.mjs >> "$out"  # the tsx pinned in package.json; installs nothing
 python3 -I report.py

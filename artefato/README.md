@@ -42,6 +42,7 @@ Os selos considerados são: Disponíveis (SeloD), Funcionais (SeloF), Sustentáv
 | `research/bench` | desempenho (tabela de tempos) |
 | `research/crl-compat` | LCR reais em sete bibliotecas X.509 (tabela de compatibilidade) |
 | `research/freshness-sim` | janela de exposição, políticas de atualidade e sensibilidade |
+| `research/paper` | `figuras.py`: as figuras e todos os números citados no texto, a partir dos resultados acima |
 
 # Dependências
 
@@ -113,11 +114,13 @@ em dezenas de milissegundos e a LCR do SERPRO em cerca de 0,1 s). Para uma passa
 pnpm --filter @kya-brasil/research-crl-compat all
 ```
 
-Precisa de rede, OpenSSL, Go e Python com `cryptography`; cerca de 5 minutos. Esperado:
+Precisa de rede, OpenSSL, Go e Python com `cryptography`; cerca de 5 minutos. O módulo `go-e521` baixa o pacote
+Go `github.com/pedroalbanese/e521` (com `golang.org/x/crypto`), só aritmética, sem rede nem arquivos. Esperado:
 `research/crl-compat/results/RESULTS.md` com a tabela por biblioteca. As LCR mudam a cada poucas horas e um
 servidor de AC pode não responder; as contagens podem variar em uma ou duas listas, mas as conclusões não: as
 bibliotecas baseadas no asn1js (`@peculiar/x509`, PKI.js) recusam as LCR com mais de cerca de 1.240 entradas, a
-node-forge não lê LCR, e nenhuma biblioteca verifica a LCR da AC Raiz v7 (Ed521).
+node-forge não lê LCR, e nenhuma das sete bibliotecas verifica a LCR da AC Raiz v7 (Ed521). O pacote `e521` também
+a recusa, e a forma com o hash completo a verifica (`cd research/crl-compat/go-e521 && go test ./...`).
 
 ## Reivindicação R4: janela de exposição e comparação de políticas (seção "Atualidade do status", fronteira de Pareto)
 
@@ -138,6 +141,17 @@ python3 -I research/freshness-sim/sensitivity.py
 
 Sem rede, semente fixa, cerca de 40 minutos em 4 vCPUs. Esperado: `sensitivity.json` igual ao do repositório: o
 ganho da política proporcional sobre o prazo fixo de mesmo número de consultas, de 1 a 100 vezes a taxa medida.
+
+## Reivindicação R6: os números do texto
+
+```bash
+python3 -m pip install matplotlib
+python3 -I research/paper/figuras.py
+```
+
+Sem rede, segundos. Esperado: `research/paper/out/numeros.tex` com as macros que o artigo cita (por exemplo
+`\TotalRevog`, `\JanelaMedia`, `\SensUmPct`, `\CompatCoreOk`) e as figuras em `out/*.pdf`, a partir dos
+resultados das reivindicações R2 a R5.
 
 # LICENSE
 

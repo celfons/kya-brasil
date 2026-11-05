@@ -13,12 +13,16 @@ certificate of its issuer, and runs:
 | PKI.js | `CertificateRevocationList.fromBER(der).verify({ issuerCertificate })` |
 | node-forge | no CRL API |
 | `@kya-brasil/core` | `verifyCrl({ crlDer, issuerCertificate, pastNextUpdate: "accept" })` |
+| Ed521 only (`go-e521/`) | `github.com/pedroalbanese/e521`'s `Verify`, and the full-hash form on its curve arithmetic |
 
 ```bash
 pnpm --filter @kya-brasil/research-crl-compat all
 ```
 
-Needs network access to the ACs' repositories, `openssl`, Go 1.24 and Python 3 with `cryptography`. `fetch.py` writes
+Needs network access to the ACs' repositories, `openssl`, Go 1.24 and Python 3 with `cryptography`. The weekly
+workflow `.github/workflows/crl-compat.yml` runs it on GitHub Actions and fails when the core stops verifying an
+end-entity CRL that OpenSSL verifies, or when OpenSSL cannot verify a CRL outside the algorithms already known
+(brainpool with explicit parameters, Ed521). `fetch.py` writes
 `data/` (not committed: the CRLs change every few hours). `run.sh` writes `data/results.jsonl`, then `report.py` writes
 `results/results.json` and `results/RESULTS.md`, which are committed with the date of the fetch. Results depend on the
 day's CRLs and on the library versions recorded in them.

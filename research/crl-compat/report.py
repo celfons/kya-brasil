@@ -17,6 +17,7 @@ GROUPS = OrderedDict([
     ("ed521", "Ed521, OID 1.3.6.1.4.1.44588.2.1 (AC Raiz v7)"),
 ])
 LIBS = ["OpenSSL CLI", "Go crypto/x509", "Python cryptography", "@peculiar/x509", "PKI.js", "node-forge", "@kya-brasil/core"]
+ED521 = ["Go e521", "Ed521, full hash"]  # go-e521/: run on the Ed521 CRLs only
 
 
 def group(p):
@@ -53,11 +54,16 @@ def main():
                       "end_entity_ok": sum(1 for p in ee if by[(lib, p["id"])]["outcome"] == "ok"), "end_entity_n": len(ee),
                       "total_ok": sum(c["ok"] for c in cells.values()), "total_n": len(verifiable),
                       "serpro_rfb_v5_ms": round(big["ms"], 1) if big["ms"] is not None else None}
+    ed521 = OrderedDict()
+    for lib in ED521:
+        ps = [p for p in verifiable if group(p) == "ed521" and (lib, p["id"]) in by]
+        ed521[lib] = {"version": versions.get(lib), "ok": sum(1 for p in ps if by[(lib, p["id"])]["outcome"] == "ok"), "n": len(ps),
+                      "failures": sorted({by[(lib, p["id"])]["detail"] for p in ps if by[(lib, p["id"])]["outcome"] != "ok"})}
     largest = pairs["uf-ac-serpro-rfb-v5"]
     out = {"fetched_at": meta["fetched_at"], "crls": len(meta["pairs"]), "verifiable": len(verifiable),
            "parse_only": [p["id"] for p in meta["pairs"] if not p["issuers"]], "unreachable": meta["missing"],
            "large_threshold": LARGE, "largest": {"id": largest["id"], "entries": largest["entries"], "bytes": largest["bytes"]},
-           "group_labels": GROUPS, "libraries": table,
+           "group_labels": GROUPS, "libraries": table, "ed521": ed521,
            "env": {"python": platform.python_version(), "machine": platform.machine(), "os": platform.platform()},
            "per_crl": [{"id": r["id"], "group": group(pairs[r["id"]]), "kind": pairs[r["id"]]["kind"], "entries": pairs[r["id"]]["entries"],
                         "lib": r["lib"], "outcome": r["outcome"], "detail": r["detail"], "ms": r["ms"]} for r in rows]}
@@ -73,6 +79,8 @@ def main():
           "|---|" + "---|" * (len(GROUPS) + 2)]
     for lib, t in table.items():
         md.append(f"| {lib} {t['version']} | " + " | ".join(f"{c['ok']}/{c['n']}" for c in t["groups"].values()) + f" | {t['end_entity_ok']}/{t['end_entity_n']} | {t['total_ok']}/{t['total_n']} |")
+    md += ["", "Ed521 only (`go-e521/`, with the curve arithmetic of github.com/pedroalbanese/e521):", ""]
+    md += [f"- {lib} {t['version']}: {t['ok']}/{t['n']}" + (f" (`{'; '.join(t['failures'])[:120]}`)" if t["failures"] else "") for lib, t in ed521.items()]
     md += ["", f"Largest CRL: {largest['id']}, {largest['entries']:,} entries, {largest['bytes']:,} bytes. Median of 3 parse+verify runs on it (OpenSSL CLI includes starting the process):", ""]
     md += [f"- {lib}: {t['serpro_rfb_v5_ms']} ms" if t["serpro_rfb_v5_ms"] is not None else f"- {lib}: refused" for lib, t in table.items()]
     md += ["", "## Why each library refuses", ""]
@@ -93,7 +101,10 @@ def main():
            "- AC Raiz v4's key is brainpoolP512r1 written with explicit curve parameters; only OpenSSL maps them to the named curve. Web Crypto has no "
            "Brainpool curve, so the core refuses it as unsupported (REVOCATION_UNAVAILABLE).",
            "- 1.3.6.1.4.1.44588.2.1 is id-Ed521: PureEdDSA with SHAKE256 over the E-521 curve, adopted by ITI in DOC-ICP-01.01. It has no IETF "
-           "specification, and none of the libraries here implements it.",
+           "specification, and none of the seven libraries implements it. The only implementation found, github.com/pedroalbanese/e521, refuses "
+           "AC Raiz v7's signatures (certificate and CRL): it reduces only the first 66 bytes of the 132-byte SHAKE256 output modulo the group "
+           "order. Read whole, as RFC 8032 does for Ed448 (k = SHAKE256(\"SigEd521\" || 0x00 || 0x00 || R || A || M, 132) mod n), both verify, "
+           "and a flipped byte does not (`go-e521/main_test.go`).",
            "- Node 22 marks Ed448 in Web Crypto as experimental and prints a warning.", ""]
     md += ["Not verified: " + ", ".join(out["parse_only"]) + " (issuer certificate not found: retired AC, no caIssuers). Unreachable from the run: "
            + ", ".join(f"{m['id']} ({m['error'][:40]})" for m in meta["missing"]) + ".", ""]
