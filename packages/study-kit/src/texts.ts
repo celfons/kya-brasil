@@ -136,8 +136,10 @@ O certificado e-CNPJ da empresa vazou e foi **revogado**. O kit cria um verifica
 depois do \`nextUpdate\` da LCR anterior (os intervalos variam), com uma ou duas compras válidas para cada LCR:
 
 1. a LCR atual: as compras devem ser **aceitas**;
-2. algumas LCRs **reemitidas** (uma delas revoga **outro** certificado, não o da empresa): as compras devem ser
+2. algumas LCRs **reemitidas** (algumas revogam **outros** certificados, não o da empresa): as compras devem ser
    **aceitas**;
+   - uma vez, nenhuma LCR nova sai a tempo: \`buscarCrl\` continua devolvendo a anterior, já vencida, e a compra
+     deve ser **recusada** (sem LCR em vigor, o verificador falha fechado);
 3. a LCR que **revoga** o certificado da empresa, e depois mais uma reemissão dela: as compras devem ser
    **recusadas por revogação** (\`motivo\` com o código de erro de revogação da biblioteca).
 

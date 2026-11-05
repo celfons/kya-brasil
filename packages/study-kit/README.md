@@ -54,7 +54,7 @@ feedback in Portuguese.
 | T1 issue | `emitirCredencial(ctx)` → `{ credential, proof }`, self-issued with the test e-CNPJ | `verifySelfIssuedCredential` with the test anchors; the agent must be `pki/agente.json` |
 | T2 policy | (the T1 mandate) | the answer key in `src/policy.ts`: `correct`, `permissive`, `restrictive` or `invalid`, with the deviating fields |
 | T3 verify | `criarVerificador(ctx)` → `async (request) => ({ aceito, motivo })`, offline | requests signed with the kit's own reference credential, in a random order: three in-mandate purchases (accept); above the ceiling, another supplier, tampered signature, body changed after signing, AC outside the anchors, another signing key, tampered mandate, replay (refuse). Refusals count only when every valid purchase was accepted |
-| T4 revocation | the same verifier | CRLs at random clock steps (`ctx.agora()` past the previous `nextUpdate`), one or two purchases each: current CRL and two to four re-issues, one revoking another certificate (accept); the CRL revoking the company certificate and a re-issue of it (refuse with `KYA_CERTIFICATE_REVOKED` in `motivo`) |
+| T4 revocation | the same verifier | CRLs at random clock steps (`ctx.agora()` past the previous `nextUpdate`), one or two purchases each: current CRL and two to four re-issues, some revoking other certificates (accept); once the expired CRL served again (refuse: fail closed); the CRL revoking the company certificate, never longer than the ones before, and a re-issue of it (refuse with `KYA_CERTIFICATE_REVOKED` in `motivo`) |
 
 The CRLs are issued fresh at every `check` (the `pki/ac.crl` written at `init` is only an example to read).
 

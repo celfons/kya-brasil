@@ -398,21 +398,31 @@ export async function runT3(m: Material): Promise<TaskOutcome> {
 
 /** A refusal for revocation must carry the library's revocation code in motivo, not just any word. */
 const REVOCATION_CODE = /KYA_CERTIFICATE_REVOKED|\bCERTIFICATE_REVOKED\b/;
+/** Without a CRL in force the verifier must fail closed: the library's stale / unavailable status codes. */
+const STALE_CODE = /KYA_CERTIFICATE_STATUS_(STALE|UNAVAILABLE|UNKNOWN)/;
+
+type T4Id = "antes_da_revogacao" | "lcr_reemitida" | "lcr_outra_revogacao" | "lcr_vencida" | "depois_da_revogacao";
+const T4_IDS: T4Id[] = ["antes_da_revogacao", "lcr_reemitida", "lcr_outra_revogacao", "lcr_vencida", "depois_da_revogacao"];
 
 interface T4Stage {
-  id: "antes_da_revogacao" | "lcr_reemitida" | "lcr_outra_revogacao" | "depois_da_revogacao";
+  id: T4Id;
   label: string;
   clock: number;
   crl: Uint8Array;
   purchases: number;
-  expect: "accept" | "revoked";
+  expect: "accept" | "revoked" | "stale";
 }
 
 /**
- * T4. A random number of CRLs, at random clock steps (each past the previous CRL's nextUpdate): the current one;
- * two to four re-issued ones, one of them revoking another certificate (the list grows, the company is still in
- * force); then the CRL that revokes the company's certificate, and one more re-issue of it. One or two purchases
- * per CRL. So "the bytes changed", "the list got longer", "the Nth fetch" or "after some minutes" never pass.
+ * T4. A random sequence of CRLs at random clock steps (each past the previous CRL's nextUpdate), one or two
+ * purchases each:
+ *   - the current CRL (with some unrelated revoked serials);
+ *   - two to four re-issues, at least one plain and at least one revoking two to four other certificates;
+ *   - once, between them, no new CRL in time: buscarCrl keeps serving the expired one (refuse: fail closed);
+ *   - the CRL that revokes the company's certificate, which also drops some old entries (expired certificates
+ *     leave a CRL), so it is never longer than the CRLs before it; then one more re-issue of it.
+ * So neither "the bytes changed", "the list grew by N", "the Nth fetch" nor "after some minutes" passes: only a
+ * lookup of the certificate's own serial in a CRL that is in force does.
  */
 export async function runT4(m: Material): Promise<TaskOutcome> {
   const a = base("t4");
@@ -420,32 +430,44 @@ export async function runT4(m: Material): Promise<TaskOutcome> {
   const t = Date.now();
   const stages: T4Stage[] = [];
   let clock = t;
-  const add = async (id: T4Stage["id"], label: string, p: { revokeCompany: boolean; revokeOthers?: string[]; revokedAt?: number }) => {
+  let previous: Uint8Array | null = null;
+  const hours = (ms: number) => (ms < 60 * MIN ? `${Math.round(ms / MIN)} min` : `${(ms / (60 * MIN)).toFixed(1).replace(".", ",")} h`);
+  const at = () => `relógio +${hours(clock - t)}`;
+  let serial = randomInt(0x2000, 0x8000);
+  const newSerials = (n: number) => Array.from({ length: n }, () => (serial += rnd(1, 50)).toString(16));
+  let others = newSerials(rnd(1, 3));
+  const add = async (id: T4Id, label: string, p: { revokeCompany: boolean; revokedAt?: number }) => {
     const nextUpdate = clock + rnd(10, 240) * MIN;
-    const crl = await makeCrl(m.ac, { thisUpdate: new Date(clock - rnd(1, 5) * MIN), nextUpdate: new Date(nextUpdate), revokeCompany: p.revokeCompany, revokeOthers: p.revokeOthers, revokedAt: p.revokedAt === undefined ? undefined : new Date(p.revokedAt) });
-    stages.push({ id, label, clock, crl, purchases: rnd(1, 2), expect: id === "depois_da_revogacao" ? "revoked" : "accept" });
+    previous = await makeCrl(m.ac, { thisUpdate: new Date(clock - rnd(1, 5) * MIN), nextUpdate: new Date(nextUpdate), revokeCompany: p.revokeCompany, revokeOthers: [...others], revokedAt: p.revokedAt === undefined ? undefined : new Date(p.revokedAt) });
+    stages.push({ id, label, clock, crl: previous, purchases: rnd(1, 2), expect: id === "depois_da_revogacao" ? "revoked" : "accept" });
     clock = nextUpdate + rnd(1, 120) * MIN;
   };
-  const hours = (ms: number) => (ms < 60 * MIN ? `${Math.round(ms / MIN)} min` : `${(ms / (60 * MIN)).toFixed(1).replace(".", ",")} h`);
   await add("antes_da_revogacao", "LCR atual", { revokeCompany: false });
   const reissues = rnd(2, 4);
-  const other = randomInt(reissues);
-  const otherSerial = `2${randomInt(0x1000, 0xffff).toString(16)}`;
+  const kinds: ("plain" | "other")[] = shuffle(["plain", "other", ...Array.from({ length: reissues - 2 }, () => (randomInt(2) ? "plain" : "other") as "plain" | "other")]);
+  const staleAfter = randomInt(reissues); // the expired CRL is served after this re-issue
   for (let i = 0; i < reissues; i++) {
-    const rel = hours(clock - t);
-    // From the re-issue that revokes another certificate on, that one stays listed (a CRL keeps its entries).
-    if (i >= other) await add(i === other ? "lcr_outra_revogacao" : "lcr_reemitida", i === other ? `LCR reemitida que revoga outro certificado (não o da empresa), relógio +${rel}` : `LCR reemitida sem revogação nova, relógio +${rel}`, { revokeCompany: false, revokeOthers: [otherSerial] });
-    else await add("lcr_reemitida", `LCR reemitida sem revogação nova, relógio +${rel}`, { revokeCompany: false });
+    if (kinds[i] === "other") {
+      others = [...others, ...newSerials(rnd(2, 4))];
+      await add("lcr_outra_revogacao", `LCR reemitida que revoga outros certificados (não o da empresa), ${at()}`, { revokeCompany: false });
+    } else await add("lcr_reemitida", `LCR reemitida sem revogação nova, ${at()}`, { revokeCompany: false });
+    if (i === staleAfter) {
+      // Past the last CRL's nextUpdate, and no new one: buscarCrl keeps returning it.
+      stages.push({ id: "lcr_vencida", label: `nenhuma LCR nova a tempo (a anterior venceu), ${at()}`, clock, crl: previous!, purchases: 1, expect: "stale" });
+      clock += rnd(1, 30) * MIN;
+    }
   }
+  // Expired certificates leave the CRL: drop at least one old entry, so the revoking CRL is not longer than before.
+  others = shuffle([...others]).slice(rnd(1, Math.min(2, others.length)));
   const revokedAt = clock - MIN;
-  await add("depois_da_revogacao", `LCR que revoga o certificado da empresa, relógio +${hours(clock - t)}`, { revokeCompany: true, revokeOthers: [otherSerial], revokedAt });
-  await add("depois_da_revogacao", `LCR reemitida, ainda com a revogação, relógio +${hours(clock - t)}`, { revokeCompany: true, revokeOthers: [otherSerial], revokedAt });
+  await add("depois_da_revogacao", `LCR que revoga o certificado da empresa, ${at()}`, { revokeCompany: true, revokedAt });
+  await add("depois_da_revogacao", `LCR reemitida, ainda com a revogação, ${at()}`, { revokeCompany: true, revokedAt });
 
   const cred = await referenceCredential(m, new Date(t));
   const v = new Verifier(m);
   const cfg = readConfig(m.ws);
-  const passed = new Map<T4Stage["id"], boolean>();
-  const category = new Map<T4Stage["id"], ErrorCategory>();
+  const passed = new Map<T4Id, boolean>();
+  const category = new Map<T4Id, ErrorCategory>();
   const record = (s: T4Stage, pass: boolean, cat: ErrorCategory | null) => {
     passed.set(s.id, (passed.get(s.id) ?? true) && pass);
     if (!pass && cat && !category.has(s.id)) category.set(s.id, cat);
@@ -471,7 +493,7 @@ export async function runT4(m: Material): Promise<TaskOutcome> {
       }
       await v.state(s.clock, s.crl);
       for (let i = 0; i < s.purchases && !blockedBy; i++) {
-        const valor = rnd(20, 100); // up to 14 purchases: under the daily ceiling even for a verifier that passes spent_today
+        const valor = rnd(20, 100); // up to 16 purchases: under the daily ceiling even for a verifier that passes spent_today
         const c = await v.verify(a, await purchase(m, cred, { valor, fornecedor: SCENARIO.supplierCnpj, now: new Date(s.clock) }));
         if (c.failure?.notImpl) a.not_implemented = true;
         let pass: boolean;
@@ -481,11 +503,19 @@ export async function runT4(m: Material): Promise<TaskOutcome> {
           if (pass && c.ms !== null) a.accept_ms!.push(round(c.ms));
           cat = pass ? null : wrongCategory(c, "other");
         } else {
-          pass = !c.accepted && !c.failure && REVOCATION_CODE.test(c.reason);
-          cat = pass ? null : c.accepted ? "revocation" : c.failure ? c.failure.cat : categorize(c.reason) === "revocation" ? "revocation" : categorize(c.reason);
+          const code = s.expect === "revoked" ? REVOCATION_CODE : STALE_CODE;
+          const want: ErrorCategory = s.expect === "revoked" ? "revocation" : "freshness";
+          pass = !c.accepted && !c.failure && code.test(c.reason);
+          cat = pass ? null : c.accepted ? want : c.failure ? c.failure.cat : categorize(c.reason) === want ? want : categorize(c.reason);
         }
         record(s, pass, cat);
-        const hint = pass ? "" : s.expect === "accept" ? " (esperado: aceitar)" : c.accepted ? " (esperado: recusar por revogação)" : " (esperado: recusar com o código de erro de revogação da biblioteca em motivo)";
+        const hint = pass
+          ? ""
+          : s.expect === "accept"
+            ? " (esperado: aceitar)"
+            : s.expect === "revoked"
+              ? c.accepted ? " (esperado: recusar por revogação)" : " (esperado: recusar com o código de erro de revogação da biblioteca em motivo)"
+              : " (esperado: recusar, porque não há LCR em vigor: o código de status vencido ou indisponível da biblioteca em motivo)";
         fb.push(`${mark(pass)} ${s.label}, compra de R$ ${valor}: ${describe(c)}${hint}`);
         if (!pass) blockedBy = cat ?? "other";
       }
@@ -494,8 +524,7 @@ export async function runT4(m: Material): Promise<TaskOutcome> {
   } finally {
     v.close();
   }
-  const ids: T4Stage["id"][] = ["antes_da_revogacao", "lcr_reemitida", "lcr_outra_revogacao", "depois_da_revogacao"];
-  a.sub_cases = ids.map((id) => ({ id, expected: id === "depois_da_revogacao" ? "refuse" : "accept", pass: passed.get(id) ?? false, category: passed.get(id) ? null : (category.get(id) ?? "other") }));
+  a.sub_cases = T4_IDS.map((id) => ({ id, expected: id === "depois_da_revogacao" || id === "lcr_vencida" ? "refuse" : "accept", pass: passed.get(id) ?? false, category: passed.get(id) ? null : (category.get(id) ?? "other") }));
   a.t4_published_at = cfg.t4_published_at ?? null;
   for (const s of a.sub_cases) if (!s.pass && s.category) failWith(a, s.category);
   a.pass = a.sub_cases.every((s) => s.pass);

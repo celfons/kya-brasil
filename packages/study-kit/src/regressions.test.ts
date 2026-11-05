@@ -216,7 +216,9 @@ describe("QA 12 and 13: analyze.py", () => {
 
 describe("QA 2 (second round): verifiers that game the order or the count of requests", () => {
   // From the second independent QA: each passed the first version of the randomized-free T3/T4.
-  const cheats: [string, "t3" | "t4"][] = [["accept_first", "t3"], ["combo_nocrypto", "t3"], ["combo_nocrypto", "t4"], ["count2_revoked", "t4"], ["crl_length", "t4"], ["crl_count", "t4"], ["crl_clock", "t4"]];
+  const cheats: [string, "t3" | "t4"][] = [["accept_first", "t3"], ["combo_nocrypto", "t3"], ["combo_nocrypto", "t4"], ["count2_revoked", "t4"], ["crl_length", "t4"], ["crl_count", "t4"], ["crl_clock", "t4"],
+    // Third round: "the list grew by two" / "grew twice" (the revoking CRL is never longer than the ones before it).
+    ["crl_entries_grew2", "t4"], ["crl_sticky_grew", "t4"]];
   it.each(cheats)("%s fails %s", async (cheat, task) => {
     const ws = await workspace();
     cpSync(join(fixtures, "cheats", `${cheat}.mjs`), join(ws, "src", "verificar.mjs"));

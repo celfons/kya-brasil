@@ -95,8 +95,8 @@ describe("kya-study, a participant who completes every task", () => {
     expect(t3.sub_cases?.every((s) => s.pass)).toBe(true);
     expect(t3.verify_ms).toHaveLength(11); // three valid purchases and eight to refuse
     expect(t3.accept_ms).toHaveLength(3);
-    expect(log[7]!.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", true], ["lcr_outra_revogacao", true], ["depois_da_revogacao", true]]);
-    expect(log[7]!.accept_ms!.length).toBeGreaterThanOrEqual(4); // one CRL before, two to four re-issued, one or two purchases each
+    expect(log[7]!.sub_cases?.map((s) => [s.id, s.pass])).toEqual([["antes_da_revogacao", true], ["lcr_reemitida", true], ["lcr_outra_revogacao", true], ["lcr_vencida", true], ["depois_da_revogacao", true]]);
+    expect(log[7]!.accept_ms!.length).toBeGreaterThanOrEqual(3); // one CRL before, two to four re-issued, one or two purchases each
     expect(log[7]!.t4_published_at).toBeTruthy();
 
     // One task by name.
@@ -194,7 +194,7 @@ describe("kya-study, a participant who issues a too permissive mandate", () => {
     const [t3, t4] = readAttempts(ws).slice(-2);
     expect(t3!.sub_cases?.filter((s) => !s.pass).map((s) => s.id)).toEqual(["repeticao"]);
     expect(t3!.error_category).toBe("replay");
-    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false, false, false]);
+    expect(t4!.sub_cases?.map((s) => s.pass)).toEqual([true, false, false, false, false]);
     expect(t4!.error_category).toBe("freshness");
     expect(naive.out.join("\n")).toContain("KYA_CERTIFICATE_STATUS_STALE");
 
