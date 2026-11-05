@@ -31,7 +31,7 @@
  *   content-sha256: <hex of the body | ->
  */
 import { verifyMessage } from "viem";
-import { type Delegation, type DelegationAnchor, type FreshnessVerdict, type PrincipalProof, type StatusEvidence, SELF_ISSUER, checkFreshAction, decodePrincipalProofHeader, encodeDelegationHeader, encodePrincipalProofHeader, decodeDelegationHeader, prepareDelegation, verifyDelegationChain } from "@kya-brasil/core";
+import { type Delegation, type DelegationAnchor, type FreshnessVerdict, type PrincipalProof, type StatusEvidence, SELF_ISSUER, checkFreshAction, decodePrincipalProofHeader, isValidCnpj, normalizeCnpj, encodeDelegationHeader, encodePrincipalProofHeader, decodeDelegationHeader, prepareDelegation, verifyDelegationChain } from "@kya-brasil/core";
 import { privateKeyToAccount } from "viem/accounts";
 import { type ActionQuery, type AgentKey, type Credential, type CredentialStatus, type KyaClient, type Mandate, type Verdict, type Verification, createKyaClient, type KyaOptions } from "./index.js";
 import { fromBase64Url, toBase64Url } from "./base64url.js";
@@ -245,8 +245,8 @@ const RESERVED = ["actions", "max_per_operation", "max_per_day", "currencies", "
 
 function normalizeCounterparty(c: string): string {
   const t = c.trim();
-  const digits = t.replace(/\D/g, "");
-  if (digits.length === 14 && /^[\d./-]+$/.test(t)) return digits;
+  // A CNPJ, numeric or alphanumeric, bare or formatted: the same normalization as the core's mandates.
+  if (/^[0-9A-Za-z]{2}\.?[0-9A-Za-z]{3}\.?[0-9A-Za-z]{3}\/?[0-9A-Za-z]{4}-?\d{2}$/.test(t) && isValidCnpj(t)) return normalizeCnpj(t);
   if (/^0x[0-9a-fA-F]{40}$/.test(t)) return t.toLowerCase();
   // Domain or URL: drop the scheme, then everything from the first "/" (indexOf, no backtracking regex).
   const host = t.toLowerCase().replace(/^https?:\/\//, "");

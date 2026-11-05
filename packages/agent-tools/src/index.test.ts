@@ -7,7 +7,7 @@ import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@pec
 import { privateKeyToAccount } from "viem/accounts";
 import { verifyMessage } from "viem";
 import { generateAttestationKey, signAttestation, verifyIcpSignature } from "@kya-brasil/core";
-import { KyaError, createKyaClient, revocationText, signChallengeWithEd25519, signChallengeWithEvmKey, signWithECnpj, toAnthropic, toLangChain, toOpenAI, toVercelAI, verifyAttestation } from "./index";
+import { KyaError, companyText, createKyaClient, revocationText, signChallengeWithEd25519, signChallengeWithEvmKey, signWithECnpj, toAnthropic, toLangChain, toOpenAI, toVercelAI, verifyAttestation } from "./index";
 
 describe("client", () => {
   it("maps methods to routes, surfaces 402 and errors, routes paid calls through the internal channel when a key is given", async () => {
@@ -48,6 +48,13 @@ describe("client", () => {
     expect(Object.keys(v)).toContain("kya_check_action");
     const lc = toLangChain(kya, (fn, def) => ({ fn, def }));
     expect(JSON.parse(await lc[1]!.fn({ credential_id: "abc", action: "pay" }))).toEqual({ allowed: true });
+  });
+});
+
+describe("company texts", () => {
+  it("keep the letters of an alphanumeric CNPJ (upper-cased), as the issuer expects", () => {
+    expect(companyText("agents", "12.abc.345/01de-35", { at: new Date("2026-11-05T00:00:00Z") })).toBe("KYA Brasil: agents 12ABC34501DE35\nat: 2026-11-05T00:00:00.000Z");
+    expect(companyText("agents", "11.222.333/0001-81", { at: new Date("2026-11-05T00:00:00Z") }).split("\n")[0]).toBe("KYA Brasil: agents 11222333000181");
   });
 });
 

@@ -50,8 +50,8 @@ export interface IcpProof {
 }
 
 /** CNPJ carried by the certificate's ICP-Brasil otherName, or null when it is not a PJ certificate. */
-/** Digits of an ICP-Brasil otherName in the Subject Alternative Name (OID 2.16.76.1.3.<n>), or null. */
-function otherNameDigits(cert: X509Certificate, oidSuffix: string): string | null {
+/** Raw value of an ICP-Brasil otherName in the Subject Alternative Name (OID 2.16.76.1.3.<n>), or null. */
+function otherNameValue(cert: X509Certificate, oidSuffix: string): string | null {
   const san = cert.extensions.find((e) => e.type === OID_SAN);
   if (!san) return null;
   const parsed = asn1js.fromBER(san.value);
@@ -69,14 +69,16 @@ function otherNameDigits(cert: X509Certificate, oidSuffix: string): string | nul
     const valueBlock = explicit?.valueBlock?.value?.[0] as asn1js.OctetString | asn1js.PrintableString | undefined;
     if (!valueBlock) continue;
     const raw = "valueBlock" in valueBlock && "valueHexView" in valueBlock.valueBlock ? new TextDecoder().decode(valueBlock.valueBlock.valueHexView) : String((valueBlock as { valueBlock: { value: string } }).valueBlock.value);
-    return raw.replace(/\D/g, "");
+    return raw;
   }
   return null;
 }
 
 export function cnpjFromCertificate(cert: X509Certificate): string | null {
-  const digits = otherNameDigits(cert, "3");
-  return digits && digits.length === 14 ? digits : null;
+  // Alphanumeric since 2026 (IN RFB 2.229/2024): letters in the first 12 positions, digits in the 2 check digits.
+  const value = otherNameValue(cert, "3");
+  const cnpj = value === null ? "" : normalizeCnpj(value);
+  return /^[0-9A-Z]{12}\d{2}$/.test(cnpj) ? cnpj : null;
 }
 
 /** OID 2.16.76.1.3.1: data of the e-CPF holder, "ddmmaaaa" birth date followed by the 11-digit CPF (DOC-ICP-04). */
@@ -88,7 +90,7 @@ export const OID_ICP_PERSON = "2.16.76.1.3.1";
  */
 export function cpfFromCertificate(cert: X509Certificate): string | null {
   if (cnpjFromCertificate(cert)) return null;
-  const data = otherNameDigits(cert, "1");
+  const data = otherNameValue(cert, "1")?.replace(/\D/g, "") ?? null;
   if (data && data.length >= 19) return data.slice(8, 19);
   const cn = /CN=([^,]+)/.exec(cert.subject)?.[1] ?? "";
   return /:(\d{11})\s*$/.exec(cn)?.[1] ?? null;

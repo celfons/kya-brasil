@@ -44,6 +44,17 @@ describe("ICP-Brasil e-CNPJ proof", () => {
     expect(cnpjFromCertificate(leaf)).toBe("11222333000181");
   });
 
+  it("reads and verifies an alphanumeric CNPJ (IN RFB 2.229/2024; the Receita's example 12.ABC.345/01DE-35)", async () => {
+    const { ca, leaf, leafKeys } = await testPki("12ABC34501DE35");
+    expect(cnpjFromCertificate(leaf)).toBe("12ABC34501DE35");
+    const text = "KYA Brasil: prove this agent key acts for a company\ncnpj: 12ABC34501DE35";
+    const cms = await cmsSign(leaf, ca, leafKeys.privateKey, text);
+    const opts = { cmsBase64: cms, challenge: text, anchors: [b64(ca.rawData)], now: new Date("2026-10-12T00:00:00Z") };
+    expect((await verifyIcpSignature({ ...opts, expectedCnpj: "12.abc.345/01de-35" })).cnpj).toBe("12ABC34501DE35");
+    // Before: the letters were dropped and "1234501 35" never matched, so the company could not prove its e-CNPJ.
+    await expect(verifyIcpSignature({ ...opts, expectedCnpj: "11222333000181" })).rejects.toThrow(/belongs to CNPJ 12ABC34501DE35/);
+  });
+
   it("verifies a detached CMS signature over the challenge, the CNPJ and the chain", async () => {
     const { ca, leaf, leafKeys } = await testPki();
     const text = "KYA Brasil: prove this agent key acts for a company\nchallenge: c1";

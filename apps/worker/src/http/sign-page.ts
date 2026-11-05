@@ -145,9 +145,9 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
   function load(text) {
     state.text = text;
     const field = (k) => (new RegExp("^" + k + ": (.*)$", "m").exec(text) || [])[1] || "";
-    state.cnpj = field("cnpj").replace(/\\D/g, "");
+    state.cnpj = field("cnpj").replace(/[^0-9A-Za-z]/g, "").toUpperCase();
     state.person = /^principal: person/m.test(text);
-    $("s-cnpj").textContent = state.cnpj ? state.cnpj.replace(/^(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})$/, "$1.$2.$3/$4-$5") : "-";
+    $("s-cnpj").textContent = state.cnpj ? state.cnpj.replace(/^([0-9A-Z]{2})([0-9A-Z]{3})([0-9A-Z]{3})([0-9A-Z]{4})(\\d{2})$/, "$1.$2.$3/$4-$5") : "-";
     if (state.person) {
       // D-29: the agent acts for the person who signs; sign with your e-CPF. Name and CPF are never published.
       $("s-who-label").textContent = "Titular";
@@ -231,7 +231,7 @@ label{display:grid;gap:4px}.grid{display:grid;gap:10px}a{color:var(--accent)}
       const leaf = certs.find((c) => c.publicKey.n && c.publicKey.n.equals(bag.key.n));
       if (!leaf) throw new Error("nenhum certificado do arquivo corresponde à chave");
       const cn = String((leaf.subject.getField("CN") || {}).value || "");
-      const certCnpj = (/:(\\d{14})\\s*$/.exec(cn) || [])[1];
+      const certCnpj = ((/:([0-9A-Za-z]{12}\\d{2})\\s*$/.exec(cn) || [])[1] || "").toUpperCase() || undefined;
       const certCpf = !certCnpj && /:(\\d{11})\\s*$/.test(cn);
       if (state.person && certCnpj) throw new Error("este é o certificado de uma empresa (e-CNPJ); para um agente pessoal, use o seu e-CPF");
       if (!state.person && certCpf) throw new Error("este é um certificado de pessoa física (e-CPF); use o e-CNPJ da empresa");

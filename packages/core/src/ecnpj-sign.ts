@@ -89,8 +89,8 @@ export interface ECnpjSigner {
   sign(text: string): Promise<string>;
 }
 
-/** CNPJ in a common name ending in ":<14 digits>", the ICP-Brasil convention for e-CNPJ. */
-export const cnpjFromCommonName = (cn: string) => /:(\d{14})\s*$/.exec(cn)?.[1] ?? null;
+/** CNPJ in a common name ending in ":<CNPJ>", the ICP-Brasil convention for e-CNPJ (numeric or alphanumeric, upper-cased). */
+export const cnpjFromCommonName = (cn: string) => /:([0-9A-Za-z]{12}\d{2})\s*$/.exec(cn)?.[1]?.toUpperCase() ?? null;
 
 /** Wraps a raw signer and its certificates into an ECnpjSigner (used for A1 files, tokens, HSMs, cloud). */
 export function ecnpjSigner(p: { certificates: Uint8Array[]; sign: RawSigner }): ECnpjSigner {
@@ -103,7 +103,7 @@ export function ecnpjSigner(p: { certificates: Uint8Array[]; sign: RawSigner }):
     notAfter: leaf.validity.notAfter,
     certificates: p.certificates,
     async sign(text: string) {
-      const asked = /^cnpj: (\d{14})$/m.exec(text)?.[1];
+      const asked = /^cnpj: ([0-9A-Z]{12}\d{2})$/m.exec(text)?.[1];
       if (asked && cnpj && asked !== cnpj) throw new KyaError("CNPJ_MISMATCH", `this certificate is for CNPJ ${cnpj}, the text is for ${asked}`);
       return buildDetachedCms({ text, certificates: p.certificates, sign: p.sign });
     }

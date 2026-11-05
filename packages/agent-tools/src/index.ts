@@ -353,9 +353,8 @@ export async function signWithECnpj(material: ECnpjMaterial, text: string): Prom
  * (and a webhook change only if newer than the last accepted one). For the webhook, url "-" removes it.
  */
 export function companyText(verb: "agents" | "webhook", cnpj: string, opts: { url?: string; at?: Date } = {}): string {
-  const digits = cnpj.replace(/\D/g, "");
   const extra = verb === "webhook" ? [`url: ${opts.url ?? "-"}`] : [];
-  return [`KYA Brasil: ${verb} ${digits}`, ...extra, `at: ${(opts.at ?? new Date()).toISOString()}`].join("\n");
+  return [`KYA Brasil: ${verb} ${normalizeCnpj(cnpj)}`, ...extra, `at: ${(opts.at ?? new Date()).toISOString()}`].join("\n");
 }
 
 /** The text the company signs to revoke a credential. */
@@ -441,7 +440,7 @@ export { isValidCpf, personAgentsText } from "@kya-brasil/core";
 export { checkDelegatedAction, decodeDelegationHeader, encodeDelegationHeader, isMandateSubset, mandateSubsetProblems, verifyDelegationChain } from "@kya-brasil/core";
 export { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, type ECnpjSigner, type RawSigner } from "@kya-brasil/core";
 export { listTokenCertificates, openToken, type TokenCertificate, type TokenOptions } from "./pkcs11.js";
-import { signingLink as coreSigningLink } from "@kya-brasil/core";
+import { normalizeCnpj, signingLink as coreSigningLink } from "@kya-brasil/core";
 
 /**
  * Link to the issuer's signing page (<issuer>/sign) for the person who holds the company's e-CNPJ, usually the

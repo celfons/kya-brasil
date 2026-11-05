@@ -50,7 +50,7 @@ KYA Brasil: prove this agent key acts for a company
 issuer: <issuer origin>
 challenge: <challenge_id, uuid>
 agent: <kind>:<id>
-cnpj: <14 digits>
+cnpj: <CNPJ: 14 characters, 12 digits or upper-case letters then 2 check digits>
 mandate-sha256: <lowercase hex SHA-256 of the canonical JSON (section 7) of the mandate>
 expires: <ISO 8601 UTC>
 ```
@@ -115,7 +115,10 @@ consumes the state (single use), exchanges the code, signs only the stored chall
 calls `/prove`. `/status` lists `cloud_providers`. The reference issuer configures none.
 
 Note on the otherName: ICP-Brasil encodes the CNPJ as a 14-character ASCII string in an OCTET STRING or a
-PrintableString, depending on the AC; implementations SHOULD accept both and keep only the 14 digits.
+PrintableString, depending on the AC; implementations SHOULD accept both and keep the 14 characters, dropping
+punctuation. Since July 2026 a CNPJ may be alphanumeric (IN RFB 2.229/2024): the first 12 positions are digits or
+letters, the last 2 are digits, and letters are compared upper-cased. An implementation that keeps only digits
+cannot read the CNPJ of such a company.
 
 ## 5. Mandate
 
@@ -263,7 +266,7 @@ the `spent_today` the verifier supplies. What the issuer offers the company inst
 **Requests.** Text signed with the e-CNPJ (section 4, including the revocation check), lines joined by `\n`:
 
 ```
-KYA Brasil: <verb> <cnpj, 14 digits>
+KYA Brasil: <verb> <cnpj: 14 characters, as in section 4>
 [extra lines]
 at: <ISO 8601 time>
 ```
