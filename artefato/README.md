@@ -14,7 +14,7 @@ LCR que a ICP-Brasil de fato publica.
 
 O artefato é este repositório (biblioteca `@kya-brasil/core` e os scripts de avaliação em `research/` e
 `docs/formal/`), com os dados abertos do coletor de LCR ([kya-icp](https://github.com/celfons/kya-icp),
-DOI 10.5281/zenodo.23977027).
+DOI 10.5281/zenodo.24011370).
 
 # Estrutura do readme.md
 
@@ -131,7 +131,7 @@ python3 -I research/freshness-sim/simulate_measured.py
 Sem rede (lê `research/freshness-sim/data/`), cerca de 5 minutos, semente fixa. Esperado:
 `results_measured.json` igual ao do repositório (janela média, mediana e p95, a fronteira de Pareto). Para
 refazer `data/` a partir do coletor: `python3 -I research/freshness-sim/fetch_measured.py` (rede). Os números da
-medição (seção "Medição da revogação") vêm do conjunto de dados DOI 10.5281/zenodo.23977027.
+medição (seção "Medição da revogação") vêm do conjunto de dados DOI 10.5281/zenodo.24011370.
 
 ## Reivindicação R5: sensibilidade das políticas à taxa e ao valor (seção "Atualidade do status", figura de sensibilidade)
 

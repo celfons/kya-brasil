@@ -52,7 +52,7 @@ The CRL revocation data come from the separate collector [kya-icp](https://githu
 | --- | --- |
 | This repository (library, models, experiments) | [10.5281/zenodo.23973230](https://doi.org/10.5281/zenodo.23973230) |
 | kya-icp collector (code) | [10.5281/zenodo.23973109](https://doi.org/10.5281/zenodo.23973109) |
-| kya-icp CRL dataset, version 2 | [10.5281/zenodo.23985090](https://doi.org/10.5281/zenodo.23985090) |
+| kya-icp CRL dataset, version 3 | [10.5281/zenodo.24011370](https://doi.org/10.5281/zenodo.24011370) |
 
 ## Reproducing
 

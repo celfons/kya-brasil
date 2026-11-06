@@ -23,7 +23,7 @@ freshness does not help in those cases (`research/freshness-sim`).
 | Field | Meaning | Reference |
 | --- | --- | --- |
 | `max_expected_loss` | the expected loss you accept per action (L) | your risk appetite, in the payment currency |
-| `revocation_rate_per_hour.certificate` | λ, how often a certificate is revoked | measured in ICP-Brasil: about 2.8 × 10⁻⁷ per hour (0.24% per year). It counts all revocations, so it is an upper bound for key compromise and a lower bound for coverage (`research/freshness-sim`, dataset DOI 10.5281/zenodo.23985090) |
+| `revocation_rate_per_hour.certificate` | λ, how often a certificate is revoked | measured in ICP-Brasil: about 2.8 × 10⁻⁷ per hour (0.24% per year). It counts all revocations, so it is an upper bound for key compromise and a lower bound for coverage (`research/freshness-sim`, dataset DOI 10.5281/zenodo.24011370) |
 | `max_age_seconds` | ceiling on the age of the status proof, whatever the value | the CRL is reissued every 1 to 6 hours; a ceiling of a few hours keeps the CRL useful without fetching it for every action |
 | `require` | which proofs are mandatory | `["certificate"]` in offline mode; add `"credential"` when an issuer signs the status |
 | `max_clock_skew_seconds` | tolerance between clocks | a few minutes |
