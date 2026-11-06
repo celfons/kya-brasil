@@ -1,7 +1,7 @@
 """Gera as figuras e os números do artigo a partir dos resultados deste repositório.
 
 Cópia pública de kya-paper/scripts/figuras.py. Lê os resultados que os scripts de research/ escrevem e
-data/monthly.csv (cópia do conjunto de dados DOI 10.5281/zenodo.23985090), e escreve em out/ as figuras (PDF),
+data/monthly.csv (cópia do conjunto de dados DOI 10.5281/zenodo.24011370), e escreve em out/ as figuras (PDF),
 out/numeros.tex (macros com os números citados no texto), out/desempenho.tex e out/compat.tex (linhas das tabelas).
 
 Uso: python3 -I research/paper/figuras.py   (precisa de matplotlib)

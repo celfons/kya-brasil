@@ -1,11 +1,11 @@
 {
  "collector": "https://kya-icp-collector.marcelfons.workers.dev",
- "summary_generated_at": "2026-11-06T10:23:29.155Z",
- "fetched_at": "2026-11-06T10:46:26+00:00",
+ "summary_generated_at": "2026-11-06T12:23:44.220Z",
+ "fetched_at": "2026-11-06T13:13:43+00:00",
  "sources": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
-   "entries": 33887,
+   "entries": 33889,
    "validity_h": 6.0,
    "versions": [
     {
@@ -115,12 +115,20 @@
     {
      "this_update": "2026-11-06T09:35:14Z",
      "uploaded": "2026-11-06T10:23:16.350Z"
+    },
+    {
+     "this_update": "2026-11-06T10:35:14Z",
+     "uploaded": "2026-11-06T11:23:16.849Z"
+    },
+    {
+     "this_update": "2026-11-06T11:35:15Z",
+     "uploaded": "2026-11-06T12:23:15.975Z"
     }
    ]
   },
   "uf-ac-certisign-rfb-g5": {
    "ac": "AC Certisign RFB G5",
-   "entries": 7631,
+   "entries": 7629,
    "validity_h": 1.0,
    "versions": [
     {
@@ -250,12 +258,20 @@
     {
      "this_update": "2026-11-06T10:15:28Z",
      "uploaded": "2026-11-06T10:23:17.540Z"
+    },
+    {
+     "this_update": "2026-11-06T11:16:17Z",
+     "uploaded": "2026-11-06T11:23:17.553Z"
+    },
+    {
+     "this_update": "2026-11-06T12:16:14Z",
+     "uploaded": "2026-11-06T12:23:16.697Z"
     }
    ]
   },
   "uf-ac-serpro-rfb-v5": {
    "ac": "Autoridade Certificadora SERPRORFBv5",
-   "entries": 77384,
+   "entries": 77386,
    "validity_h": 6.0,
    "versions": [
     {
@@ -385,6 +401,14 @@
     {
      "this_update": "2026-11-06T10:01:56Z",
      "uploaded": "2026-11-06T10:23:18.011Z"
+    },
+    {
+     "this_update": "2026-11-06T11:02:05Z",
+     "uploaded": "2026-11-06T11:23:18.315Z"
+    },
+    {
+     "this_update": "2026-11-06T12:02:04Z",
+     "uploaded": "2026-11-06T12:23:17.482Z"
     }
    ]
   },
@@ -516,6 +540,14 @@
     {
      "this_update": "2026-11-06T09:55:10Z",
      "uploaded": "2026-11-06T10:23:16.328Z"
+    },
+    {
+     "this_update": "2026-11-06T10:55:10Z",
+     "uploaded": "2026-11-06T11:23:17.160Z"
+    },
+    {
+     "this_update": "2026-11-06T11:55:10Z",
+     "uploaded": "2026-11-06T12:23:15.773Z"
     }
    ]
   },
@@ -651,6 +683,14 @@
     {
      "this_update": "2026-11-06T10:11:15Z",
      "uploaded": "2026-11-06T10:23:26.109Z"
+    },
+    {
+     "this_update": "2026-11-06T11:11:19Z",
+     "uploaded": "2026-11-06T11:23:26.705Z"
+    },
+    {
+     "this_update": "2026-11-06T12:11:15Z",
+     "uploaded": "2026-11-06T12:23:23.835Z"
     }
    ]
   },
@@ -786,6 +826,14 @@
     {
      "this_update": "2026-11-06T10:11:15Z",
      "uploaded": "2026-11-06T10:23:26.154Z"
+    },
+    {
+     "this_update": "2026-11-06T11:10:00Z",
+     "uploaded": "2026-11-06T11:23:26.789Z"
+    },
+    {
+     "this_update": "2026-11-06T12:10:12Z",
+     "uploaded": "2026-11-06T12:23:24.010Z"
     }
    ]
   }

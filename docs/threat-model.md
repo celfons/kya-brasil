@@ -13,7 +13,7 @@ The Alloy commands are in `docs/formal/mandate.als` and `docs/formal/threats.als
 - **Alloy:** property with no counterexample in the declared scope; an expected counterexample records a limitation.
 - **Vectors:** the 1,320 cases in `docs/vectors/mandate-conformance.json`, run against the library.
 - **Tests:** unit and property tests.
-- **Data:** measurement of ICP-Brasil CRLs (`research/freshness-sim`; series from the `kya-icp` collector, DOI 10.5281/zenodo.23977027, see `CITATION.cff`).
+- **Data:** measurement of ICP-Brasil CRLs (`research/freshness-sim`; series from the `kya-icp` collector, DOI 10.5281/zenodo.24011370, see `CITATION.cff`).
 
 ## Summary
 
