@@ -12,7 +12,7 @@
  * Pure: no network, no storage, the clock is the caller's.
  */
 import { normalizeCnpj } from "./cnpj.js";
-import { verifyIcpPersonSignature } from "./icp-brasil.js";
+import { ecnpjResponsibleCpf, verifyIcpPersonSignature } from "./icp-brasil.js";
 import { type IssuedCredential, SELF_ISSUER, verifySelfIssuedCredential, withCertificates } from "./issuance.js";
 import { type Cosignature, KyaError, isPersonPrincipal } from "./types.js";
 
@@ -61,6 +61,8 @@ export interface CosignerCheck {
   certificate_sha256: string | null;
   ok: boolean;
   representative: boolean;
+  /** Why the co-signer counts: in the verifier's list, or the person responsible named in the e-CNPJ. */
+  basis?: "representatives" | "ecnpj_responsible";
   code?: CompanyWillCode;
   detail: string;
   /** For the caller's revocation check of the e-CPF certificate (checkRevocation); null when it did not verify. */
@@ -80,18 +82,24 @@ export interface CompanyWillResult {
 /**
  * Whether a self-issued company credential expresses the company's will: the e-CNPJ proof verifies
  * (verifySelfIssuedCredential) AND at least `minCosigners` (default 1) distinct CPFs, read from valid e-CPF
- * co-signatures over the same text, are among `representatives(cnpj)` (the verifier's QSA list). Every co-signature
- * in the proof must be recorded in the credential (by certificate hash) and vice versa. Never throws on a bad
- * credential; the result carries no CPF. Revocation of the e-CPF certificates is the caller's (`revocation`).
+ * co-signatures over the same text, are legal representatives. A CPF counts when it is among
+ * `representatives(cnpj)` (the verifier's list, e.g. the QSA) or, with `acceptCertificateResponsible`, when it is
+ * the CPF of the person responsible named in the e-CNPJ itself (otherName 2.16.76.1.3.4, checked by the
+ * registration authority at issuance): no list is needed then. At least one of the two sources is required. Every
+ * co-signature in the proof must be recorded in the credential (by certificate hash) and vice versa. Never throws on
+ * a bad credential; the result carries no CPF. Revocation of the e-CPF certificates is the caller's (`revocation`).
  */
 export async function verifyCompanyWill(
   issued: IssuedCredential,
-  opts: { anchors: string[]; now: Date; representatives: (cnpj: string) => Promise<string[]> | string[]; minCosigners?: number }
+  opts: { anchors: string[]; now: Date; representatives?: (cnpj: string) => Promise<string[]> | string[]; acceptCertificateResponsible?: boolean; minCosigners?: number }
 ): Promise<CompanyWillResult> {
   const refuse = (code: CompanyWillCode, detail: string, cosigners: CosignerCheck[] = [], counted = 0): CompanyWillResult => ({ ok: false, code, detail, representatives_counted: counted, cosigners });
   const min = opts?.minCosigners ?? 1;
   if (!Number.isInteger(min) || min < 1) throw bad("minCosigners must be an integer >= 1");
-  if (typeof opts?.representatives !== "function") throw bad("representatives: (cnpj) => CPFs of the company's legal representatives is required");
+  const byList = typeof opts?.representatives === "function";
+  const byResponsible = opts?.acceptCertificateResponsible === true;
+  if (opts?.representatives !== undefined && !byList) throw bad("representatives must be (cnpj) => CPFs of the company's legal representatives");
+  if (!byList && !byResponsible) throw bad("a source of legal representatives is required: representatives(cnpj), acceptCertificateResponsible, or both");
   const c = issued?.credential;
   if (!c?.principal || isPersonPrincipal(c.principal)) return refuse("COMPANY_SIGNATURE_INVALID", "not a company credential");
   const base = await verifySelfIssuedCredential({ credential: c, proof: issued.proof, anchors: opts.anchors, now: opts.now });
@@ -101,7 +109,8 @@ export async function verifyCompanyWill(
   if (!cmsList.length && !recorded.length) return refuse("NO_COSIGNATURE", "the credential carries no co-signature by a legal representative (e-CPF)");
 
   const cnpj = normalizeCnpj(c.principal.cnpj);
-  const reps = new Set((await opts.representatives(cnpj)).map((x) => String(x).replace(/\D/g, "")));
+  const reps = new Set(byList ? (await opts.representatives!(cnpj)).map((x) => String(x).replace(/\D/g, "")) : []);
+  const responsible = byResponsible ? ecnpjResponsibleCpf(issued.proof.cms) : null;
   const cosigners: CosignerCheck[] = [];
   const counted = new Set<string>();
   const seenCerts = new Set<string>();
@@ -114,9 +123,11 @@ export async function verifyCompanyWill(
         cosigners.push({ certificate_sha256: icp.certificate_sha256, ok: false, representative: false, code: "COSIGNATURE_NOT_RECORDED", detail: "the credential does not record this co-signer's certificate", revocation });
         continue;
       }
-      const isRep = reps.has(icp.cpf);
+      const basis = reps.has(icp.cpf) ? ("representatives" as const) : responsible !== null && icp.cpf === responsible ? ("ecnpj_responsible" as const) : null;
+      const isRep = basis !== null;
       if (isRep) counted.add(icp.cpf);
-      cosigners.push({ certificate_sha256: icp.certificate_sha256, ok: isRep, representative: isRep, ...(isRep ? {} : { code: "COSIGNER_NOT_REPRESENTATIVE" as const }), detail: isRep ? "valid co-signature by a legal representative" : `the co-signer is not a legal representative of CNPJ ${cnpj}`, revocation });
+      const detail = basis === "representatives" ? "valid co-signature by a legal representative" : basis === "ecnpj_responsible" ? "valid co-signature by the person responsible named in the e-CNPJ" : `the co-signer is not a legal representative of CNPJ ${cnpj}`;
+      cosigners.push({ certificate_sha256: icp.certificate_sha256, ok: isRep, representative: isRep, ...(basis ? { basis } : { code: "COSIGNER_NOT_REPRESENTATIVE" as const }), detail, revocation });
     } catch (e) {
       const k = e instanceof KyaError ? e.code : "CHALLENGE_FAILED";
       const code: CompanyWillCode = k === "CERTIFICATE_INVALID" ? "COSIGNER_CERTIFICATE_INVALID" : "COSIGNATURE_TEXT_MISMATCH";

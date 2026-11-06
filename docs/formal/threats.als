@@ -219,6 +219,48 @@ check NoCoSignatureNoCompanyWill for 5
 run AccountantCoSigned { listIsAccurate and eCpfHeldByOwner and some m: CompanyMandate | acceptedAsCompanyWill[m] and m.ecnpj.operator not in m.ecnpj.firm.realReps } for 5
 
 /* ------------------------------------------------------------------------------------------------------------
+ * (ii-b, no list) Co-signature by the person responsible named in the e-CNPJ itself.
+ *
+ * Every e-CNPJ carries, in the otherName 2.16.76.1.3.4 (DOC-ICP-04), the CPF of the person responsible for the
+ * certificate before the Receita; the registration authority checks, at issuance, that this person represents the
+ * company. verifyCompanyWill({ acceptCertificateResponsible: true }) counts as a representative an e-CPF whose CPF
+ * is that one, with no list from the verifier. The trust moves from the verifier's list to the ICP-Brasil issuance
+ * and to the e-CNPJ being revoked when that person stops representing the company.
+ * ---------------------------------------------------------------------------------------------------------- */
+
+sig Responsible { ecnpjOf: one ECnpj, named: one Cpf }
+fact OneResponsiblePerECnpj { all e: ECnpj | one r: Responsible | r.ecnpjOf = e }
+fun responsibleOf[e: ECnpj]: one Cpf { (ecnpjOf.e).named }
+
+/* The verifier's rule with no list: the co-signer's CPF is the one the e-CNPJ names. */
+pred acceptedByResponsible[m: CompanyMandate] {
+  some m.cosigner
+  m.cosignedText = m.challenge
+  m.cosigner.owner = responsibleOf[m.ecnpj]
+}
+
+/* Assumption: the person the e-CNPJ names still represents the company (true at issuance; an e-CNPJ whose
+   responsible left must be revoked). */
+pred responsibleIsCurrent { all e: ECnpj | responsibleOf[e] in e.firm.realReps.cpf }
+
+-- Expected to hold: with the responsible current and e-CPFs operated by their owners, acceptance implies the
+-- company's will, with no list supplied by the verifier.
+assert ResponsibleCoSignatureSound { (responsibleIsCurrent and eCpfHeldByOwner) implies all m: CompanyMandate | acceptedByResponsible[m] implies companyWillOf[m] }
+check ResponsibleCoSignatureSound for 5
+
+-- Expected COUNTEREXAMPLE: the responsible left the company and the e-CNPJ was not revoked.
+assert ResponsibleCoSignatureLeft { eCpfHeldByOwner implies all m: CompanyMandate | acceptedByResponsible[m] implies companyWillOf[m] }
+check ResponsibleCoSignatureLeft for 5
+
+-- Expected to hold: the e-CNPJ alone, whoever operates it, is still not the company's will.
+assert NoCoSignatureNoResponsibleWill { all m: CompanyMandate | no m.cosigner implies not acceptedByResponsible[m] }
+check NoCoSignatureNoResponsibleWill for 5
+
+-- Sanity: the accountant case is accepted with no list (the accountant operates the e-CNPJ, the responsible
+-- it names co-signs the same text).
+run AccountantResponsibleCoSigned { responsibleIsCurrent and eCpfHeldByOwner and some m: CompanyMandate | acceptedByResponsible[m] and m.ecnpj.operator not in m.ecnpj.firm.realReps } for 5
+
+/* ------------------------------------------------------------------------------------------------------------
  * Issuer unavailability.
  *
  * Online mode: the credential's status comes from the hosted issuer; when it is down the verifier answers

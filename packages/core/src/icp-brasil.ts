@@ -96,6 +96,37 @@ export function cpfFromCertificate(cert: X509Certificate): string | null {
   return /:(\d{11})\s*$/.exec(cn)?.[1] ?? null;
 }
 
+/**
+ * OID 2.16.76.1.3.4: data of the person responsible for an e-CNPJ before the Receita Federal, "ddmmaaaa" birth date
+ * followed by the 11-digit CPF (DOC-ICP-04), the same layout as 2.16.76.1.3.1.
+ */
+export const OID_ICP_RESPONSIBLE = "2.16.76.1.3.4";
+
+/** CPF of the person responsible named in an e-CNPJ (2.16.76.1.3.4), or null for any other certificate. */
+export function responsibleCpfFromCertificate(cert: X509Certificate): string | null {
+  if (!cnpjFromCertificate(cert)) return null;
+  const data = otherNameValue(cert, "4")?.replace(/\D/g, "") ?? null;
+  const cpf = data && data.length >= 19 ? data.slice(8, 19) : null;
+  return cpf && /^\d{11}$/.test(cpf) && !/^(\d)\1{10}$/.test(cpf) ? cpf : null;
+}
+
+/**
+ * CPF of the person responsible named in the e-CNPJ that signed `cmsBase64`, or null. Reads the signer certificate
+ * only: call it after the CMS was verified (verifyIcpSignature), never instead. The CPF is for the caller to compare
+ * at once and forget: never store or return it.
+ */
+export function ecnpjResponsibleCpf(cmsBase64: string): string | null {
+  try {
+    const signed = new pkijs.SignedData({ schema: pkijs.ContentInfo.fromBER(unb64(cmsBase64)).content });
+    const certs = (signed.certificates ?? []).filter((c): c is pkijs.Certificate => c instanceof pkijs.Certificate);
+    const sid = signed.signerInfos[0]?.sid as pkijs.IssuerAndSerialNumber | undefined;
+    const signer = (sid && certs.find((c) => c.serialNumber.isEqual(sid.serialNumber) && c.issuer.isEqual(sid.issuer))) ?? certs[0];
+    return signer ? responsibleCpfFromCertificate(new X509Certificate(signer.toSchema().toBER(false))) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function sha256Hex(bytes: Uint8Array): Promise<string> {
   return hex(await crypto.subtle.digest("SHA-256", bytes.slice().buffer as ArrayBuffer));
 }

@@ -132,6 +132,17 @@ const will = await verifyCompanyWill(cosigned, { anchors: icpBrasilAnchors, now:
 The credential records only the e-CPF certificate's hash, issuer and dates; the CMS (which carries the certificate,
 and so the CPF) travels in the proof (`proof.cosignatures`, also in `KYA-Principal-Proof`). The result has no CPF.
 
+With no list of representatives, the verifier can accept the person responsible named in the e-CNPJ itself (its
+otherName 2.16.76.1.3.4, checked by the registration authority at issuance). Both sources may be used together:
+
+```ts
+const will = await verifyCompanyWill(cosigned, { anchors: icpBrasilAnchors, now: new Date(), acceptCertificateResponsible: true });
+// will.cosigners[i].basis: "ecnpj_responsible" (or "representatives" when it came from the list)
+```
+
+This rests on the e-CNPJ being revoked when that person stops representing the company, and it names one person:
+attorneys-in-fact and joint signature still need the list.
+
 Delegation, issued by the parent agent with its own key:
 
 ```ts
