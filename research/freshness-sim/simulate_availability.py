@@ -15,7 +15,7 @@ Model:
     CRL in force: it is refused only when the CRL is stale;
   - t is uniform over each source's observed window; sources weigh by their entries (as in simulate_measured.py);
   - values are log-normal with the shape of simulate.py (sigma 1.6). Three scales: the placeholder median R$ 200, and
-    the mean value of Pix payments B2B (company to company) and P2B (person to company) over the last 12 months
+    the Pix scales of value_scale.py: B2B between different owners (data/pix_cnae.json, the main scale) and P2B
     (data/pix.json), with the median set so that the log-normal mean matches;
   - fetches and expected loss come from the same sweep as simulate_measured.py, re-run with the Pix scales.
 The window is as long as the collection so far, so every figure here is exploratory and will be re-run.
@@ -31,6 +31,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import value_scale as V  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
 DATA = os.path.join(HERE, "data")
@@ -121,9 +122,9 @@ def main():
     per, pooled, age, stale, w = availability(av)
     lam = M.lambda_per_hour(m)["per_hour"]
     sigma = S.PARAMS["value_sigma"]
-    scales = {"mediana hipotética R$ 200": 200.0}
-    for nat, label in (("B2B", "Pix B2B (empresa→empresa)"), ("P2B", "Pix P2B (pessoa→empresa)")):
-        scales[label] = round(lognormal_median(pix["by_nature"][nat]["mean_brl"], sigma), 2)
+    scales = {"mediana hipotética R$ 200": 200.0,
+              "Pix B2B (titulares diferentes)": V.median("B2B", sigma),  # the main scale (value_scale.py)
+              "Pix P2B (pessoa→empresa)": V.median("P2B", sigma)}
 
     # delay pool and base parameters exactly as in simulate_measured.py (measured cadence)
     rng = np.random.default_rng(SEED)

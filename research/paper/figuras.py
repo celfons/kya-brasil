@@ -302,3 +302,47 @@ with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
     for k, v in extra.items():
         f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
 print(extra)
+
+# Motivos das revogações (reasons.json), estabilidade da série de 2026 (monthly.csv), fraude no Pix (pix_fraud.json)
+# e perda na cauda do cenário principal (scenarios.json)
+mot = json.load(open((RESEARCH / "freshness-sim" / "data") / "reasons.json", encoding="utf-8"))
+com_motivo = {k: v for k, v in mot["sources"].items() if v.get("reasons") and set(v["reasons"]) != {"sem motivo"}}
+serasa = next(v for v in mot["sources"].values() if "Serasa" in v["ac"])
+pct = lambda d: 100 * d["reasons"].get("key_compromise", 0) / (d["entries"] - d["reasons"].get("sem motivo", 0))  # noqa: E731
+mensal = {}
+with open(MONTHLY, encoding="utf-8") as fm:
+    for r in csv.DictReader(fm):
+        if r["tipo"] == "usuario-final":
+            mensal[r["mes"]] = mensal.get(r["mes"], 0) + int(r["revogacoes"])
+m26 = [mensal[k] for k in sorted(mensal) if k.startswith("2026") and k < "2026-11"]
+m25 = [mensal[k] for k in sorted(mensal) if k.startswith("2025")]
+fr = json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_fraud.json", encoding="utf-8"))["total"]
+pr = por_nome["principal"]
+linha_pr = lambda pol, st: next(r for r in pr["rows"] if r["policy"] == pol and r["setting"] == st)  # noqa: E731
+perda_valor = pr["proportional_L001"]["expected_loss_per_1000_brl"] / (1000 * cen["means_brl"]["B2B"])
+cem = next(s_ for s_ in sens["scenarios"] if s_["multiplier"] == max(sens["multipliers"]) and s_["median_brl"] == sens["medians_brl"][0])
+extra = {
+    "MotivoKeyPct": br(100 * mot["total"]["key_compromise_share_of_with_reason"], 0),
+    "MotivoComMotivoPct": br(100 * mot["total"]["with_reason"] / mot["total"]["entries"], 0),
+    "MotivoSerasaPct": br(pct(serasa), 0),
+    "MotivoNumAC": str(len(com_motivo)),
+    "SerieDifPct": br(abs(100 * (sum(m26[-3:]) / sum(m26[:3]) - 1)), 0),
+    "SerieVinteCincoPct": br(100 * (1 - (sum(m25) / len(m25)) / (sum(m26) / len(m26))), 0),
+    "FraudePixPct": br(100 * fr["fraud_share_of_value"], 3),
+    "FraudePixMeses": f"{fr['first'][4:]}/{fr['first'][:4]} a {fr['last'][4:]}/{fr['last'][:4]}",
+    "FraudePorCemMil": br(fr["fraud_per_100k"], 1),
+    "PerdaPctValor": br(100 * perda_valor, 4),
+    "RazaoFraude": br(fr["fraud_share_of_value"] / perda_valor, 0),
+    "RazaoFraudeCem": br(fr["fraud_share_of_value"] / (cem["floor_brl_per_1000"] / (1000 * cen["means_brl"]["B2B"])), 1),
+    "CaudaSempre": br(linha_pr("consultar sempre", "0 h")["tail_loss_per_1000_tail_actions_brl"], 0),
+    "CaudaPropTres": br(linha_pr("proporcional ao valor", "L=0.03")["tail_loss_per_1000_tail_actions_brl"], 0),
+    "PropTresConsultas": br(linha_pr("proporcional ao valor", "L=0.03")["fetches_per_1000"], 0),
+    "CaudaFixoDoze": br(linha_pr("prazo fixo", "12 h")["tail_loss_per_1000_tail_actions_brl"], 0),
+    "CaudaFixoSeis": br(linha_pr("prazo fixo", "6 h")["tail_loss_per_1000_tail_actions_brl"], 0),
+    "FixoSeisConsultas": br(linha_pr("prazo fixo", "6 h")["fetches_per_1000"], 0),
+    "CaudaPctPerda": br(100 * linha_pr("prazo fixo", "12 h")["tail_share_of_loss"], 0),
+}
+with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
+    for k, v in extra.items():
+        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+print(extra)
