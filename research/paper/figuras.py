@@ -263,26 +263,32 @@ print(extra)
 # sem as linhas de cada política)
 cen = json.load(open(RESEARCH / "freshness-sim" / "scenarios.json", encoding="utf-8"))
 por_nome = {c["name"]: c for c in cen["scenarios"]}
-rotulos = [
-    ("principal", "Principal (Pix B2B)"),
-    ("sigma no limite inferior", "$\\sigma$ no limite inferior ({sigma})"),
-    ("sigma 2,0", "$\\sigma = 2{{,}}0$"),
-    ("0,2 ação/h", "0,2 ação/h"),
-    ("20 ações/h", "20 ações/h"),
-    ("Pix P2B", "Pix P2B"),
-    ("mediana hipotética R$ 200", "mediana hipotética de R\\$~200"),
+def faixa(vals, d):
+    a, b = min(vals), max(vals)
+    return br(a, d) if br(a, d) == br(b, d) else f"{br(a, d)}--{br(b, d)}"
+
+
+def linha(rot, cs):
+    m = lambda f, d: faixa([f(c) for c in cs], d)  # noqa: E731
+    return (f"{rot} & {m(lambda c: c['median_brl'], 0)} & {m(lambda c: c['floor_brl_per_1000'], 2)} & "
+            f"{m(lambda c: c['proportional_L001']['fetches_per_1000'], 0)} & "
+            f"{m(lambda c: c['proportional_L001']['expected_loss_per_1000_brl'], 2)} & "
+            f"{m(lambda c: c['fixed_12h']['expected_loss_per_1000_brl'], 2)} \\\\")
+
+
+sig = [por_nome["sigma no limite inferior"], por_nome["sigma 2,0"]]
+linhas = [
+    linha("Principal (Pix B2B)", [por_nome["principal"]]),
+    "\\midrule",
+    linha(f"$\\sigma$ de {br(sig[0]['sigma'], 2)} a {br(sig[1]['sigma'], 1)}", sig),
+    linha("0,2 ação/h", [por_nome["0,2 ação/h"]]),
+    linha("20 ações/h", [por_nome["20 ações/h"]]),
+    linha("Pix P2B", [por_nome["Pix P2B"]]),
 ]
-linhas = []
-for nome, rot in rotulos:
-    c = por_nome[nome]
-    p, x = c["proportional_L001"], c["fixed_12h"]
-    rot = rot.replace("{sigma}", br(c["sigma"], 2)).replace("{{,}}", "{,}")
-    linhas.append(f"{rot} & {br(c['median_brl'], 0)} & {br(c['floor_brl_per_1000'], 2)} & {br(p['fetches_per_1000'], 0)} & "
-                  f"{br(p['expected_loss_per_1000_brl'], 2)} & {br(x['fetches_per_1000'], 0)} & {br(x['expected_loss_per_1000_brl'], 2)} \\\\")
-    if nome in ("principal", "sigma 2,0", "20 ações/h"):
-        linhas.append("\\midrule")
+fixo = lambda n: br(por_nome[n]["fixed_12h"]["fetches_per_1000"], 0)  # noqa: E731
 with open(FIGS / "cenarios.tex", "w", encoding="utf-8") as f:
     f.write("% Gerado por scripts/figuras.py; não editar à mão.\n\\newcommand{\\LinhasCenarios}{%\n" + "\n".join(linhas) + "}\n")
+    f.write(f"\\newcommand{{\\FixoDozeConsultasBaixo}}{{{fixo('0,2 ação/h')}}}\n\\newcommand{{\\FixoDozeConsultasAlto}}{{{fixo('20 ações/h')}}}\n")
 pr = por_nome["principal"]
 extra = {
     "PixBtoBMedia": br(cen["means_brl"]["B2B"], 0),
