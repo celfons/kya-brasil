@@ -4,14 +4,14 @@ certificate stops being trustworthy (lambda) and the value of the actions.
 
 The measured lambda is a floor (results_measured.json: 11 end-user CRLs; expired certificates leave the CRL) and
 counts every revocation, not only compromises, so the comparison is repeated from 1x to 100x the measured rate,
-for a median action of R$ 200 (simulate.py) and R$ 2,000. The publication delay is the measured one
+for the two Pix scales of value_scale.py (B2B, the main one, and P2B). The publication delay is the measured one
 (simulate_measured.py, reissue every 0.5 h).
 
 For each scenario: the gain of the proportional policy over a fixed deadline that makes the same number of status
 fetches (fixed-deadline loss interpolated on log(fetches)), as R$ per 1,000 actions and as a share of the loss a
 verifier can avoid at all (loss minus the always-fetch floor, which comes from the AC's own delay).
 
-    python3 -I sensitivity.py   # numpy only; writes sensitivity.json (about 20 minutes)
+    python3 -I sensitivity.py   # numpy only; writes sensitivity.json (about 10 minutes on 4 cores)
 """
 import json
 import math
@@ -26,7 +26,11 @@ import simulate as S  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
 MULTIPLIERS = (1, 3, 10, 30, 100)
-MEDIANS_BRL = (200.0, 2000.0)
+import value_scale as V  # noqa: E402
+from multiprocessing import Pool  # noqa: E402
+
+SCALES = {"Pix B2B": V.median("B2B"), "Pix P2B": V.median("P2B")}
+MEDIANS_BRL = tuple(SCALES.values())
 
 
 def interp_fixed(fixed, fetches):
@@ -67,15 +71,22 @@ def best_gain(rows):
     return floor, max(gains, key=lambda g: g["share_of_avoidable"], default=None)
 
 
+def run(task):
+    med, k, lam, pool = task
+    base = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool,
+            "value_sigma": V.SIGMA}
+    rows = M.sweep({**base, "lambda_per_hour": lam * k, "value_median_brl": med}, lam * k)["rows"]
+    floor, best = best_gain(rows)
+    return {"multiplier": k, "median_brl": med, "lambda_per_hour": lam * k, "floor_brl_per_1000": floor, "best": best, "rows": rows}
+
+
 def main():
     lam, pool = measured_delay_pool()
-    base = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool}
-    out = {"seed": M.SEED, "lambda_measured_per_hour": lam, "multipliers": MULTIPLIERS, "medians_brl": MEDIANS_BRL, "scenarios": []}
-    for med in MEDIANS_BRL:
-        for k in MULTIPLIERS:
-            rows = M.sweep({**base, "lambda_per_hour": lam * k, "value_median_brl": med}, lam * k)["rows"]
-            floor, best = best_gain(rows)
-            row = {"multiplier": k, "median_brl": med, "lambda_per_hour": lam * k, "floor_brl_per_1000": floor, "best": best, "rows": rows}
+    out = {"seed": M.SEED, "lambda_measured_per_hour": lam, "multipliers": MULTIPLIERS, "medians_brl": MEDIANS_BRL,
+           "scales": SCALES, "sigma": V.SIGMA, "scenarios": []}
+    tasks = [(med, k, lam, pool) for med in MEDIANS_BRL for k in MULTIPLIERS]
+    with Pool() as p:
+        for row in p.imap(run, tasks):
             out["scenarios"].append(row)
             print(json.dumps({kk: vv for kk, vv in row.items() if kk != "rows"}, ensure_ascii=False), flush=True)
     with open(os.path.join(HERE, "sensitivity.json"), "w", encoding="utf-8") as f:
