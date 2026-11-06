@@ -16,6 +16,20 @@ every measurement here is **exploratory**.
 | H2 | A freshness policy proportional to the action's value (maximum status age = L / (value × λ)) lies on the Pareto frontier of expected loss vs. status fetches, against fixed deadlines and value tiers | [freshness-sim](freshness-sim) (Monte Carlo, fixed seed) with the rate, delay and hourly profile measured on ICP-Brasil CRLs | position on the frontier, 95% bootstrap intervals over the collection months |
 | H3 | Independent developers verify a mandate from the documentation alone, without changing the library | [study](study) (protocol and analysis) and the kit [`@kya-brasil/study-kit`](../packages/study-kit) | integration without changing the library; time to the first correct verification, changes requested, time until a revocation takes effect |
 
+H2 is read with the measurement first: the CRL data show where the risk of an offline verification lies (the
+time an AC takes to register a revocation, not the CRL cadence), and the freshness policy is a consequence of that
+risk. The pre-registered test and criterion do not change.
+
+## Complementary evaluations (exploratory)
+
+Not hypotheses and not in the pre-registration; reported apart from H1–H3 and labelled exploratory.
+
+| Evaluation | What | Status |
+| --- | --- | --- |
+| Legal validation | two specialists rate the preliminary legal reading (mandate, representation of the company, good-faith third party, delegation, LGPD) on a fixed set of questions | dossier ready; no answers yet |
+| Demand | short conversations with those who would receive agents' actions (marketplaces, fintechs, ERPs): would they require the credential, and what would stop them | not started |
+| gov.br, considered and excluded | Login Único is open only to government systems (D-13); the gov.br advanced signature carries less weight between private parties than the qualified ICP-Brasil signature, so the design keeps the qualified one | decided |
+
 ## Where things are
 
 | Folder | What | Feeds |
