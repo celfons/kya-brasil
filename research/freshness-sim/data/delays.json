@@ -1,11 +1,11 @@
 {
  "collector": "https://kya-icp-collector.marcelfons.workers.dev",
- "summary_generated_at": "2026-11-06T03:23:41.583Z",
- "fetched_at": "2026-11-06T04:18:52+00:00",
+ "summary_generated_at": "2026-11-06T10:23:29.155Z",
+ "fetched_at": "2026-11-06T10:46:24+00:00",
  "sources": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
-   "entries": 33896,
+   "entries": 33887,
    "delays_h": [
     0.92,
     0.17,
@@ -77,7 +77,7 @@
   },
   "uf-ac-certisign-rfb-g5": {
    "ac": "AC Certisign RFB G5",
-   "entries": 7632,
+   "entries": 7631,
    "delays_h": [
     0.09,
     0.127,
