@@ -26,6 +26,22 @@ Certificados ICP-Brasil emitidos, ativos e revogados por autoridade certificador
 
 ---
 
+### Resultado
+
+- Protocolos: **00137.011046/2026-56** (5 nov. 2026, prazo 25 nov. 2026) e **00137.011140/2026-13** (6 nov. 2026, prazo
+  30 nov. 2026), com o mesmo texto.
+- Resposta ao 00137.011046/2026-56: o ITI, como AC Raiz, declara a **inexistência** das bases pedidas (Lei 12.527/2011,
+  art. 12, parágrafo único; Decreto 7.724/2012, art. 13, parágrafo único). Emissão, revogação e LCR de usuário final são
+  atribuição de cada AC (MP 2.200-2/2001, art. 8º, I, e art. 14), que guarda os dados da própria carteira; o ITI não tem
+  base centralizada por titular, tipo, motivo de revogação ou prazo até a LCR. O prazo é auditado pelos DOC-ICP-08
+  (auditoria) e DOC-ICP-09 (fiscalização). O painel numeros.iti.gov.br divulga só totais, sem microdados nem série
+  histórica estruturada.
+- Decisão: não recorrer (a negativa é por inexistência, e o que o recurso poderia render, a série do painel, o coletor
+  já guarda desde nov. 2026) e não pedir às AC agora. O artigo cita a resposta: as LCR públicas são a única base comum
+  para medir a revogação na ICP-Brasil.
+- **Desvio do pré-registro:** o plano previa usar a resposta do ITI como denominador por AC. Como o dado não existe no
+  ITI, a taxa usa o total do painel e é tratada como intervalo (de 1 a 100 vezes a medida na análise de sensibilidade).
+
 ## 2. Pré-registro no OSF
 
 **Onde:** https://osf.io → criar conta → "Create new project" (título abaixo) → aba "Registrations" → "New registration" → modelo **"OSF Preregistration"**. Antes de registrar, envie o PDF do pré-projeto à aba "Files". Depois de registrado, o conteúdo fica congelado, com data e DOI do OSF. O registro pode ficar sob embargo por até 4 anos.
