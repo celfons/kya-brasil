@@ -19,6 +19,8 @@ import urllib.request
 from collections import Counter
 from datetime import datetime, timedelta
 
+import re
+
 from cryptography import x509
 
 BASE = "https://kya-icp-collector.marcelfons.workers.dev"
@@ -28,6 +30,17 @@ DATA = os.path.join(HERE, "data")
 UA = {"user-agent": "curl/8"}
 BRT = timedelta(hours=-3)
 DAYS = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"]
+KEY_TS = re.compile(r"/(\d{8}T\d{6}Z)_[0-9a-f]+\.crl$")
+
+
+def reissue_interval(files):
+    """Smallest gap between the thisUpdate of consecutive stored versions, in hours: the AC's reissue period.
+
+    The mean gap would be wrong: the collector polls hourly, so an AC that reissues every 30 min is seen every other
+    version, and the mean converges to the polling interval. None with fewer than two versions."""
+    ts = sorted({datetime.strptime(m.group(1), "%Y%m%dT%H%M%SZ") for f in files if (m := KEY_TS.search(f["key"]))})
+    gaps = [(b - a).total_seconds() / 3600.0 for a, b in zip(ts, ts[1:]) if b > a]
+    return round(min(gaps), 3) if gaps else None
 
 
 def get(path):
@@ -47,10 +60,12 @@ def main():
     uf = [s for s in summary["sources"] if s["kind"] == "usuario-final"]
     grid = Counter()
     per_source = {}
+    reissue = {}
     for s in uf:
         files = json.loads(get("/api/files/" + urllib.parse.quote(s["source"])))["files"]
         if not files:
             continue
+        reissue[s["source"]] = reissue_interval(files)
         key = max(files, key=lambda f: f["key"])["key"]
         crl = x509.load_der_x509_crl(get("/files/" + urllib.parse.quote(key)))
         n = 0
@@ -75,7 +90,7 @@ def main():
         s["source"]: {
             "ac": s["ac"], "last_this_update": s["last_this_update"], "next_update": s["next_update"],
             "validity_h": round(hours(s["last_this_update"], s["next_update"]), 3),
-            "reissue_h": round(hours(s["first_this_update"], s["last_this_update"]), 3) if s["versions"] > 1 else None,
+            "reissue_h": reissue.get(s["source"]),
             "entries": s["entries"], "entries_with_reason": s["entries_with_reason"],
         }
         for s in uf
