@@ -162,3 +162,80 @@ can avoid at all, that is, above the always-fetch floor that comes from the AC's
 The result depends on the product of value and rate: R$ 2,000 at k times the rate gives the same numbers as R$ 200 at
 10k times. The best proportional point is the smallest `L` swept (0.01) in every scenario, so a smaller `L` may gain
 more. Even at 100x, the avoidable loss is small next to the floor: the AC's working hours bound freshness.
+
+## Exploratory: the cost of failing closed, with Pix values (`simulate_availability.py`)
+
+Not part of the pre-registered H2 test, which stays as above. Two additions, from public data:
+
+- **Values.** Besides the placeholder median of R$ 200, the scale of the log-normal is set from the Central Bank's
+  Pix statistics (`fetch_pix.py`, `data/pix.json`): over the last 12 months, the mean Pix payment from company to
+  company (B2B) was R$ 5,306 and from person to company (P2B) R$ 111. Pix payments are not agents' purchases; they are
+  the closest public figure for what a company pays or is paid per transaction.
+- **A third axis: legitimate actions refused.** Evidence age is counted from the CRL's `thisUpdate`, as the library's
+  freshness check does. At each moment a verifier polling hourly holds the latest CRL the collector had obtained
+  (`fetch_availability.py`, `data/availability.json`). It refuses a legitimate action when that CRL is past its
+  `nextUpdate`, or when the policy asks for evidence younger than any CRL it can get.
+
+```sh
+python3 -I fetch_pix.py && python3 -I fetch_availability.py   # network; write data/
+python3 -I simulate_availability.py                            # offline; writes results_availability.json (~4 min)
+```
+
+**Effective availability** (first collection window, about 23 h, 6 end-user CRLs still issued): a fresh CRL was
+available 99% of the time, weighting by entries. The three Certisign CRLs, valid for only 1 h, were past their
+`nextUpdate` 12% to 20% of the time for an hourly poller, in gaps of at most 13 min: a verifier must poll more often
+than the CRL's validity. The CRL held was 0.8 h old at the median.
+
+**Pix B2B values** (per 1,000 legitimate actions; refusal rates carry about ±1 of Monte Carlo noise):
+
+| Policy | Fetches | Expected loss (R$) | Refused |
+| --- | ---: | ---: | ---: |
+| Always fetch (accepts the CRL in force) | 1000.0 | 22.20 | 10.0 |
+| Fixed 0.25 h | 666.9 | 22.26 | 990.2 |
+| Fixed 1 h | 333.7 | 22.68 | 460.9 |
+| Fixed 2 h | 200.3 | 23.35 | 62.3 |
+| Fixed 6 h | 77.2 | 26.15 | 10.5 |
+| Proportional, L = 0.01 | 98.3 | 23.66 | 34.3 |
+| Proportional, L = 0.03 | 54.9 | 25.72 | 14.6 |
+| Value tiers, medium | 362.8 | 22.39 | 502.0 |
+
+What changes with this axis:
+
+- **Strict policies are not feasible offline.** No CRL is younger than its own publication cadence, so a policy that
+  asks for evidence younger than about an hour refuses most legitimate actions (46% to 99% at 1 h or less) to save at
+  most a few percent of the loss.
+- **The feasible region is the lenient one** (fixed 4 h or more, proportional, loose tiers): about 1% refused, the
+  floor set by expired CRLs. Within it, the proportional policy reaches the loss of a fixed window with about 30% fewer
+  fetches (L = 0.03 against fixed 6 h, L = 0.1 against fixed 12 h), at a similar or slightly higher refusal rate.
+- **Real values scale the stakes.** With B2B Pix values the loss floor that no policy removes is R$ 22 per 1,000
+  actions, about seven times the placeholder scenario; with P2B values it is R$ 0.46.
+
+The window is the first day of collection; the figures will be re-run as it grows.
+
+## Exploratory: the exposure window with the measured publication delay (`simulate_measured_delay.py`)
+
+`simulate_measured.py`, whose figures the paper cites, models the time from the AC registering a revocation to a CRL
+that lists it as the wait for the next CRL (phase uniform over the reissue interval) plus a dissemination of U(0, 4) h,
+the DOC-ICP-05 4.9.8 maximum. The collector now measures both (`fetch_delays.py`, `data/delays.json`):
+
+| Measured (first collection window) | n | Mean | Median | p95 | Max |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Registration by the AC → thisUpdate of the first CRL listing it | 166 | 0.72 h | 0.59 h | 2.65 h | 3.84 h |
+| thisUpdate → CRL obtained by an hourly poller (upper bound of dissemination) | 144 | 0.29 h | 0.20 h | 0.80 h | 0.91 h |
+
+```sh
+python3 -I fetch_delays.py && python3 -I simulate_measured_delay.py   # writes results_measured_delay.json (~1 min)
+```
+
+Exposure window, from compromise to a disseminated CRL listing the revocation:
+
+| Model | Mean | Median | p95 | Business hours | Off hours | Friday 19h |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Paper (next CRL + U(0, 4) h) | 15.45 h | 9.33 h | 53.8 h | 3.52 h | 20.5 h | 48.2 h |
+| Measured delay + measured dissemination (upper bound) | 14.33 h | 8.22 h | 52.7 h | 2.42 h | 19.4 h | 47.3 h |
+| Measured delay, no dissemination (lower bound) | 13.87 h | 7.75 h | 52.3 h | 1.96 h | 18.9 h | 46.8 h |
+
+Replacing the regulatory maximum with what the ACs actually do shortens the mean window by about 1.1 to 1.6 h; about
+14 of its 15 hours remain. Publishing and disseminating the CRL take under an hour; the rest is the wait for the AC to
+register the revocation in its working hours. With the measured delay, "always fetch" leaves R$ 2.79 per 1,000 actions
+that no policy removes (R$ 3.01 in the paper's model), and the ranking of the policies does not change.
