@@ -615,8 +615,16 @@ natural person acting for a company):
   carry the representatives' certificates, so they reach the verifier, which needs the CPF to match it; like the
   principal's CMS, an issuer MUST NOT store them.
 
-**Who represents the company** is the verifier's input: a function from the CNPJ to the CPFs of its legal
-representatives (the QSA, from the verifier's own source). The core never calls the Receita Federal.
+**Who represents the company** comes from one or both of two sources, and at least one is required:
+
+- the verifier's input `representatives`: a function from the CNPJ to the CPFs of its legal representatives (the
+  QSA, from the verifier's own source). The core never calls the Receita Federal;
+- with `acceptCertificateResponsible: true`, the person responsible named in the e-CNPJ itself: the CPF in its
+  otherName 2.16.76.1.3.4 (DOC-ICP-04: birth date `ddmmaaaa`, then the 11-digit CPF), which the registration
+  authority checks against the company's acts at issuance. No list is needed. It rests on the e-CNPJ being revoked
+  when that person stops representing the company (Alloy: `ResponsibleCoSignatureSound` holds,
+  `ResponsibleCoSignatureLeft` is the expected counterexample). It names one person: attorneys-in-fact, joint
+  signature and powers still need the list.
 
 **Verification** (`verifyCompanyWill`): the credential is accepted as the company's will only when
 
@@ -628,5 +636,6 @@ representatives (the QSA, from the verifier's own source). The core never calls 
 4. at least `minCosigners` (default 1) distinct CPFs read from those certificates are among the representatives
    (none: `COSIGNER_NOT_REPRESENTATIVE`; some but fewer: `INSUFFICIENT_COSIGNERS`).
 
-The result carries the certificate hash of each co-signer and what its CRL check needs (section 10), never the CPF.
+The result carries the certificate hash of each co-signer, why it counted (`basis`: `representatives` or
+`ecnpj_responsible`) and what its CRL check needs (section 10), never the CPF.
 The revocation of the e-CPF certificates is checked by the verifier, as for the principal's certificate.

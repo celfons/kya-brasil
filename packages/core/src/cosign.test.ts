@@ -10,7 +10,7 @@ import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import { privateKeyToAccount } from "viem/accounts";
 import { ecnpjSigner } from "./ecnpj-sign.js";
-import { OID_ICP_CNPJ, OID_ICP_PERSON } from "./icp-brasil.js";
+import { OID_ICP_CNPJ, OID_ICP_PERSON, OID_ICP_RESPONSIBLE, responsibleCpfFromCertificate } from "./icp-brasil.js";
 import { type MandateInput, assembleCredential, buildMandate, mandateSigningInput, verifySelfIssuedCredential } from "./issuance.js";
 import { addCosignature, verifyCompanyWill } from "./cosign.js";
 import { decodePrincipalProofHeader, encodePrincipalProofHeader } from "./principal-proof.js";
@@ -30,12 +30,13 @@ async function ca(name: string): Promise<Pair> {
   const cert = await x509.X509CertificateGenerator.createSelfSigned({ serialNumber: "01", name, notBefore: new Date("2026-01-01"), notAfter: new Date("2030-01-01"), signingAlgorithm: alg, keys, extensions: [new x509.BasicConstraintsExtension(true, 1, true)] });
   return { keys, cert };
 }
-async function leaf(root: Pair, who: { cnpj?: string; cpf?: string }, serial: string, notAfter = new Date("2027-06-01")): Promise<Pair> {
+async function leaf(root: Pair, who: { cnpj?: string; cpf?: string; responsible?: string }, serial: string, notAfter = new Date("2027-06-01")): Promise<Pair> {
   const keys = (await crypto.subtle.generateKey(alg, true, ["sign", "verify"])) as CryptoKeyPair;
-  const other = who.cpf
-    ? new OtherName({ typeId: OID_ICP_PERSON, value: AsnConvert.serialize(new OctetString(new TextEncoder().encode(`01011990${who.cpf}00000000000000000000000000000`))) })
-    : new OtherName({ typeId: OID_ICP_CNPJ, value: AsnConvert.serialize(new OctetString(new TextEncoder().encode(who.cnpj!))) });
-  const san = new x509.Extension(id_ce_subjectAltName, false, AsnConvert.serialize(new GeneralNames([new GeneralName({ otherName: other })])));
+  const on = (typeId: string, v: string) => new OtherName({ typeId, value: AsnConvert.serialize(new OctetString(new TextEncoder().encode(v))) });
+  const others = who.cpf
+    ? [on(OID_ICP_PERSON, `01011990${who.cpf}00000000000000000000000000000`)]
+    : [on(OID_ICP_CNPJ, who.cnpj!), ...(who.responsible ? [on(OID_ICP_RESPONSIBLE, `01011980${who.responsible}00000000000000000000000000000`)] : [])];
+  const san = new x509.Extension(id_ce_subjectAltName, false, AsnConvert.serialize(new GeneralNames(others.map((o) => new GeneralName({ otherName: o })))));
   const subject = who.cpf ? `CN=FULANO DE TAL:${who.cpf}, O=ICP-Brasil, C=BR` : `CN=ACME LTDA:${who.cnpj}, O=ICP-Brasil, C=BR`;
   const cert = await x509.X509CertificateGenerator.create({ serialNumber: serial, subject, issuer: root.cert.subject, notBefore: new Date("2026-01-01"), notAfter, signingAlgorithm: alg, publicKey: keys.publicKey, signingKey: root.keys.privateKey, extensions: [san] });
   return { keys, cert };
@@ -123,5 +124,51 @@ describe("co-signature by a legal representative (section 21)", () => {
     const smuggled = { credential: cs.credential, proof: { ...cs.proof, cosignatures: [await signerOf(rogue, rogueRoot).sign(text)] } };
     expect(await verifyCompanyWill(smuggled, { anchors, now: NOW, representatives: reps })).toMatchObject({ ok: false, code: "COSIGNER_CERTIFICATE_INVALID" });
     expect(await verifyCompanyWill({ ...cs, credential: { ...cs.credential, credential_id: "x" } }, { anchors, now: NOW, representatives: reps })).toMatchObject({ ok: false, code: "COMPANY_SIGNATURE_INVALID" });
+  });
+});
+
+describe("co-signature by the person responsible named in the e-CNPJ (no list)", () => {
+  async function withResponsible() {
+    const base = await k();
+    const company = await leaf(base.root, { cnpj: CNPJ, responsible: REP }, "07");
+    const issued = await assembleCredential(await buildMandate(input), await signerOf(company, base.root).sign(base.text), [], { anchors: base.anchors, now: NOW });
+    return { ...base, company, issued };
+  }
+
+  it("reads the responsible's CPF from the e-CNPJ only", async () => {
+    const { company, rep } = await withResponsible();
+    expect(responsibleCpfFromCertificate(new x509.X509Certificate(company.cert.rawData))).toBe(REP);
+    expect(responsibleCpfFromCertificate(new x509.X509Certificate(rep.cert.rawData))).toBeNull();
+    const { company: plain } = await k();
+    expect(responsibleCpfFromCertificate(new x509.X509Certificate(plain.cert.rawData))).toBeNull();
+  });
+
+  it("accepted: the co-signer is the responsible named in the e-CNPJ, with no list; the result carries no CPF", async () => {
+    const { root, rep, anchors, text, issued } = await withResponsible();
+    const cs = await addCosignature(issued, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
+    const r = await verifyCompanyWill(cs, { anchors, now: NOW, acceptCertificateResponsible: true });
+    expect(r).toMatchObject({ ok: true, representatives_counted: 1 });
+    expect(r.cosigners[0]!.basis).toBe("ecnpj_responsible");
+    expect(JSON.stringify(r)).not.toContain(REP);
+    expect(await verifyCompanyWill(cs, { anchors, now: NOW, representatives: () => [] })).toMatchObject({ ok: false, code: "COSIGNER_NOT_REPRESENTATIVE" });
+  });
+
+  it("refused: another person co-signs, or the e-CNPJ names no responsible", async () => {
+    const { root, other, anchors, text, issued } = await withResponsible();
+    const cs = await addCosignature(issued, await signerOf(other, root).sign(text), [], { anchors, now: NOW });
+    expect(await verifyCompanyWill(cs, { anchors, now: NOW, acceptCertificateResponsible: true })).toMatchObject({ ok: false, code: "COSIGNER_NOT_REPRESENTATIVE" });
+    const plain = await k();
+    const cs2 = await addCosignature(plain.issued, await signerOf(plain.rep, plain.root).sign(plain.text), [], { anchors: plain.anchors, now: NOW });
+    expect(await verifyCompanyWill(cs2, { anchors: plain.anchors, now: NOW, acceptCertificateResponsible: true })).toMatchObject({ ok: false, code: "COSIGNER_NOT_REPRESENTATIVE" });
+  });
+
+  it("both sources count together, and one source is required", async () => {
+    const { root, rep, other, anchors, text, issued } = await withResponsible();
+    const one = await addCosignature(issued, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
+    const two = await addCosignature(one, await signerOf(other, root).sign(text), [], { anchors, now: NOW });
+    const r = await verifyCompanyWill(two, { anchors, now: NOW, acceptCertificateResponsible: true, representatives: () => [OTHER], minCosigners: 2 });
+    expect(r).toMatchObject({ ok: true, representatives_counted: 2 });
+    expect(r.cosigners.map((c) => c.basis).sort()).toEqual(["ecnpj_responsible", "representatives"]);
+    await expect(verifyCompanyWill(two, { anchors, now: NOW })).rejects.toMatchObject({ code: "INVALID_INPUT" });
   });
 });

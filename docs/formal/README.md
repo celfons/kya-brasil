@@ -113,6 +113,10 @@ java -jar org.alloytools.alloy.dist.jar exec -f -o out-threats docs/formal/threa
 | `check CoSignatureNeedsSameText` | counterexample (expected) | A verifier that does not require the co-signed text to equal the challenge accepts a co-signature taken from another mandate. |
 | `check NoCoSignatureNoCompanyWill` | UNSAT, holds | Without a co-signature the credential is never accepted as the company's will, whoever operates the e-CNPJ. |
 | `run AccountantCoSigned` | SAT | Sanity check: an accountant operating the e-CNPJ, with a listed representative co-signing, is accepted. |
+| `check ResponsibleCoSignatureSound` | UNSAT, holds | Co-signature by the person responsible named in the e-CNPJ (otherName 2.16.76.1.3.4), with no list from the verifier: if that person still represents the company and each e-CPF is operated by its owner, acceptance implies a real representative agreed to this mandate. |
+| `check ResponsibleCoSignatureLeft` | counterexample (expected) | If the responsible left the company and the e-CNPJ was not revoked, the property fails: the trust moves to the e-CNPJ's revocation. |
+| `check NoCoSignatureNoResponsibleWill` | UNSAT, holds | With this rule too, the e-CNPJ alone is never the company's will. |
+| `run AccountantResponsibleCoSigned` | SAT | Sanity check: an accountant operating the e-CNPJ, with the responsible it names co-signing, is accepted with no list. |
 | `check IssuerDownFailsClosed` | UNSAT, holds | With the hosted issuer down, online-only mode (and the `issuerFallback` path for requests without the credential) refuses: 502, fail closed. |
 | `check OfflineIndependentOfIssuer` | UNSAT, holds | Offline mode with the credential presented gives the same answer with the issuer up or down. |
 | `check NoStaleRevokedAccepted` | UNSAT, holds | Offline, with the freshness policy (CRL at most `MAXAGE` old), a certificate revoked `MAXAGE` or more ago is never accepted. |
