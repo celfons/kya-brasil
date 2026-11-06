@@ -142,9 +142,10 @@ python3 -I research/freshness-sim/scenarios.py
 
 Sem rede, semente fixa, cerca de 15 minutos em 4 vCPUs. Esperado: `sensitivity.json` e `scenarios.json` iguais aos do
 repositório: o ganho da política proporcional sobre o prazo fixo de mesmo número de consultas, de 1 a 100 vezes a taxa
-medida, nas escalas do Pix B2B e P2B; e a tabela de robustez (dispersão, ações por hora e escala do valor). A escala
-do valor vem de `data/pix_cnae.json` e `data/pix.json`; para refazê-los (rede):
-`python3 -I research/freshness-sim/fetch_pix_cnae.py` e `python3 -I research/freshness-sim/fetch_pix.py`.
+medida, nos cenários do Pix e do cartão de crédito empresarial; e a tabela de robustez (dispersão e ritmo das ações).
+O valor e o ritmo vêm de `data/pix_cnae.json`, `data/pix_rate.json` e `data/cards.json`; para refazê-los (rede):
+`python3 -I research/freshness-sim/fetch_pix_cnae.py`, `python3 -I research/freshness-sim/fetch_pix_rate.py` e
+`python3 -I research/freshness-sim/fetch_cards.py`.
 
 ## Reivindicação R7 (exploratória): atraso medido e disponibilidade das LCR (seção "Atualidade do status", parágrafo "Atraso medido")
 

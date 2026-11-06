@@ -153,7 +153,8 @@ def main():
     biz = np.array([(s // 24) < 5 and 8 <= s % 24 < 18 for s in range(WEEK)])
     out = {
         "seed": SEED,
-        "value_scale": {"source": "Pix B2B (value_scale.py)", "mean_brl": V.means()["B2B"], "median_brl": V.median("B2B"), "sigma": V.SIGMA},
+        "value_scale": {"source": "Pix B2B (value_scale.py)", "mean_brl": V.means()["B2B"], "median_brl": V.median("B2B"), "sigma": V.SIGMA,
+                        "actions_per_hour": V.rate("B2B")},
         "lambda": {**lam, "note": "floor: 11 end-user CRLs only; expired certificates leave the CRL"},
         "weekday_hour": {"total": int(w.sum()), "business_share": round(float(w[biz].sum() / w.sum()), 4),
                          "weekend_share": round(float(w[120:].sum() / w.sum()), 4),
@@ -170,7 +171,8 @@ def main():
         out["pools"][label] = {"intervals_h": p.tolist(), "weights": [round(x, 4) for x in wt],
                                "mean_h": round(float(e.mean()), 2), "p95_h": round(float(np.quantile(e, 0.95)), 2)}
 
-    base = {**S.PARAMS, "value_median_brl": V.median("B2B"), "value_sigma": V.SIGMA}  # Pix B2B scale (value_scale.py)
+    base = {**S.PARAMS, "value_median_brl": V.median("B2B"), "value_sigma": V.SIGMA,  # Pix scenario (value_scale.py)
+            "actions_per_hour": V.rate("B2B"), "credentials": V.credentials_for(V.rate("B2B"))}
     base.pop("publication_delay")
     base["publication_delay"] = {"crl_interval_h": 0.0, "publish_latency_h": 0.0}  # unused with delay_pool
     lam_m = lam["per_hour"]
