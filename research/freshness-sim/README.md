@@ -211,3 +211,31 @@ What changes with this axis:
   actions, about seven times the placeholder scenario; with P2B values it is R$ 0.46.
 
 The window is the first day of collection; the figures will be re-run as it grows.
+
+## Exploratory: the exposure window with the measured publication delay (`simulate_measured_delay.py`)
+
+`simulate_measured.py`, whose figures the paper cites, models the time from the AC registering a revocation to a CRL
+that lists it as the wait for the next CRL (phase uniform over the reissue interval) plus a dissemination of U(0, 4) h,
+the DOC-ICP-05 4.9.8 maximum. The collector now measures both (`fetch_delays.py`, `data/delays.json`):
+
+| Measured (first collection window) | n | Mean | Median | p95 | Max |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Registration by the AC → thisUpdate of the first CRL listing it | 166 | 0.72 h | 0.59 h | 2.65 h | 3.84 h |
+| thisUpdate → CRL obtained by an hourly poller (upper bound of dissemination) | 144 | 0.29 h | 0.20 h | 0.80 h | 0.91 h |
+
+```sh
+python3 -I fetch_delays.py && python3 -I simulate_measured_delay.py   # writes results_measured_delay.json (~1 min)
+```
+
+Exposure window, from compromise to a disseminated CRL listing the revocation:
+
+| Model | Mean | Median | p95 | Business hours | Off hours | Friday 19h |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Paper (next CRL + U(0, 4) h) | 15.45 h | 9.33 h | 53.8 h | 3.52 h | 20.5 h | 48.2 h |
+| Measured delay + measured dissemination (upper bound) | 14.33 h | 8.22 h | 52.7 h | 2.42 h | 19.4 h | 47.3 h |
+| Measured delay, no dissemination (lower bound) | 13.87 h | 7.75 h | 52.3 h | 1.96 h | 18.9 h | 46.8 h |
+
+Replacing the regulatory maximum with what the ACs actually do shortens the mean window by about 1.1 to 1.6 h; about
+14 of its 15 hours remain. Publishing and disseminating the CRL take under an hour; the rest is the wait for the AC to
+register the revocation in its working hours. With the measured delay, "always fetch" leaves R$ 2.79 per 1,000 actions
+that no policy removes (R$ 3.01 in the paper's model), and the ranking of the policies does not change.
