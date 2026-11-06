@@ -4,7 +4,7 @@ certificate stops being trustworthy (lambda) and the value of the actions.
 
 The measured lambda is a floor (results_measured.json: 11 end-user CRLs; expired certificates leave the CRL) and
 counts every revocation, not only compromises, so the comparison is repeated from 1x to 100x the measured rate,
-for the two Pix scales of value_scale.py (B2B, the main one, and P2B). The publication delay is the measured one
+for the two scenarios of value_scale.py (Pix, the main one, and company credit card), each with its own rate. The publication delay is the measured one
 (simulate_measured.py, reissue every 0.5 h).
 
 For each scenario: the gain of the proportional policy over a fixed deadline that makes the same number of status
@@ -29,7 +29,8 @@ MULTIPLIERS = (1, 3, 10, 30, 100)
 import value_scale as V  # noqa: E402
 from multiprocessing import Pool  # noqa: E402
 
-SCALES = {"Pix B2B": V.median("B2B"), "Pix P2B": V.median("P2B")}
+SCALES = {"Pix B2B": V.median("B2B"), "Cartão de crédito empresarial": V.median("CARD")}
+RATES = {V.median("B2B"): V.rate("B2B"), V.median("CARD"): V.rate("CARD")}
 MEDIANS_BRL = tuple(SCALES.values())
 
 
@@ -74,7 +75,7 @@ def best_gain(rows):
 def run(task):
     med, k, lam, pool = task
     base = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool,
-            "value_sigma": V.SIGMA}
+            "value_sigma": V.SIGMA, "actions_per_hour": RATES[med], "credentials": V.credentials_for(RATES[med])}
     rows = M.sweep({**base, "lambda_per_hour": lam * k, "value_median_brl": med}, lam * k)["rows"]
     floor, best = best_gain(rows)
     return {"multiplier": k, "median_brl": med, "lambda_per_hour": lam * k, "floor_brl_per_1000": floor, "best": best, "rows": rows}

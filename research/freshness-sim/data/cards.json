@@ -1,0 +1,38 @@
+{
+ "source": "https://olinda.bcb.gov.br/olinda/servico/MPV_DadosAbertos/versao/v1/odata/Quantidadeetransacoesdecartoes(trimestre=@trimestre)",
+ "fetched_at": "2026-11-06T17:27:47+00:00",
+ "products": [
+  "Empresarial",
+  "Corporativo"
+ ],
+ "function": "Crédito",
+ "quarters": [
+  {
+   "quarter": "20253",
+   "active_cards": 10577973,
+   "transactions": 211716230,
+   "value_brl": 58066306775.14
+  },
+  {
+   "quarter": "20254",
+   "active_cards": 10954372,
+   "transactions": 222794368,
+   "value_brl": 61519326114.82
+  },
+  {
+   "quarter": "20261",
+   "active_cards": 11761454,
+   "transactions": 224146436,
+   "value_brl": 62363418352.82
+  },
+  {
+   "quarter": "20262",
+   "active_cards": 12231759,
+   "transactions": 219023030,
+   "value_brl": 64999467816.73
+  }
+ ],
+ "mean_brl": 281.37,
+ "transactions_per_card_per_hour": 0.00882,
+ "transactions_per_card_per_month": 6.44
+}

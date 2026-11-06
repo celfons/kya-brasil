@@ -122,9 +122,9 @@ def main():
     per, pooled, age, stale, w = availability(av)
     lam = M.lambda_per_hour(m)["per_hour"]
     sigma = S.PARAMS["value_sigma"]
-    scales = {"mediana hipotética R$ 200": 200.0,
-              "Pix B2B (titulares diferentes)": V.median("B2B", sigma),  # the main scale (value_scale.py)
-              "Pix P2B (pessoa→empresa)": V.median("P2B", sigma)}
+    scales = {"Pix B2B (titulares diferentes)": V.median("B2B", sigma),  # the main scenario (value_scale.py)
+              "Cartão de crédito empresarial": V.median("CARD", sigma)}
+    rates = {"Pix B2B (titulares diferentes)": V.rate("B2B"), "Cartão de crédito empresarial": V.rate("CARD")}
 
     # delay pool and base parameters exactly as in simulate_measured.py (measured cadence)
     rng = np.random.default_rng(SEED)
@@ -141,7 +141,7 @@ def main():
            "availability": {"per_source": per, "pooled": pooled},
            "value_scales_median_brl": scales, "scenarios": {}}
     for name, median in scales.items():
-        prm = {**base, "value_median_brl": median}
+        prm = {**base, "value_median_brl": median, "actions_per_hour": rates[name], "credentials": V.credentials_for(rates[name])}
         rows = []
         for pol, sweep in S.build_policies(lam).items():
             for label, fn in sweep:

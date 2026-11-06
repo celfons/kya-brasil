@@ -273,29 +273,39 @@ def linha(rot, cs):
     return (f"{rot} & {m(lambda c: c['median_brl'], 0)} & {m(lambda c: c['floor_brl_per_1000'], 2)} & "
             f"{m(lambda c: c['proportional_L001']['fetches_per_1000'], 0)} & "
             f"{m(lambda c: c['proportional_L001']['expected_loss_per_1000_brl'], 2)} & "
+            f"{m(lambda c: c['fixed_12h']['fetches_per_1000'], 0)} & "
             f"{m(lambda c: c['fixed_12h']['expected_loss_per_1000_brl'], 2)} \\\\")
 
 
 sig = [por_nome["sigma no limite inferior"], por_nome["sigma 2,0"]]
 linhas = [
-    linha("Principal (Pix B2B)", [por_nome["principal"]]),
+    linha("Pix entre empresas (principal)", [por_nome["principal"]]),
+    linha("Cartão de crédito empresarial", [por_nome["cartão"]]),
     "\\midrule",
-    linha(f"$\\sigma$ de {br(sig[0]['sigma'], 2)} a {br(sig[1]['sigma'], 1)}", sig),
-    linha("0,2 ação/h", [por_nome["0,2 ação/h"]]),
-    linha("20 ações/h", [por_nome["20 ações/h"]]),
-    linha("Pix P2B", [por_nome["Pix P2B"]]),
+    linha(f"Pix, $\\sigma$ de {br(sig[0]['sigma'], 2)} a {br(sig[1]['sigma'], 1)}", sig),
+    linha("Pix, 10 vezes o ritmo", [por_nome["Pix, 10 vezes o ritmo"]]),
+    linha("Pix, 100 vezes o ritmo", [por_nome["Pix, 100 vezes o ritmo"]]),
+    linha("Cartão, 100 vezes o ritmo", [por_nome["cartão, 100 vezes o ritmo"]]),
 ]
-fixo = lambda n: br(por_nome[n]["fixed_12h"]["fetches_per_1000"], 0)  # noqa: E731
 with open(FIGS / "cenarios.tex", "w", encoding="utf-8") as f:
     f.write("% Gerado por scripts/figuras.py; não editar à mão.\n\\newcommand{\\LinhasCenarios}{%\n" + "\n".join(linhas) + "}\n")
-    f.write(f"\\newcommand{{\\FixoDozeConsultasBaixo}}{{{fixo('0,2 ação/h')}}}\n\\newcommand{{\\FixoDozeConsultasAlto}}{{{fixo('20 ações/h')}}}\n")
 pr = por_nome["principal"]
+ca = por_nome["cartão"]
+taxa = json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_rate.json", encoding="utf-8"))
+cart = json.load(open((RESEARCH / "freshness-sim" / "data") / "cards.json", encoding="utf-8"))
+fraude = json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_fraud.json", encoding="utf-8"))["total"]["fraud_share_of_value"]
 extra = {
     "PixBtoBMedia": br(cen["means_brl"]["B2B"], 0),
-    "PixPtoBMedia": br(cen["means_brl"]["P2B"], 0),
     "PixBtoBMediana": br(pr["median_brl"], 0),
+    "PixRitmoMes": br(taxa["per_company_per_month"], 0),
+    "PixRitmoHora": br(taxa["per_company_per_hour"], 2),
+    "CartaoMedia": br(cen["means_brl"]["CARD"], 0),
+    "CartaoMediana": br(ca["median_brl"], 0),
+    "CartaoRitmoMes": br(cart["transactions_per_card_per_month"], 1),
+    "CartaoTrimestres": f"{cart['quarters'][0]['quarter'][4:]}º trimestre de {cart['quarters'][0]['quarter'][:4]} ao {cart['quarters'][-1]['quarter'][4:]}º de {cart['quarters'][-1]['quarter'][:4]}",
+    "LFraude": br(fraude * cen["means_brl"]["B2B"], 2),
     "SigmaInf": br(cen["sigma_lower_bound"], 2),
-    "PixMeses": (lambda m: f"{m[0][4:]}/{m[0][:4]} a {m[-1][4:]}/{m[-1][:4]}")(json.load(open(RESEARCH / "freshness-sim" / "data" / "pix_cnae.json", encoding="utf-8"))["months"]),
+    "PixMeses": (lambda m: f"{m[0][4:]}/{m[0][:4]} a {m[-1][4:]}/{m[-1][:4]}")(json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_cnae.json", encoding="utf-8"))["months"]),
     "PropNaFrenteMin": str(min(c["proportional_on_front"] for c in cen["scenarios"])),
 }
 with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:

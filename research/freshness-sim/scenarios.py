@@ -1,7 +1,8 @@
 """
 Robustness of the policy comparison to the parameters that are not measured: the shape of the value distribution
-(sigma) and the traffic (actions per hour per credential), at the Pix B2B scale of value_scale.py; plus the P2B scale
-and the former hypothetical median of R$ 200, for reference. Each run also reports the loss on the top 1% of actions
+(sigma) and the traffic (actions per hour per credential). Two base scenarios, Pix and company credit card, each with
+the value and the rate of its own source (value_scale.py); then sigma and an agent more active than people (10 and
+100 times the observed rate). Each run also reports the loss on the top 1% of actions
 by value (tail_loss_per_1000_tail_actions_brl), where the proportional policy asks for the freshest evidence.
 
 Every scenario uses the measured rate and the measured cadence (simulate_measured.py, reissue every 0.5 h). When the
@@ -24,14 +25,15 @@ from sensitivity import measured_delay_pool  # noqa: E402
 
 LOW = V.sigma_lower_bound()
 Z99 = 2.326348  # the top 1% of the log-normal: median * exp(sigma * z_0.99)
+PIX, CARD = V.rate("B2B"), V.rate("CARD")
 SCENARIOS = [  # (name, kind, scale, sigma, actions per hour)
-    ("principal", "base", "B2B", V.SIGMA, 2.0),
-    ("sigma no limite inferior", "sigma", "B2B", LOW, 2.0),
-    ("sigma 2,0", "sigma", "B2B", 2.0, 2.0),
-    ("0,2 ação/h", "trafego", "B2B", V.SIGMA, 0.2),
-    ("20 ações/h", "trafego", "B2B", V.SIGMA, 20.0),
-    ("Pix P2B", "escala", "P2B", V.SIGMA, 2.0),
-    ("mediana hipotética R$ 200", "escala", None, V.SIGMA, 2.0),
+    ("principal", "base", "B2B", V.SIGMA, PIX),
+    ("cartão", "base", "CARD", V.SIGMA, CARD),
+    ("sigma no limite inferior", "sigma", "B2B", LOW, PIX),
+    ("sigma 2,0", "sigma", "B2B", 2.0, PIX),
+    ("Pix, 10 vezes o ritmo", "ritmo", "B2B", V.SIGMA, 10 * PIX),
+    ("Pix, 100 vezes o ritmo", "ritmo", "B2B", V.SIGMA, 100 * PIX),
+    ("cartão, 100 vezes o ritmo", "ritmo", "CARD", V.SIGMA, 100 * CARD),
 ]
 
 
@@ -42,7 +44,7 @@ def pick(rows, policy, setting):
 def run(task):
     name, kind, scale, sigma, rate, lam, pool = task
     med = V.median(scale, sigma) if scale else 200.0
-    creds = round(S.PARAMS["credentials"] * S.PARAMS["actions_per_hour"] / rate)
+    creds = V.credentials_for(rate)
     prm = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool,
            "lambda_per_hour": lam, "value_median_brl": med, "value_sigma": sigma, "actions_per_hour": rate,
            "credentials": creds, "tail_threshold_brl": med * math.exp(sigma * Z99)}

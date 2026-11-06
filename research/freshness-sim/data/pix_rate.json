@@ -1,0 +1,80 @@
+{
+ "source": "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/versao/v1/odata/TransacoesPixPorMunicipio(DataBase=@DataBase)",
+ "fetched_at": "2026-11-06T17:28:27+00:00",
+ "months": {
+  "202511": {
+   "pix_paid_by_companies": 117707211,
+   "paying_companies": 2797634,
+   "municipalities": 1537,
+   "per_company_per_month": 42.07
+  },
+  "202512": {
+   "pix_paid_by_companies": 340287498,
+   "paying_companies": 4190496,
+   "municipalities": 1668,
+   "per_company_per_month": 81.2
+  },
+  "202601": {
+   "pix_paid_by_companies": 359781247,
+   "paying_companies": 5008747,
+   "municipalities": 1829,
+   "per_company_per_month": 71.83
+  },
+  "202602": {
+   "pix_paid_by_companies": 408682869,
+   "paying_companies": 5426838,
+   "municipalities": 1992,
+   "per_company_per_month": 75.31
+  },
+  "202603": {
+   "pix_paid_by_companies": 532239534,
+   "paying_companies": 5947053,
+   "municipalities": 2209,
+   "per_company_per_month": 89.5
+  },
+  "202604": {
+   "pix_paid_by_companies": 563944831,
+   "paying_companies": 6676740,
+   "municipalities": 2496,
+   "per_company_per_month": 84.46
+  },
+  "202605": {
+   "pix_paid_by_companies": 651170961,
+   "paying_companies": 7468388,
+   "municipalities": 2845,
+   "per_company_per_month": 87.19
+  },
+  "202606": {
+   "pix_paid_by_companies": 686983920,
+   "paying_companies": 8185264,
+   "municipalities": 3338,
+   "per_company_per_month": 83.93
+  },
+  "202607": {
+   "pix_paid_by_companies": 785783604,
+   "paying_companies": 9792193,
+   "municipalities": 3986,
+   "per_company_per_month": 80.25
+  },
+  "202608": {
+   "pix_paid_by_companies": 946866820,
+   "paying_companies": 11809373,
+   "municipalities": 5002,
+   "per_company_per_month": 80.18
+  },
+  "202609": {
+   "pix_paid_by_companies": 988350820,
+   "paying_companies": 13227532,
+   "municipalities": 5572,
+   "per_company_per_month": 74.72
+  },
+  "202610": {
+   "pix_paid_by_companies": 1049965990,
+   "paying_companies": 13387379,
+   "municipalities": 5572,
+   "per_company_per_month": 78.43
+  }
+ },
+ "per_company_per_hour": 0.10603,
+ "per_company_per_month": 77.42
+}
