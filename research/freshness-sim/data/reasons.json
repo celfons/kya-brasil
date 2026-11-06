@@ -1,0 +1,80 @@
+{
+ "collector": "https://kya-icp-collector.marcelfons.workers.dev",
+ "fetched_at": "2026-11-06T16:11:20+00:00",
+ "sources": {
+  "uf-ac-soluti-multipla-v5": {
+   "ac": "AC SOLUTI Multipla v5",
+   "entries": 33919,
+   "reasons": {
+    "sem motivo": 33919
+   }
+  },
+  "uf-ac-certisign-rfb-g5": {
+   "ac": "AC Certisign RFB G5",
+   "entries": 7631,
+   "reasons": {
+    "key_compromise": 4015,
+    "cessation_of_operation": 1419,
+    "sem motivo": 934,
+    "ca_compromise": 644,
+    "affiliation_changed": 438,
+    "superseded": 171,
+    "certificate_hold": 10
+   }
+  },
+  "uf-ac-serpro-rfb-v5": {
+   "ac": "Autoridade Certificadora SERPRORFBv5",
+   "entries": 77396,
+   "reasons": {
+    "sem motivo": 77396
+   }
+  },
+  "uf-ac-serasa-rfb-v5": {
+   "ac": "AC Serasa RFB v5",
+   "entries": 1074,
+   "reasons": {
+    "key_compromise": 1009,
+    "sem motivo": 65
+   }
+  },
+  "uf-ac-certisign-multipla-g7": {
+   "ac": "AC Certisign Multipla G7",
+   "entries": 1217,
+   "reasons": {
+    "key_compromise": 492,
+    "sem motivo": 356,
+    "ca_compromise": 157,
+    "cessation_of_operation": 137,
+    "superseded": 41,
+    "affiliation_changed": 32,
+    "certificate_hold": 2
+   }
+  },
+  "uf-ac-certisign-multipla-g8": {
+   "ac": "AC Certisign Multipla G8",
+   "entries": 350,
+   "reasons": {
+    "key_compromise": 198,
+    "sem motivo": 67,
+    "cessation_of_operation": 55,
+    "affiliation_changed": 17,
+    "ca_compromise": 9,
+    "superseded": 4
+   }
+  }
+ },
+ "total": {
+  "entries": 121587,
+  "with_reason": 8850,
+  "reasons": {
+   "sem motivo": 112737,
+   "key_compromise": 5714,
+   "cessation_of_operation": 1611,
+   "ca_compromise": 810,
+   "affiliation_changed": 487,
+   "superseded": 216,
+   "certificate_hold": 12
+  },
+  "key_compromise_share_of_with_reason": 0.6456
+ }
+}

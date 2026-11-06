@@ -1,7 +1,8 @@
 """
 Robustness of the policy comparison to the parameters that are not measured: the shape of the value distribution
 (sigma) and the traffic (actions per hour per credential), at the Pix B2B scale of value_scale.py; plus the P2B scale
-and the former hypothetical median of R$ 200, for reference.
+and the former hypothetical median of R$ 200, for reference. Each run also reports the loss on the top 1% of actions
+by value (tail_loss_per_1000_tail_actions_brl), where the proportional policy asks for the freshest evidence.
 
 Every scenario uses the measured rate and the measured cadence (simulate_measured.py, reissue every 0.5 h). When the
 traffic changes, the number of credentials changes inversely, so every run simulates about the same number of actions.
@@ -9,6 +10,7 @@ traffic changes, the number of credentials changes inversely, so every run simul
     python3 -I scenarios.py   # numpy only; writes scenarios.json (a few minutes on 4 cores, the 20/h run is the longest)
 """
 import json
+import math
 import os
 import sys
 from multiprocessing import Pool
@@ -21,6 +23,7 @@ import value_scale as V  # noqa: E402
 from sensitivity import measured_delay_pool  # noqa: E402
 
 LOW = V.sigma_lower_bound()
+Z99 = 2.326348  # the top 1% of the log-normal: median * exp(sigma * z_0.99)
 SCENARIOS = [  # (name, kind, scale, sigma, actions per hour)
     ("principal", "base", "B2B", V.SIGMA, 2.0),
     ("sigma no limite inferior", "sigma", "B2B", LOW, 2.0),
@@ -42,7 +45,7 @@ def run(task):
     creds = round(S.PARAMS["credentials"] * S.PARAMS["actions_per_hour"] / rate)
     prm = {**S.PARAMS, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}, "delay_pool": pool,
            "lambda_per_hour": lam, "value_median_brl": med, "value_sigma": sigma, "actions_per_hour": rate,
-           "credentials": creds}
+           "credentials": creds, "tail_threshold_brl": med * math.exp(sigma * Z99)}
     sw = M.sweep(prm, lam)
     rows, front = sw["rows"], sw["pareto"]
     prop, fixed = pick(rows, "proporcional ao valor", "L=0.01"), pick(rows, "prazo fixo", "12 h")

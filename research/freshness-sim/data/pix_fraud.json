@@ -1,0 +1,100 @@
+{
+ "source": "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/versao/v1/odata/",
+ "fetched_at": "2026-11-06T16:12:44+00:00",
+ "months": {
+  "202510": {
+   "fraud_count": 367830,
+   "fraud_value_brl": 769471947.32,
+   "fraud_per_100k": 5.7,
+   "pix_value_brl": 2766788281273.46,
+   "pix_count": 6453005306
+  },
+  "202511": {
+   "fraud_count": 288559,
+   "fraud_value_brl": 859836078.02,
+   "fraud_per_100k": 4.466,
+   "pix_value_brl": 2607786621810.23,
+   "pix_count": 6460898392
+  },
+  "202512": {
+   "fraud_count": 322514,
+   "fraud_value_brl": 573914391.56,
+   "fraud_per_100k": 4.543,
+   "pix_value_brl": 3146763361528.94,
+   "pix_count": 7098633064
+  },
+  "202601": {
+   "fraud_count": 279022,
+   "fraud_value_brl": 723000026.94,
+   "fraud_per_100k": 4.384,
+   "pix_value_brl": 2700003643911.12,
+   "pix_count": 6364175378
+  },
+  "202602": {
+   "fraud_count": 281562,
+   "fraud_value_brl": 655788480.41,
+   "fraud_per_100k": 4.703,
+   "pix_value_brl": 2563439315830.26,
+   "pix_count": 5986274045
+  },
+  "202603": {
+   "fraud_count": 308769,
+   "fraud_value_brl": 705339111.55,
+   "fraud_per_100k": 4.58,
+   "pix_value_brl": 3012737794734.11,
+   "pix_count": 6741996455
+  },
+  "202604": {
+   "fraud_count": 282965,
+   "fraud_value_brl": 598128398.42,
+   "fraud_per_100k": 4.235,
+   "pix_value_brl": 2896675312318.11,
+   "pix_count": 6680896774
+  },
+  "202605": {
+   "fraud_count": 271641,
+   "fraud_value_brl": 630608466.8,
+   "fraud_per_100k": 3.814,
+   "pix_value_brl": 2957488405988.77,
+   "pix_count": 7121879045
+  },
+  "202606": {
+   "fraud_count": 271222,
+   "fraud_value_brl": 558322375.72,
+   "fraud_per_100k": 3.884,
+   "pix_value_brl": 3044127221869.05,
+   "pix_count": 6982273524
+  },
+  "202607": {
+   "fraud_count": 293646,
+   "fraud_value_brl": 521996849.56,
+   "fraud_per_100k": 4.057,
+   "pix_value_brl": 3223292570448.9,
+   "pix_count": 7238374542
+  },
+  "202608": {
+   "fraud_count": 262741,
+   "fraud_value_brl": 610108612.21,
+   "fraud_per_100k": 3.566,
+   "pix_value_brl": 3174483088769.54,
+   "pix_count": 7366981446
+  },
+  "202609": {
+   "fraud_count": 274892,
+   "fraud_value_brl": 733243416.73,
+   "fraud_per_100k": 3.834,
+   "pix_value_brl": 3225144302036.89,
+   "pix_count": 7169724394
+  }
+ },
+ "total": {
+  "first": "202510",
+  "last": "202609",
+  "fraud_value_brl": 7939758155.24,
+  "pix_value_brl": 35318729920519.38,
+  "fraud_share_of_value": 0.0002248030484988415,
+  "fraud_count": 3505363.0,
+  "pix_count": 81665112365.0,
+  "fraud_per_100k": 4.292362917879639
+ }
+}

@@ -175,6 +175,18 @@ Writes `scenarios.json`. Per 1,000 actions:
 | Pix P2B | 31 | 1.6 | 2.0 | 0.46 | 21 | 0.76 | 40 | 0.63 |
 | mediana hipotética R$ 200 | 200 | 1.6 | 2.0 | 3.00 | 34 | 3.90 | 40 | 4.11 |
 
+## Where the policy matters, and how large the loss is (exploratory)
+
+- **Tail.** `scenarios.py` also reports the loss on the top 1% of actions by value. In the main scenario, the
+  proportional policy with L = 0.03 makes about as many fetches as a fixed 12 h deadline but loses on those actions
+  about as little as always fetching; the fixed deadline loses about a third more.
+- **Refusals.** `simulate_availability.py` now uses the same B2B scale: fixed deadlines of 15 min and 1 h refuse most
+  legitimate actions, the proportional policy and the 12 h deadline about 1% to 2%.
+- **Yardstick.** `fetch_pix_fraud.py` (`data/pix_fraud.json`): contested Pix accepted as fraud over the last 12
+  months with statistics, as a share of all Pix value, to compare with the simulated expected loss.
+- **Reasons.** `fetch_reasons.py` (`data/reasons.json`, needs `cryptography`): reason codes in the current end-user
+  CRLs, to bound the share of key compromise in the revocation rate.
+
 ## Sensitivity to the rate
 
 `sensitivity.py` (seed 20261105, offline, about 10 minutes on 4 cores) repeats the measured comparison from 1x to

@@ -95,6 +95,9 @@ def simulate(policy_fn, rng_seed, lam, prm):
     value_total = 0.0
     values_all = []
     fetch_values = []
+    tail = prm.get("tail_threshold_brl")  # optional: loss on the actions at or above this value
+    tail_loss = 0.0
+    tail_n = 0
     for _ in range(n_cred):
         n = rng.poisson(prm["actions_per_hour"] * H)
         times = np.sort(rng.uniform(0, H, n))
@@ -115,6 +118,9 @@ def simulate(policy_fn, rng_seed, lam, prm):
             lo = np.maximum(0.0, t_f - d)
             p = float(np.mean(np.exp(-lam * lo) - math.exp(-lam * t)))
             loss += v * max(0.0, p)
+            if tail is not None and v >= tail:
+                tail_loss += v * max(0.0, p)
+                tail_n += 1
             actions += 1
             value_total += v
             values_all.append(v)
@@ -126,6 +132,9 @@ def simulate(policy_fn, rng_seed, lam, prm):
         "expected_loss_share_of_value": loss / value_total,
         "values": np.array(values_all),
         "fetch_values": np.array(fetch_values),
+        "tail_actions": tail_n,
+        "tail_loss_per_1000_tail_actions_brl": 1000.0 * tail_loss / tail_n if tail_n else None,
+        "tail_share_of_loss": tail_loss / loss if tail is not None and loss else None,
     }
 
 

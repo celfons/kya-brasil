@@ -135,8 +135,12 @@ def sweep(prm, lam_assumed):
     for name, sw in S.build_policies(lam_assumed).items():
         for label, fn in sw:
             r = S.simulate(fn, prm["seed"], prm["lambda_per_hour"], prm)
-            flat.append({"policy": name, "setting": label, "fetches_per_1000": round(r["fetches_per_1000"], 2),
-                         "expected_loss_per_1000_brl": round(r["expected_loss_per_1000_brl"], 6)})
+            row = {"policy": name, "setting": label, "fetches_per_1000": round(r["fetches_per_1000"], 2),
+                   "expected_loss_per_1000_brl": round(r["expected_loss_per_1000_brl"], 6)}
+            if prm.get("tail_threshold_brl") is not None:
+                row["tail_loss_per_1000_tail_actions_brl"] = round(r["tail_loss_per_1000_tail_actions_brl"], 4)
+                row["tail_share_of_loss"] = round(r["tail_share_of_loss"], 4)
+            flat.append(row)
     front = [flat[i] for i in sorted(S.pareto(flat), key=lambda i: flat[i]["fetches_per_1000"])]
     return {"rows": flat, "pareto": front}
 
