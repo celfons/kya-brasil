@@ -142,6 +142,25 @@ python3 -I research/freshness-sim/sensitivity.py
 Sem rede, semente fixa, cerca de 40 minutos em 4 vCPUs. Esperado: `sensitivity.json` igual ao do repositório: o
 ganho da política proporcional sobre o prazo fixo de mesmo número de consultas, de 1 a 100 vezes a taxa medida.
 
+## Reivindicação R7 (exploratória): atraso medido e disponibilidade das LCR (seção "Atualidade do status", parágrafo "Atraso medido")
+
+```bash
+python3 -I research/freshness-sim/simulate_measured_delay.py
+python3 -I research/freshness-sim/simulate_availability.py
+```
+
+Sem rede (lê `research/freshness-sim/data/delays.json`, `availability.json` e `pix.json`), semente fixa, poucos
+minutos. Esperado: `results_measured_delay.json` (atraso até a LCR com mediana de 0,59 h e p95 de 2,65 h em 166
+revogações; janela média de 13,9–14,3 h) e `results_availability.json` (recusa de 99% e 46% das ações legítimas com
+prazos fixos de 15 min e 1 h) iguais aos do repositório. Os dados são posteriores ao arquivamento no Zenodo, por isso a
+reivindicação é exploratória. Para refazê-los a partir do coletor (rede; os números mudam com a coleta):
+
+```bash
+python3 -I research/freshness-sim/fetch_delays.py
+python3 -I research/freshness-sim/fetch_availability.py
+python3 -I research/freshness-sim/fetch_pix.py
+```
+
 ## Reivindicação R6: os números do texto
 
 ```bash
@@ -151,7 +170,8 @@ python3 -I research/paper/figuras.py
 
 Sem rede, segundos. Esperado: `research/paper/out/numeros.tex` com as macros que o artigo cita (por exemplo
 `\TotalRevog`, `\JanelaMedia`, `\SensUmPct`, `\CompatCoreOk`) e as figuras em `out/*.pdf`, a partir dos
-resultados das reivindicações R2 a R5.
+resultados das reivindicações R2 a R5. Os números do parágrafo exploratório (R7) saem de
+`results_measured_delay.json` e `results_availability.json`.
 
 # LICENSE
 
