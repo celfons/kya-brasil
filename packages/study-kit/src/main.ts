@@ -22,6 +22,8 @@ export interface Io {
   err: (s: string) => void;
   /** Asks one question in the terminal and returns the answer (without the newline), or null when the input ended. */
   ask: (q: string) => Promise<string | null>;
+  /** HTTP client for `send` (the only command that uses the network); tests inject one. */
+  fetch?: typeof fetch;
   /** True after Ctrl-C in a question: the command stops without saving anything. */
   interrupted?: () => boolean;
   /** Releases the terminal (an open readline keeps the process alive). */
@@ -93,12 +95,16 @@ function defaultIo(): Io {
   };
 }
 
-const HELP = `kya-study: kit do estudo de caso KYA Brasil (tudo local, sem rede)
+/** The H3 study inbox (kya-icp, POST /study/reports). KYA_STUDY_SEND_URL overrides it, for tests. */
+export const SEND_URL = "https://kya-icp-collector.marcelfons.workers.dev/study/reports";
+
+const HELP = `kya-study: kit do estudo de caso KYA Brasil (tudo local; só o send usa a rede)
 
   kya-study init [pasta]     termo de consentimento e criação da pasta de trabalho
   kya-study check [tarefa]   avalia as tarefas (t1, t2, t3, t4; sem argumento: todas)
   kya-study finish           perguntas abertas do fim
   kya-study report           gera o relatório anônimo para enviar ao pesquisador
+  kya-study send             gera o relatório e o envia, anônimo, ao pesquisador (pede confirmação)
 
 Opções: --dir <pasta>  pasta de trabalho (padrão: a atual ou uma acima dela)`;
 
@@ -127,6 +133,7 @@ async function run(argv: string[], io: Io): Promise<number> {
     return v;
   };
   const yesConsent = flag("--yes-consent") || io.env.KYA_STUDY_CONSENT === "aceito";
+  const yes = flag("--yes");
   const answersFile = option("--answers");
   const kit = option("--kit") ?? io.env.KYA_STUDY_KIT_SPEC;
   const dirOpt = option("--dir");
@@ -141,6 +148,8 @@ async function run(argv: string[], io: Io): Promise<number> {
         return await finish(io, workspace(io, dirOpt), answersFile ? resolve(io.cwd, answersFile) : undefined);
       case "report":
         return report(io, workspace(io, dirOpt));
+      case "send":
+        return await send(io, workspace(io, dirOpt), yes);
       case undefined:
       case "help":
       case "--help":
@@ -354,7 +363,7 @@ async function finish(io: Io, ws: string, answersFile?: string): Promise<number>
   const cfg = readConfig(ws);
   cfg.finished_at ??= new Date().toISOString();
   writeConfig(ws, cfg);
-  io.out("\nRespostas salvas nesta pasta. Agora gere o relatório: npx kya-study report");
+  io.out("\nRespostas salvas nesta pasta. Agora envie o relatório anônimo: npx kya-study send");
   return 0;
 }
 
@@ -378,6 +387,45 @@ Relatório anônimo gravado em:
   ${show(file)}
 
 Ele não contém código, nomes, caminhos nem dados da máquina; abra e confira se quiser.
-Envie este arquivo ao pesquisador pelo canal combinado. Obrigado pela participação!`);
+Para enviá-lo ao pesquisador, anônimo: npx kya-study send
+(ou envie o arquivo pelo canal combinado). Obrigado pela participação!`);
   return 0;
+}
+
+// ---------------------------------------------------------------- send
+
+/** Writes the report and posts it to the study inbox, after showing what goes where and asking. */
+async function send(io: Io, ws: string, yes: boolean): Promise<number> {
+  const { file, report: r } = writeReport(ws);
+  const body = readFileSync(file);
+  const url = io.env.KYA_STUDY_SEND_URL || SEND_URL;
+  io.out(`
+Vai ser enviado, e só isto:
+
+  o arquivo ${show(file)} (${body.byteLength} bytes, identificador ${r.participant_id})
+  para ${url}
+
+Abra o arquivo antes, se quiser: ele não contém código, nomes, caminhos nem dados da máquina.
+${r.finished ? "" : "(você ainda não rodou kya-study finish: o relatório vai sem as respostas abertas)\n"}`);
+  if (!yes) {
+    const v = (await io.ask("Enviar agora? (s/n)\n> "))?.trim().toLowerCase();
+    if (!v || !/^(s|sim|y|yes)$/.test(v)) {
+      io.out("Nada foi enviado. O arquivo continua na pasta; você pode enviar depois.");
+      return 0;
+    }
+  }
+  const f = io.fetch ?? globalThis.fetch;
+  try {
+    const res = await f(url, { method: "POST", headers: { "content-type": "application/json" }, body, signal: AbortSignal.timeout(30_000) });
+    if (res.status === 201) {
+      io.out("Enviado. Obrigado pela participação!");
+      return 0;
+    }
+    const detail = await res.text().catch(() => "");
+    io.err(`O envio falhou (HTTP ${res.status}${detail ? `: ${detail.slice(0, 200)}` : ""}). Envie o arquivo pelo canal combinado.`);
+    return 1;
+  } catch (e) {
+    io.err(`O envio falhou (${(e as Error).message}). Envie o arquivo pelo canal combinado.`);
+    return 1;
+  }
 }

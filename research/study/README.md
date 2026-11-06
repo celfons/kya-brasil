@@ -40,8 +40,9 @@ participant's computer. This folder holds the protocol and `analyze.py`, which a
    question; at the end of input, e.g. `< /dev/null`, it stops and records the rest as unanswered; Ctrl-C saves
 nothing; running it again asks before replacing the earlier answers, and keeps them unless the new round is
 confirmed and completed) and
-   `npx kya-study report`, which writes `kya-study-report-<id>.json`. The participant reads it if they want and
-   sends that one file to the researcher by the agreed channel.
+   `npx kya-study send`, which writes `kya-study-report-<id>.json`, shows what goes where, asks, and posts it to the
+   study inbox (kya-icp, `POST /study/reports`; kept in R2 under `study/reports/`, no IP address, nothing served
+   back). The sender is not known to the researcher. `report` plus a manual channel remains possible.
 4. **Analysis.** Put the reports in one folder and run `python3 -I analyze.py <folder>` (standard library only).
    It writes `summary.md`, `participants.csv`, `tasks.csv` and `answers.md` (open answers grouped by question,
    for qualitative coding) to `<folder>/analysis`. A file that is not valid JSON or does not have the report's
@@ -104,7 +105,7 @@ answers, the AI-assistant answer
 machine identifier, network data. The OS is reported as a family (`linux`, `macos`, `windows`), the date as year
 and month. Free-text answers are scrubbed of every absolute path (`/a/b`, `C:\a`, `\\server\share`, `~/a`;
 the user name goes with them), the host name and e-mail addresses; ordinary words are kept. The
-kit makes no network connection; nothing leaves the computer until the participant sends the report.
+kit's only network call is `send`, run and confirmed by the participant; nothing leaves the computer before.
 
 ## Ethics
 

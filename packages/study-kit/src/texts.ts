@@ -37,11 +37,14 @@ O QUE O KIT NÃO REGISTRA:
   - o conteúdo do seu código;
   - nome, e-mail, usuário, caminho de pastas, nome da máquina ou outro
     identificador do computador;
-  - nada da sua rede: o kit não faz nenhuma conexão de rede.
+  - nada da sua rede: o kit só faz uma conexão de rede, a do envio do relatório,
+    quando você rodar kya-study send e confirmar. O servidor guarda só o
+    relatório e a hora em que chegou, sem o seu endereço IP.
 
 Você recebe um identificador anônimo aleatório. Nada sai do seu computador até
-você mesmo enviar o arquivo de relatório (kya-study report) ao pesquisador; você
-pode abrir e ler o arquivo antes de enviar.
+você mesmo enviar o relatório ao pesquisador (kya-study send, ou o arquivo
+gerado por kya-study report, pelo canal combinado); você pode abrir e ler o
+arquivo antes de enviar.
 
 O relatório anônimo que você enviar poderá ser publicado, junto com os dos
 outros participantes, num repositório de dados abertos, para que outras
@@ -87,7 +90,8 @@ escritório para ela. A política decidida pela diretoria é:
 - Implemente as funções em \`src/emitir.mjs\` e \`src/verificar.mjs\`. Você pode criar outros arquivos em \`src/\`.
 - Depois de cada mudança rode \`npx kya-study check\` (todas as tarefas) ou \`npx kya-study check t1\` (uma só).
   Rodar o check muitas vezes é normal e esperado.
-- Quando terminar (ou quando decidir parar): \`npx kya-study finish\` e depois \`npx kya-study report\`.
+- Quando terminar (ou quando decidir parar): \`npx kya-study finish\` e depois \`npx kya-study send\`, que gera
+  o relatório anônimo, mostra o que vai ser enviado e pede confirmação.
   Nas perguntas finais, **conte com detalhe** onde travou, o que procurou e o que faltou: é a parte mais
   importante do estudo.
 
