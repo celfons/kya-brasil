@@ -32,6 +32,8 @@ freshness does not help in those cases (`research/freshness-sim`).
 
 The allowed age is `min(max_age_seconds, L / (value × λ))`: larger values require more recent status. With the
 measured λ, the simulation puts the proportional rule on the Pareto frontier when there are few status lookups.
+The rule is a research-backed suggestion for calibrating the policy, not a requirement of the library: L, λ and
+the ceiling are your choices, and so is the residual risk they leave.
 Whatever the policy, a residual window remains: in ICP-Brasil, revocation happens mostly on business days, during
 business hours, and takes on average about 15 hours between the revocation request and the CRL that shows it
 (`research/freshness-sim/README.md`). Short validity and low ceilings are what cover that window.
