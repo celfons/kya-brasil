@@ -4,8 +4,9 @@ The experiment kit for the KYA Brasil case study (hypothesis H3: *an independent
 only the documentation, without changing the library*). It measures use and implementation objectively, ends with
 a short open questionnaire, and writes **one anonymous report file** that the participant sends to the researcher.
 
-- **Local only.** No telemetry in the libraries, no network calls by the kit. State lives in the workspace's
-  `.kya-study/` folder until the participant sends the report.
+- **Local only.** No telemetry in the libraries. The kit's one network call is `send`, which posts the anonymous
+  report to the study inbox only when the participant runs it and confirms; the inbox keeps the report and its
+  arrival time, no IP address (kya-icp, `POST /study/reports`). State lives in the workspace's `.kya-study/` folder.
 - **Throwaway test PKI.** `init` creates a fake e-CNPJ, e-CPF, AC and CRL, marked TEST ONLY. Never trust them.
 - **Graded with the library itself.** Every task is checked with `@kya-brasil/core` and
   `@kya-brasil/agent-tools`, not by reimplementing their rules.
@@ -20,6 +21,7 @@ cd estudo-kya && npm install
 npx kya-study check [t1|t2|t3|t4]       # grade one task or all; run as often as needed
 npx kya-study finish                    # five open questions, "did you use an AI assistant?", "did you change the library?"
 npx kya-study report                    # writes kya-study-report-<id>.json
+npx kya-study send                      # writes it, shows what goes where, asks, and posts it to the study inbox
 ```
 
 `--dir <folder>` points `check`, `finish` and `report` at a workspace; otherwise the current folder or a parent
@@ -110,9 +112,10 @@ cinco perguntas no fim. Busca na web e assistentes de IA são permitidos; no fim
 1. Numa pasta vazia: `npx @kya-brasil/study-kit init estudo-kya`. Leia o termo e digite `aceito`.
 2. `cd estudo-kya && npm install`, e leia o `TASKS.md`.
 3. Implemente `src/emitir.mjs` e `src/verificar.mjs` e rode `npx kya-study check` quantas vezes quiser.
-4. No fim: `npx kya-study finish` e `npx kya-study report`. Envie ao pesquisador **só** o arquivo
-   `kya-study-report-<id>.json` (você pode abri-lo antes).
+4. No fim: `npx kya-study finish` e `npx kya-study send`, que gera o relatório anônimo, mostra o que vai ser
+   enviado e pede confirmação. Se preferir, `npx kya-study report` e envie **só** o arquivo
+   `kya-study-report-<id>.json` pelo canal combinado (você pode abri-lo antes).
 
-O kit não faz nenhuma conexão de rede e não guarda seu código, nome, e-mail nem dados da máquina. Os certificados
+O kit só usa a rede no `send`, quando você confirma, e não guarda seu código, nome, e-mail nem dados da máquina. Os certificados
 da pasta `pki/` são de teste, sem valor. Você pode parar a qualquer momento: é só não enviar o relatório e apagar
 a pasta.

@@ -346,3 +346,49 @@ describe("QA 5 (second round): analyze.py edge cases", () => {
     expect(missing.stderr).toContain("not a folder");
   });
 });
+
+describe("send: the anonymous report to the study inbox", () => {
+  const mockFetch = (status: number, calls: { url: string; body: string; headers: Record<string, string> }[]) =>
+    (async (url: string, init: RequestInit) => {
+      calls.push({ url, body: new TextDecoder().decode(init.body as Uint8Array), headers: init.headers as Record<string, string> });
+      return new Response(status === 201 ? '{"ok":true}' : '{"ok":false,"error":"x"}', { status });
+    }) as unknown as typeof fetch;
+
+  it("shows what goes where, asks, and posts exactly the report file", async () => {
+    const ws = await workspace();
+    const calls: { url: string; body: string; headers: Record<string, string> }[] = [];
+    const t = io(ws);
+    expect(await main(["send"], { ...t.io, ask: async () => "s", fetch: mockFetch(201, calls) })).toBe(0);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.url).toBe("https://kya-icp-collector.marcelfons.workers.dev/study/reports");
+    expect(calls[0]!.headers["content-type"]).toBe("application/json");
+    const id = readConfig(ws).participant_id;
+    expect(calls[0]!.body).toBe(readFileSync(join(ws, `kya-study-report-${id}.json`), "utf8"));
+    expect(t.text()).toContain("Vai ser enviado, e só isto");
+    expect(t.text()).toContain("Enviado.");
+  });
+
+  it("sends nothing when the participant says no, or the input ends", async () => {
+    const ws = await workspace();
+    const calls: { url: string; body: string; headers: Record<string, string> }[] = [];
+    expect(await main(["send"], { ...io(ws).io, ask: async () => "n", fetch: mockFetch(201, calls) })).toBe(0);
+    expect(await main(["send"], { ...io(ws).io, ask: async () => null, fetch: mockFetch(201, calls) })).toBe(0);
+    expect(calls).toHaveLength(0);
+  });
+
+  it("an HTTP or network failure says so and points to the manual channel", async () => {
+    const ws = await workspace();
+    const t = io(ws);
+    expect(await main(["send", "--yes"], { ...t.io, fetch: mockFetch(429, []) })).toBe(1);
+    expect(t.text()).toContain("HTTP 429");
+    const down = (async () => { throw new Error("offline"); }) as unknown as typeof fetch;
+    const t2 = io(ws);
+    expect(await main(["send", "--yes"], { ...t2.io, fetch: down })).toBe(1);
+    expect(t2.text()).toContain("canal combinado");
+  });
+
+  it("the consent says the only network use is the send, and no IP is kept", () => {
+    expect(CONSENT).toContain("kya-study send");
+    expect(CONSENT).toContain("sem o seu endereço IP");
+  });
+});
