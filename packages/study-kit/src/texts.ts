@@ -7,6 +7,11 @@ import { COMPANY_CNPJ } from "./pki.js";
 
 const fmtCnpj = (c: string) => `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}`;
 const DOCS = "https://github.com/celfons/kya-brasil";
+/**
+ * The documentation is frozen for the case study at this git tag: every participant reads the same text, even if
+ * the main branch changes during the collection (research/study/README.md, "Documentation freeze").
+ */
+export const DOCS_TAG = "study-h3-docs-1";
 
 export const CONSENT = `
 ==================================================================================
@@ -38,6 +43,10 @@ Você recebe um identificador anônimo aleatório. Nada sai do seu computador at
 você mesmo enviar o arquivo de relatório (kya-study report) ao pesquisador; você
 pode abrir e ler o arquivo antes de enviar.
 
+O relatório anônimo que você enviar poderá ser publicado, junto com os dos
+outros participantes, num repositório de dados abertos, para que outras
+pessoas confiram a análise. Ele não contém nada que identifique você.
+
 Você pode desistir a qualquer momento, sem dar motivo: basta não enviar o
 relatório e apagar a pasta.
 
@@ -68,9 +77,9 @@ escritório para ela. A política decidida pela diretoria é:
 
 ## Regras
 
-- Comece pela **documentação**: o [README (seção "Start here")](${DOCS}#start-here), os READMEs de
-  [\`@kya-brasil/core\`](${DOCS}/tree/main/packages/core) e [\`@kya-brasil/agent-tools\`](${DOCS}/tree/main/packages/agent-tools),
-  o [guia de parâmetros](${DOCS}/blob/main/docs/choosing-parameters.md) e os [exemplos](${DOCS}/tree/main/examples/quickstart).
+- Comece pela **documentação** (em inglês), na versão fixada para o estudo: o [README (seção "Start here")](${DOCS}/blob/${DOCS_TAG}/README.md#start-here), os READMEs de
+  [\`@kya-brasil/core\`](${DOCS}/tree/${DOCS_TAG}/packages/core) e [\`@kya-brasil/agent-tools\`](${DOCS}/tree/${DOCS_TAG}/packages/agent-tools),
+  o [guia de parâmetros](${DOCS}/blob/${DOCS_TAG}/docs/choosing-parameters.md) e os [exemplos](${DOCS}/tree/${DOCS_TAG}/examples/quickstart).
   **Busca na web e assistentes de IA (ChatGPT, Copilot, Claude etc.) são permitidos**; no fim o kit pergunta se
   você usou assistente de IA e em quais tarefas.
 - **Não altere a biblioteca** (arquivos em \`node_modules/@kya-brasil\`). Se você sentir que precisa, anote:
@@ -79,6 +88,8 @@ escritório para ela. A política decidida pela diretoria é:
 - Depois de cada mudança rode \`npx kya-study check\` (todas as tarefas) ou \`npx kya-study check t1\` (uma só).
   Rodar o check muitas vezes é normal e esperado.
 - Quando terminar (ou quando decidir parar): \`npx kya-study finish\` e depois \`npx kya-study report\`.
+  Nas perguntas finais, **conte com detalhe** onde travou, o que procurou e o que faltou: é a parte mais
+  importante do estudo.
 
 ## T1 · Emitir
 

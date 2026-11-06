@@ -9,6 +9,7 @@ import { main } from "./main.js";
 import { makeCrl } from "./pki.js";
 import { gradePolicy, referenceMandate } from "./policy.js";
 import { scrub } from "./report.js";
+import { CONSENT } from "./texts.js";
 import { kitSpec, paths, readAttempts, readConfig } from "./workspace.js";
 
 const fixtures = fileURLToPath(new URL("../test/fixtures/", import.meta.url));
@@ -196,6 +197,15 @@ describe("QA 7, 8 and 15", () => {
     const text = JSON.stringify(r);
     for (const s of ["pagar_acme_industria", "XYZ", "segredo_interno", "ACME"]) expect(text).not.toContain(s);
     expect(r.deviations.map((d) => d.detail)).toContain("extra actions: 1");
+  });
+
+  it("TASKS.md links to the documentation frozen at the study tag, and the consent mentions archiving", async () => {
+    const ws = await workspace();
+    const tasks = readFileSync(join(ws, "TASKS.md"), "utf8");
+    expect(tasks).toContain("/tree/study-h3-docs-1/packages/core");
+    expect(tasks).toContain("/blob/study-h3-docs-1/README.md#start-here");
+    expect(tasks).not.toMatch(/\/(tree|blob)\/main\//);
+    expect(CONSENT).toContain("repositório de dados abertos");
   });
 
   it("the starter project references the kit as it was installed", () => {

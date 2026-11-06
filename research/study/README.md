@@ -47,6 +47,21 @@ confirmed and completed) and
    for qualitative coding) to `<folder>/analysis`. A file that is not valid JSON or does not have the report's
    structure is skipped and listed in `summary.md` with the reason; it never stops the analysis.
 
+### Rigor: what makes the case study checkable
+
+- **Documentation freeze.** `TASKS.md` links to the documentation at the git tag `study-h3-docs-1`, not to `main`.
+  Every participant reads the same text. Corrections found during the collection are made on `main` and reported
+  as a result; the tag does not move. The report also records the library and kit versions.
+- **Sample rule.** The first 3 complete reports (`finish` done), by date received, are the confirmatory sample;
+  later ones are exploratory. Declared in the OSF transparent-changes document before the first report.
+- **Post-session interview (optional, 15–20 min).** A short guided conversation after `report`, taken as written
+  notes, not recorded. It deepens the integration diary and is coded with the same codebook.
+- **Codebook.** [codebook.md](codebook.md), written before any report was read: two coders, agreement reported,
+  every claim backed by a coded passage and a measured datum, member checking with each participant.
+- **Raw data.** With the participants' consent (stated in the consent text), the anonymous reports and the output
+  of `analyze.py` are archived with a DOI, so anyone can rebuild the tables.
+- **Author's pilot.** Excluded from every analysis: the author is not independent and used the reference solution.
+
 ### Scenario and tasks
 
 "A company lets an AI agent buy office supplies from supplier X, up to R$ 500 per purchase and R$ 1,500 per day,
