@@ -8,7 +8,8 @@ python3 -I simulate.py   # numpy only; writes results.json (about 2.5 minutes)
 ```
 
 **The parameters are hypothetical.** The rate of revocation (λ = 1e-5 per hour, about 8.4% a year) and the
-traffic (2 actions per hour per agent, log-normal values with median R$ 200) are placeholders for the values
+traffic (2 actions per hour per agent, log-normal values with median R$ 200) are placeholders in `simulate.py`; the
+measured runs below take the value scale from Pix (`value_scale.py`). They were placeholders for the values
 the research will measure. The publication delay of a certificate revocation follows the maxima allowed by
 DOC-ICP-05 v7.0: a CRL for end-user certificates at most every 6 hours (4.9.7.2), published at most 4 hours
 after it is generated (4.9.8).
@@ -143,25 +144,55 @@ CRL cadence is a small part: the window is set by when the AC acts, not by how o
   R$ 3.01 comes from the AC's working hours, which only credential evidence from the agent's issuer (no
   publication delay) or the mandate's ceilings can cover.
 
-## Sensitivity to the rate and the action value
+## Value scale from Pix (`value_scale.py`, `fetch_pix_cnae.py`)
 
-`sensitivity.py` (seed 20261105, offline, about 40 minutes on 4 vCPUs) repeats the measured comparison from 1x to
-100x the measured revocation rate, which is a floor and counts every revocation, not only compromises, for median
-actions of R$ 200 and R$ 2,000. For each scenario it reports the proportional policy's gain over a fixed deadline that
-makes the same number of fetches (fixed-deadline loss interpolated on log fetches), as a share of the loss a verifier
-can avoid at all, that is, above the always-fetch floor that comes from the AC's own delay. Writes `sensitivity.json`.
+There is no public data on what agents buy, so the measured comparison (`simulate_measured.py`), the sensitivity and
+the robustness runs take the scale of the action values from the Central Bank's Pix open data:
 
-| Rate (x measured) | Median R$ 200: share removed | gain (R$/1,000) | floor (R$/1,000) | Median R$ 2,000: share removed |
+- **B2B (main):** payments between companies of different owners, by receiver CNAE section, size, MEI and form of
+  initiation (`fetch_pix_cnae.py`, `data/pix_cnae.json`, last 12 months): mean R$ 3,168.91 per transaction;
+- **P2B:** payments from people to companies (`fetch_pix.py`, `data/pix.json`): mean R$ 110.68.
+
+The value keeps the log-normal shape with sigma = 1.6 (about 80% of the value in the top 20% of actions), and the median
+is set so that the mean matches Pix (B2B: R$ 881.08). The CNAE data have no value bands, only a mean per group; the spread
+of log(group mean) across the 516 groups, weighted by count, is sigma >= 1.489, a lower bound for the whole
+distribution. The traffic (2 actions per hour per credential) has no public source.
+
+## Robustness to the unmeasured parameters (`scenarios.py`)
+
+`scenarios.py` (offline, a few minutes on 4 cores) changes one parameter at a time from the main scenario, with the
+measured rate and cadence: sigma from the lower bound to 2.0, and 0.2 to 20 actions per hour (credentials scaled so
+each run simulates about the same number of actions); plus the P2B scale and the former placeholder median of R$ 200.
+Writes `scenarios.json`. Per 1,000 actions:
+
+| Scenario | Median (R$) | sigma | Actions/h | Floor (R$) | Proportional L=0.01: fetches | loss (R$) | Fixed 12 h: fetches | loss (R$) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| principal | 881 | 1.6 | 2.0 | 13.20 | 75 | 14.52 | 40 | 18.09 |
+| sigma no limite inferior | 1046 | 1.489 | 2.0 | 13.21 | 76 | 14.63 | 40 | 18.10 |
+| sigma 2,0 | 429 | 2.0 | 2.0 | 13.14 | 70 | 14.15 | 40 | 18.00 |
+| 0,2 ação/h | 881 | 1.6 | 0.2 | 13.22 | 257 | 14.81 | 296 | 16.84 |
+| 20 ações/h | 881 | 1.6 | 20.0 | 13.36 | 21 | 14.12 | 4 | 18.47 |
+| Pix P2B | 31 | 1.6 | 2.0 | 0.46 | 21 | 0.76 | 40 | 0.63 |
+| mediana hipotética R$ 200 | 200 | 1.6 | 2.0 | 3.00 | 34 | 3.90 | 40 | 4.11 |
+
+## Sensitivity to the rate
+
+`sensitivity.py` (seed 20261105, offline, about 10 minutes on 4 cores) repeats the measured comparison from 1x to
+100x the measured revocation rate, which is a floor and counts every revocation, not only compromises, at the Pix B2B
+and P2B scales. For each scenario it reports the proportional policy's gain over a fixed deadline that makes the same
+number of fetches (fixed-deadline loss interpolated on log fetches), as a share of the loss a verifier can avoid at
+all, that is, above the always-fetch floor that comes from the AC's own delay. Writes `sensitivity.json`.
+
+| Rate (x measured) | B2B: share removed | gain (R$/1,000) | floor (R$/1,000) | P2B: share removed |
 | ---: | ---: | ---: | ---: | ---: |
-| 1 | 34% | 0.48 | 3.01 | 55% |
-| 3 | 45% | 1.00 | 9.02 | 65% |
-| 10 | 55% | 1.85 | 30.05 | 74% |
-| 30 | 65% | 3.26 | 89.96 | 81% |
-| 100 | 74% | 5.34 | 297.83 | 86% |
+| 1 | 46% | 1.14 | 13.20 | 12% |
+| 3 | 59% | 2.27 | 39.59 | 27% |
+| 10 | 69% | 4.00 | 131.87 | 36% |
+| 30 | 76% | 5.88 | 394.85 | 46% |
+| 100 | 83% | 7.65 | 1307.26 | 61% |
 
-The result depends on the product of value and rate: R$ 2,000 at k times the rate gives the same numbers as R$ 200 at
-10k times. The best proportional point is the smallest `L` swept (0.01) in every scenario, so a smaller `L` may gain
-more. Even at 100x, the avoidable loss is small next to the floor: the AC's working hours bound freshness.
+The result depends on the product of value and rate. Even at 100x, the avoidable loss is small next to the floor:
+the AC's working hours bound freshness.
 
 ## Exploratory: the cost of failing closed, with Pix values (`simulate_availability.py`)
 
@@ -169,7 +200,8 @@ Not part of the pre-registered H2 test, which stays as above. Two additions, fro
 
 - **Values.** Besides the placeholder median of R$ 200, the scale of the log-normal is set from the Central Bank's
   Pix statistics (`fetch_pix.py`, `data/pix.json`): over the last 12 months, the mean Pix payment from company to
-  company (B2B) was R$ 5,306 and from person to company (P2B) R$ 111. Pix payments are not agents' purchases; they are
+  company (B2B, including transfers between companies of the same owner) was R$ 5,306 and from person to company
+  (P2B) R$ 111. Pix payments are not agents' purchases; they are
   the closest public figure for what a company pays or is paid per transaction.
 - **A third axis: legitimate actions refused.** Evidence age is counted from the CRL's `thisUpdate`, as the library's
   freshness check does. At each moment a verifier polling hourly holds the latest CRL the collector had obtained

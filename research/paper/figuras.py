@@ -210,10 +210,11 @@ print(extra)
 # (data/sensitivity.json, cópia de kya-brasil/research/freshness-sim/sensitivity.json sem as linhas de cada política)
 sens = json.load(open(SENSITIVITY, encoding="utf-8"))
 fig, ax = plt.subplots(figsize=(4.6, 2.2))
+nomes_escala = {v: k for k, v in sens.get("scales", {}).items()}
 for med, (m, c) in zip(sens["medians_brl"], (("o", "#4a6fa5"), ("^", "#c0504d"))):
     sc = [s for s in sens["scenarios"] if s["median_brl"] == med and s["best"]]
     ax.plot([s["multiplier"] for s in sc], [100 * s["best"]["share_of_avoidable"] for s in sc], marker=m, color=c, ms=4, lw=1,
-            label=f"mediana R\\$ {br(med, 0)}")
+            label=f"{nomes_escala.get(med, 'mediana')} (mediana R\\$ {br(med, 0)})")
 ax.set_xscale("log")
 ax.set_xticks(sens["multipliers"], [f"{k}×" for k in sens["multipliers"]])
 ax.set_xlabel("taxa de comprometimento (múltiplo da taxa medida)")
@@ -223,7 +224,8 @@ ax.legend(fontsize=7, frameon=False)
 fig.tight_layout()
 fig.savefig(FIGS / "sensibilidade.pdf")
 pick = {(s["multiplier"], s["median_brl"]): s for s in sens["scenarios"]}
-um, cem = pick[(1, 200.0)], pick[(100, 200.0)]
+base_med = sens["medians_brl"][0]
+um, cem = pick[(1, base_med)], pick[(100, base_med)]
 extra = {
     "SensMultMax": str(max(sens["multipliers"])),
     "SensUmPct": br(100 * um["best"]["share_of_avoidable"], 0),
@@ -255,4 +257,42 @@ extra = {
     "QsaEntradaTresMeses": br(qsa["frescor_entrada"]["entrada_ultimos_3_meses"]["pct"], 1),
 }
 write_macros(extra)
+print(extra)
+
+# Cenários de robustez: escala do valor (Pix), dispersão e tráfego (cópia de kya-brasil/research/freshness-sim/scenarios.json
+# sem as linhas de cada política)
+cen = json.load(open(RESEARCH / "freshness-sim" / "scenarios.json", encoding="utf-8"))
+por_nome = {c["name"]: c for c in cen["scenarios"]}
+rotulos = [
+    ("principal", "Principal (Pix B2B)"),
+    ("sigma no limite inferior", "$\\sigma$ no limite inferior ({sigma})"),
+    ("sigma 2,0", "$\\sigma = 2{{,}}0$"),
+    ("0,2 ação/h", "0,2 ação/h"),
+    ("20 ações/h", "20 ações/h"),
+    ("Pix P2B", "Pix P2B"),
+    ("mediana hipotética R$ 200", "mediana hipotética de R\\$~200"),
+]
+linhas = []
+for nome, rot in rotulos:
+    c = por_nome[nome]
+    p, x = c["proportional_L001"], c["fixed_12h"]
+    rot = rot.replace("{sigma}", br(c["sigma"], 2)).replace("{{,}}", "{,}")
+    linhas.append(f"{rot} & {br(c['median_brl'], 0)} & {br(c['floor_brl_per_1000'], 2)} & {br(p['fetches_per_1000'], 0)} & "
+                  f"{br(p['expected_loss_per_1000_brl'], 2)} & {br(x['fetches_per_1000'], 0)} & {br(x['expected_loss_per_1000_brl'], 2)} \\\\")
+    if nome in ("principal", "sigma 2,0", "20 ações/h"):
+        linhas.append("\\midrule")
+with open(FIGS / "cenarios.tex", "w", encoding="utf-8") as f:
+    f.write("% Gerado por scripts/figuras.py; não editar à mão.\n\\newcommand{\\LinhasCenarios}{%\n" + "\n".join(linhas) + "}\n")
+pr = por_nome["principal"]
+extra = {
+    "PixBtoBMedia": br(cen["means_brl"]["B2B"], 0),
+    "PixPtoBMedia": br(cen["means_brl"]["P2B"], 0),
+    "PixBtoBMediana": br(pr["median_brl"], 0),
+    "SigmaInf": br(cen["sigma_lower_bound"], 2),
+    "PixMeses": (lambda m: f"{m[0][4:]}/{m[0][:4]} a {m[-1][4:]}/{m[-1][:4]}")(json.load(open(RESEARCH / "freshness-sim" / "data" / "pix_cnae.json", encoding="utf-8"))["months"]),
+    "PropNaFrenteMin": str(min(c["proportional_on_front"] for c in cen["scenarios"])),
+}
+with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
+    for k, v in extra.items():
+        f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
 print(extra)

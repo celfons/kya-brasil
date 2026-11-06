@@ -137,10 +137,14 @@ medição (seção "Medição da revogação") vêm do conjunto de dados DOI 10.
 
 ```bash
 python3 -I research/freshness-sim/sensitivity.py
+python3 -I research/freshness-sim/scenarios.py
 ```
 
-Sem rede, semente fixa, cerca de 40 minutos em 4 vCPUs. Esperado: `sensitivity.json` igual ao do repositório: o
-ganho da política proporcional sobre o prazo fixo de mesmo número de consultas, de 1 a 100 vezes a taxa medida.
+Sem rede, semente fixa, cerca de 15 minutos em 4 vCPUs. Esperado: `sensitivity.json` e `scenarios.json` iguais aos do
+repositório: o ganho da política proporcional sobre o prazo fixo de mesmo número de consultas, de 1 a 100 vezes a taxa
+medida, nas escalas do Pix B2B e P2B; e a tabela de robustez (dispersão, ações por hora e escala do valor). A escala
+do valor vem de `data/pix_cnae.json` e `data/pix.json`; para refazê-los (rede):
+`python3 -I research/freshness-sim/fetch_pix_cnae.py` e `python3 -I research/freshness-sim/fetch_pix.py`.
 
 ## Reivindicação R7 (exploratória): atraso medido e disponibilidade das LCR (seção "Atualidade do status", parágrafo "Atraso medido")
 
@@ -150,9 +154,9 @@ python3 -I research/freshness-sim/simulate_availability.py
 ```
 
 Sem rede (lê `research/freshness-sim/data/delays.json`, `availability.json` e `pix.json`), semente fixa, poucos
-minutos. Esperado: `results_measured_delay.json` (atraso até a LCR com mediana de 0,59 h e p95 de 2,65 h em 166
-revogações; janela média de 13,9–14,3 h) e `results_availability.json` (recusa de 99% e 46% das ações legítimas com
-prazos fixos de 15 min e 1 h) iguais aos do repositório. Os dados são posteriores ao arquivamento no Zenodo, por isso a
+minutos. Esperado: `results_measured_delay.json` (atraso até a LCR com mediana de 0,59 h e p95 de 2,63 h em 170
+revogações; janela média de 13,8–14,3 h) e `results_availability.json` (recusa de 99% e 46% das ações legítimas com
+prazos fixos de 15 min e 1 h) iguais aos do repositório. Os dados vão até 6 nov. 2026 (versão 3 do conjunto de dados), e a
 reivindicação é exploratória. Para refazê-los a partir do coletor (rede; os números mudam com a coleta):
 
 ```bash
