@@ -322,7 +322,7 @@ async function finish(io: Io, ws: string, answersFile?: string): Promise<number>
       }
       return null;
     };
-    io.out("\nPerguntas finais (responda em uma linha cada; seja tão breve ou detalhado quanto quiser).\n");
+    io.out("\nPerguntas finais. Responda em uma linha cada, com o máximo de detalhe que puder: onde travou, o que procurou,\no que faltou na documentação. É a parte mais importante do estudo.\n");
     const got: Record<string, string> = {};
     for (const q of QUESTIONS) {
       let v = await ask(`${q.text}\n> `);
