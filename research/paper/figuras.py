@@ -430,8 +430,10 @@ ALIAS_ITI = {
     "AC REDEBRASIL": "AC REDE BRASIL",
     "AC CERTISIGN OM BR": "AC CERTISIGN_OM-BR",
     "AC SERASA CD": "SERASA CD",
+    # Fora da árvore do ITI (AC descredenciada, LCR ainda publicada): coletada, mas não conta como cobertura.
+    "AC SERASA JUS": None,
 }
-cobertas = {ALIAS_ITI.get(nome_ac(f), nome_ac(f)) for f in fontes_uf}
+cobertas = {ALIAS_ITI.get(nome_ac(f), nome_ac(f)) for f in fontes_uf} - {None}
 assert cobertas <= {a["nome"] for a in ac2}, cobertas - {a["nome"] for a in ac2}
 extra = {
     "EstruturaData": iti["atualizado_em"],
