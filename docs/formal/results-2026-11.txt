@@ -1,0 +1,61 @@
+# Alloy 6.2.0 (org.alloytools.alloy.dist.jar v6.2.0, SAT4J), 7 Nov 2026
+# Commands: java -jar alloy.jar exec -f -o out-checks docs/formal/mandate.als | exec -f -o out-threats docs/formal/threats.als | exec -q -f -r 20 -t xml -o out-adversarial adversarial.als (run from docs/formal)
+
+## mandate.als
+00. check NonAmplification         0       UNSAT
+01. check SubsetTransitive         0       UNSAT
+02. check ChainNonAmplification     0       UNSAT
+03. check Cascade                  0       UNSAT
+04. check IssuanceMatchesVerification     0       UNSAT
+05. check IssuedChainNonAmplification     0       UNSAT
+06. check NoPermissionNoIssue      0       UNSAT
+07. run   ProperDelegation         0    1/1     SAT
+
+## threats.als
+00. check NoReplayToday            0    1/1     SAT
+01. check NoReplayWithMemory       0       UNSAT
+02. check NoReplayShortMemory      0    1/1     SAT
+03. run   AcceptsWithMemory        0    1/1     SAT
+04. check IssuanceImpliesCompanyWill     0    1/1     SAT
+05. check CoSignedImpliesCompanyWill     0       UNSAT
+06. run   AccountantWithCoSignature     0    1/1     SAT
+07. check NoReplayImplemented      0       UNSAT
+08. check NoReplayClockDrift       0    1/1     SAT
+09. run   ImplementedAccepts       0    1/1     SAT
+10. check CoSignatureSound         0       UNSAT
+11. check CoSignatureStaleList     0    1/1     SAT
+12. check CoSignatureLentECpf      0    1/1     SAT
+13. check CoSignatureNeedsSameText     0    1/1     SAT
+14. check NoCoSignatureNoCompanyWill     0       UNSAT
+15. run   AccountantCoSigned       0    1/1     SAT
+16. check ResponsibleCoSignatureSound     0       UNSAT
+17. check ResponsibleCoSignatureLeft     0    1/1     SAT
+18. check NoCoSignatureNoResponsibleWill     0       UNSAT
+19. run   AccountantResponsibleCoSigned     0    1/1     SAT
+20. check IssuerDownFailsClosed     0       UNSAT
+21. check OfflineIndependentOfIssuer     0       UNSAT
+22. check NoStaleRevokedAccepted     0       UNSAT
+23. check NoStaleRevokedWithoutPolicy     0    1/1     SAT
+24. check NoRevokedAcceptedOffline     0    1/1     SAT
+25. run   IssuerDownOfflineStillAccepts     0    1/1     SAT
+
+## adversarial.als (20 instances per run)
+00. run   ReplayInsideWindow       0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+01. run   ReplayAfterExpiry        0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+02. run   CreatedInFuture          0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+03. run   WindowEdges              0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+04. run   FreshNotListed           0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+05. run   StaleNotListed           0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+06. run   FreshListed              0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+07. run   ResidualWindow           0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+08. run   AgeEdge                  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+
+## mutation check: subCeiling without the ceiling comparison
+00. check NonAmplification         0    1/1     SAT
+01. check SubsetTransitive         0       UNSAT
+02. check ChainNonAmplification     0    1/1     SAT
+03. check Cascade                  0       UNSAT
+04. check IssuanceMatchesVerification     0       UNSAT
+05. check IssuedChainNonAmplification     0    1/1     SAT
+06. check NoPermissionNoIssue      0       UNSAT
+07. run   ProperDelegation         0    1/1     SAT
