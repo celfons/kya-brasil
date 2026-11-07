@@ -14,10 +14,11 @@ import csv
 import io
 import json
 import os
+import sys
 import urllib.parse
 import urllib.request
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import re
 
@@ -67,10 +68,19 @@ def main():
             continue
         reissue[s["source"]] = reissue_interval(files)
         key = max(files, key=lambda f: f["key"])["key"]
-        crl = x509.load_der_x509_crl(get("/files/" + urllib.parse.quote(key)))
+        try:
+            crl = x509.load_der_x509_crl(get("/files/" + urllib.parse.quote(key)))
+        except ValueError as e:
+            # A CRL the cryptography library cannot decode (e.g. a signature algorithm it does not know) is skipped
+            # with a warning, and the collector's own header parser still counts it in the aggregates.
+            print(f"warning: {s['source']}: {key}: {e}", file=sys.stderr)
+            per_source[s["source"]] = {"file": key, "revocations": None, "error": str(e)}
+            continue
         n = 0
         for rc in crl:
-            t = rc.revocation_date_utc + BRT
+            # cryptography >= 42 has revocation_date_utc; older versions give a naive UTC datetime.
+            rev = rc.revocation_date_utc if hasattr(rc, "revocation_date_utc") else rc.revocation_date.replace(tzinfo=timezone.utc)
+            t = rev + BRT
             grid[(t.weekday(), t.hour)] += 1
             n += 1
         per_source[s["source"]] = {"file": key, "revocations": n}
