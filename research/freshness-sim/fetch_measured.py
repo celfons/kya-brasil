@@ -17,7 +17,7 @@ import os
 import urllib.parse
 import urllib.request
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import re
 
@@ -70,7 +70,9 @@ def main():
         crl = x509.load_der_x509_crl(get("/files/" + urllib.parse.quote(key)))
         n = 0
         for rc in crl:
-            t = rc.revocation_date_utc + BRT
+            # cryptography >= 42 has revocation_date_utc; older versions give a naive UTC datetime.
+            rev = rc.revocation_date_utc if hasattr(rc, "revocation_date_utc") else rc.revocation_date.replace(tzinfo=timezone.utc)
+            t = rev + BRT
             grid[(t.weekday(), t.hour)] += 1
             n += 1
         per_source[s["source"]] = {"file": key, "revocations": n}
