@@ -115,6 +115,13 @@ the expected error code on each refusal (`KYA_REQUEST_REPLAYED`, `KYA_SIGNATURE_
 `KYA_SIGNATURE_NOT_YET_VALID`, `KYA_SIGNATURE_TTL`). The co-signature and issuer-unavailability sections of
 `threats.als` have no vectors yet: the first is a design still being implemented, the second needs a fake issuer.
 
+What the model cannot produce, the certificate itself, is covered by `docs/vectors/adversarial-certificate.json`
+and `packages/core/src/adversarial-certificate.test.ts`: twenty constructions on a test PKI generated at run time
+(impostor CRL under the AC's name, CRL from another AC, stale CRL, flipped byte in a listed serial or in the
+signature, truncated CRL, random bytes, RSA-PSS as an algorithm outside the verifier's set; e-CNPJ under an
+unknown root, expired or not yet valid, e-CPF instead of e-CNPJ, CNPJ mismatch, wrong text, no anchors, random
+bytes), each with the error code the library must return. All twenty pass.
+
 ## What the model leaves out
 
 The daily ceiling (same rule as the per-operation ceiling, with `spent_today` added), wildcard counterparties
