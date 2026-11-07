@@ -25,6 +25,9 @@ pnpm --filter @kya-brasil/core test
 
 ## Results (Alloy 6.2.0, SAT4J)
 
+The literal output of the analyzer for the three models and for the mutation check is in `results-2026-11.txt`,
+so the chain model → command → output → vectors → library test can be audited without installing Alloy.
+
 | Command | Scope | Result |
 | --- | --- | --- |
 | `check NonAmplification` | 5, 5-bit Int | no counterexample |
