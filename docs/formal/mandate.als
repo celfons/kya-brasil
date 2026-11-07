@@ -124,10 +124,14 @@ assert ChainNonAmplification {
 check ChainNonAmplification for 4 but 5 Int, 4 seq
 
 -- P3: a credential not in force permits nothing, whatever its chain allows.
+-- Holds by construction (`permitted` requires `some cr.inForce`): a consistency check of the definition, not a theorem.
+-- The product's guarantee lives in checkFreshAction and in the property tests.
 assert Cascade { all cr: Credential, chain: seq Mandate, q: Query | no cr.inForce implies not permitted[cr, chain, q] }
 check Cascade for 4 but 5 Int, 4 seq
 
 -- Issuance refuses exactly what chain verification refuses, link by link: a chain verifies iff every link was issuable.
+-- Holds by construction: the link condition of `chainOk` is `issuable`, as buildDelegation and verifyDelegationChain
+-- call the same subset check in the library. Kept as a consistency check of the two definitions.
 assert IssuanceMatchesVerification {
   all cr: Credential, chain: seq Mandate |
     (some chain and chain.first = cr.signed) implies
@@ -143,7 +147,7 @@ assert IssuedChainNonAmplification {
 }
 check IssuedChainNonAmplification for 4 but 5 Int, 4 seq
 
--- A mandate that may not delegate issues nothing below it.
+-- A mandate that may not delegate issues nothing below it. Holds by construction (first conjunct of `issuable`).
 assert NoPermissionNoIssue { all p, c: Mandate | no p.deleg implies not issuable[p, c] }
 check NoPermissionNoIssue for 5 but 5 Int
 

@@ -38,6 +38,17 @@ pnpm --filter @kya-brasil/core test
 
 A check with no counterexample supports the property up to its scope; it is not a proof for unbounded sizes.
 
+Three of the seven assertions hold by construction and are kept as consistency checks of the definitions, not as
+theorems: `Cascade` (`permitted` requires `inForce`), `IssuanceMatchesVerification` (the link condition of `chainOk`
+is `issuable`, as the two library functions call the same subset check) and `NoPermissionNoIssue` (first conjunct
+of `issuable`). The mutation below shows it: with the ceiling comparison dropped from `subset`, `NonAmplification`,
+`ChainNonAmplification` and `IssuedChainNonAmplification` find counterexamples while those three stay UNSAT. The
+guarantee that a revoked credential is refused lives in `checkFreshAction` and in the property tests.
+
+`verifyDelegationChain` also refuses a link that is expired, issued in the future or outliving the link above it;
+the model has no time on links, so "verifies iff issuable" holds for the fields modelled. Those checks only refuse,
+never accept more, so the non-amplification assertions are unaffected.
+
 Conformance: 1,320 vectors (60 per command), and the library agrees with the model on all of them.
 
 ## Issuance (D-37)
@@ -124,7 +135,8 @@ java -jar org.alloytools.alloy.dist.jar exec -f -o out-threats docs/formal/threa
 | `check NoRevokedAcceptedOffline` | counterexample (expected) | The residual window: a certificate revoked after the CRL was issued, less than `MAXAGE` ago, is accepted. The policy bounds the exposure; it does not remove it. |
 | `run IssuerDownOfflineStillAccepts` | SAT | With the issuer down, an offline verifier accepts a presented credential with a fresh CRL while an online-only verifier refuses the same one at the same time. |
 
-Scopes: replay commands 4 with 5-bit Int (times kept in 0..10 for the new ones so arithmetic cannot wrap), co-signature
+Scopes: replay commands 4 with 5-bit Int (times kept in 0..10 in every replay section, so `plus`/`minus` cannot wrap; the
+bound was added to the first section on 7 Nov 2026 and every result stayed the same), co-signature
 commands 5, issuer-unavailability commands 4 with 5-bit Int and `MAXAGE` = 3.
 
 Notes on what the new parts mirror. The replay cache records only after the request fully verified (a forged request

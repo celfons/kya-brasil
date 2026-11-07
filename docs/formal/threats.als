@@ -33,6 +33,12 @@ sig Accept { req: one Req, at: one Int }
 /* One verifier, one request at a time: no two acceptances at the same instant. */
 fact SerialVerifier { all disj a1, a2: Accept | a1.at != a2.at }
 
+/* Times in 0..10, so that plus[t, SKEW] and minus[expires, created] cannot wrap around in 5-bit Int (-16..15).
+   Without this bound, acceptances near the top of the range were silently dropped, which only made the
+   no-replay assertions easier to satisfy. */
+fact SmallReplayTimes { all r: Req | r.created >= 0 and r.expires <= 10
+                        all a: Accept | a.at >= 0 and a.at <= 10 }
+
 pred inWindow[r: Req, t: Int] { r.created <= plus[t, SKEW] and t <= r.expires }
 
 /* The product's rule today: window only. */
