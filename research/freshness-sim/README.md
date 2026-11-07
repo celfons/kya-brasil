@@ -197,6 +197,17 @@ loss a verifier can avoid at all, that is, above the always-fetch floor that com
 The result depends on the product of value and rate. Even at 100x, the avoidable loss is small next to the floor:
 the AC's working hours bound freshness.
 
+## Rate from the flow of new entries (`fetch_flow.py`)
+
+`python3 -I fetch_flow.py` writes `data/flow.json`: for every end-user CRL, the entries in the current list, the
+share registered on weekdays 8:00-17:59 (Brasília), the declared validity, the new entries the collector saw
+appear during its own window, and the measured delays; and, in total, new entries per hour summed over the lists,
+divided by the national active count (ITI). This is the rate the paper will prefer at the confirmatory cut: the
+rate from the *stock* of entries a CRL holds is biased because ACs drop expired certificates (older months are
+undercounted, more so for ACs with short-lived certificates), while the *flow* the collector observes is not. The
+denominator is still the national count, so it stays a lower bound for coverage. The paper's per-list table
+(`kya-paper`, `figs/por-lista.tex`) comes from the same file.
+
 ## The fraud-ruler L (`simulate.fraud_ruler_L`)
 
 The sweep also runs the proportional policy with the L that the Pix fraud yardstick gives: the share of Pix value

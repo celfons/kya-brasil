@@ -1,0 +1,1494 @@
+{
+ "collector": "https://kya-icp-collector.marcelfons.workers.dev",
+ "fetched_at": "2026-11-07T11:12:49Z",
+ "sources_total": 107,
+ "sources": [
+  {
+   "id": "uf-ac-soluti-multipla-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:05:14Z",
+   "versions": 47
+  },
+  {
+   "id": "uf-ac-soluti-multipla-v1",
+   "kind": "usuario-final",
+   "first_this_update": "2023-06-20T23:35:55Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-certisign-rfb-g5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:46:17Z",
+   "versions": 56
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:31:39Z",
+   "versions": 56
+  },
+  {
+   "id": "uf-ac-serasa-rfb-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:46:10Z",
+   "versions": 55
+  },
+  {
+   "id": "ac-acraiz-lcracraizv10",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:36:29Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv11",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:38:19Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv12",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:40:50Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:28:55Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv6",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:31:19Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv7",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:34:38Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5-g2",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T18:10:54Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-ccd-ac-soluti-v5",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T17:55:00Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5-g2",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T18:10:54Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-ccd2-ac-soluti-v5",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T17:55:00Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-certificados2-acinmetro",
+   "kind": "ac",
+   "first_this_update": "2026-09-30T13:06:06Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-certificados2-acserprov4",
+   "kind": "ac",
+   "first_this_update": "2026-09-24T14:52:04Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-certificados2-acserprov5",
+   "kind": "ac",
+   "first_this_update": "2026-09-24T14:53:31Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7",
+   "kind": "ac",
+   "first_this_update": "2026-08-24T13:51:46Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8",
+   "kind": "ac",
+   "first_this_update": "2026-08-24T13:38:47Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng7-2",
+   "kind": "ac",
+   "first_this_update": "2026-08-24T13:51:46Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-accertisigng8-2",
+   "kind": "ac",
+   "first_this_update": "2026-08-24T13:38:47Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid-v12",
+   "kind": "ac",
+   "first_this_update": "2026-08-27T15:14:49Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-syngularid",
+   "kind": "ac",
+   "first_this_update": "2026-08-27T15:10:02Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv12",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T22:32:45Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil-lcr-ac-validv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T22:30:21Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv12",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T22:32:45Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-icp-brasil2-lcr-ac-validv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T22:30:21Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-lcr-acjusv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-02T14:36:06Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-lcr-acjusv6",
+   "kind": "ac",
+   "first_this_update": "2026-10-02T14:22:18Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-lcr-serasaacpv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T19:10:22Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-lcr1-acprodespsp",
+   "kind": "ac",
+   "first_this_update": "2026-10-16T14:00:53Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-lcr2-acprodespsp",
+   "kind": "ac",
+   "first_this_update": "2026-10-16T14:00:53Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio-ac-digital-mais",
+   "kind": "ac",
+   "first_this_update": "2026-10-23T12:22:27Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safeweb",
+   "kind": "ac",
+   "first_this_update": "2026-10-17T03:23:46Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio-lcr-ac-safewebv12",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T13:55:02Z",
+   "versions": 2
+  },
+  {
+   "id": "ac-repositorio-acinmetro",
+   "kind": "ac",
+   "first_this_update": "2026-09-30T13:06:06Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio-acserprov4",
+   "kind": "ac",
+   "first_this_update": "2026-09-24T14:52:04Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio-acserprov5",
+   "kind": "ac",
+   "first_this_update": "2026-09-24T14:53:31Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio2-ac-digital-mais",
+   "kind": "ac",
+   "first_this_update": "2026-10-23T12:22:27Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safeweb",
+   "kind": "ac",
+   "first_this_update": "2026-10-17T03:23:46Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-repositorio2-lcr-ac-safewebv12",
+   "kind": "ac",
+   "first_this_update": "2026-10-14T13:55:02Z",
+   "versions": 2
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid-v12",
+   "kind": "ac",
+   "first_this_update": "2026-08-27T15:14:49Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-syngularid-lcr-ac-syngularid",
+   "kind": "ac",
+   "first_this_update": "2026-08-27T15:10:02Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-www-serasaacpv5",
+   "kind": "ac",
+   "first_this_update": "2026-10-22T19:10:22Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg2",
+   "kind": "ac",
+   "first_this_update": "2026-10-21T14:53:41Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-www-acdigitalsignacpg3",
+   "kind": "ac",
+   "first_this_update": "2026-10-21T14:00:48Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-www-acrfbv4",
+   "kind": "ac",
+   "first_this_update": "2026-11-04T18:42:08Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v4",
+   "kind": "usuario-final",
+   "first_this_update": "2024-02-19T23:48:25Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v3",
+   "kind": "usuario-final",
+   "first_this_update": "2019-12-13T16:32:42Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-serpro-rfb-v1",
+   "kind": "usuario-final",
+   "first_this_update": "2016-11-08T12:35:04Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v1",
+   "kind": "usuario-final",
+   "first_this_update": "2021-10-11T13:33:04Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g7",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:41:15Z",
+   "versions": 54
+  },
+  {
+   "id": "uf-ac-certisign-multipla-g8",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-05T03:41:15Z",
+   "versions": 55
+  },
+  {
+   "id": "ac-acraiz-lcracraizv2",
+   "kind": "ac",
+   "first_this_update": "2023-04-05T18:16:43Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv3",
+   "kind": "ac",
+   "first_this_update": "2016-03-02T13:47:20Z",
+   "versions": 1
+  },
+  {
+   "id": "ac-acraiz-lcracraizv4",
+   "kind": "ac",
+   "first_this_update": "2026-10-01T14:25:04Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-alternative",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-brasil-certec",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-digital-certy",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-idfederal",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-idfederal-v2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:19:09Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-infocomex",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-infocomex-v2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:31Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-invia",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-nacional",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-primecert",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-primecert-v2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:31Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-procerti",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-safe-id-brasil",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sdi",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sdi-v2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sefazce",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sirius",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-zapsign",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-fecomercio-mg-rfb",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-serpro-acf-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:30Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-serpro-acf-v6",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:28Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-serpro-acf-v4",
+   "kind": "usuario-final",
+   "first_this_update": "2024-02-19T23:48:25Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-serpro-jus-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:02:30Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-cacb-rfb-g2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:10:00Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-certisign-spb-g6",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:56:16Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-certisign-tempo-g2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:17:00Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-certisign-tempo-g3",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:11:23Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-oab-g3",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:11:19Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-oab-g4",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:06:34Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sincor-g4",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:09:00Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sincor-g5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:03:00Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sincor-rfb-g5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:21:15Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-sincor-rio-rfb-g2",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:13:00Z",
+   "versions": 10
+  },
+  {
+   "id": "uf-ac-soluti-rfb-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T01:03:07Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-soluti-spb-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:18Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-soluti-jus-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:36:14Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-soluti-jus-v6",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:07Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-soluti-jus-v1",
+   "kind": "usuario-final",
+   "first_this_update": "2021-10-22T13:06:04Z",
+   "versions": 1
+  },
+  {
+   "id": "uf-ac-acd-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:07Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-certfacil-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:22Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-digisec-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:11Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-fcdl-sc-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:26Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-infoco-digital-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:35:08Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-intercert-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:25Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-mult-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:35:11Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-prime-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:35:10Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-qualitycert-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:06Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-redebrasil-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:25Z",
+   "versions": 9
+  },
+  {
+   "id": "uf-ac-segura-id-v5",
+   "kind": "usuario-final",
+   "first_this_update": "2026-11-07T00:50:10Z",
+   "versions": 9
+  }
+ ],
+ "end_user_sources": 60,
+ "collection_start": "2026-11-05T03:05:14Z",
+ "window_h_max": 56.1,
+ "active": 17214175,
+ "new_entries_total": 310,
+ "revocations_per_hour": 5.5501,
+ "lambda_flow_per_hour": 3.224120156235531e-07,
+ "lambda_flow_per_year": 0.002824329256862325,
+ "note": "lower bound: only the covered ACs count in the numerator; the denominator is the national active count",
+ "per_source": {
+  "uf-ac-soluti-multipla-v5": {
+   "ac": "AC SOLUTI Multipla v5",
+   "entries": 33882,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9388,
+   "weekday_hour_total": 33882,
+   "first_this_update": "2026-11-05T03:05:14Z",
+   "versions": 47,
+   "window_h": 56.13,
+   "new_entries": 147,
+   "delay_median_h": 0.67,
+   "delay_p95_h": 2.837
+  },
+  "uf-ac-soluti-multipla-v1": {
+   "ac": "AC SOLUTI Multipla (v1, encerrada)",
+   "entries": 46852,
+   "in_force": false,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2023-06-20T23:35:55Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certisign-rfb-g5": {
+   "ac": "AC Certisign RFB G5",
+   "entries": 7632,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8623,
+   "weekday_hour_total": 7632,
+   "first_this_update": "2026-11-05T03:46:17Z",
+   "versions": 56,
+   "window_h": 55.44,
+   "new_entries": 47,
+   "delay_median_h": 0.556,
+   "delay_p95_h": 0.971
+  },
+  "uf-ac-serpro-rfb-v5": {
+   "ac": "Autoridade Certificadora SERPRORFBv5",
+   "entries": 77424,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9513,
+   "weekday_hour_total": 77424,
+   "first_this_update": "2026-11-05T03:31:39Z",
+   "versions": 56,
+   "window_h": 55.69,
+   "new_entries": 108,
+   "delay_median_h": 0.591,
+   "delay_p95_h": 0.947
+  },
+  "uf-ac-serasa-rfb-v5": {
+   "ac": "AC Serasa RFB v5",
+   "entries": 1059,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.8527,
+   "weekday_hour_total": 1059,
+   "first_this_update": "2026-11-05T03:46:10Z",
+   "versions": 55,
+   "window_h": 55.44,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-rfb-v4": {
+   "ac": "Autoridade Certificadora SERPRORFBv4 (encerrada, LCR final de 2024)",
+   "entries": 11234,
+   "in_force": false,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2024-02-19T23:48:25Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-rfb-v3": {
+   "ac": "Autoridade Certificadora SERPRORFBv3 (encerrada, LCR final de 2019)",
+   "entries": 3334,
+   "in_force": false,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2019-12-13T16:32:42Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-rfb-v1": {
+   "ac": "Autoridade Certificadora do SERPRO RFB (encerrada, LCR final de 2016)",
+   "entries": 0,
+   "in_force": false,
+   "validity_h": 1.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2016-11-08T12:35:04Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-rfb-v1": {
+   "ac": "AC SOLUTI RFB v1 (encerrada, LCR final de 2021)",
+   "entries": 2,
+   "in_force": false,
+   "validity_h": 1.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2021-10-11T13:33:04Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certisign-multipla-g7": {
+   "ac": "AC Certisign Multipla G7",
+   "entries": 1215,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8996,
+   "weekday_hour_total": 1215,
+   "first_this_update": "2026-11-05T03:41:15Z",
+   "versions": 54,
+   "window_h": 55.53,
+   "new_entries": 1,
+   "delay_median_h": 1.459,
+   "delay_p95_h": 1.459
+  },
+  "uf-ac-certisign-multipla-g8": {
+   "ac": "AC Certisign Multipla G8",
+   "entries": 350,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8914,
+   "weekday_hour_total": 350,
+   "first_this_update": "2026-11-05T03:41:15Z",
+   "versions": 55,
+   "window_h": 55.53,
+   "new_entries": 7,
+   "delay_median_h": 0.406,
+   "delay_p95_h": 0.546
+  },
+  "uf-ac-alternative": {
+   "ac": "Autoridade Certificadora ALTERNATIVE",
+   "entries": 2209,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9163,
+   "weekday_hour_total": 2209,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-brasil-certec": {
+   "ac": "Autoridade Certificadora BRASIL CERTEC",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-digital-certy": {
+   "ac": "Autoridade Certificadora DIGITAL CERTY",
+   "entries": 1067,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9288,
+   "weekday_hour_total": 1067,
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-idfederal": {
+   "ac": "Autoridade Certificadora IDFEDERAL",
+   "entries": 331,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.8822,
+   "weekday_hour_total": 331,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-idfederal-v2": {
+   "ac": "Autoridade Certificadora IDFEDERAL v2",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:19:09Z",
+   "versions": 10,
+   "window_h": 9.89,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-infocomex": {
+   "ac": "Autoridade Certificadora INFOCOMEX",
+   "entries": 11,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.8182,
+   "weekday_hour_total": 11,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-infocomex-v2": {
+   "ac": "Autoridade Certificadora INFOCOMEX v2",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:31Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-invia": {
+   "ac": "Autoridade Certificadora INVIA",
+   "entries": 2,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 1.0,
+   "weekday_hour_total": 2,
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-nacional": {
+   "ac": "Autoridade Certificadora NACIONAL",
+   "entries": 72,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9167,
+   "weekday_hour_total": 72,
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-primecert": {
+   "ac": "Autoridade Certificadora PRIMECERT",
+   "entries": 67,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9851,
+   "weekday_hour_total": 67,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-primecert-v2": {
+   "ac": "Autoridade Certificadora PRIMECERT v2",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:31Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-procerti": {
+   "ac": "Autoridade Certificadora PROCERTI",
+   "entries": 422,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.8768,
+   "weekday_hour_total": 422,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-safe-id-brasil": {
+   "ac": "Autoridade Certificadora SAFE-ID BRASIL",
+   "entries": 489,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9059,
+   "weekday_hour_total": 489,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sdi": {
+   "ac": "Autoridade Certificadora SDI",
+   "entries": 1292,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9536,
+   "weekday_hour_total": 1292,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sdi-v2": {
+   "ac": "Autoridade Certificadora SDI v2",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sefazce": {
+   "ac": "Autoridade Certificadora SEFAZCE",
+   "entries": 73,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 1.0,
+   "weekday_hour_total": 73,
+   "first_this_update": "2026-11-07T01:02:26Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sirius": {
+   "ac": "Autoridade Certificadora SIRIUS",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-zapsign": {
+   "ac": "Autoridade Certificadora ZAPSIGN",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T01:02:32Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-fecomercio-mg-rfb": {
+   "ac": "Autoridade Certificadora FECOMERCIO MG RFB",
+   "entries": 46,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 1.0,
+   "weekday_hour_total": 46,
+   "first_this_update": "2026-11-07T01:02:33Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-acf-v5": {
+   "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
+   "entries": 3468,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9273,
+   "weekday_hour_total": 3468,
+   "first_this_update": "2026-11-07T01:02:30Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-acf-v6": {
+   "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
+   "entries": 52,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9038,
+   "weekday_hour_total": 52,
+   "first_this_update": "2026-11-07T01:02:28Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-acf-v4": {
+   "ac": "Autoridade Certificadora do SERPRO Final v4 (SERPRO ACF, encerrada, LCR final de 2024)",
+   "entries": 7416,
+   "in_force": false,
+   "validity_h": 6.0,
+   "business_share": 0.9622,
+   "weekday_hour_total": 7416,
+   "first_this_update": "2024-02-19T23:48:25Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-serpro-jus-v5": {
+   "ac": "AC SERPRO-JUS v5",
+   "entries": 75,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9467,
+   "weekday_hour_total": 75,
+   "first_this_update": "2026-11-07T01:02:30Z",
+   "versions": 10,
+   "window_h": 10.17,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-cacb-rfb-g2": {
+   "ac": "AC CACB RFB G2",
+   "entries": 6,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.5,
+   "weekday_hour_total": 6,
+   "first_this_update": "2026-11-07T01:10:00Z",
+   "versions": 9,
+   "window_h": 10.05,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certisign-spb-g6": {
+   "ac": "AC Certisign SPB G6",
+   "entries": 22,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.9091,
+   "weekday_hour_total": 22,
+   "first_this_update": "2026-11-07T00:56:16Z",
+   "versions": 10,
+   "window_h": 10.28,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certisign-tempo-g2": {
+   "ac": "AC Certisign Tempo G2 (carimbo do tempo)",
+   "entries": 1,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.0,
+   "weekday_hour_total": 1,
+   "first_this_update": "2026-11-07T01:17:00Z",
+   "versions": 10,
+   "window_h": 9.93,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certisign-tempo-g3": {
+   "ac": "AC Certisign Tempo G3 (carimbo do tempo)",
+   "entries": 2,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 1.0,
+   "weekday_hour_total": 2,
+   "first_this_update": "2026-11-07T01:11:23Z",
+   "versions": 10,
+   "window_h": 10.02,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-oab-g3": {
+   "ac": "AC OAB G3",
+   "entries": 6740,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8804,
+   "weekday_hour_total": 6740,
+   "first_this_update": "2026-11-07T01:11:19Z",
+   "versions": 10,
+   "window_h": 10.03,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-oab-g4": {
+   "ac": "AC OAB G4",
+   "entries": 484,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8636,
+   "weekday_hour_total": 484,
+   "first_this_update": "2026-11-07T01:06:34Z",
+   "versions": 10,
+   "window_h": 10.1,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sincor-g4": {
+   "ac": "AC SINCOR G4",
+   "entries": 35,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.8286,
+   "weekday_hour_total": 35,
+   "first_this_update": "2026-11-07T01:09:00Z",
+   "versions": 10,
+   "window_h": 10.06,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sincor-g5": {
+   "ac": "AC SINCOR G5",
+   "entries": 61,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.9836,
+   "weekday_hour_total": 61,
+   "first_this_update": "2026-11-07T01:03:00Z",
+   "versions": 10,
+   "window_h": 10.16,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sincor-rfb-g5": {
+   "ac": "AC SINCOR RFB G5",
+   "entries": 486,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.9177,
+   "weekday_hour_total": 486,
+   "first_this_update": "2026-11-07T01:21:15Z",
+   "versions": 10,
+   "window_h": 9.86,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-sincor-rio-rfb-g2": {
+   "ac": "AC SINCOR RIO RFB G2",
+   "entries": 44,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.6364,
+   "weekday_hour_total": 44,
+   "first_this_update": "2026-11-07T01:13:00Z",
+   "versions": 10,
+   "window_h": 10.0,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-rfb-v5": {
+   "ac": "AC SOLUTI RFB V5",
+   "entries": 1761,
+   "in_force": true,
+   "validity_h": 1.0,
+   "business_share": 0.9125,
+   "weekday_hour_total": 1761,
+   "first_this_update": "2026-11-07T01:03:07Z",
+   "versions": 9,
+   "window_h": 10.16,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-spb-v5": {
+   "ac": "AC SOLUTI SPB v5",
+   "entries": 198,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.7626,
+   "weekday_hour_total": 198,
+   "first_this_update": "2026-11-07T00:50:18Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-jus-v5": {
+   "ac": "AC SOLUTI-JUS v5",
+   "entries": 1516,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9288,
+   "weekday_hour_total": 1516,
+   "first_this_update": "2026-11-07T00:36:14Z",
+   "versions": 9,
+   "window_h": 10.61,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-jus-v6": {
+   "ac": "AC SOLUTI-JUS v6",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:07Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-soluti-jus-v1": {
+   "ac": "AC SOLUTI-JUS v1 (encerrada, LCR final)",
+   "entries": 542,
+   "in_force": false,
+   "validity_h": 6.0,
+   "business_share": 0.9244,
+   "weekday_hour_total": 542,
+   "first_this_update": "2021-10-22T13:06:04Z",
+   "versions": 1,
+   "window_h": 56.13,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-acd-v5": {
+   "ac": "AC ACD v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:07Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-certfacil-v5": {
+   "ac": "AC CERTFACIL v5",
+   "entries": 103,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.6796,
+   "weekday_hour_total": 103,
+   "first_this_update": "2026-11-07T00:50:22Z",
+   "versions": 9,
+   "window_h": 10.37,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-digisec-v5": {
+   "ac": "AC DIGISEC v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:11Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-fcdl-sc-v5": {
+   "ac": "AC FCDL SC v5",
+   "entries": 437,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9886,
+   "weekday_hour_total": 437,
+   "first_this_update": "2026-11-07T00:50:26Z",
+   "versions": 9,
+   "window_h": 10.37,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-infoco-digital-v5": {
+   "ac": "AC INFOCO DIGITAL v5",
+   "entries": 17,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 1.0,
+   "weekday_hour_total": 17,
+   "first_this_update": "2026-11-07T00:35:08Z",
+   "versions": 9,
+   "window_h": 10.63,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-intercert-v5": {
+   "ac": "AC INTERCERT v5",
+   "entries": 383,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.9164,
+   "weekday_hour_total": 383,
+   "first_this_update": "2026-11-07T00:50:25Z",
+   "versions": 9,
+   "window_h": 10.37,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-mult-v5": {
+   "ac": "AC MULT v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:35:11Z",
+   "versions": 9,
+   "window_h": 10.63,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-prime-v5": {
+   "ac": "AC PRIME v5",
+   "entries": 3,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": 0.6667,
+   "weekday_hour_total": 3,
+   "first_this_update": "2026-11-07T00:35:10Z",
+   "versions": 9,
+   "window_h": 10.63,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-qualitycert-v5": {
+   "ac": "AC QUALITYCERT v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:06Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-redebrasil-v5": {
+   "ac": "AC REDE BRASIL v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:25Z",
+   "versions": 9,
+   "window_h": 10.37,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  },
+  "uf-ac-segura-id-v5": {
+   "ac": "AC SEGURA ID v5",
+   "entries": 0,
+   "in_force": true,
+   "validity_h": 6.0,
+   "business_share": null,
+   "weekday_hour_total": 0,
+   "first_this_update": "2026-11-07T00:50:10Z",
+   "versions": 9,
+   "window_h": 10.38,
+   "new_entries": 0,
+   "delay_median_h": null,
+   "delay_p95_h": null
+  }
+ }
+}
