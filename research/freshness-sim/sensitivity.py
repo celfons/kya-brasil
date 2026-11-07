@@ -3,7 +3,9 @@ Sensitivity of the policy comparison to the two parameters the measurement canno
 certificate stops being trustworthy (lambda) and the value of the actions.
 
 The measured lambda is a floor (results_measured.json: 11 end-user CRLs; expired certificates leave the CRL) and
-counts every revocation, not only compromises, so the comparison is repeated from 1x to 100x the measured rate,
+counts every revocation, not only compromises, so the comparison is repeated at multiples of the measured rate: the
+factor measured from the data by fetch_factors.py (peak month, flow over stock, highest AC) and a grid up to 100x as a
+stress test beyond what was observed,
 for the two scenarios of value_scale.py (Pix, the main one, and company credit card), each with its own rate. The publication delay is the measured one
 (simulate_measured.py, reissue every 0.5 h).
 
@@ -25,7 +27,20 @@ sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.pa
 import simulate as S  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
-MULTIPLIERS = (1, 3, 10, 30, 100)
+GRID = (1, 3, 10, 30, 100)
+
+
+def multipliers():
+    """The grid plus the factor measured from the data (fetch_factors.py, data/factors.json), when it exists: the
+    paper cites the measured factor as the observed bound and the rest of the grid as a stress test beyond it."""
+    try:
+        with open(os.path.join(HERE, "data", "factors.json"), encoding="utf-8") as f:
+            return tuple(json.load(f)["multipliers"])
+    except FileNotFoundError:
+        return GRID
+
+
+MULTIPLIERS = multipliers()
 import value_scale as V  # noqa: E402
 from multiprocessing import Pool  # noqa: E402
 
