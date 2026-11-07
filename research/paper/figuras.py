@@ -384,6 +384,22 @@ extra = {
     "FixoSeisConsultas": br(linha_pr("prazo fixo", "6 h")["fetches_per_1000"], 0),
     "CaudaPctPerda": br(100 * linha_pr("prazo fixo", "12 h")["tail_share_of_loss"], 0),
 }
+# Fatores de sensibilidade tirados dos dados (data/factors.json, scripts/fetch_factors.py do kya-brasil): pico mensal
+# sobre a média, taxa pelo fluxo sobre a pelo estoque e a AC de maior risco relativo. O maior deles é o limite observado;
+# 10 e 100 vezes ficam como teste de estresse além do observado.
+try:
+    fat = json.load(open(DATA / "factors.json", encoding="utf-8"))
+    extra.update({
+        "FatorMesPico": br(fat["month_peak_over_mean"], 2), "FatorMesPicoMes": fat["peak_month"],
+        "FatorFluxoEstoque": br(fat["flow_over_stock"], 2),
+        "FatorAcMax": br(fat["ac_relative_hazard_max"], 1), "FatorAcMaxNome": fat["ac_relative_hazard_top"]["ac"],
+        "FatorMax": br(fat["factor_max"], 1),
+    })
+    fmax = next((s for s in sens["scenarios"] if s["median_brl"] == base_med and abs(s["multiplier"] - fat["factor_max"]) < 1e-9 and s["best"]), None)
+    if fmax:
+        extra.update({"SensFatorPct": br(100 * fmax["best"]["share_of_avoidable"], 0), "SensFatorGanho": br(fmax["best"]["gain_brl_per_1000"], 2)})
+except FileNotFoundError:
+    pass
 with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
     for k, v in extra.items():
         f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")

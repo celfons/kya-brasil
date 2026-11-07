@@ -77,6 +77,12 @@ policy is the worst of the three here, because the attacker picks a value that i
 The daily ceiling is what bounds the loss, which is why counting and enforcing it is part of the verifier's
 policy (SPEC section 18, "Daily ceilings").
 
+**Sensitivity factors from the data.** `fetch_factors.py` writes `data/factors.json` with three multiples of the
+measured rate taken from the collection itself: the peak month over the mean month, the flow rate over the stock
+rate, and the highest relative hazard of one AC (its share of new entries over its share of the stock, a proxy
+since the ITI keeps no per-AC counts). `sensitivity.py` adds the largest of them to its grid (1, 3, 10, 30, 100),
+so the paper can cite the observed bound and present the rest as a stress test. On 7 Nov 2026: 1.17, 1.17 and 2.8.
+
 **Sensitivity.** `results.json` also holds the three main policies under true rates of 1e-6 and 1e-4 per hour,
 with the verifier still assuming 1e-5. Loss scales roughly with the true rate, and the ranking of the policies
 does not change.
