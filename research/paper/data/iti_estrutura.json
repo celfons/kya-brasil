@@ -1,0 +1,767 @@
+{
+ "fonte": "https://estrutura.iti.gov.br/assets/jsons/structure.json",
+ "atualizado_em": "29/10/2026",
+ "situacao_legenda": {
+  "4002": "credenciada",
+  "4001": "em credenciamento"
+ },
+ "ar": 6574,
+ "ac": [
+  {
+   "nome": "AC CERTISIGN",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC CERTISIGN ICP-BRASIL SSL",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC DEFESA",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC DIGITAL MAIS",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC DIGITALSIGN ACP",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC INMETRO",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC JUS",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC MRE",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC PR",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC PRODESP SP",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC RFB",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SAFEWEB",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SERPRO",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SERPRO SSL",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SOLUTI",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SOLUTI SSL EV",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC SYNGULARID",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC VALID",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC VALID SSL EV",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "SERASA ACP",
+   "nivel": 1,
+   "situacao": 4002,
+   "superior": "AC RAIZ"
+  },
+  {
+   "nome": "AC A DIGIFORTE BRASIL",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC A DIGIFORTE RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC A R A CERTIFICACAO DIGITAL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC ACD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC ALTERNATIVE TECNOLOGIA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC BR RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC BRASIL CERTEC",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC BRY TIMESTAMPING V12",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC SYNGULARID"
+  },
+  {
+   "nome": "AC CACB RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC CCN COMPANHIA CERTIFICADORA NACIONAL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC CERTBANK",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC CERTDATA BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC CERTFACIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC CERTIFICA ANAPOLIS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC CERTIFICA MINAS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC CERTIFICA MULTIPLA",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC SYNGULARID"
+  },
+  {
+   "nome": "AC CERTIPE CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC CERTISIGN JUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC JUS"
+  },
+  {
+   "nome": "AC CERTISIGN MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC CERTISIGN RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC CERTISIGN SPB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC CERTISIGN TEMPO",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC CERTISIGN_OM-BR",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC INMETRO"
+  },
+  {
+   "nome": "AC CNDL RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC CONSULTI BRASIL RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC DIGISEC",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC DIGITAL CERTY",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC DIGITAL MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC DIGITAL MAIS"
+  },
+  {
+   "nome": "AC DIGITALSIGN",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC DIGITALSIGN ACP"
+  },
+  {
+   "nome": "AC DIGITALSIGN RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC DOCCLOUD RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC EGBA MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC FCDL SC",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC FECOMERCIO MG RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC FENACOR RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC IDFEDERAL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC INFOCO DIGITAL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC INFOCOMEX",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC INSTITUTO FENACON",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC INSTITUTO FENACON RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC INTERCERT",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC INVIA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC LINK CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC LINK RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC MASTER ID",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC MAXIMUS TECNOLOGIA E EVENTOS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC MULT",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC MUNDO DIGITAL TECNOLOGIA DA INFORMACAO",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC NACIONAL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC NOTARIAL RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC OAB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC ONLINE BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC ONLINE RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC PRIME",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC PRIMECERT",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC PROCERTI",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC PRODESP",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC PRODESP SP"
+  },
+  {
+   "nome": "AC PRODESP RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC QUALITYCERT",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC REDE BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC REDE IDEIA CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC REDE IDEIA RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SAFE-ID BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SAFETECH CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC SAFETECH RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SAFEWEB CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC SAFEWEB JUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC JUS"
+  },
+  {
+   "nome": "AC SAFEWEB RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SAFEWEB TIMESTAMPING",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC SDI",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SEFAZCE",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SEGURA ID",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC SEMPRE CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SAFEWEB"
+  },
+  {
+   "nome": "AC SEMPRE RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SENHA DIGITAL BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC SERASA RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SERPRO ACF SSL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SERPRO ACF TIMESTAMPING",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SERPRO JUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC JUS"
+  },
+  {
+   "nome": "AC SERPRO RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SIC BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC SIC RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SIG BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC SINCOR",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC CERTISIGN"
+  },
+  {
+   "nome": "AC SINCOR RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SINCOR RIO RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SIRIUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "AC SOLUCAO DIGITAL MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SYNGULARID"
+  },
+  {
+   "nome": "AC SOLUTI JUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC JUS"
+  },
+  {
+   "nome": "AC SOLUTI MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC SOLUTI MULTIPLA TIMESTAMPING",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC SOLUTI OM-BR",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC INMETRO"
+  },
+  {
+   "nome": "AC SOLUTI RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC SOLUTI SPB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SOLUTI"
+  },
+  {
+   "nome": "AC SYNGULARID MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SYNGULARID"
+  },
+  {
+   "nome": "AC SYNGULARID RFB",
+   "nivel": 2,
+   "situacao": 4001,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC VALID BRASIL",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC VALID JUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC JUS"
+  },
+  {
+   "nome": "AC VALID PLUS",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC VALID PLUS TIMESTAMPING",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC VALID RFB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC RFB"
+  },
+  {
+   "nome": "AC VALID SPB",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC VALID"
+  },
+  {
+   "nome": "AC VALIDAR MULTIPLA",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SYNGULARID"
+  },
+  {
+   "nome": "AC ZAPSIGN",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  },
+  {
+   "nome": "SERASA CD",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "SERASA ACP"
+  },
+  {
+   "nome": "SERPRO ACF",
+   "nivel": 2,
+   "situacao": 4002,
+   "superior": "AC SERPRO"
+  }
+ ]
+}

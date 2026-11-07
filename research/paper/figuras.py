@@ -63,7 +63,7 @@ for r in csv.DictReader(open(WEEKDAY_HOUR, encoding="utf-8")):
     d, h = int(r["weekday"]), int(r["hour_brt"])
     grid[d][h] = int(r["revocations"])
     nomes[d] = r["dia"]
-fig, ax = plt.subplots(figsize=(4.6, 1.9))
+fig, ax = plt.subplots(figsize=(6.0, 2.6))
 im = ax.imshow(grid, aspect="auto", cmap="Blues")
 ax.set_yticks(range(7), nomes)
 ax.set_xticks(range(0, 24, 3))
@@ -117,18 +117,48 @@ for pol, (m, c) in estilos.items():
     ax.scatter([p[0] for p in sel], [p[1] for p in sel], marker=m, color=c, s=16, label=pol, zorder=3)
 ax.plot([p[0] for p in frente], [p[1] for p in frente], color="#999999", lw=0.8, zorder=2)
 ax.set_xscale("log")
+from matplotlib.ticker import FixedLocator, NullFormatter, ScalarFormatter  # noqa: E402
+
+ax.xaxis.set_major_locator(FixedLocator([20, 50, 100, 200, 500, 1000]))
+ax.xaxis.set_major_formatter(ScalarFormatter())
+ax.xaxis.set_minor_formatter(NullFormatter())
 ax.set_xlabel("consultas ao status por 1.000 ações")
 ax.set_ylabel("perda esperada (R\\$/1.000 ações)")
 ax.legend(fontsize=7, frameon=False)
-fig.tight_layout()
-fig.savefig(FIGS / "pareto.pdf")
 prop_frente = [p for p in frente if p[2] == PROP]
 fixo12 = next(p for p in pts if p[2] == "prazo fixo" and p[3] == "12 h")
+fixo24 = next(p for p in pts if p[2] == "prazo fixo" and p[3] == "24 h")
 prop001 = next(p for p in pts if p[2] == PROP and p[3] == "L=0.01")
+# L principal da política proporcional: a régua da fraude do Pix (fração do valor perdida com fraude aceita ×
+# valor médio do Pix entre empresas), a mesma conta de freshness-sim/simulate.py (fraud_ruler_L)
+_fraude = json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_fraud.json", encoding="utf-8"))["total"]["fraud_share_of_value"]
+_cen = json.load(open(RESEARCH / "freshness-sim" / "scenarios.json", encoding="utf-8"))
+L_FRAUDE = round(_fraude * _cen["means_brl"]["B2B"], 2)
+L_ROTULO = f"L={L_FRAUDE:g}"
+propL = next(p for p in pts if p[2] == PROP and p[3] == L_ROTULO)
+for p_, txt, dx, dy in ((propL, f"$L$ = {L_FRAUDE:.2f}".replace(".", ","), 4, 6), (fixo12, "12 h", 4, -10)):
+    ax.annotate(txt, (p_[0], p_[1]), xytext=(dx, dy), textcoords="offset points", fontsize=7)
+fig.tight_layout()
+fig.savefig(FIGS / "pareto.pdf")
+# Onde a política morde: acima de L/(λ·24 h) a idade máxima fica abaixo do teto de 24 h da biblioteca
+from statistics import NormalDist  # noqa: E402
+import math  # noqa: E402
+
+_vs = _cen["scenarios"][0]
+corte = L_FRAUDE / (lam["per_hour"] * 24.0)
+acima = 1 - NormalDist().cdf(math.log(corte / _vs["median_brl"]) / _vs["sigma"])
 extra = {
     "PerdaPiso": br(pts[0][1], 2),
-    "PropConsultas": br(prop001[0], 0),
-    "PropPerda": br(prop001[1], 2),
+    "LFraude": br(L_FRAUDE, 2),
+    "PropConsultas": br(propL[0], 0),
+    "PropPerda": br(propL[1], 2),
+    "FixoVinteQuatroConsultas": br(fixo24[0], 0),
+    "FixoVinteQuatroPerda": br(fixo24[1], 2),
+    "PropUmConsultas": br(prop001[0], 0),
+    "PropUmPerda": br(prop001[1], 2),
+    "ValorCorte": br(round(corte, -3), 0),
+    "ValorCorteCem": br(round(corte / 100, -1), 0),
+    "PctAcoesAcimaCorte": br(100 * acima, 2),
     "FixoDozeConsultas": br(fixo12[0], 0),
     "FixoDozePerda": br(fixo12[1], 2),
     "PropNaFrente": str(len(prop_frente)),
@@ -271,8 +301,8 @@ def faixa(vals, d):
 def linha(rot, cs):
     m = lambda f, d: faixa([f(c) for c in cs], d)  # noqa: E731
     return (f"{rot} & {m(lambda c: c['median_brl'], 0)} & {m(lambda c: c['floor_brl_per_1000'], 2)} & "
-            f"{m(lambda c: c['proportional_L001']['fetches_per_1000'], 0)} & "
-            f"{m(lambda c: c['proportional_L001']['expected_loss_per_1000_brl'], 2)} & "
+            f"{m(lambda c: c['proportional_Lfraude']['fetches_per_1000'], 0)} & "
+            f"{m(lambda c: c['proportional_Lfraude']['expected_loss_per_1000_brl'], 2)} & "
             f"{m(lambda c: c['fixed_12h']['fetches_per_1000'], 0)} & "
             f"{m(lambda c: c['fixed_12h']['expected_loss_per_1000_brl'], 2)} \\\\")
 
@@ -303,7 +333,6 @@ extra = {
     "CartaoMediana": br(ca["median_brl"], 0),
     "CartaoRitmoMes": br(cart["transactions_per_card_per_month"], 1),
     "CartaoTrimestres": f"{cart['quarters'][0]['quarter'][4:]}º trimestre de {cart['quarters'][0]['quarter'][:4]} ao {cart['quarters'][-1]['quarter'][4:]}º de {cart['quarters'][-1]['quarter'][:4]}",
-    "LFraude": br(fraude * cen["means_brl"]["B2B"], 2),
     "SigmaInf": br(cen["sigma_lower_bound"], 2),
     "PixMeses": (lambda m: f"{m[0][4:]}/{m[0][:4]} a {m[-1][4:]}/{m[-1][:4]}")(json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_cnae.json", encoding="utf-8"))["months"]),
     "PropNaFrenteMin": str(min(c["proportional_on_front"] for c in cen["scenarios"])),
@@ -329,7 +358,8 @@ m25 = [mensal[k] for k in sorted(mensal) if k.startswith("2025")]
 fr = json.load(open((RESEARCH / "freshness-sim" / "data") / "pix_fraud.json", encoding="utf-8"))["total"]
 pr = por_nome["principal"]
 linha_pr = lambda pol, st: next(r for r in pr["rows"] if r["policy"] == pol and r["setting"] == st)  # noqa: E731
-perda_valor = pr["proportional_L001"]["expected_loss_per_1000_brl"] / (1000 * cen["means_brl"]["B2B"])
+assert all(c["proportional_Lfraude"]["setting"] == L_ROTULO for c in cen["scenarios"]), "scenarios.json com outro L"
+perda_valor = pr["proportional_Lfraude"]["expected_loss_per_1000_brl"] / (1000 * cen["means_brl"]["B2B"])
 cem = next(s_ for s_ in sens["scenarios"] if s_["multiplier"] == max(sens["multipliers"]) and s_["median_brl"] == sens["medians_brl"][0])
 extra = {
     "MotivoKeyPct": br(100 * mot["total"]["key_compromise_share_of_with_reason"], 0),
@@ -345,8 +375,10 @@ extra = {
     "RazaoFraude": br(fr["fraud_share_of_value"] / perda_valor, 0),
     "RazaoFraudeCem": br(fr["fraud_share_of_value"] / (cem["floor_brl_per_1000"] / (1000 * cen["means_brl"]["B2B"])), 1),
     "CaudaSempre": br(linha_pr("consultar sempre", "0 h")["tail_loss_per_1000_tail_actions_brl"], 0),
-    "CaudaPropTres": br(linha_pr("proporcional ao valor", "L=0.03")["tail_loss_per_1000_tail_actions_brl"], 0),
-    "PropTresConsultas": br(linha_pr("proporcional ao valor", "L=0.03")["fetches_per_1000"], 0),
+    "CaudaProp": br(linha_pr("proporcional ao valor", L_ROTULO)["tail_loss_per_1000_tail_actions_brl"], 0),
+    "CaudaPropConsultas": br(linha_pr("proporcional ao valor", L_ROTULO)["fetches_per_1000"], 0),
+    "CaudaPropUm": br(linha_pr("proporcional ao valor", "L=0.01")["tail_loss_per_1000_tail_actions_brl"], 0),
+    "CaudaVinteQuatro": br(linha_pr("prazo fixo", "24 h")["tail_loss_per_1000_tail_actions_brl"], 0),
     "CaudaFixoDoze": br(linha_pr("prazo fixo", "12 h")["tail_loss_per_1000_tail_actions_brl"], 0),
     "CaudaFixoSeis": br(linha_pr("prazo fixo", "6 h")["tail_loss_per_1000_tail_actions_brl"], 0),
     "FixoSeisConsultas": br(linha_pr("prazo fixo", "6 h")["fetches_per_1000"], 0),
@@ -355,4 +387,31 @@ extra = {
 with open(FIGS / "numeros.tex", "a", encoding="utf-8") as f:
     for k, v in extra.items():
         f.write(f"\\newcommand{{\\{k}}}{{{v}}}\n")
+print(extra)
+
+# Cobertura do coletor: AC da árvore do ITI (data/iti_estrutura.json, cópia de kya-paper/scripts/iti_estrutura.py)
+# que as LCR de usuário final medidas (freshness-sim/data/measured.json) representam. O nome da AC sai do id da
+# fonte: "uf-ac-serpro-rfb-v5" → "AC SERPRO RFB", como o ITI escreve.
+import re  # noqa: E402
+
+iti = json.load(open(HERE / "data" / "iti_estrutura.json", encoding="utf-8"))
+ac2 = [a for a in iti["ac"] if a["nivel"] == 2]
+rfb = [a for a in ac2 if a["superior"] == "AC RFB"]
+_medido = json.load(open((RESEARCH / "freshness-sim" / "data") / "measured.json", encoding="utf-8"))
+fontes_uf, cadencia = _medido["weekday_hour_sources"], _medido["cadence_usuario_final"]
+nome_ac = lambda fid: "AC " + re.sub(r"-(v|g)\d+$", "", fid.removeprefix("uf-ac-")).replace("-", " ").upper()  # noqa: E731
+cobertas = {nome_ac(f) for f in fontes_uf}
+assert cobertas <= {a["nome"] for a in ac2}, cobertas - {a["nome"] for a in ac2}
+extra = {
+    "EstruturaData": iti["atualizado_em"],
+    "AcPrimeiroNivel": str(sum(a["nivel"] == 1 for a in iti["ac"])),
+    "AcSegundoNivel": str(len(ac2)),
+    "AcSegundoCredenciadas": str(sum(a["situacao"] == 4002 for a in ac2)),
+    "AcRfb": str(len(rfb)),
+    "AcCobertas": str(len(cobertas)),
+    "AcRfbCobertas": str(len(cobertas & {a["nome"] for a in rfb})),
+    "LcrUsuarioFinal": str(len(fontes_uf)),
+    "LcrVigentes": str(sum("encerrada" not in cadencia[f]["ac"] for f in fontes_uf)),
+}
+write_macros(extra)
 print(extra)

@@ -68,11 +68,28 @@ def tiers(cuts):
     return f
 
 
+def fraud_ruler_L():
+    """L (BRL per action) from the Pix fraud ruler: the share of value that Pix loses to accepted fraud
+    (data/pix_fraud.json, Banco Central open data) applied to the mean value of a Pix payment between companies
+    (value_scale.py). The paper's main setting of the proportional policy. None when the data are not fetched."""
+    try:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "pix_fraud.json"), encoding="utf-8") as f:
+            share = json.load(f)["total"]["fraud_share_of_value"]
+    except FileNotFoundError:
+        return None
+    import value_scale as V
+    return round(share * V.means()["B2B"], 2)
+
+
 def build_policies(lam):
     p = {}
     p["consultar sempre"] = [("0 h", fixed(0.0))]
     p["prazo fixo"] = [(f"{h:g} h", fixed(h)) for h in (0.25, 0.5, 1, 2, 4, 6, 12, 24, 48)]
-    p["proporcional ao valor"] = [(f"L={L:g}", proportional(L, lam, 24.0)) for L in (0.01, 0.03, 0.1, 0.3, 1, 3, 10)]
+    Ls = [0.01, 0.03, 0.1, 0.3, 1, 3, 10]
+    lf = fraud_ruler_L()
+    if lf is not None and lf not in Ls:
+        Ls = sorted(Ls + [lf])
+    p["proporcional ao valor"] = [(f"L={L:g}", proportional(L, lam, 24.0)) for L in Ls]
     p["faixas de valor"] = [
         ("3 faixas, folgada", tiers([(100, 24), (10_000, 6), (math.inf, 1)])),
         ("3 faixas, média", tiers([(100, 12), (10_000, 1), (math.inf, 0.25)])),

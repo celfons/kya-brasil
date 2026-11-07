@@ -134,6 +134,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 20.84,
+     "expected_loss_per_1000_brl": 5.02452
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 20.84,
      "expected_loss_per_1000_brl": 5.028973
@@ -178,9 +184,9 @@
     },
     {
      "policy": "proporcional ao valor",
-     "setting": "L=1",
+     "setting": "L=0.71",
      "fetches_per_1000": 20.84,
-     "expected_loss_per_1000_brl": 5.028973
+     "expected_loss_per_1000_brl": 5.02452
     },
     {
      "policy": "proporcional ao valor",

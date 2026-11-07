@@ -197,6 +197,15 @@ loss a verifier can avoid at all, that is, above the always-fetch floor that com
 The result depends on the product of value and rate. Even at 100x, the avoidable loss is small next to the floor:
 the AC's working hours bound freshness.
 
+## The fraud-ruler L (`simulate.fraud_ruler_L`)
+
+The sweep also runs the proportional policy with the L that the Pix fraud yardstick gives: the share of Pix value
+accepted as fraud (`data/pix_fraud.json`) applied to the mean value of a Pix payment between companies
+(`value_scale.py`), R$ 0.71 on the November 2026 data. It is the paper's main setting (`scenarios.json`,
+`proportional_Lfraude`). At the measured rate, L / (v × λ) exceeds the 24 h cap for every action below about
+R$ 107,000, so that setting behaves like a fixed 24 h deadline and only starts to differentiate actions at high
+values or at 10 to 100 times the rate; the L = 0.01 rows above are the stingy end of the same dial.
+
 ## Where the policy matters, and how large the loss is (exploratory)
 
 - **Tail.** `scenarios.py` also reports the loss on the top 1% of actions by value. In the Pix scenario, the
