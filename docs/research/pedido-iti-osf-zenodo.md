@@ -103,7 +103,9 @@ As hipóteses acima foram escritas antes dos 12 meses de coleta, que são a base
 
 **Feito em 7 nov. 2026.** Chaves ligadas; releases `v2026.11` (kya-icp) e `research-2026.11` (kya-brasil)
 publicadas. DOI conceito: kya-icp 10.5281/zenodo.23973109, kya-brasil 10.5281/zenodo.23973230, dados
-10.5281/zenodo.24011370. A release de abril de 2027 acrescenta uma versão sob os mesmos DOIs conceito.
+10.5281/zenodo.24011370. Versões seguintes, sob os mesmos DOIs conceito: `research-2026.12` (H4, saída do Alloy,
+fatores de sensibilidade) = 10.5281/zenodo.24040139; kya-icp `v2026.12` (146 fontes, espaçamento por host,
+espelho) = 10.5281/zenodo.24040114. A release de abril de 2027 acrescenta mais uma.
 
 Os repositórios já têm `CITATION.cff` e `.zenodo.json` (PRs celfons/kya-brasil#32 e celfons/kya-icp#8).
 
