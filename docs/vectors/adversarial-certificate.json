@@ -1,0 +1,173 @@
+{
+ "description": "Adversarial certificate and CRL fixtures (H4, part that cannot come from the Alloy model). Each case names a construction that packages/core/src/adversarial-certificate.test.ts performs with a test PKI generated at run time (RSA 2048, SHA-256), and the answer the library must give: for kind=crl, checkRevocation(crl, serial, issuer AC certificate, pastNextUpdate=refuse) at 2026-10-12T00:00:00Z; for kind=cms, verifyIcpSignature(CMS over the challenge, expectedCnpj, anchors) at the same instant. `expect` is either {\"revoked\": bool} or {\"error\": KyaError code, \"message\": regular expression}.",
+ "cases": [
+  {
+   "id": "crl-clean",
+   "kind": "crl",
+   "construction": "CRL signed by the AC, serial not listed",
+   "expect": {
+    "revoked": false
+   }
+  },
+  {
+   "id": "crl-listed",
+   "kind": "crl",
+   "construction": "CRL signed by the AC, serial listed with reason keyCompromise",
+   "expect": {
+    "revoked": true
+   }
+  },
+  {
+   "id": "crl-impostor-same-name",
+   "kind": "crl",
+   "construction": "CRL signed by another key under a certificate with the same subject as the AC",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "signature does not match"
+   }
+  },
+  {
+   "id": "crl-foreign-ac",
+   "kind": "crl",
+   "construction": "CRL issued by another AC (different subject)",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "not by the certificate's AC"
+   }
+  },
+  {
+   "id": "crl-stale",
+   "kind": "crl",
+   "construction": "CRL whose nextUpdate is before the verifier's clock",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "stale"
+   }
+  },
+  {
+   "id": "crl-tampered-entry",
+   "kind": "crl",
+   "construction": "valid CRL with one byte of the listed serial flipped after signing (the attacker removes a revocation)",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "signature does not match"
+   }
+  },
+  {
+   "id": "crl-tampered-signature",
+   "kind": "crl",
+   "construction": "valid CRL with one byte of the signature flipped",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "signature does not match"
+   }
+  },
+  {
+   "id": "crl-truncated",
+   "kind": "crl",
+   "construction": "valid CRL cut at half its length",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "not valid DER"
+   }
+  },
+  {
+   "id": "crl-garbage",
+   "kind": "crl",
+   "construction": "random bytes in place of the CRL",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "not valid DER"
+   }
+  },
+  {
+   "id": "crl-unsupported-algorithm",
+   "kind": "crl",
+   "construction": "CRL signed with RSA-PSS (OID 1.2.840.113549.1.1.10) by an AC whose certificate is RSA-PSS; ICP-Brasil ACs sign with RSA PKCS#1 v1.5, ECDSA or EdDSA, and the verifier refuses anything outside that set",
+   "expect": {
+    "error": "REVOCATION_UNAVAILABLE",
+    "message": "not supported"
+   }
+  },
+  {
+   "id": "cms-valid",
+   "kind": "cms",
+   "construction": "e-CNPJ under the trusted AC signs the challenge",
+   "expect": {
+    "cnpj": "11222333000181"
+   }
+  },
+  {
+   "id": "cms-other-root",
+   "kind": "cms",
+   "construction": "e-CNPJ issued under another AC, not among the anchors",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "chain not trusted"
+   }
+  },
+  {
+   "id": "cms-expired-leaf",
+   "kind": "cms",
+   "construction": "e-CNPJ whose notAfter is before the verifier's clock",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "certificate valid from"
+   }
+  },
+  {
+   "id": "cms-not-yet-valid-leaf",
+   "kind": "cms",
+   "construction": "e-CNPJ whose notBefore is after the verifier's clock",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "certificate valid from"
+   }
+  },
+  {
+   "id": "cms-ecpf-instead-of-ecnpj",
+   "kind": "cms",
+   "construction": "certificate with the CPF otherName (e-CPF) instead of the CNPJ one",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "natural person"
+   }
+  },
+  {
+   "id": "cms-cnpj-mismatch",
+   "kind": "cms",
+   "construction": "valid e-CNPJ of one company, mandate claims another CNPJ",
+   "expect": {
+    "error": "CNPJ_MISMATCH",
+    "message": "belongs to CNPJ"
+   }
+  },
+  {
+   "id": "cms-wrong-text",
+   "kind": "cms",
+   "construction": "valid signature over a different text than the challenge",
+   "expect": {
+    "error": "CHALLENGE_FAILED",
+    "message": "challenge"
+   }
+  },
+  {
+   "id": "cms-no-anchors",
+   "kind": "cms",
+   "construction": "valid CMS, verifier configured with no trust anchors",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "no ICP-Brasil trust anchors"
+   }
+  },
+  {
+   "id": "cms-garbage",
+   "kind": "cms",
+   "construction": "random base64 in place of the CMS",
+   "expect": {
+    "error": "CHALLENGE_FAILED",
+    "message": "not a CMS SignedData"
+   }
+  }
+ ]
+}
