@@ -413,6 +413,7 @@ ALIAS_ITI = {
     "AC SERPRO ACF": "SERPRO ACF",
     "AC REDEBRASIL": "AC REDE BRASIL",
     "AC CERTISIGN OM BR": "AC CERTISIGN_OM-BR",
+    "AC SERASA CD": "SERASA CD",
 }
 cobertas = {ALIAS_ITI.get(nome_ac(f), nome_ac(f)) for f in fontes_uf}
 assert cobertas <= {a["nome"] for a in ac2}, cobertas - {a["nome"] for a in ac2}
