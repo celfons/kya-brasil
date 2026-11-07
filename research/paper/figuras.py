@@ -399,8 +399,22 @@ ac2 = [a for a in iti["ac"] if a["nivel"] == 2]
 rfb = [a for a in ac2 if a["superior"] == "AC RFB"]
 _medido = json.load(open((RESEARCH / "freshness-sim" / "data") / "measured.json", encoding="utf-8"))
 fontes_uf, cadencia = _medido["weekday_hour_sources"], _medido["cadence_usuario_final"]
-nome_ac = lambda fid: "AC " + re.sub(r"-(v|g)\d+$", "", fid.removeprefix("uf-ac-")).replace("-", " ").upper()  # noqa: E731
-cobertas = {nome_ac(f) for f in fontes_uf}
+def nome_ac(fid: str) -> str:
+    partes = fid.removeprefix("uf-ac-").split("-")
+    while len(partes) > 1 and re.fullmatch(r"[vg]\d+", partes[-1]):
+        partes.pop()
+    return "AC " + " ".join(partes).upper()
+
+
+# Onde o ITI escreve o nome de outro jeito, o id da fonte não basta: a tabela abaixo fecha a diferença.
+ALIAS_ITI = {
+    "AC ALTERNATIVE": "AC ALTERNATIVE TECNOLOGIA",
+    "AC SAFE ID BRASIL": "AC SAFE-ID BRASIL",
+    "AC SERPRO ACF": "SERPRO ACF",
+    "AC REDEBRASIL": "AC REDE BRASIL",
+    "AC CERTISIGN OM BR": "AC CERTISIGN_OM-BR",
+}
+cobertas = {ALIAS_ITI.get(nome_ac(f), nome_ac(f)) for f in fontes_uf}
 assert cobertas <= {a["nome"] for a in ac2}, cobertas - {a["nome"] for a in ac2}
 extra = {
     "EstruturaData": iti["atualizado_em"],
