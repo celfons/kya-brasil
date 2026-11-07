@@ -51,3 +51,30 @@ run ResidualWindow { accepts[T] and some T.cred.revokedAt and T.cred.revokedAt >
 
 -- At the edge: CRL exactly MAXAGE old, not listed: accepted.
 run AgeEdge { accepts[T] and minus[T.now, T.crl.thisUpdate] = MAXAGE and no T.cred.revokedAt } for 4 but 5 Int, exactly 1 Attempt, exactly 1 Crl, exactly 1 Cred
+
+/* ---- (ii-b) Co-signature of a company mandate by a representative's e-CPF (threats.als, sections "concrete"
+ *      and "no list"). One company mandate, one firm; the verifier's list and the e-CNPJ's responsible come from
+ *      the instance. The library's answer is verifyCompanyWill on a self-issued company credential. ---- */
+
+one sig M extends CompanyMandate {}
+fact OneFirm { #Firm = 1 and #ECnpj = 1 }
+
+-- Co-signer in the verifier's list, same text as the challenge: accepted as the company's will.
+run CosignListedSameText { acceptedAsCompanyWill[M] and listIsAccurate and eCpfHeldByOwner } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf
+
+-- Co-signer not in the list (and not the responsible): refused, COSIGNER_NOT_REPRESENTATIVE.
+run CosignNotListed { some M.cosigner and M.cosignedText = M.challenge and M.cosigner.owner not in M.ecnpj.firm.listed and M.cosigner.owner != responsibleOf[M.ecnpj] } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf
+
+-- Co-signature over another text: refused, COSIGNATURE_TEXT_MISMATCH.
+run CosignOtherText { some M.cosigner and M.cosignedText != M.challenge and M.cosigner.owner in M.ecnpj.firm.listed } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf
+
+-- No co-signature at all: refused, NO_COSIGNATURE, whoever operates the e-CNPJ.
+run CosignAbsent { no M.cosigner } for 4 but 5 Int, exactly 1 CompanyMandate, 0 ECpf
+
+-- The responsible named in the e-CNPJ co-signs, with no list: accepted (acceptCertificateResponsible).
+run CosignByResponsible { acceptedByResponsible[M] and M.cosigner.owner not in M.ecnpj.firm.listed } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf
+
+-- The trust assumptions the library cannot check, kept as vectors the library ACCEPTS: a stale list (the
+-- co-signer left the firm but is still listed) and a lent e-CPF (operated by someone else).
+run CosignStaleList { acceptedAsCompanyWill[M] and M.cosigner.operator not in M.ecnpj.firm.realReps and eCpfHeldByOwner } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf
+run CosignLentECpf { acceptedAsCompanyWill[M] and listIsAccurate and M.cosigner.operator.cpf != M.cosigner.owner } for 4 but 5 Int, exactly 1 CompanyMandate, exactly 1 ECpf

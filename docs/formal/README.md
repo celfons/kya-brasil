@@ -100,7 +100,7 @@ commands (fresh CRL not listing the certificate; stale CRL; fresh CRL listing it
 after `thisUpdate`; a CRL exactly `MAXAGE` old). `generate-adversarial.py` writes 20 instances of each, plus six
 hand-written cases outside the model's facts (lifetime above the maximum, expiry before creation, replay across the
 skew, replay then expiry, stale by one second, revoked at `thisUpdate`), to `docs/vectors/adversarial-v1.json`
-(186 vectors). Replay vectors use 1 model unit = 100 s, so the model's SKEW 3 and MAXLIFE 6 are the 300 s and 600 s
+(326 vectors: 180 replay and freshness, 140 co-signature, 6 by hand). Replay vectors use 1 model unit = 100 s, so the model's SKEW 3 and MAXLIFE 6 are the 300 s and 600 s
 defaults of `createKyaAuth`; freshness vectors use 1 unit = 1 h, MAXAGE 3 = 10 800 s.
 
 ```sh
@@ -110,10 +110,15 @@ pnpm --filter @kya-brasil/core test          # src/adversarial.test.ts: checkFre
 pnpm --filter @kya-brasil/agent-tools test   # src/adversarial.test.ts: one signed request presented at each time
 ```
 
-Result on 7 Nov 2026 (Alloy 6.2.0): every command SAT; the libraries answer as the model on all 186 vectors, with
+Result on 7 Nov 2026 (Alloy 6.2.0): every command SAT; the libraries answer as the model on all 326 vectors, with
 the expected error code on each refusal (`KYA_REQUEST_REPLAYED`, `KYA_SIGNATURE_EXPIRED`,
 `KYA_SIGNATURE_NOT_YET_VALID`, `KYA_SIGNATURE_TTL`). The co-signature and issuer-unavailability sections of
-`threats.als` have no vectors yet: the first is a design still being implemented, the second needs a fake issuer.
+`threats.als`: the co-signature section has seven commands and 140 vectors (listed co-signer, not listed, other text,
+absent, the e-CNPJ's responsible with no list, and the two trust assumptions the library cannot see, a stale list and
+a lent e-CPF, which it must accept), replayed by `packages/core/src/adversarial-cosign.test.ts` against
+`verifyCompanyWill`; the HTTP verifier exposes the check as the opt-in `offline.companyWill` of `createKyaAuth`
+(`packages/agent-tools/src/offline-cosign.test.ts`). The issuer-unavailability section still has no vectors: it needs
+a fake issuer.
 
 What the model cannot produce, the certificate itself, is covered by `docs/vectors/adversarial-certificate.json`
 and `packages/core/src/adversarial-certificate.test.ts`: twenty constructions on a test PKI generated at run time
