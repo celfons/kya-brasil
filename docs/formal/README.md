@@ -88,6 +88,30 @@ The checks and tests were run against deliberately broken versions to confirm th
 With only the overall yes/no commands, the first library mutation went undetected, because those instances
 usually break several rules at once. The single-rule commands were added for that reason.
 
+## Adversarial vectors (H4)
+
+`adversarial.als` opens `threats.als` and asks for instances in which the verifier's rule, as implemented, must
+answer in a known way: four replay commands (the same signed request twice inside its window; again after it
+expired; presented before its creation beyond the skew; exactly at the edges of the window) and five freshness
+commands (fresh CRL not listing the certificate; stale CRL; fresh CRL listing it; the residual window, revoked
+after `thisUpdate`; a CRL exactly `MAXAGE` old). `generate-adversarial.py` writes 20 instances of each, plus six
+hand-written cases outside the model's facts (lifetime above the maximum, expiry before creation, replay across the
+skew, replay then expiry, stale by one second, revoked at `thisUpdate`), to `docs/vectors/adversarial-v1.json`
+(186 vectors). Replay vectors use 1 model unit = 100 s, so the model's SKEW 3 and MAXLIFE 6 are the 300 s and 600 s
+defaults of `createKyaAuth`; freshness vectors use 1 unit = 1 h, MAXAGE 3 = 10 800 s.
+
+```sh
+java -jar org.alloytools.alloy.dist.jar exec -q -f -r 20 -t xml -o out-adversarial docs/formal/adversarial.als
+python3 -I docs/formal/generate-adversarial.py
+pnpm --filter @kya-brasil/core test          # src/adversarial.test.ts: checkFreshness on every freshness vector
+pnpm --filter @kya-brasil/agent-tools test   # src/adversarial.test.ts: one signed request presented at each time
+```
+
+Result on 7 Nov 2026 (Alloy 6.2.0): every command SAT; the libraries answer as the model on all 186 vectors, with
+the expected error code on each refusal (`KYA_REQUEST_REPLAYED`, `KYA_SIGNATURE_EXPIRED`,
+`KYA_SIGNATURE_NOT_YET_VALID`, `KYA_SIGNATURE_TTL`). The co-signature and issuer-unavailability sections of
+`threats.als` have no vectors yet: the first is a design still being implemented, the second needs a fake issuer.
+
 ## What the model leaves out
 
 The daily ceiling (same rule as the per-operation ceiling, with `spent_today` added), wildcard counterparties

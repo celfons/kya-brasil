@@ -9,3 +9,4 @@ worker-configuration.d.ts
 infra/Pulumi.*.yaml
 out/
 __pycache__/
+out-adversarial/
