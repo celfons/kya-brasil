@@ -399,7 +399,13 @@ ac2 = [a for a in iti["ac"] if a["nivel"] == 2]
 rfb = [a for a in ac2 if a["superior"] == "AC RFB"]
 _medido = json.load(open((RESEARCH / "freshness-sim" / "data") / "measured.json", encoding="utf-8"))
 fontes_uf, cadencia = _medido["weekday_hour_sources"], _medido["cadence_usuario_final"]
-nome_ac = lambda fid: "AC " + re.sub(r"(-(v|g)\d+)+$", "", fid.removeprefix("uf-ac-")).replace("-", " ").upper()  # noqa: E731
+def nome_ac(fid: str) -> str:
+    partes = fid.removeprefix("uf-ac-").split("-")
+    while len(partes) > 1 and re.fullmatch(r"[vg]\d+", partes[-1]):
+        partes.pop()
+    return "AC " + " ".join(partes).upper()
+
+
 # Onde o ITI escreve o nome de outro jeito, o id da fonte não basta: a tabela abaixo fecha a diferença.
 ALIAS_ITI = {
     "AC ALTERNATIVE": "AC ALTERNATIVE TECNOLOGIA",
