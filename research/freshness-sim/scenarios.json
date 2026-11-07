@@ -25,6 +25,15 @@
     "tail_loss_per_1000_tail_actions_brl": 305.4158,
     "tail_share_of_loss": 0.21
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 285.65,
+    "expected_loss_per_1000_brl": 20.129107,
+    "tail_loss_per_1000_tail_actions_brl": 440.3888,
+    "tail_share_of_loss": 0.2194
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -33,7 +42,7 @@
     "tail_loss_per_1000_tail_actions_brl": 370.9205,
     "tail_share_of_loss": 0.2321
    },
-   "proportional_on_front": 6,
+   "proportional_on_front": 7,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -149,6 +158,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 285.65,
+     "expected_loss_per_1000_brl": 20.129107,
+     "tail_loss_per_1000_tail_actions_brl": 440.3888,
+     "tail_share_of_loss": 0.2194
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 285.57,
      "expected_loss_per_1000_brl": 20.291065,
@@ -214,6 +231,15 @@
     "tail_loss_per_1000_tail_actions_brl": 27.4167,
     "tail_share_of_loss": 0.2095
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 827.99,
+    "expected_loss_per_1000_brl": 1.321339,
+    "tail_loss_per_1000_tail_actions_brl": 30.6894,
+    "tail_share_of_loss": 0.2266
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -222,7 +248,7 @@
     "tail_loss_per_1000_tail_actions_brl": 28.0763,
     "tail_share_of_loss": 0.2266
    },
-   "proportional_on_front": 7,
+   "proportional_on_front": 8,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -338,6 +364,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 1.321339,
+     "tail_loss_per_1000_tail_actions_brl": 30.6894,
+     "tail_share_of_loss": 0.2266
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 827.99,
      "expected_loss_per_1000_brl": 1.321339,
@@ -403,6 +437,15 @@
     "tail_loss_per_1000_tail_actions_brl": 263.218,
     "tail_share_of_loss": 0.1795
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 285.61,
+    "expected_loss_per_1000_brl": 20.282527,
+    "tail_loss_per_1000_tail_actions_brl": 389.1495,
+    "tail_share_of_loss": 0.1924
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -411,7 +454,7 @@
     "tail_loss_per_1000_tail_actions_brl": 319.7369,
     "tail_share_of_loss": 0.2
    },
-   "proportional_on_front": 6,
+   "proportional_on_front": 7,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -527,6 +570,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 285.61,
+     "expected_loss_per_1000_brl": 20.282527,
+     "tail_loss_per_1000_tail_actions_brl": 389.1495,
+     "tail_share_of_loss": 0.1924
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 285.56,
      "expected_loss_per_1000_brl": 20.384503,
@@ -592,6 +643,15 @@
     "tail_loss_per_1000_tail_actions_brl": 482.9028,
     "tail_share_of_loss": 0.3412
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 285.88,
+    "expected_loss_per_1000_brl": 19.264244,
+    "tail_loss_per_1000_tail_actions_brl": 636.7127,
+    "tail_share_of_loss": 0.3315
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -600,7 +660,7 @@
     "tail_loss_per_1000_tail_actions_brl": 585.5222,
     "tail_share_of_loss": 0.368
    },
-   "proportional_on_front": 7,
+   "proportional_on_front": 8,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -716,6 +776,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 285.88,
+     "expected_loss_per_1000_brl": 19.264244,
+     "tail_loss_per_1000_tail_actions_brl": 636.7127,
+     "tail_share_of_loss": 0.3315
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 285.72,
      "expected_loss_per_1000_brl": 19.535163,
@@ -781,6 +849,15 @@
     "tail_loss_per_1000_tail_actions_brl": 304.6988,
     "tail_share_of_loss": 0.2114
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 38.45,
+    "expected_loss_per_1000_brl": 22.395728,
+    "tail_loss_per_1000_tail_actions_brl": 484.9172,
+    "tail_share_of_loss": 0.2188
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -789,7 +866,7 @@
     "tail_loss_per_1000_tail_actions_brl": 414.7662,
     "tail_share_of_loss": 0.2352
    },
-   "proportional_on_front": 7,
+   "proportional_on_front": 8,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -905,6 +982,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 38.45,
+     "expected_loss_per_1000_brl": 22.395728,
+     "tail_loss_per_1000_tail_actions_brl": 484.9172,
+     "tail_share_of_loss": 0.2188
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 38.37,
      "expected_loss_per_1000_brl": 22.571975,
@@ -970,6 +1055,15 @@
     "tail_loss_per_1000_tail_actions_brl": 303.7468,
     "tail_share_of_loss": 0.2175
    },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 4.05,
+    "expected_loss_per_1000_brl": 22.812384,
+    "tail_loss_per_1000_tail_actions_brl": 487.9247,
+    "tail_share_of_loss": 0.2176
+   },
    "fixed_12h": {
     "policy": "prazo fixo",
     "setting": "12 h",
@@ -978,7 +1072,7 @@
     "tail_loss_per_1000_tail_actions_brl": 419.054,
     "tail_share_of_loss": 0.2322
    },
-   "proportional_on_front": 6,
+   "proportional_on_front": 7,
    "rows": [
     {
      "policy": "consultar sempre",
@@ -1094,6 +1188,14 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 4.05,
+     "expected_loss_per_1000_brl": 22.812384,
+     "tail_loss_per_1000_tail_actions_brl": 487.9247,
+     "tail_share_of_loss": 0.2176
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 3.99,
      "expected_loss_per_1000_brl": 23.074454,
@@ -1158,6 +1260,15 @@
     "expected_loss_per_1000_brl": 1.752117,
     "tail_loss_per_1000_tail_actions_brl": 28.1225,
     "tail_share_of_loss": 0.1608
+   },
+   "L_fraude": 0.71,
+   "proportional_Lfraude": {
+    "policy": "proporcional ao valor",
+    "setting": "L=0.71",
+    "fetches_per_1000": 45.75,
+    "expected_loss_per_1000_brl": 2.018,
+    "tail_loss_per_1000_tail_actions_brl": 46.2139,
+    "tail_share_of_loss": 0.2295
    },
    "fixed_12h": {
     "policy": "prazo fixo",
@@ -1280,6 +1391,14 @@
      "expected_loss_per_1000_brl": 2.015974,
      "tail_loss_per_1000_tail_actions_brl": 46.0241,
      "tail_share_of_loss": 0.2288
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 45.75,
+     "expected_loss_per_1000_brl": 2.018,
+     "tail_loss_per_1000_tail_actions_brl": 46.2139,
+     "tail_share_of_loss": 0.2295
     },
     {
      "policy": "proporcional ao valor",

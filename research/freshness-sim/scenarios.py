@@ -51,9 +51,11 @@ def run(task):
     sw = M.sweep(prm, lam)
     rows, front = sw["rows"], sw["pareto"]
     prop, fixed = pick(rows, "proporcional ao valor", "L=0.01"), pick(rows, "prazo fixo", "12 h")
+    lf = S.fraud_ruler_L()
+    prop_fraude = pick(rows, "proporcional ao valor", f"L={lf:g}")
     return {"name": name, "kind": kind, "scale": scale, "median_brl": med, "sigma": sigma, "actions_per_hour": rate,
             "credentials": creds, "floor_brl_per_1000": pick(rows, "consultar sempre", "0 h")["expected_loss_per_1000_brl"],
-            "proportional_L001": prop, "fixed_12h": fixed,
+            "proportional_L001": prop, "L_fraude": lf, "proportional_Lfraude": prop_fraude, "fixed_12h": fixed,
             "proportional_on_front": sum(1 for r in front if r["policy"] == "proporcional ao valor"), "rows": rows}
 
 

@@ -118,6 +118,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 285.65,
+     "expected_loss_per_1000_brl": 20.129107
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 285.57,
      "expected_loss_per_1000_brl": 20.291065
@@ -251,6 +257,12 @@
      "setting": "L=0.3",
      "fetches_per_1000": 290.92,
      "expected_loss_per_1000_brl": 54.421648
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 286.81,
+     "expected_loss_per_1000_brl": 57.922124
     },
     {
      "policy": "proporcional ao valor",
@@ -390,6 +402,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 294.48,
+     "expected_loss_per_1000_brl": 175.722289
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 290.92,
      "expected_loss_per_1000_brl": 181.282363
@@ -523,6 +541,12 @@
      "setting": "L=0.3",
      "fetches_per_1000": 367.96,
      "expected_loss_per_1000_brl": 436.455078
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 320.6,
+     "expected_loss_per_1000_brl": 471.376846
     },
     {
      "policy": "proporcional ao valor",
@@ -662,6 +686,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 395.61,
+     "expected_loss_per_1000_brl": 1410.333922
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 367.96,
      "expected_loss_per_1000_brl": 1445.000028
@@ -793,6 +823,12 @@
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 1.321339
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
      "fetches_per_1000": 827.99,
      "expected_loss_per_1000_brl": 1.321339
     },
@@ -934,6 +970,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 3.961922
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 827.99,
      "expected_loss_per_1000_brl": 3.963245
@@ -1067,6 +1109,12 @@
      "setting": "L=0.3",
      "fetches_per_1000": 828.26,
      "expected_loss_per_1000_brl": 13.033994
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 828.05,
+     "expected_loss_per_1000_brl": 13.133742
     },
     {
      "policy": "proporcional ao valor",
@@ -1206,6 +1254,12 @@
     },
     {
      "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 828.42,
+     "expected_loss_per_1000_brl": 38.879819
+    },
+    {
+     "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 828.2,
      "expected_loss_per_1000_brl": 39.090335
@@ -1339,6 +1393,12 @@
      "setting": "L=0.3",
      "fetches_per_1000": 837.61,
      "expected_loss_per_1000_brl": 122.184251
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 831.1,
+     "expected_loss_per_1000_brl": 125.357702
     },
     {
      "policy": "proporcional ao valor",
