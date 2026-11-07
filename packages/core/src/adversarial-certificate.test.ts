@@ -72,7 +72,7 @@ async function cms(l: Awaited<ReturnType<typeof leaf>>, ca: Ac, text: string) {
 
 function flip(der: ArrayBuffer, index: number) {
   const out = new Uint8Array(der.slice(0));
-  out[index] ^= 0x01;
+  out[index] = (out[index] ?? 0) ^ 0x01;
   return out;
 }
 
