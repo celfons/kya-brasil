@@ -1,48 +1,52 @@
 {
  "collector": "https://kya-icp-collector.marcelfons.workers.dev",
- "fetched_at": "2026-11-06T16:11:20+00:00",
+ "fetched_at": "2026-11-07T21:58:43+00:00",
  "sources": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
-   "entries": 33919,
+   "entries": 33860,
    "reasons": {
-    "sem motivo": 33919
+    "sem motivo": 33860
    }
   },
   "uf-ac-certisign-rfb-g5": {
    "ac": "AC Certisign RFB G5",
-   "entries": 7631,
+   "entries": 7616,
    "reasons": {
-    "key_compromise": 4015,
-    "cessation_of_operation": 1419,
-    "sem motivo": 934,
-    "ca_compromise": 644,
-    "affiliation_changed": 438,
-    "superseded": 171,
+    "key_compromise": 4006,
+    "cessation_of_operation": 1418,
+    "sem motivo": 933,
+    "ca_compromise": 642,
+    "affiliation_changed": 437,
+    "superseded": 170,
     "certificate_hold": 10
    }
   },
   "uf-ac-serpro-rfb-v5": {
    "ac": "Autoridade Certificadora SERPRORFBv5",
-   "entries": 77396,
-   "reasons": {
-    "sem motivo": 77396
-   }
+   "error": "ValueError"
   },
   "uf-ac-serasa-rfb-v5": {
    "ac": "AC Serasa RFB v5",
-   "entries": 1074,
+   "entries": 1051,
    "reasons": {
-    "key_compromise": 1009,
+    "key_compromise": 986,
     "sem motivo": 65
+   }
+  },
+  "uf-ac-valid-rfb-v5": {
+   "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
+   "entries": 26107,
+   "reasons": {
+    "sem motivo": 26107
    }
   },
   "uf-ac-certisign-multipla-g7": {
    "ac": "AC Certisign Multipla G7",
-   "entries": 1217,
+   "entries": 1214,
    "reasons": {
-    "key_compromise": 492,
-    "sem motivo": 356,
+    "key_compromise": 490,
+    "sem motivo": 355,
     "ca_compromise": 157,
     "cessation_of_operation": 137,
     "superseded": 41,
@@ -61,20 +65,601 @@
     "ca_compromise": 9,
     "superseded": 4
    }
+  },
+  "uf-ac-alternative": {
+   "ac": "Autoridade Certificadora ALTERNATIVE",
+   "entries": 2209,
+   "reasons": {
+    "sem motivo": 2209
+   }
+  },
+  "uf-ac-brasil-certec": {
+   "ac": "Autoridade Certificadora BRASIL CERTEC",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-digital-certy": {
+   "ac": "Autoridade Certificadora DIGITAL CERTY",
+   "entries": 1067,
+   "reasons": {
+    "sem motivo": 1067
+   }
+  },
+  "uf-ac-idfederal": {
+   "ac": "Autoridade Certificadora IDFEDERAL",
+   "entries": 331,
+   "reasons": {
+    "sem motivo": 331
+   }
+  },
+  "uf-ac-idfederal-v2": {
+   "ac": "Autoridade Certificadora IDFEDERAL v2",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-infocomex": {
+   "ac": "Autoridade Certificadora INFOCOMEX",
+   "entries": 11,
+   "reasons": {
+    "sem motivo": 11
+   }
+  },
+  "uf-ac-infocomex-v2": {
+   "ac": "Autoridade Certificadora INFOCOMEX v2",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-invia": {
+   "ac": "Autoridade Certificadora INVIA",
+   "entries": 2,
+   "reasons": {
+    "sem motivo": 2
+   }
+  },
+  "uf-ac-nacional": {
+   "ac": "Autoridade Certificadora NACIONAL",
+   "entries": 72,
+   "reasons": {
+    "sem motivo": 72
+   }
+  },
+  "uf-ac-primecert": {
+   "ac": "Autoridade Certificadora PRIMECERT",
+   "entries": 67,
+   "reasons": {
+    "sem motivo": 67
+   }
+  },
+  "uf-ac-primecert-v2": {
+   "ac": "Autoridade Certificadora PRIMECERT v2",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-procerti": {
+   "ac": "Autoridade Certificadora PROCERTI",
+   "entries": 422,
+   "reasons": {
+    "sem motivo": 422
+   }
+  },
+  "uf-ac-safe-id-brasil": {
+   "ac": "Autoridade Certificadora SAFE-ID BRASIL",
+   "entries": 489,
+   "reasons": {
+    "sem motivo": 489
+   }
+  },
+  "uf-ac-sdi": {
+   "ac": "Autoridade Certificadora SDI",
+   "entries": 1292,
+   "reasons": {
+    "sem motivo": 1292
+   }
+  },
+  "uf-ac-sdi-v2": {
+   "ac": "Autoridade Certificadora SDI v2",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-sefazce": {
+   "ac": "Autoridade Certificadora SEFAZCE",
+   "entries": 73,
+   "reasons": {
+    "sem motivo": 73
+   }
+  },
+  "uf-ac-sirius": {
+   "ac": "Autoridade Certificadora SIRIUS",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-zapsign": {
+   "ac": "Autoridade Certificadora ZAPSIGN",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-fecomercio-mg-rfb": {
+   "ac": "Autoridade Certificadora FECOMERCIO MG RFB",
+   "entries": 47,
+   "reasons": {
+    "sem motivo": 47
+   }
+  },
+  "uf-ac-serpro-acf-v5": {
+   "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
+   "error": "ValueError"
+  },
+  "uf-ac-serpro-acf-v6": {
+   "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
+   "entries": 52,
+   "reasons": {
+    "sem motivo": 52
+   }
+  },
+  "uf-ac-serpro-jus-v5": {
+   "ac": "AC SERPRO-JUS v5",
+   "entries": 75,
+   "reasons": {
+    "sem motivo": 75
+   }
+  },
+  "uf-ac-cacb-rfb-g2": {
+   "ac": "AC CACB RFB G2",
+   "entries": 6,
+   "reasons": {
+    "key_compromise": 5,
+    "sem motivo": 1
+   }
+  },
+  "uf-ac-certisign-spb-g6": {
+   "ac": "AC Certisign SPB G6",
+   "entries": 22,
+   "reasons": {
+    "key_compromise": 12,
+    "cessation_of_operation": 7,
+    "sem motivo": 2,
+    "ca_compromise": 1
+   }
+  },
+  "uf-ac-certisign-tempo-g2": {
+   "ac": "AC Certisign Tempo G2 (carimbo do tempo)",
+   "entries": 1,
+   "reasons": {
+    "key_compromise": 1
+   }
+  },
+  "uf-ac-certisign-tempo-g3": {
+   "ac": "AC Certisign Tempo G3 (carimbo do tempo)",
+   "entries": 2,
+   "reasons": {
+    "key_compromise": 2
+   }
+  },
+  "uf-ac-oab-g3": {
+   "ac": "AC OAB G3",
+   "entries": 6733,
+   "reasons": {
+    "key_compromise": 3301,
+    "cessation_of_operation": 1409,
+    "sem motivo": 817,
+    "ca_compromise": 769,
+    "affiliation_changed": 369,
+    "superseded": 57,
+    "certificate_hold": 11
+   }
+  },
+  "uf-ac-oab-g4": {
+   "ac": "AC OAB G4",
+   "entries": 484,
+   "reasons": {
+    "key_compromise": 200,
+    "cessation_of_operation": 170,
+    "sem motivo": 56,
+    "ca_compromise": 31,
+    "affiliation_changed": 26,
+    "superseded": 1
+   }
+  },
+  "uf-ac-sincor-g4": {
+   "ac": "AC SINCOR G4",
+   "entries": 35,
+   "reasons": {
+    "key_compromise": 25,
+    "sem motivo": 5,
+    "cessation_of_operation": 3,
+    "superseded": 1,
+    "affiliation_changed": 1
+   }
+  },
+  "uf-ac-sincor-g5": {
+   "ac": "AC SINCOR G5",
+   "entries": 61,
+   "reasons": {
+    "key_compromise": 52,
+    "cessation_of_operation": 6,
+    "ca_compromise": 1,
+    "affiliation_changed": 1,
+    "sem motivo": 1
+   }
+  },
+  "uf-ac-sincor-rfb-g5": {
+   "ac": "AC SINCOR RFB G5",
+   "entries": 486,
+   "reasons": {
+    "key_compromise": 261,
+    "cessation_of_operation": 84,
+    "sem motivo": 56,
+    "ca_compromise": 55,
+    "affiliation_changed": 22,
+    "superseded": 7,
+    "certificate_hold": 1
+   }
+  },
+  "uf-ac-sincor-rio-rfb-g2": {
+   "ac": "AC SINCOR RIO RFB G2",
+   "entries": 44,
+   "reasons": {
+    "key_compromise": 34,
+    "affiliation_changed": 5,
+    "cessation_of_operation": 2,
+    "sem motivo": 2,
+    "superseded": 1
+   }
+  },
+  "uf-ac-soluti-rfb-v5": {
+   "ac": "AC SOLUTI RFB V5",
+   "entries": 1757,
+   "reasons": {
+    "sem motivo": 1757
+   }
+  },
+  "uf-ac-soluti-spb-v5": {
+   "ac": "AC SOLUTI SPB v5",
+   "entries": 198,
+   "reasons": {
+    "sem motivo": 198
+   }
+  },
+  "uf-ac-soluti-jus-v5": {
+   "ac": "AC SOLUTI-JUS v5",
+   "entries": 1514,
+   "reasons": {
+    "sem motivo": 1514
+   }
+  },
+  "uf-ac-soluti-jus-v6": {
+   "ac": "AC SOLUTI-JUS v6",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-acd-v5": {
+   "ac": "AC ACD v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-certfacil-v5": {
+   "ac": "AC CERTFACIL v5",
+   "entries": 103,
+   "reasons": {
+    "sem motivo": 103
+   }
+  },
+  "uf-ac-digisec-v5": {
+   "ac": "AC DIGISEC v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-fcdl-sc-v5": {
+   "ac": "AC FCDL SC v5",
+   "entries": 436,
+   "reasons": {
+    "sem motivo": 436
+   }
+  },
+  "uf-ac-infoco-digital-v5": {
+   "ac": "AC INFOCO DIGITAL v5",
+   "entries": 17,
+   "reasons": {
+    "sem motivo": 17
+   }
+  },
+  "uf-ac-intercert-v5": {
+   "ac": "AC INTERCERT v5",
+   "entries": 382,
+   "reasons": {
+    "sem motivo": 382
+   }
+  },
+  "uf-ac-mult-v5": {
+   "ac": "AC MULT v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-prime-v5": {
+   "ac": "AC PRIME v5",
+   "entries": 3,
+   "reasons": {
+    "sem motivo": 3
+   }
+  },
+  "uf-ac-qualitycert-v5": {
+   "ac": "AC QUALITYCERT v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-redebrasil-v5": {
+   "ac": "AC REDE BRASIL v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-segura-id-v5": {
+   "ac": "AC SEGURA ID v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-valid-brasil-v5": {
+   "ac": "AC VALID BRASIL v5",
+   "entries": 567,
+   "reasons": {
+    "sem motivo": 567
+   }
+  },
+  "uf-ac-valid-brasil-v12": {
+   "ac": "AC VALID BRASIL V12",
+   "entries": 260,
+   "reasons": {
+    "sem motivo": 260
+   }
+  },
+  "uf-ac-valid-plus-v5": {
+   "ac": "AC VALID PLUS v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-valid-spb-v5": {
+   "ac": "AC VALID SPB v5",
+   "entries": 30,
+   "reasons": {
+    "sem motivo": 30
+   }
+  },
+  "uf-ac-valid-jus-v5": {
+   "ac": "AC VALID-JUS v5",
+   "entries": 565,
+   "reasons": {
+    "sem motivo": 565
+   }
+  },
+  "uf-ac-valid-jus-v6": {
+   "ac": "AC VALID-JUS v6",
+   "entries": 19,
+   "reasons": {
+    "sem motivo": 19
+   }
+  },
+  "uf-ac-online-brasil-v5": {
+   "ac": "AC ONLINE BRASIL v5",
+   "entries": 346,
+   "reasons": {
+    "sem motivo": 346
+   }
+  },
+  "uf-ac-certbank-v5": {
+   "ac": "AC CERTBANK",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-sic-brasil-v5": {
+   "ac": "AC SIC BRASIL",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-valid-plus-timestamping-v5": {
+   "ac": "AC VALID PLUS TIMESTAMPING (carimbo do tempo)",
+   "entries": 3,
+   "reasons": {
+    "sem motivo": 3
+   }
+  },
+  "uf-ac-safeweb-rfb-v5": {
+   "ac": "AC SAFEWEB RFB v5",
+   "entries": 41516,
+   "reasons": {
+    "sem motivo": 41516
+   }
+  },
+  "uf-ac-safeweb-cd-v12": {
+   "ac": "AC SAFEWEB CD V12",
+   "entries": 228,
+   "reasons": {
+    "sem motivo": 228
+   }
+  },
+  "uf-ac-prodesp-rfb-v1": {
+   "ac": "AC PRODESP RFB v1",
+   "entries": 999,
+   "reasons": {
+    "sem motivo": 560,
+    "superseded": 184,
+    "cessation_of_operation": 119,
+    "key_compromise": 80,
+    "affiliation_changed": 38,
+    "privilege_withdrawn": 17,
+    "ca_compromise": 1
+   }
+  },
+  "uf-ac-prodesp-v1": {
+   "ac": "AC PRODESP v1",
+   "entries": 3,
+   "reasons": {
+    "sem motivo": 3
+   }
+  },
+  "uf-ac-syngularid-multipla": {
+   "ac": "AC SyngularID Multipla",
+   "entries": 34158,
+   "reasons": {
+    "unspecified": 14892,
+    "superseded": 10051,
+    "key_compromise": 7743,
+    "privilege_withdrawn": 999,
+    "affiliation_changed": 473
+   }
+  },
+  "uf-ac-validar-multipla": {
+   "ac": "AC Validar Multipla",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-soluti-multipla-v5-g2": {
+   "ac": "AC SOLUTI Multipla v5 G2",
+   "entries": 4343,
+   "reasons": {
+    "sem motivo": 4343
+   }
+  },
+  "uf-ac-online-rfb-v5": {
+   "ac": "AC ONLINE RFB v5",
+   "entries": 1432,
+   "reasons": {
+    "sem motivo": 1432
+   }
+  },
+  "uf-ac-fenacor-rfb": {
+   "ac": "AC FENACOR RFB",
+   "entries": 64,
+   "reasons": {
+    "key_compromise": 37,
+    "cessation_of_operation": 11,
+    "sem motivo": 8,
+    "ca_compromise": 5,
+    "affiliation_changed": 2,
+    "superseded": 1
+   }
+  },
+  "uf-ac-a-r-a-certificacao-digital-v5": {
+   "ac": "AC A R A CERTIFICACAO DIGITAL v5",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-fcdl-sc-v5-g2": {
+   "ac": "AC FCDL SC v5 G2",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-safetech-cd": {
+   "ac": "AC SAFETECH CD",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-sig-brasil": {
+   "ac": "AC SIG BRASIL",
+   "entries": 0,
+   "reasons": {}
+  },
+  "uf-ac-digitalsign-rfb-g3": {
+   "ac": "AC DIGITALSIGN RFB G3",
+   "entries": 2327,
+   "reasons": {
+    "superseded": 1151,
+    "sem motivo": 736,
+    "key_compromise": 309,
+    "cessation_of_operation": 88,
+    "affiliation_changed": 27,
+    "privilege_withdrawn": 9,
+    "ca_compromise": 7
+   }
+  },
+  "uf-ac-digitalsign-rfb-g2": {
+   "ac": "AC DIGITALSIGN RFB G2",
+   "entries": 71,
+   "reasons": {
+    "sem motivo": 44,
+    "superseded": 10,
+    "cessation_of_operation": 8,
+    "ca_compromise": 5,
+    "key_compromise": 3,
+    "affiliation_changed": 1
+   }
+  },
+  "uf-ac-digitalsign-g3": {
+   "ac": "AC DIGITALSIGN G3",
+   "entries": 1,
+   "reasons": {
+    "sem motivo": 1
+   }
+  },
+  "uf-ac-digitalsign-g2": {
+   "ac": "AC DIGITALSIGN G2",
+   "entries": 15,
+   "reasons": {
+    "sem motivo": 10,
+    "superseded": 4,
+    "cessation_of_operation": 1
+   }
+  },
+  "uf-ac-certisign-jus-g6": {
+   "ac": "AC CERTISIGN-JUS G6",
+   "entries": 990,
+   "reasons": {
+    "key_compromise": 430,
+    "sem motivo": 200,
+    "cessation_of_operation": 129,
+    "ca_compromise": 118,
+    "superseded": 104,
+    "affiliation_changed": 9
+   }
+  },
+  "uf-ac-certisign-jus-g7": {
+   "ac": "AC CERTISIGN-JUS G7",
+   "entries": 39,
+   "reasons": {
+    "key_compromise": 32,
+    "cessation_of_operation": 3,
+    "superseded": 2,
+    "ca_compromise": 1,
+    "sem motivo": 1
+   }
+  },
+  "uf-ac-certisign-om-br": {
+   "ac": "AC Certisign OM-BR",
+   "error": "ValueError"
+  },
+  "uf-ac-egba-multipla-g2": {
+   "ac": "AC EGBA Multipla G2",
+   "entries": 9,
+   "reasons": {
+    "key_compromise": 8,
+    "sem motivo": 1
+   }
+  },
+  "uf-ac-serasa-cd-v5": {
+   "ac": "SERASA Certificadora Digital v5 (SERASA CD)",
+   "entries": 14,
+   "reasons": {
+    "key_compromise": 14
+   }
+  },
+  "uf-ac-serasa-jus-v5": {
+   "ac": "AC SERASA-JUS v5 (descredenciada; LCR publicada no repositório da AC)",
+   "entries": 0,
+   "reasons": {}
   }
  },
  "total": {
-  "entries": 121587,
-  "with_reason": 8850,
+  "entries": 176690,
+  "with_reason": 52871,
   "reasons": {
-   "sem motivo": 112737,
-   "key_compromise": 5714,
-   "cessation_of_operation": 1611,
-   "ca_compromise": 810,
-   "affiliation_changed": 487,
-   "superseded": 216,
-   "certificate_hold": 12
+   "sem motivo": 123819,
+   "key_compromise": 18229,
+   "unspecified": 14892,
+   "superseded": 11789,
+   "cessation_of_operation": 3650,
+   "ca_compromise": 1802,
+   "affiliation_changed": 1460,
+   "privilege_withdrawn": 1025,
+   "certificate_hold": 24
   },
-  "key_compromise_share_of_with_reason": 0.6456
+  "key_compromise_share_of_with_reason": 0.3448
  }
 }

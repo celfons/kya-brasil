@@ -16,7 +16,7 @@ pesquisa que a acompanha.
 | `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`; geradores; `results-2026-11.txt` (saída literal). |
 | `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (20). Os testes das bibliotecas os replicam. |
 | `research/freshness-sim` | Scripts de medição (`fetch_*.py`), fatores (`fetch_factors.py`), simulações (semente fixa) e `data/`. |
-| `research/paper/figuras.py` | Cópia pública do gerador de figuras do kya-paper. Hoje está atrasada: não tem o bloco de fluxo, fatores e tabela por lista (`data/flow.json`, `factors.json`, `figs/por-lista.tex`). Sincronizar com `kya-paper/scripts/figuras.py` antes do corte de abril. |
+| `research/paper/figuras.py` | Cópia pública do gerador de figuras do kya-paper, sincronizada em 7 nov. 2026 (corte teste-2026-11). A cada corte, copiar de novo de `kya-paper/scripts/figuras.py`. |
 
 ## Invariantes (não quebrar)
 

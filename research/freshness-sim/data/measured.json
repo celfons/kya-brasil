@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-11-07T15:24:30.686Z",
+  "generated_at": "2026-11-07T21:24:36.190Z",
   "collector": "https://kya-icp-collector.marcelfons.workers.dev",
   "monthly_2026_usuario_final": {
-    "2026-01": 9209,
-    "2026-02": 8833,
-    "2026-03": 10830,
-    "2026-04": 9733,
-    "2026-05": 9357,
-    "2026-06": 9521,
-    "2026-07": 11565,
-    "2026-08": 10828,
-    "2026-09": 10976,
-    "2026-10": 11033,
-    "2026-11": 2108
+    "2026-01": 9201,
+    "2026-02": 8828,
+    "2026-03": 10825,
+    "2026-04": 9731,
+    "2026-05": 9351,
+    "2026-06": 9519,
+    "2026-07": 11560,
+    "2026-08": 10824,
+    "2026-09": 10973,
+    "2026-10": 11029,
+    "2026-11": 2136
   },
   "iti": {
     "dados_de": "2026-11-07T09:49:24Z",
@@ -28,11 +28,11 @@
   "cadence_usuario_final": {
     "uf-ac-soluti-multipla-v5": {
       "ac": "AC SOLUTI Multipla v5",
-      "last_this_update": "2026-11-07T14:35:14Z",
-      "next_update": "2026-11-07T20:35:14Z",
+      "last_this_update": "2026-11-07T20:35:14Z",
+      "next_update": "2026-11-08T02:35:14Z",
       "validity_h": 6.0,
       "reissue_h": 0.5,
-      "entries": 33883,
+      "entries": 33863,
       "entries_with_reason": 0
     },
     "uf-ac-soluti-multipla-v1": {
@@ -46,17 +46,17 @@
     },
     "uf-ac-certisign-rfb-g5": {
       "ac": "AC Certisign RFB G5",
-      "last_this_update": "2026-11-07T15:16:16Z",
-      "next_update": "2026-11-07T16:16:16Z",
+      "last_this_update": "2026-11-07T21:16:15Z",
+      "next_update": "2026-11-07T22:16:15Z",
       "validity_h": 1.0,
       "reissue_h": 0.499,
-      "entries": 7623,
-      "entries_with_reason": 6689
+      "entries": 7616,
+      "entries_with_reason": 6683
     },
     "uf-ac-serpro-rfb-v5": {
       "ac": "Autoridade Certificadora SERPRORFBv5",
-      "last_this_update": "2026-11-07T15:02:00Z",
-      "next_update": "2026-11-07T21:02:00Z",
+      "last_this_update": "2026-11-07T21:01:59Z",
+      "next_update": "2026-11-08T03:01:59Z",
       "validity_h": 6.0,
       "reissue_h": 0.5,
       "entries": 77424,
@@ -64,20 +64,20 @@
     },
     "uf-ac-serasa-rfb-v5": {
       "ac": "AC Serasa RFB v5",
-      "last_this_update": "2026-11-07T14:55:10Z",
-      "next_update": "2026-11-07T20:55:09Z",
+      "last_this_update": "2026-11-07T20:55:10Z",
+      "next_update": "2026-11-08T02:55:09Z",
       "validity_h": 6.0,
       "reissue_h": 0.5,
-      "entries": 1058,
-      "entries_with_reason": 993
+      "entries": 1054,
+      "entries_with_reason": 989
     },
     "uf-ac-valid-rfb-v5": {
       "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
-      "last_this_update": "2026-11-07T14:58:01Z",
-      "next_update": "2026-11-07T20:58:01Z",
+      "last_this_update": "2026-11-07T21:18:05Z",
+      "next_update": "2026-11-08T03:18:05Z",
       "validity_h": 6.0,
       "reissue_h": 0.583,
-      "entries": 26121,
+      "entries": 26107,
       "entries_with_reason": 0
     },
     "uf-ac-serpro-rfb-v4": {
@@ -118,8 +118,8 @@
     },
     "uf-ac-certisign-multipla-g7": {
       "ac": "AC Certisign Multipla G7",
-      "last_this_update": "2026-11-07T15:11:20Z",
-      "next_update": "2026-11-07T16:11:20Z",
+      "last_this_update": "2026-11-07T21:11:17Z",
+      "next_update": "2026-11-07T22:11:17Z",
       "validity_h": 1.0,
       "reissue_h": 0.501,
       "entries": 1214,
@@ -127,8 +127,8 @@
     },
     "uf-ac-certisign-multipla-g8": {
       "ac": "AC Certisign Multipla G8",
-      "last_this_update": "2026-11-07T15:11:20Z",
-      "next_update": "2026-11-07T16:11:20Z",
+      "last_this_update": "2026-11-07T21:11:17Z",
+      "next_update": "2026-11-07T22:11:17Z",
       "validity_h": 1.0,
       "reissue_h": 0.501,
       "entries": 350,
@@ -136,8 +136,8 @@
     },
     "uf-ac-alternative": {
       "ac": "Autoridade Certificadora ALTERNATIVE",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.987,
       "entries": 2209,
@@ -145,8 +145,8 @@
     },
     "uf-ac-brasil-certec": {
       "ac": "Autoridade Certificadora BRASIL CERTEC",
-      "last_this_update": "2026-11-07T15:02:06Z",
-      "next_update": "2026-11-07T21:02:06Z",
+      "last_this_update": "2026-11-07T21:02:04Z",
+      "next_update": "2026-11-08T03:02:04Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -154,8 +154,8 @@
     },
     "uf-ac-digital-certy": {
       "ac": "Autoridade Certificadora DIGITAL CERTY",
-      "last_this_update": "2026-11-07T15:02:05Z",
-      "next_update": "2026-11-07T21:02:05Z",
+      "last_this_update": "2026-11-07T21:02:03Z",
+      "next_update": "2026-11-08T03:02:03Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 1067,
@@ -163,8 +163,8 @@
     },
     "uf-ac-idfederal": {
       "ac": "Autoridade Certificadora IDFEDERAL",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 331,
@@ -172,17 +172,17 @@
     },
     "uf-ac-idfederal-v2": {
       "ac": "Autoridade Certificadora IDFEDERAL v2",
-      "last_this_update": "2026-11-07T15:19:23Z",
-      "next_update": "2026-11-07T21:19:23Z",
+      "last_this_update": "2026-11-07T21:19:29Z",
+      "next_update": "2026-11-08T03:19:29Z",
       "validity_h": 6.0,
-      "reissue_h": 0.997,
+      "reissue_h": 0.994,
       "entries": 0,
       "entries_with_reason": 0
     },
     "uf-ac-infocomex": {
       "ac": "Autoridade Certificadora INFOCOMEX",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 11,
@@ -190,8 +190,8 @@
     },
     "uf-ac-infocomex-v2": {
       "ac": "Autoridade Certificadora INFOCOMEX v2",
-      "last_this_update": "2026-11-07T15:02:04Z",
-      "next_update": "2026-11-07T21:02:04Z",
+      "last_this_update": "2026-11-07T21:02:02Z",
+      "next_update": "2026-11-08T03:02:02Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -199,8 +199,8 @@
     },
     "uf-ac-invia": {
       "ac": "Autoridade Certificadora INVIA",
-      "last_this_update": "2026-11-07T15:02:06Z",
-      "next_update": "2026-11-07T21:02:06Z",
+      "last_this_update": "2026-11-07T21:02:05Z",
+      "next_update": "2026-11-08T03:02:05Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 2,
@@ -208,8 +208,8 @@
     },
     "uf-ac-nacional": {
       "ac": "Autoridade Certificadora NACIONAL",
-      "last_this_update": "2026-11-07T15:02:06Z",
-      "next_update": "2026-11-07T21:02:06Z",
+      "last_this_update": "2026-11-07T21:02:04Z",
+      "next_update": "2026-11-08T03:02:04Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 72,
@@ -217,8 +217,8 @@
     },
     "uf-ac-primecert": {
       "ac": "Autoridade Certificadora PRIMECERT",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 67,
@@ -226,8 +226,8 @@
     },
     "uf-ac-primecert-v2": {
       "ac": "Autoridade Certificadora PRIMECERT v2",
-      "last_this_update": "2026-11-07T15:02:04Z",
-      "next_update": "2026-11-07T21:02:04Z",
+      "last_this_update": "2026-11-07T21:02:02Z",
+      "next_update": "2026-11-08T03:02:02Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -235,8 +235,8 @@
     },
     "uf-ac-procerti": {
       "ac": "Autoridade Certificadora PROCERTI",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 422,
@@ -244,8 +244,8 @@
     },
     "uf-ac-safe-id-brasil": {
       "ac": "Autoridade Certificadora SAFE-ID BRASIL",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 489,
@@ -253,8 +253,8 @@
     },
     "uf-ac-sdi": {
       "ac": "Autoridade Certificadora SDI",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.987,
       "entries": 1292,
@@ -262,8 +262,8 @@
     },
     "uf-ac-sdi-v2": {
       "ac": "Autoridade Certificadora SDI v2",
-      "last_this_update": "2026-11-07T15:02:05Z",
-      "next_update": "2026-11-07T21:02:05Z",
+      "last_this_update": "2026-11-07T21:02:03Z",
+      "next_update": "2026-11-08T03:02:03Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -271,8 +271,8 @@
     },
     "uf-ac-sefazce": {
       "ac": "Autoridade Certificadora SEFAZCE",
-      "last_this_update": "2026-11-07T15:01:59Z",
-      "next_update": "2026-11-07T21:01:59Z",
+      "last_this_update": "2026-11-07T21:01:57Z",
+      "next_update": "2026-11-08T03:01:57Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 73,
@@ -280,8 +280,8 @@
     },
     "uf-ac-sirius": {
       "ac": "Autoridade Certificadora SIRIUS",
-      "last_this_update": "2026-11-07T15:02:05Z",
-      "next_update": "2026-11-07T21:02:05Z",
+      "last_this_update": "2026-11-07T21:02:03Z",
+      "next_update": "2026-11-08T03:02:03Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -289,8 +289,8 @@
     },
     "uf-ac-zapsign": {
       "ac": "Autoridade Certificadora ZAPSIGN",
-      "last_this_update": "2026-11-07T15:02:06Z",
-      "next_update": "2026-11-07T21:02:06Z",
+      "last_this_update": "2026-11-07T21:02:04Z",
+      "next_update": "2026-11-08T03:02:04Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 0,
@@ -298,8 +298,8 @@
     },
     "uf-ac-fecomercio-mg-rfb": {
       "ac": "Autoridade Certificadora FECOMERCIO MG RFB",
-      "last_this_update": "2026-11-07T15:02:06Z",
-      "next_update": "2026-11-07T21:02:06Z",
+      "last_this_update": "2026-11-07T21:02:04Z",
+      "next_update": "2026-11-08T03:02:04Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 47,
@@ -307,8 +307,8 @@
     },
     "uf-ac-serpro-acf-v5": {
       "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
-      "last_this_update": "2026-11-07T15:02:01Z",
-      "next_update": "2026-11-07T21:02:01Z",
+      "last_this_update": "2026-11-07T21:01:59Z",
+      "next_update": "2026-11-08T03:01:59Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 3468,
@@ -316,8 +316,8 @@
     },
     "uf-ac-serpro-acf-v6": {
       "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
-      "last_this_update": "2026-11-07T15:02:00Z",
-      "next_update": "2026-11-07T21:02:00Z",
+      "last_this_update": "2026-11-07T21:01:58Z",
+      "next_update": "2026-11-08T03:01:58Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 52,
@@ -334,8 +334,8 @@
     },
     "uf-ac-serpro-jus-v5": {
       "ac": "AC SERPRO-JUS v5",
-      "last_this_update": "2026-11-07T15:02:02Z",
-      "next_update": "2026-11-07T21:02:02Z",
+      "last_this_update": "2026-11-07T21:02:00Z",
+      "next_update": "2026-11-08T03:02:00Z",
       "validity_h": 6.0,
       "reissue_h": 0.986,
       "entries": 75,
@@ -343,8 +343,8 @@
     },
     "uf-ac-cacb-rfb-g2": {
       "ac": "AC CACB RFB G2",
-      "last_this_update": "2026-11-07T15:02:00Z",
-      "next_update": "2026-11-07T16:02:00Z",
+      "last_this_update": "2026-11-07T21:05:00Z",
+      "next_update": "2026-11-07T22:05:00Z",
       "validity_h": 1.0,
       "reissue_h": 0.582,
       "entries": 6,
@@ -352,8 +352,8 @@
     },
     "uf-ac-certisign-spb-g6": {
       "ac": "AC Certisign SPB G6",
-      "last_this_update": "2026-11-07T15:14:00Z",
-      "next_update": "2026-11-07T16:14:00Z",
+      "last_this_update": "2026-11-07T21:17:00Z",
+      "next_update": "2026-11-07T22:17:00Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 22,
@@ -361,8 +361,8 @@
     },
     "uf-ac-certisign-tempo-g2": {
       "ac": "AC Certisign Tempo G2 (carimbo do tempo)",
-      "last_this_update": "2026-11-07T15:07:00Z",
-      "next_update": "2026-11-07T16:07:00Z",
+      "last_this_update": "2026-11-07T21:09:00Z",
+      "next_update": "2026-11-07T22:09:00Z",
       "validity_h": 1.0,
       "reissue_h": 0.58,
       "entries": 1,
@@ -370,8 +370,8 @@
     },
     "uf-ac-certisign-tempo-g3": {
       "ac": "AC Certisign Tempo G3 (carimbo do tempo)",
-      "last_this_update": "2026-11-07T14:55:00Z",
-      "next_update": "2026-11-07T15:55:00Z",
+      "last_this_update": "2026-11-07T21:08:00Z",
+      "next_update": "2026-11-07T22:08:00Z",
       "validity_h": 1.0,
       "reissue_h": 0.5,
       "entries": 2,
@@ -379,17 +379,17 @@
     },
     "uf-ac-oab-g3": {
       "ac": "AC OAB G3",
-      "last_this_update": "2026-11-07T15:11:21Z",
-      "next_update": "2026-11-07T16:11:21Z",
+      "last_this_update": "2026-11-07T21:06:21Z",
+      "next_update": "2026-11-07T22:06:21Z",
       "validity_h": 1.0,
       "reissue_h": 0.916,
-      "entries": 6737,
-      "entries_with_reason": 5920
+      "entries": 6733,
+      "entries_with_reason": 5916
     },
     "uf-ac-oab-g4": {
       "ac": "AC OAB G4",
-      "last_this_update": "2026-11-07T15:06:35Z",
-      "next_update": "2026-11-07T16:06:35Z",
+      "last_this_update": "2026-11-07T21:06:21Z",
+      "next_update": "2026-11-07T22:06:21Z",
       "validity_h": 1.0,
       "reissue_h": 0.901,
       "entries": 484,
@@ -397,8 +397,8 @@
     },
     "uf-ac-sincor-g4": {
       "ac": "AC SINCOR G4",
-      "last_this_update": "2026-11-07T14:53:00Z",
-      "next_update": "2026-11-07T15:53:00Z",
+      "last_this_update": "2026-11-07T21:02:00Z",
+      "next_update": "2026-11-07T22:02:00Z",
       "validity_h": 1.0,
       "reissue_h": 0.5,
       "entries": 35,
@@ -406,8 +406,8 @@
     },
     "uf-ac-sincor-g5": {
       "ac": "AC SINCOR G5",
-      "last_this_update": "2026-11-07T15:14:05Z",
-      "next_update": "2026-11-07T16:14:05Z",
+      "last_this_update": "2026-11-07T21:17:00Z",
+      "next_update": "2026-11-07T22:17:00Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 61,
@@ -415,8 +415,8 @@
     },
     "uf-ac-sincor-rfb-g5": {
       "ac": "AC SINCOR RFB G5",
-      "last_this_update": "2026-11-07T15:21:09Z",
-      "next_update": "2026-11-07T16:21:09Z",
+      "last_this_update": "2026-11-07T21:21:11Z",
+      "next_update": "2026-11-07T22:21:11Z",
       "validity_h": 1.0,
       "reissue_h": 0.979,
       "entries": 486,
@@ -424,8 +424,8 @@
     },
     "uf-ac-sincor-rio-rfb-g2": {
       "ac": "AC SINCOR RIO RFB G2",
-      "last_this_update": "2026-11-07T15:19:00Z",
-      "next_update": "2026-11-07T16:19:00Z",
+      "last_this_update": "2026-11-07T21:22:00Z",
+      "next_update": "2026-11-07T22:22:00Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 44,
@@ -433,17 +433,17 @@
     },
     "uf-ac-soluti-rfb-v5": {
       "ac": "AC SOLUTI RFB V5",
-      "last_this_update": "2026-11-07T15:03:07Z",
-      "next_update": "2026-11-07T16:03:07Z",
+      "last_this_update": "2026-11-07T21:03:07Z",
+      "next_update": "2026-11-07T22:03:07Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
-      "entries": 1759,
+      "entries": 1757,
       "entries_with_reason": 0
     },
     "uf-ac-soluti-spb-v5": {
       "ac": "AC SOLUTI SPB v5",
-      "last_this_update": "2026-11-07T14:50:17Z",
-      "next_update": "2026-11-07T20:50:17Z",
+      "last_this_update": "2026-11-07T20:50:17Z",
+      "next_update": "2026-11-08T02:50:17Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 198,
@@ -451,17 +451,17 @@
     },
     "uf-ac-soluti-jus-v5": {
       "ac": "AC SOLUTI-JUS v5",
-      "last_this_update": "2026-11-07T14:36:14Z",
-      "next_update": "2026-11-07T20:36:14Z",
+      "last_this_update": "2026-11-07T20:36:15Z",
+      "next_update": "2026-11-08T02:36:15Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
-      "entries": 1516,
+      "entries": 1514,
       "entries_with_reason": 0
     },
     "uf-ac-soluti-jus-v6": {
       "ac": "AC SOLUTI-JUS v6",
-      "last_this_update": "2026-11-07T14:50:07Z",
-      "next_update": "2026-11-07T20:50:06Z",
+      "last_this_update": "2026-11-07T20:50:08Z",
+      "next_update": "2026-11-08T02:50:07Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -478,8 +478,8 @@
     },
     "uf-ac-acd-v5": {
       "ac": "AC ACD v5",
-      "last_this_update": "2026-11-07T14:50:08Z",
-      "next_update": "2026-11-07T20:50:08Z",
+      "last_this_update": "2026-11-07T20:50:07Z",
+      "next_update": "2026-11-08T02:50:07Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -487,8 +487,8 @@
     },
     "uf-ac-certfacil-v5": {
       "ac": "AC CERTFACIL v5",
-      "last_this_update": "2026-11-07T14:50:22Z",
-      "next_update": "2026-11-07T20:50:22Z",
+      "last_this_update": "2026-11-07T20:50:23Z",
+      "next_update": "2026-11-08T02:50:23Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 103,
@@ -496,17 +496,17 @@
     },
     "uf-ac-digisec-v5": {
       "ac": "AC DIGISEC v5",
-      "last_this_update": "2026-11-07T14:50:10Z",
-      "next_update": "2026-11-07T20:50:10Z",
+      "last_this_update": "2026-11-07T20:50:10Z",
+      "next_update": "2026-11-08T02:50:10Z",
       "validity_h": 6.0,
-      "reissue_h": 1.0,
+      "reissue_h": 0.999,
       "entries": 0,
       "entries_with_reason": 0
     },
     "uf-ac-fcdl-sc-v5": {
       "ac": "AC FCDL SC v5",
-      "last_this_update": "2026-11-07T14:50:24Z",
-      "next_update": "2026-11-07T20:50:24Z",
+      "last_this_update": "2026-11-07T20:50:24Z",
+      "next_update": "2026-11-08T02:50:24Z",
       "validity_h": 6.0,
       "reissue_h": 0.999,
       "entries": 437,
@@ -514,8 +514,8 @@
     },
     "uf-ac-infoco-digital-v5": {
       "ac": "AC INFOCO DIGITAL v5",
-      "last_this_update": "2026-11-07T14:35:08Z",
-      "next_update": "2026-11-07T20:35:08Z",
+      "last_this_update": "2026-11-07T20:35:09Z",
+      "next_update": "2026-11-08T02:35:09Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 17,
@@ -523,17 +523,17 @@
     },
     "uf-ac-intercert-v5": {
       "ac": "AC INTERCERT v5",
-      "last_this_update": "2026-11-07T14:50:24Z",
-      "next_update": "2026-11-07T20:50:24Z",
+      "last_this_update": "2026-11-07T20:50:24Z",
+      "next_update": "2026-11-08T02:50:24Z",
       "validity_h": 6.0,
       "reissue_h": 0.999,
-      "entries": 383,
+      "entries": 382,
       "entries_with_reason": 0
     },
     "uf-ac-mult-v5": {
       "ac": "AC MULT v5",
-      "last_this_update": "2026-11-07T14:35:10Z",
-      "next_update": "2026-11-07T20:35:10Z",
+      "last_this_update": "2026-11-07T20:35:10Z",
+      "next_update": "2026-11-08T02:35:10Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -541,8 +541,8 @@
     },
     "uf-ac-prime-v5": {
       "ac": "AC PRIME v5",
-      "last_this_update": "2026-11-07T14:35:11Z",
-      "next_update": "2026-11-07T20:35:11Z",
+      "last_this_update": "2026-11-07T20:35:11Z",
+      "next_update": "2026-11-08T02:35:11Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 3,
@@ -550,8 +550,8 @@
     },
     "uf-ac-qualitycert-v5": {
       "ac": "AC QUALITYCERT v5",
-      "last_this_update": "2026-11-07T14:50:06Z",
-      "next_update": "2026-11-07T20:50:06Z",
+      "last_this_update": "2026-11-07T20:50:05Z",
+      "next_update": "2026-11-08T02:50:05Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -559,8 +559,8 @@
     },
     "uf-ac-redebrasil-v5": {
       "ac": "AC REDE BRASIL v5",
-      "last_this_update": "2026-11-07T14:50:25Z",
-      "next_update": "2026-11-07T20:50:25Z",
+      "last_this_update": "2026-11-07T20:50:22Z",
+      "next_update": "2026-11-08T02:50:22Z",
       "validity_h": 6.0,
       "reissue_h": 0.999,
       "entries": 0,
@@ -568,8 +568,8 @@
     },
     "uf-ac-segura-id-v5": {
       "ac": "AC SEGURA ID v5",
-      "last_this_update": "2026-11-07T14:50:10Z",
-      "next_update": "2026-11-07T20:50:10Z",
+      "last_this_update": "2026-11-07T20:50:10Z",
+      "next_update": "2026-11-08T02:50:10Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -577,17 +577,17 @@
     },
     "uf-ac-valid-brasil-v5": {
       "ac": "AC VALID BRASIL v5",
-      "last_this_update": "2026-11-07T14:58:30Z",
-      "next_update": "2026-11-07T20:58:30Z",
+      "last_this_update": "2026-11-07T20:48:32Z",
+      "next_update": "2026-11-08T02:48:32Z",
       "validity_h": 6.0,
-      "reissue_h": 0.583,
+      "reissue_h": 0.582,
       "entries": 567,
       "entries_with_reason": 0
     },
     "uf-ac-valid-brasil-v12": {
       "ac": "AC VALID BRASIL V12",
-      "last_this_update": "2026-11-07T14:58:29Z",
-      "next_update": "2026-11-07T20:58:29Z",
+      "last_this_update": "2026-11-07T21:23:35Z",
+      "next_update": "2026-11-08T03:23:35Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 260,
@@ -595,8 +595,8 @@
     },
     "uf-ac-valid-plus-v5": {
       "ac": "AC VALID PLUS v5",
-      "last_this_update": "2026-11-07T14:58:05Z",
-      "next_update": "2026-11-07T20:58:05Z",
+      "last_this_update": "2026-11-07T21:23:07Z",
+      "next_update": "2026-11-08T03:23:07Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 0,
@@ -604,8 +604,8 @@
     },
     "uf-ac-valid-spb-v5": {
       "ac": "AC VALID SPB v5",
-      "last_this_update": "2026-11-07T14:58:17Z",
-      "next_update": "2026-11-07T20:58:17Z",
+      "last_this_update": "2026-11-07T21:23:21Z",
+      "next_update": "2026-11-08T03:23:21Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 30,
@@ -613,26 +613,26 @@
     },
     "uf-ac-valid-jus-v5": {
       "ac": "AC VALID-JUS v5",
-      "last_this_update": "2026-11-07T14:58:18Z",
-      "next_update": "2026-11-07T20:58:18Z",
+      "last_this_update": "2026-11-07T21:23:22Z",
+      "next_update": "2026-11-08T03:23:22Z",
       "validity_h": 6.0,
-      "reissue_h": 0.584,
+      "reissue_h": 0.583,
       "entries": 565,
       "entries_with_reason": 0
     },
     "uf-ac-valid-jus-v6": {
       "ac": "AC VALID-JUS v6",
-      "last_this_update": "2026-11-07T14:58:14Z",
-      "next_update": "2026-11-07T20:58:14Z",
+      "last_this_update": "2026-11-07T21:23:18Z",
+      "next_update": "2026-11-08T03:23:18Z",
       "validity_h": 6.0,
-      "reissue_h": 0.584,
+      "reissue_h": 0.583,
       "entries": 19,
       "entries_with_reason": 0
     },
     "uf-ac-online-brasil-v5": {
       "ac": "AC ONLINE BRASIL v5",
-      "last_this_update": "2026-11-07T14:58:25Z",
-      "next_update": "2026-11-07T20:58:25Z",
+      "last_this_update": "2026-11-07T21:23:32Z",
+      "next_update": "2026-11-08T03:23:32Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 346,
@@ -640,8 +640,8 @@
     },
     "uf-ac-certbank-v5": {
       "ac": "AC CERTBANK",
-      "last_this_update": "2026-11-07T14:58:13Z",
-      "next_update": "2026-11-07T20:58:13Z",
+      "last_this_update": "2026-11-07T21:23:17Z",
+      "next_update": "2026-11-08T03:23:17Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 0,
@@ -649,8 +649,8 @@
     },
     "uf-ac-sic-brasil-v5": {
       "ac": "AC SIC BRASIL",
-      "last_this_update": "2026-11-07T14:58:07Z",
-      "next_update": "2026-11-07T20:58:07Z",
+      "last_this_update": "2026-11-07T21:23:11Z",
+      "next_update": "2026-11-08T03:23:11Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 0,
@@ -658,8 +658,8 @@
     },
     "uf-ac-valid-plus-timestamping-v5": {
       "ac": "AC VALID PLUS TIMESTAMPING (carimbo do tempo)",
-      "last_this_update": "2026-11-07T14:58:24Z",
-      "next_update": "2026-11-07T20:58:24Z",
+      "last_this_update": "2026-11-07T21:23:30Z",
+      "next_update": "2026-11-08T03:23:30Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
       "entries": 3,
@@ -667,17 +667,17 @@
     },
     "uf-ac-safeweb-rfb-v5": {
       "ac": "AC SAFEWEB RFB v5",
-      "last_this_update": "2026-11-07T12:38:08Z",
-      "next_update": "2026-11-07T18:38:08Z",
+      "last_this_update": "2026-11-07T20:38:08Z",
+      "next_update": "2026-11-08T02:38:08Z",
       "validity_h": 6.0,
-      "reissue_h": 1.189,
-      "entries": 41535,
+      "reissue_h": 1.0,
+      "entries": 41519,
       "entries_with_reason": 0
     },
     "uf-ac-safeweb-cd-v12": {
       "ac": "AC SAFEWEB CD V12",
-      "last_this_update": "2026-11-07T14:42:23Z",
-      "next_update": "2026-11-07T20:42:23Z",
+      "last_this_update": "2026-11-07T20:42:23Z",
+      "next_update": "2026-11-08T02:42:23Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 228,
@@ -685,17 +685,17 @@
     },
     "uf-ac-prodesp-rfb-v1": {
       "ac": "AC PRODESP RFB v1",
-      "last_this_update": "2026-11-07T15:12:06Z",
-      "next_update": "2026-11-07T21:12:06Z",
+      "last_this_update": "2026-11-07T21:15:17Z",
+      "next_update": "2026-11-08T03:15:17Z",
       "validity_h": 6.0,
       "reissue_h": 1.007,
-      "entries": 1002,
-      "entries_with_reason": 440
+      "entries": 999,
+      "entries_with_reason": 439
     },
     "uf-ac-prodesp-v1": {
       "ac": "AC PRODESP v1",
-      "last_this_update": "2026-11-07T15:12:06Z",
-      "next_update": "2026-11-07T21:12:06Z",
+      "last_this_update": "2026-11-07T21:15:17Z",
+      "next_update": "2026-11-08T03:15:17Z",
       "validity_h": 6.0,
       "reissue_h": 1.007,
       "entries": 3,
@@ -703,17 +703,17 @@
     },
     "uf-ac-syngularid-multipla": {
       "ac": "AC SyngularID Multipla",
-      "last_this_update": "2026-11-07T14:38:53Z",
-      "next_update": "2026-11-07T20:38:53Z",
+      "last_this_update": "2026-11-07T20:40:55Z",
+      "next_update": "2026-11-08T02:40:55Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
-      "entries": 34226,
-      "entries_with_reason": 34226
+      "entries": 34167,
+      "entries_with_reason": 34167
     },
     "uf-ac-validar-multipla": {
       "ac": "AC Validar Multipla",
-      "last_this_update": "2026-11-07T14:39:01Z",
-      "next_update": "2026-11-07T20:39:01Z",
+      "last_this_update": "2026-11-07T20:41:02Z",
+      "next_update": "2026-11-08T02:41:02Z",
       "validity_h": 6.0,
       "reissue_h": 0.999,
       "entries": 0,
@@ -721,8 +721,8 @@
     },
     "uf-ac-soluti-multipla-v5-g2": {
       "ac": "AC SOLUTI Multipla v5 G2",
-      "last_this_update": "2026-11-07T14:35:05Z",
-      "next_update": "2026-11-07T20:35:05Z",
+      "last_this_update": "2026-11-07T20:35:05Z",
+      "next_update": "2026-11-08T02:35:05Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 4343,
@@ -730,17 +730,17 @@
     },
     "uf-ac-online-rfb-v5": {
       "ac": "AC ONLINE RFB v5",
-      "last_this_update": "2026-11-07T14:58:23Z",
-      "next_update": "2026-11-07T20:58:23Z",
+      "last_this_update": "2026-11-07T21:23:27Z",
+      "next_update": "2026-11-08T03:23:27Z",
       "validity_h": 6.0,
       "reissue_h": 0.584,
-      "entries": 1435,
+      "entries": 1432,
       "entries_with_reason": 0
     },
     "uf-ac-fenacor-rfb": {
       "ac": "AC FENACOR RFB",
-      "last_this_update": "2026-11-07T15:02:00Z",
-      "next_update": "2026-11-07T16:02:00Z",
+      "last_this_update": "2026-11-07T21:06:21Z",
+      "next_update": "2026-11-07T22:06:21Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 64,
@@ -748,17 +748,17 @@
     },
     "uf-ac-a-r-a-certificacao-digital-v5": {
       "ac": "AC A R A CERTIFICACAO DIGITAL v5",
-      "last_this_update": "2026-11-07T14:50:17Z",
-      "next_update": "2026-11-07T20:50:17Z",
+      "last_this_update": "2026-11-07T20:50:17Z",
+      "next_update": "2026-11-08T02:50:17Z",
       "validity_h": 6.0,
-      "reissue_h": 1.0,
+      "reissue_h": 0.999,
       "entries": 0,
       "entries_with_reason": 0
     },
     "uf-ac-fcdl-sc-v5-g2": {
       "ac": "AC FCDL SC v5 G2",
-      "last_this_update": "2026-11-07T14:50:25Z",
-      "next_update": "2026-11-07T20:50:25Z",
+      "last_this_update": "2026-11-07T20:50:24Z",
+      "next_update": "2026-11-08T02:50:24Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -766,8 +766,8 @@
     },
     "uf-ac-safetech-cd": {
       "ac": "AC SAFETECH CD",
-      "last_this_update": "2026-11-07T14:57:36Z",
-      "next_update": "2026-11-07T20:57:36Z",
+      "last_this_update": "2026-11-07T20:57:36Z",
+      "next_update": "2026-11-08T02:57:36Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -775,26 +775,26 @@
     },
     "uf-ac-sig-brasil": {
       "ac": "AC SIG BRASIL",
-      "last_this_update": "2026-11-07T14:58:22Z",
-      "next_update": "2026-11-07T20:58:22Z",
+      "last_this_update": "2026-11-07T21:23:26Z",
+      "next_update": "2026-11-08T03:23:26Z",
       "validity_h": 6.0,
-      "reissue_h": 0.584,
+      "reissue_h": 0.583,
       "entries": 0,
       "entries_with_reason": 0
     },
     "uf-ac-digitalsign-rfb-g3": {
       "ac": "AC DIGITALSIGN RFB G3",
-      "last_this_update": "2026-11-07T15:17:19Z",
-      "next_update": "2026-11-07T21:17:18Z",
+      "last_this_update": "2026-11-07T20:52:20Z",
+      "next_update": "2026-11-08T02:52:19Z",
       "validity_h": 6.0,
       "reissue_h": 0.917,
-      "entries": 2329,
+      "entries": 2328,
       "entries_with_reason": 1592
     },
     "uf-ac-digitalsign-rfb-g2": {
       "ac": "AC DIGITALSIGN RFB G2",
-      "last_this_update": "2026-11-07T14:52:19Z",
-      "next_update": "2026-11-07T20:52:18Z",
+      "last_this_update": "2026-11-07T21:17:20Z",
+      "next_update": "2026-11-08T03:17:19Z",
       "validity_h": 6.0,
       "reissue_h": 0.917,
       "entries": 71,
@@ -811,8 +811,8 @@
     },
     "uf-ac-digitalsign-g3": {
       "ac": "AC DIGITALSIGN G3",
-      "last_this_update": "2026-11-07T15:00:25Z",
-      "next_update": "2026-11-07T21:00:24Z",
+      "last_this_update": "2026-11-07T20:35:26Z",
+      "next_update": "2026-11-08T02:35:25Z",
       "validity_h": 6.0,
       "reissue_h": 0.917,
       "entries": 1,
@@ -820,8 +820,8 @@
     },
     "uf-ac-digitalsign-g2": {
       "ac": "AC DIGITALSIGN G2",
-      "last_this_update": "2026-11-07T15:02:19Z",
-      "next_update": "2026-11-07T21:02:18Z",
+      "last_this_update": "2026-11-07T20:32:20Z",
+      "next_update": "2026-11-08T02:32:19Z",
       "validity_h": 6.0,
       "reissue_h": 0.917,
       "entries": 15,
@@ -838,17 +838,17 @@
     },
     "uf-ac-certisign-jus-g6": {
       "ac": "AC CERTISIGN-JUS G6",
-      "last_this_update": "2026-11-07T15:06:27Z",
-      "next_update": "2026-11-07T16:06:27Z",
+      "last_this_update": "2026-11-07T21:11:29Z",
+      "next_update": "2026-11-07T22:11:29Z",
       "validity_h": 1.0,
-      "reissue_h": 1.007,
-      "entries": 996,
-      "entries_with_reason": 794
+      "reissue_h": 1.0,
+      "entries": 990,
+      "entries_with_reason": 790
     },
     "uf-ac-certisign-jus-g7": {
       "ac": "AC CERTISIGN-JUS G7",
-      "last_this_update": "2026-11-07T15:04:00Z",
-      "next_update": "2026-11-07T16:04:00Z",
+      "last_this_update": "2026-11-07T21:11:35Z",
+      "next_update": "2026-11-07T22:11:35Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 39,
@@ -856,8 +856,8 @@
     },
     "uf-ac-certisign-om-br": {
       "ac": "AC Certisign OM-BR",
-      "last_this_update": "2026-11-07T15:00:00Z",
-      "next_update": "2026-11-07T17:00:00Z",
+      "last_this_update": "2026-11-07T21:00:00Z",
+      "next_update": "2026-11-07T23:00:00Z",
       "validity_h": 2.0,
       "reissue_h": 1.0,
       "entries": 7,
@@ -865,8 +865,8 @@
     },
     "uf-ac-egba-multipla-g2": {
       "ac": "AC EGBA Multipla G2",
-      "last_this_update": "2026-11-07T15:22:00Z",
-      "next_update": "2026-11-07T16:22:00Z",
+      "last_this_update": "2026-11-07T21:24:02Z",
+      "next_update": "2026-11-07T22:24:02Z",
       "validity_h": 1.0,
       "reissue_h": 1.0,
       "entries": 9,
@@ -874,8 +874,8 @@
     },
     "uf-ac-serasa-cd-v5": {
       "ac": "SERASA Certificadora Digital v5 (SERASA CD)",
-      "last_this_update": "2026-11-07T14:55:08Z",
-      "next_update": "2026-11-07T20:55:07Z",
+      "last_this_update": "2026-11-07T20:55:08Z",
+      "next_update": "2026-11-08T02:55:07Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 14,
@@ -883,8 +883,8 @@
     },
     "uf-ac-serasa-jus-v5": {
       "ac": "AC SERASA-JUS v5 (descredenciada; LCR publicada no repositório da AC)",
-      "last_this_update": "2026-11-07T14:55:09Z",
-      "next_update": "2026-11-07T20:55:08Z",
+      "last_this_update": "2026-11-07T20:55:09Z",
+      "next_update": "2026-11-08T02:55:08Z",
       "validity_h": 6.0,
       "reissue_h": 1.0,
       "entries": 0,
@@ -929,28 +929,29 @@
   },
   "weekday_hour_sources": {
     "uf-ac-soluti-multipla-v5": {
-      "file": "lcr/uf-ac-soluti-multipla-v5/20261107T143514Z_910c6ad9cae6accd.crl",
-      "revocations": 33883
+      "file": "lcr/uf-ac-soluti-multipla-v5/20261107T203514Z_aa02b5352d8801a8.crl",
+      "revocations": 33863
     },
     "uf-ac-soluti-multipla-v1": {
       "file": "lcr/uf-ac-soluti-multipla-v1/20230620T233555Z_f043def7351a91d3.crl",
       "revocations": 46852
     },
     "uf-ac-certisign-rfb-g5": {
-      "file": "lcr/uf-ac-certisign-rfb-g5/20261107T151616Z_588701ce35d8743a.crl",
-      "revocations": 7623
+      "file": "lcr/uf-ac-certisign-rfb-g5/20261107T211615Z_fed92724b63e2db8.crl",
+      "revocations": 7616
     },
     "uf-ac-serpro-rfb-v5": {
-      "file": "lcr/uf-ac-serpro-rfb-v5/20261107T150200Z_c175e7fbd03ab5fb.crl",
-      "revocations": 77424
+      "file": "lcr/uf-ac-serpro-rfb-v5/20261107T210159Z_a1d916fb535338ef.crl",
+      "revocations": null,
+      "error": "error parsing asn1 value: ParseError { kind: InvalidValue, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::revoked_certificates\", 57070, \"RevokedCertificate::user_certificate\"] }"
     },
     "uf-ac-serasa-rfb-v5": {
-      "file": "lcr/uf-ac-serasa-rfb-v5/20261107T145510Z_a4304d9d151b6ef1.crl",
-      "revocations": 1058
+      "file": "lcr/uf-ac-serasa-rfb-v5/20261107T205510Z_be9e3ee38871b79e.crl",
+      "revocations": 1054
     },
     "uf-ac-valid-rfb-v5": {
-      "file": "lcr/uf-ac-valid-rfb-v5/20261107T145801Z_e4fc8c9df909ccc4.crl",
-      "revocations": 26121
+      "file": "lcr/uf-ac-valid-rfb-v5/20261107T211805Z_11b989d43d1150f9.crl",
+      "revocations": 26107
     },
     "uf-ac-serpro-rfb-v4": {
       "file": "lcr/uf-ac-serpro-rfb-v4/20240219T234825Z_603dfeeeba377b63.crl",
@@ -969,95 +970,96 @@
       "revocations": 2
     },
     "uf-ac-certisign-multipla-g7": {
-      "file": "lcr/uf-ac-certisign-multipla-g7/20261107T151120Z_95a78976c85049d6.crl",
+      "file": "lcr/uf-ac-certisign-multipla-g7/20261107T211117Z_cf70b99b67a8a0e7.crl",
       "revocations": 1214
     },
     "uf-ac-certisign-multipla-g8": {
-      "file": "lcr/uf-ac-certisign-multipla-g8/20261107T151120Z_a1348cfe6de4dc30.crl",
+      "file": "lcr/uf-ac-certisign-multipla-g8/20261107T211117Z_f48955619d119b6d.crl",
       "revocations": 350
     },
     "uf-ac-alternative": {
-      "file": "lcr/uf-ac-alternative/20261107T150159Z_3a4f0d15147e80f7.crl",
+      "file": "lcr/uf-ac-alternative/20261107T210157Z_6899523e8aae312e.crl",
       "revocations": 2209
     },
     "uf-ac-brasil-certec": {
-      "file": "lcr/uf-ac-brasil-certec/20261107T150206Z_447652b9c6ea9102.crl",
+      "file": "lcr/uf-ac-brasil-certec/20261107T210204Z_ce07c550c45de9f8.crl",
       "revocations": 0
     },
     "uf-ac-digital-certy": {
-      "file": "lcr/uf-ac-digital-certy/20261107T150205Z_e55da97393735d87.crl",
+      "file": "lcr/uf-ac-digital-certy/20261107T210203Z_e3320ea25c9319c7.crl",
       "revocations": 1067
     },
     "uf-ac-idfederal": {
-      "file": "lcr/uf-ac-idfederal/20261107T150159Z_7412cb00c6d8e4b7.crl",
+      "file": "lcr/uf-ac-idfederal/20261107T210157Z_5ad6c130b96c6637.crl",
       "revocations": 331
     },
     "uf-ac-idfederal-v2": {
-      "file": "lcr/uf-ac-idfederal-v2/20261107T151923Z_37f9954eca9a0855.crl",
+      "file": "lcr/uf-ac-idfederal-v2/20261107T211929Z_23b284a6503d9949.crl",
       "revocations": 0
     },
     "uf-ac-infocomex": {
-      "file": "lcr/uf-ac-infocomex/20261107T150159Z_fc0f9485864c8d04.crl",
+      "file": "lcr/uf-ac-infocomex/20261107T210157Z_166153bc7940b447.crl",
       "revocations": 11
     },
     "uf-ac-infocomex-v2": {
-      "file": "lcr/uf-ac-infocomex-v2/20261107T150204Z_d7e1a0a6b8c974be.crl",
+      "file": "lcr/uf-ac-infocomex-v2/20261107T210202Z_1aaddb39956cbb5f.crl",
       "revocations": 0
     },
     "uf-ac-invia": {
-      "file": "lcr/uf-ac-invia/20261107T150206Z_422fb5fbe2706f31.crl",
+      "file": "lcr/uf-ac-invia/20261107T210205Z_e3554fdb19a06a73.crl",
       "revocations": 2
     },
     "uf-ac-nacional": {
-      "file": "lcr/uf-ac-nacional/20261107T150206Z_b9e0ec16a753bf39.crl",
+      "file": "lcr/uf-ac-nacional/20261107T210204Z_3717d7f969d04bbc.crl",
       "revocations": 72
     },
     "uf-ac-primecert": {
-      "file": "lcr/uf-ac-primecert/20261107T150159Z_e4597940628b34f3.crl",
+      "file": "lcr/uf-ac-primecert/20261107T210157Z_3330f0c2fe911137.crl",
       "revocations": 67
     },
     "uf-ac-primecert-v2": {
-      "file": "lcr/uf-ac-primecert-v2/20261107T150204Z_69166520dc83bb73.crl",
+      "file": "lcr/uf-ac-primecert-v2/20261107T210202Z_21e8d90485395a1d.crl",
       "revocations": 0
     },
     "uf-ac-procerti": {
-      "file": "lcr/uf-ac-procerti/20261107T150159Z_bbd27bf11dd7a242.crl",
+      "file": "lcr/uf-ac-procerti/20261107T210157Z_7f6fea900e3c07ba.crl",
       "revocations": 422
     },
     "uf-ac-safe-id-brasil": {
-      "file": "lcr/uf-ac-safe-id-brasil/20261107T150159Z_33289c53ff61f794.crl",
+      "file": "lcr/uf-ac-safe-id-brasil/20261107T210157Z_64b3a37bf887cd41.crl",
       "revocations": 489
     },
     "uf-ac-sdi": {
-      "file": "lcr/uf-ac-sdi/20261107T150159Z_0e879657d665f426.crl",
+      "file": "lcr/uf-ac-sdi/20261107T210157Z_7cdc1bdf3cf305af.crl",
       "revocations": 1292
     },
     "uf-ac-sdi-v2": {
-      "file": "lcr/uf-ac-sdi-v2/20261107T150205Z_dba4da8fd7383ef8.crl",
+      "file": "lcr/uf-ac-sdi-v2/20261107T210203Z_ed4274ad5e22c725.crl",
       "revocations": 0
     },
     "uf-ac-sefazce": {
-      "file": "lcr/uf-ac-sefazce/20261107T150159Z_20e4158cc6141fce.crl",
+      "file": "lcr/uf-ac-sefazce/20261107T210157Z_135cd3cefa9eb33c.crl",
       "revocations": 73
     },
     "uf-ac-sirius": {
-      "file": "lcr/uf-ac-sirius/20261107T150205Z_de886961075368af.crl",
+      "file": "lcr/uf-ac-sirius/20261107T210203Z_a54a6f0e8b4e708b.crl",
       "revocations": 0
     },
     "uf-ac-zapsign": {
-      "file": "lcr/uf-ac-zapsign/20261107T150206Z_484a190f755565e3.crl",
+      "file": "lcr/uf-ac-zapsign/20261107T210204Z_c362c2f99c8b57f6.crl",
       "revocations": 0
     },
     "uf-ac-fecomercio-mg-rfb": {
-      "file": "lcr/uf-ac-fecomercio-mg-rfb/20261107T150206Z_efd2826c2fd8d82b.crl",
+      "file": "lcr/uf-ac-fecomercio-mg-rfb/20261107T210204Z_8184bd271c9f0796.crl",
       "revocations": 47
     },
     "uf-ac-serpro-acf-v5": {
-      "file": "lcr/uf-ac-serpro-acf-v5/20261107T150201Z_ae4b3965cbbe2076.crl",
-      "revocations": 3468
+      "file": "lcr/uf-ac-serpro-acf-v5/20261107T210159Z_1ebe5155f7808a91.crl",
+      "revocations": null,
+      "error": "error parsing asn1 value: ParseError { kind: InvalidValue, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::revoked_certificates\", 2020, \"RevokedCertificate::user_certificate\"] }"
     },
     "uf-ac-serpro-acf-v6": {
-      "file": "lcr/uf-ac-serpro-acf-v6/20261107T150200Z_c8bdb559d360eb6c.crl",
+      "file": "lcr/uf-ac-serpro-acf-v6/20261107T210158Z_d3b6d61b636c172e.crl",
       "revocations": 52
     },
     "uf-ac-serpro-acf-v4": {
@@ -1065,63 +1067,63 @@
       "revocations": 7416
     },
     "uf-ac-serpro-jus-v5": {
-      "file": "lcr/uf-ac-serpro-jus-v5/20261107T150202Z_04645146c4920d4b.crl",
+      "file": "lcr/uf-ac-serpro-jus-v5/20261107T210200Z_414cabce2ec54241.crl",
       "revocations": 75
     },
     "uf-ac-cacb-rfb-g2": {
-      "file": "lcr/uf-ac-cacb-rfb-g2/20261107T150200Z_f449257e713728fe.crl",
+      "file": "lcr/uf-ac-cacb-rfb-g2/20261107T210500Z_ac1f101260386041.crl",
       "revocations": 6
     },
     "uf-ac-certisign-spb-g6": {
-      "file": "lcr/uf-ac-certisign-spb-g6/20261107T151400Z_0eab3f9b0ef96ebc.crl",
+      "file": "lcr/uf-ac-certisign-spb-g6/20261107T211700Z_08b215a0ecab316f.crl",
       "revocations": 22
     },
     "uf-ac-certisign-tempo-g2": {
-      "file": "lcr/uf-ac-certisign-tempo-g2/20261107T150700Z_88704078a6978e66.crl",
+      "file": "lcr/uf-ac-certisign-tempo-g2/20261107T210900Z_1b45fa6ffa75f30b.crl",
       "revocations": 1
     },
     "uf-ac-certisign-tempo-g3": {
-      "file": "lcr/uf-ac-certisign-tempo-g3/20261107T145500Z_0637e130d5be2bef.crl",
+      "file": "lcr/uf-ac-certisign-tempo-g3/20261107T210800Z_83878d5084f7734a.crl",
       "revocations": 2
     },
     "uf-ac-oab-g3": {
-      "file": "lcr/uf-ac-oab-g3/20261107T151121Z_2e5f442fbedeb9dc.crl",
-      "revocations": 6737
+      "file": "lcr/uf-ac-oab-g3/20261107T210621Z_f9bbbefe1c5aa7c9.crl",
+      "revocations": 6733
     },
     "uf-ac-oab-g4": {
-      "file": "lcr/uf-ac-oab-g4/20261107T150635Z_747428710b464c2e.crl",
+      "file": "lcr/uf-ac-oab-g4/20261107T210621Z_7ed83ce25ea7b7ca.crl",
       "revocations": 484
     },
     "uf-ac-sincor-g4": {
-      "file": "lcr/uf-ac-sincor-g4/20261107T145300Z_600a29beeaac8758.crl",
+      "file": "lcr/uf-ac-sincor-g4/20261107T210200Z_1b3cd0a17fa0cd51.crl",
       "revocations": 35
     },
     "uf-ac-sincor-g5": {
-      "file": "lcr/uf-ac-sincor-g5/20261107T151405Z_04e4fac36b3a4e3e.crl",
+      "file": "lcr/uf-ac-sincor-g5/20261107T211700Z_67531ed66a4a9cf7.crl",
       "revocations": 61
     },
     "uf-ac-sincor-rfb-g5": {
-      "file": "lcr/uf-ac-sincor-rfb-g5/20261107T152109Z_e964f72bad9412b7.crl",
+      "file": "lcr/uf-ac-sincor-rfb-g5/20261107T212111Z_249c2c80455a912f.crl",
       "revocations": 486
     },
     "uf-ac-sincor-rio-rfb-g2": {
-      "file": "lcr/uf-ac-sincor-rio-rfb-g2/20261107T151900Z_ecb7ef4f7bb393d5.crl",
+      "file": "lcr/uf-ac-sincor-rio-rfb-g2/20261107T212200Z_8bb4eefdd82102e4.crl",
       "revocations": 44
     },
     "uf-ac-soluti-rfb-v5": {
-      "file": "lcr/uf-ac-soluti-rfb-v5/20261107T150307Z_6d41a071eccd4d93.crl",
-      "revocations": 1759
+      "file": "lcr/uf-ac-soluti-rfb-v5/20261107T210307Z_484ccba31d827439.crl",
+      "revocations": 1757
     },
     "uf-ac-soluti-spb-v5": {
-      "file": "lcr/uf-ac-soluti-spb-v5/20261107T145017Z_4a93460991357a4d.crl",
+      "file": "lcr/uf-ac-soluti-spb-v5/20261107T205017Z_14dc63770c759883.crl",
       "revocations": 198
     },
     "uf-ac-soluti-jus-v5": {
-      "file": "lcr/uf-ac-soluti-jus-v5/20261107T143614Z_2e2dae928ac448b7.crl",
-      "revocations": 1516
+      "file": "lcr/uf-ac-soluti-jus-v5/20261107T203615Z_16422736e95b1789.crl",
+      "revocations": 1514
     },
     "uf-ac-soluti-jus-v6": {
-      "file": "lcr/uf-ac-soluti-jus-v6/20261107T145007Z_635d015e4b4b91a4.crl",
+      "file": "lcr/uf-ac-soluti-jus-v6/20261107T205008Z_0727fc45e1a401e6.crl",
       "revocations": 0
     },
     "uf-ac-soluti-jus-v1": {
@@ -1129,147 +1131,147 @@
       "revocations": 542
     },
     "uf-ac-acd-v5": {
-      "file": "lcr/uf-ac-acd-v5/20261107T145008Z_d494398c7590e03c.crl",
+      "file": "lcr/uf-ac-acd-v5/20261107T205007Z_52cdd841683e331d.crl",
       "revocations": 0
     },
     "uf-ac-certfacil-v5": {
-      "file": "lcr/uf-ac-certfacil-v5/20261107T145022Z_ca349588e2aa8eee.crl",
+      "file": "lcr/uf-ac-certfacil-v5/20261107T205023Z_2d3f349685fc066b.crl",
       "revocations": 103
     },
     "uf-ac-digisec-v5": {
-      "file": "lcr/uf-ac-digisec-v5/20261107T145010Z_e28742f4dff09cdb.crl",
+      "file": "lcr/uf-ac-digisec-v5/20261107T205010Z_2d5fdb4941ba6fe3.crl",
       "revocations": 0
     },
     "uf-ac-fcdl-sc-v5": {
-      "file": "lcr/uf-ac-fcdl-sc-v5/20261107T145024Z_d127fb8e63a75739.crl",
+      "file": "lcr/uf-ac-fcdl-sc-v5/20261107T205024Z_4e028d82897662a7.crl",
       "revocations": 437
     },
     "uf-ac-infoco-digital-v5": {
-      "file": "lcr/uf-ac-infoco-digital-v5/20261107T143508Z_88f2c024393af1ec.crl",
+      "file": "lcr/uf-ac-infoco-digital-v5/20261107T203509Z_bed871cb697efdf5.crl",
       "revocations": 17
     },
     "uf-ac-intercert-v5": {
-      "file": "lcr/uf-ac-intercert-v5/20261107T145024Z_6c592328551ef078.crl",
-      "revocations": 383
+      "file": "lcr/uf-ac-intercert-v5/20261107T205024Z_70be3e16f7451d4f.crl",
+      "revocations": 382
     },
     "uf-ac-mult-v5": {
-      "file": "lcr/uf-ac-mult-v5/20261107T143510Z_7951ce6de90ac910.crl",
+      "file": "lcr/uf-ac-mult-v5/20261107T203510Z_64343718f043c7fc.crl",
       "revocations": 0
     },
     "uf-ac-prime-v5": {
-      "file": "lcr/uf-ac-prime-v5/20261107T143511Z_bfbd827da1f905ed.crl",
+      "file": "lcr/uf-ac-prime-v5/20261107T203511Z_924351687861bfe3.crl",
       "revocations": 3
     },
     "uf-ac-qualitycert-v5": {
-      "file": "lcr/uf-ac-qualitycert-v5/20261107T145006Z_bcb4c31212032aa0.crl",
+      "file": "lcr/uf-ac-qualitycert-v5/20261107T205005Z_ff960fbfdb58583f.crl",
       "revocations": 0
     },
     "uf-ac-redebrasil-v5": {
-      "file": "lcr/uf-ac-redebrasil-v5/20261107T145025Z_f01328d2755a9bde.crl",
+      "file": "lcr/uf-ac-redebrasil-v5/20261107T205022Z_feaeee81ae2e4806.crl",
       "revocations": 0
     },
     "uf-ac-segura-id-v5": {
-      "file": "lcr/uf-ac-segura-id-v5/20261107T145010Z_0c09503f543db499.crl",
+      "file": "lcr/uf-ac-segura-id-v5/20261107T205010Z_9ec1ac887a0b90c3.crl",
       "revocations": 0
     },
     "uf-ac-valid-brasil-v5": {
-      "file": "lcr/uf-ac-valid-brasil-v5/20261107T145830Z_6c29f38c8853a3a3.crl",
+      "file": "lcr/uf-ac-valid-brasil-v5/20261107T204832Z_046026199eeaea85.crl",
       "revocations": 567
     },
     "uf-ac-valid-brasil-v12": {
-      "file": "lcr/uf-ac-valid-brasil-v12/20261107T145829Z_2c7e06d3d6247091.crl",
+      "file": "lcr/uf-ac-valid-brasil-v12/20261107T212335Z_59c245009498624c.crl",
       "revocations": 260
     },
     "uf-ac-valid-plus-v5": {
-      "file": "lcr/uf-ac-valid-plus-v5/20261107T145805Z_bd76eae174a01cbd.crl",
+      "file": "lcr/uf-ac-valid-plus-v5/20261107T212307Z_e7d90b500ebf7c95.crl",
       "revocations": 0
     },
     "uf-ac-valid-spb-v5": {
-      "file": "lcr/uf-ac-valid-spb-v5/20261107T145817Z_c1989eb96ed84c18.crl",
+      "file": "lcr/uf-ac-valid-spb-v5/20261107T212321Z_9ef9e7e517f0f41a.crl",
       "revocations": 30
     },
     "uf-ac-valid-jus-v5": {
-      "file": "lcr/uf-ac-valid-jus-v5/20261107T145818Z_c1bd44a0de7b8335.crl",
+      "file": "lcr/uf-ac-valid-jus-v5/20261107T212322Z_0e2e4f6f07fb40b4.crl",
       "revocations": 565
     },
     "uf-ac-valid-jus-v6": {
-      "file": "lcr/uf-ac-valid-jus-v6/20261107T145814Z_ebe2349894236774.crl",
+      "file": "lcr/uf-ac-valid-jus-v6/20261107T212318Z_5df5f91e922a0f98.crl",
       "revocations": 19
     },
     "uf-ac-online-brasil-v5": {
-      "file": "lcr/uf-ac-online-brasil-v5/20261107T145825Z_97ff8c9c084304f0.crl",
+      "file": "lcr/uf-ac-online-brasil-v5/20261107T212332Z_ef541e0b469c32f7.crl",
       "revocations": 346
     },
     "uf-ac-certbank-v5": {
-      "file": "lcr/uf-ac-certbank-v5/20261107T145813Z_46513a1cabe3669c.crl",
+      "file": "lcr/uf-ac-certbank-v5/20261107T212317Z_40c83fe1b8d06ade.crl",
       "revocations": 0
     },
     "uf-ac-sic-brasil-v5": {
-      "file": "lcr/uf-ac-sic-brasil-v5/20261107T145807Z_380cf13bc4ad1c0d.crl",
+      "file": "lcr/uf-ac-sic-brasil-v5/20261107T212311Z_eec0bc767d2dd1bf.crl",
       "revocations": 0
     },
     "uf-ac-valid-plus-timestamping-v5": {
-      "file": "lcr/uf-ac-valid-plus-timestamping-v5/20261107T145824Z_f8c6410a6818af3c.crl",
+      "file": "lcr/uf-ac-valid-plus-timestamping-v5/20261107T212330Z_c826901f61a28999.crl",
       "revocations": 3
     },
     "uf-ac-safeweb-rfb-v5": {
-      "file": "lcr/uf-ac-safeweb-rfb-v5/20261107T123808Z_e77d60631232aba6.crl",
-      "revocations": 41535
+      "file": "lcr/uf-ac-safeweb-rfb-v5/20261107T203808Z_f163351136690325.crl",
+      "revocations": 41519
     },
     "uf-ac-safeweb-cd-v12": {
-      "file": "lcr/uf-ac-safeweb-cd-v12/20261107T144223Z_769fc9192e7190e2.crl",
+      "file": "lcr/uf-ac-safeweb-cd-v12/20261107T204223Z_7c5c97d98c7d17d6.crl",
       "revocations": 228
     },
     "uf-ac-prodesp-rfb-v1": {
-      "file": "lcr/uf-ac-prodesp-rfb-v1/20261107T151206Z_6acbb61174dd5c32.crl",
-      "revocations": 1002
+      "file": "lcr/uf-ac-prodesp-rfb-v1/20261107T211517Z_0c93a4f02307f9e4.crl",
+      "revocations": 999
     },
     "uf-ac-prodesp-v1": {
-      "file": "lcr/uf-ac-prodesp-v1/20261107T151206Z_1951d84a43bb4ef4.crl",
+      "file": "lcr/uf-ac-prodesp-v1/20261107T211517Z_ccd12fa79829acc7.crl",
       "revocations": 3
     },
     "uf-ac-syngularid-multipla": {
-      "file": "lcr/uf-ac-syngularid-multipla/20261107T143853Z_50be32d0d3a33afe.crl",
-      "revocations": 34226
+      "file": "lcr/uf-ac-syngularid-multipla/20261107T204055Z_318104419deab89d.crl",
+      "revocations": 34167
     },
     "uf-ac-validar-multipla": {
-      "file": "lcr/uf-ac-validar-multipla/20261107T143901Z_834776c64470cf7c.crl",
+      "file": "lcr/uf-ac-validar-multipla/20261107T204102Z_b2a57620490a1660.crl",
       "revocations": 0
     },
     "uf-ac-soluti-multipla-v5-g2": {
-      "file": "lcr/uf-ac-soluti-multipla-v5-g2/20261107T143505Z_d1770fac2299178b.crl",
+      "file": "lcr/uf-ac-soluti-multipla-v5-g2/20261107T203505Z_84922317d7dd35ed.crl",
       "revocations": 4343
     },
     "uf-ac-online-rfb-v5": {
-      "file": "lcr/uf-ac-online-rfb-v5/20261107T145823Z_f8f3a23a49b0bd86.crl",
-      "revocations": 1435
+      "file": "lcr/uf-ac-online-rfb-v5/20261107T212327Z_fc6c54cc2f798d29.crl",
+      "revocations": 1432
     },
     "uf-ac-fenacor-rfb": {
-      "file": "lcr/uf-ac-fenacor-rfb/20261107T150200Z_83f91d25b75b79ee.crl",
+      "file": "lcr/uf-ac-fenacor-rfb/20261107T210621Z_cfebbfd3b37682c9.crl",
       "revocations": 64
     },
     "uf-ac-a-r-a-certificacao-digital-v5": {
-      "file": "lcr/uf-ac-a-r-a-certificacao-digital-v5/20261107T145017Z_0d970b7e0ea6736e.crl",
+      "file": "lcr/uf-ac-a-r-a-certificacao-digital-v5/20261107T205017Z_f74ab99649559e26.crl",
       "revocations": 0
     },
     "uf-ac-fcdl-sc-v5-g2": {
-      "file": "lcr/uf-ac-fcdl-sc-v5-g2/20261107T145025Z_587232567486fa90.crl",
+      "file": "lcr/uf-ac-fcdl-sc-v5-g2/20261107T205024Z_ca5535792e19b4ce.crl",
       "revocations": 0
     },
     "uf-ac-safetech-cd": {
-      "file": "lcr/uf-ac-safetech-cd/20261107T145736Z_b678c458475a5811.crl",
+      "file": "lcr/uf-ac-safetech-cd/20261107T205736Z_88a0b3d3d63fd094.crl",
       "revocations": 0
     },
     "uf-ac-sig-brasil": {
-      "file": "lcr/uf-ac-sig-brasil/20261107T145822Z_29282691999fd05f.crl",
+      "file": "lcr/uf-ac-sig-brasil/20261107T212326Z_74a4ea85460c7c3d.crl",
       "revocations": 0
     },
     "uf-ac-digitalsign-rfb-g3": {
-      "file": "lcr/uf-ac-digitalsign-rfb-g3/20261107T151719Z_cc61984f28b048c2.crl",
-      "revocations": 2329
+      "file": "lcr/uf-ac-digitalsign-rfb-g3/20261107T205220Z_c201125deba69612.crl",
+      "revocations": 2328
     },
     "uf-ac-digitalsign-rfb-g2": {
-      "file": "lcr/uf-ac-digitalsign-rfb-g2/20261107T145219Z_3d9e8682f10c7cc5.crl",
+      "file": "lcr/uf-ac-digitalsign-rfb-g2/20261107T211720Z_ccfb92edf6107216.crl",
       "revocations": 71
     },
     "uf-ac-digitalsign-rfb-g1": {
@@ -1277,11 +1279,11 @@
       "revocations": 141
     },
     "uf-ac-digitalsign-g3": {
-      "file": "lcr/uf-ac-digitalsign-g3/20261107T150025Z_279d874028399d50.crl",
+      "file": "lcr/uf-ac-digitalsign-g3/20261107T203526Z_66766df9a0c9db57.crl",
       "revocations": 1
     },
     "uf-ac-digitalsign-g2": {
-      "file": "lcr/uf-ac-digitalsign-g2/20261107T150219Z_f954d74d1ef3092a.crl",
+      "file": "lcr/uf-ac-digitalsign-g2/20261107T203220Z_2428b5a87fd60d65.crl",
       "revocations": 15
     },
     "uf-ac-digitalsign-g1": {
@@ -1289,28 +1291,28 @@
       "revocations": 2
     },
     "uf-ac-certisign-jus-g6": {
-      "file": "lcr/uf-ac-certisign-jus-g6/20261107T150627Z_4a0eb1c9eb4cd10f.crl",
-      "revocations": 996
+      "file": "lcr/uf-ac-certisign-jus-g6/20261107T211129Z_217586806274372f.crl",
+      "revocations": 990
     },
     "uf-ac-certisign-jus-g7": {
-      "file": "lcr/uf-ac-certisign-jus-g7/20261107T150400Z_a2767718c78b2d70.crl",
+      "file": "lcr/uf-ac-certisign-jus-g7/20261107T211135Z_0ed5d444f2cb3c3d.crl",
       "revocations": 39
     },
     "uf-ac-certisign-om-br": {
-      "file": "lcr/uf-ac-certisign-om-br/20261107T150000Z_a33840211bf38366.crl",
+      "file": "lcr/uf-ac-certisign-om-br/20261107T210000Z_d247a6926e22daad.crl",
       "revocations": null,
       "error": "error parsing asn1 value: ParseError { kind: ExtraData, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::signature\"] }"
     },
     "uf-ac-egba-multipla-g2": {
-      "file": "lcr/uf-ac-egba-multipla-g2/20261107T152200Z_1b463a4e7ea7c7e0.crl",
+      "file": "lcr/uf-ac-egba-multipla-g2/20261107T212402Z_071a3cea6b9bedbe.crl",
       "revocations": 9
     },
     "uf-ac-serasa-cd-v5": {
-      "file": "lcr/uf-ac-serasa-cd-v5/20261107T145508Z_6088628e8094ead8.crl",
+      "file": "lcr/uf-ac-serasa-cd-v5/20261107T205508Z_bd61b4319491c4ff.crl",
       "revocations": 14
     },
     "uf-ac-serasa-jus-v5": {
-      "file": "lcr/uf-ac-serasa-jus-v5/20261107T145509Z_160157c1a774a5c4.crl",
+      "file": "lcr/uf-ac-serasa-jus-v5/20261107T205509Z_12c1a2815ec9d0a5.crl",
       "revocations": 0
     },
     "uf-ac-serasa-cd-v2": {
@@ -1330,5 +1332,5 @@
       "revocations": 274
     }
   },
-  "weekday_hour_total": 340723
+  "weekday_hour_total": 259689
 }
