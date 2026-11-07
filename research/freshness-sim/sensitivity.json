@@ -1,9 +1,10 @@
 {
  "seed": 20261105,
- "lambda_measured_per_hour": 2.757763446023075e-07,
+ "lambda_measured_per_hour": 8.104264025321121e-07,
  "multipliers": [
   1,
   3,
+  4.7,
   10,
   30,
   100
@@ -21,1420 +22,1704 @@
   {
    "multiplier": 1,
    "median_brl": 881.08,
-   "lambda_per_hour": 2.757763446023075e-07,
-   "floor_brl_per_1000": 13.18194,
+   "lambda_per_hour": 8.104264025321121e-07,
+   "floor_brl_per_1000": 34.907235,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 367.96,
-    "loss": 14.589574,
-    "fixed_loss_same_fetches": 17.9054,
-    "gain_brl_per_1000": 3.3159,
-    "share_of_avoidable": 0.702
+    "fetches_per_1000": 478.21,
+    "loss": 36.448052,
+    "fixed_loss_same_fetches": 42.0993,
+    "gain_brl_per_1000": 5.6513,
+    "share_of_avoidable": 0.7858
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 13.18194
+     "expected_loss_per_1000_brl": 34.907235
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 13.184671
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 34.915581
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 13.192683
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 34.938088
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 13.223313
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 35.026414
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 13.331944
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 35.349654
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 13.687867
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 36.362275
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 14.176228
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 37.758009
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 16.025824
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 43.110452
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.517038
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.994165
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 30.076517
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 83.958507
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 14.589574
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 36.448052
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 312.27,
-     "expected_loss_per_1000_brl": 16.141395
+     "fetches_per_1000": 372.9,
+     "expected_loss_per_1000_brl": 39.091515
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 18.14407
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 44.143959
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 286.31,
-     "expected_loss_per_1000_brl": 19.554895
+     "fetches_per_1000": 297.5,
+     "expected_loss_per_1000_brl": 49.465054
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 285.65,
-     "expected_loss_per_1000_brl": 20.129107
+     "fetches_per_1000": 293.61,
+     "expected_loss_per_1000_brl": 52.803443
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 285.57,
-     "expected_loss_per_1000_brl": 20.291065
+     "fetches_per_1000": 293.06,
+     "expected_loss_per_1000_brl": 53.715385
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.460373
+     "fetches_per_1000": 292.53,
+     "expected_loss_per_1000_brl": 55.489832
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.495699
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.91404
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 13.651605
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 36.26285
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 13.205861
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 34.976172
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 13.188449
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 34.925758
     }
    ]
   },
   {
    "multiplier": 3,
    "median_brl": 881.08,
-   "lambda_per_hour": 8.273290338069226e-07,
-   "floor_brl_per_1000": 39.538117,
+   "lambda_per_hour": 2.431279207596336e-06,
+   "floor_brl_per_1000": 104.661805,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 474.28,
-    "loss": 41.086425,
-    "fixed_loss_same_fetches": 46.8531,
-    "gain_brl_per_1000": 5.7667,
-    "share_of_avoidable": 0.7883
+    "fetches_per_1000": 623.05,
+    "loss": 106.002408,
+    "fixed_loss_same_fetches": 113.075,
+    "gain_brl_per_1000": 7.0726,
+    "share_of_avoidable": 0.8407
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 39.538117
+     "expected_loss_per_1000_brl": 104.661805
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 39.54631
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 104.686829
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 39.57034
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 104.754312
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 39.662213
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 105.019134
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 39.988043
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 105.988304
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 41.055604
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 109.024453
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 42.520403
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 113.209269
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 48.068115
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 129.25754
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 61.539176
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 167.886763
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 90.212205
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 251.733455
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 474.28,
-     "expected_loss_per_1000_brl": 41.086425
+     "fetches_per_1000": 623.05,
+     "expected_loss_per_1000_brl": 106.002408
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 43.760208
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 109.281629
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 309.19,
-     "expected_loss_per_1000_brl": 48.935535
+     "fetches_per_1000": 365.52,
+     "expected_loss_per_1000_brl": 118.284211
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 54.421648
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 132.356321
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 286.81,
-     "expected_loss_per_1000_brl": 57.922124
+     "fetches_per_1000": 299.82,
+     "expected_loss_per_1000_brl": 144.926276
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 286.18,
-     "expected_loss_per_1000_brl": 58.928709
+     "fetches_per_1000": 296.78,
+     "expected_loss_per_1000_brl": 149.647818
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 285.57,
-     "expected_loss_per_1000_brl": 60.861387
+     "fetches_per_1000": 293.06,
+     "expected_loss_per_1000_brl": 161.054302
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 61.403096
+     "fetches_per_1000": 292.52,
+     "expected_loss_per_1000_brl": 166.649327
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 40.946842
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 108.726334
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 39.609868
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 104.868498
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 39.557641
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 104.717342
+    }
+   ]
+  },
+  {
+   "multiplier": 4.7,
+   "median_brl": 881.08,
+   "lambda_per_hour": 3.809004091900927e-06,
+   "floor_brl_per_1000": 163.890451,
+   "best": {
+    "setting": "L=0.01",
+    "fetches_per_1000": 686.09,
+    "loss": 165.06839,
+    "fixed_loss_same_fetches": 172.329,
+    "gain_brl_per_1000": 7.2606,
+    "share_of_avoidable": 0.8604
+   },
+   "rows": [
+    {
+     "policy": "consultar sempre",
+     "setting": "0 h",
+     "fetches_per_1000": 1000.0,
+     "expected_loss_per_1000_brl": 163.890451
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "0.25 h",
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 163.929635
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "0.5 h",
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 164.035309
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "1 h",
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 164.449989
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "2 h",
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 165.967622
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "4 h",
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 170.721977
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "6 h",
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 177.275014
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "12 h",
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 202.40525
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "24 h",
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 262.895202
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "48 h",
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 394.19336
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.01",
+     "fetches_per_1000": 686.09,
+     "expected_loss_per_1000_brl": 165.06839
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.03",
+     "fetches_per_1000": 534.47,
+     "expected_loss_per_1000_brl": 168.369647
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.1",
+     "fetches_per_1000": 400.28,
+     "expected_loss_per_1000_brl": 178.662443
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.3",
+     "fetches_per_1000": 330.97,
+     "expected_loss_per_1000_brl": 197.288723
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 306.15,
+     "expected_loss_per_1000_brl": 216.705094
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=1",
+     "fetches_per_1000": 301.05,
+     "expected_loss_per_1000_brl": 224.529693
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=3",
+     "fetches_per_1000": 293.89,
+     "expected_loss_per_1000_brl": 246.300918
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=10",
+     "fetches_per_1000": 292.59,
+     "expected_loss_per_1000_brl": 258.774298
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, folgada",
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 170.255131
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, média",
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 164.214112
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, rígida",
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 163.977416
     }
    ]
   },
   {
    "multiplier": 10,
    "median_brl": 881.08,
-   "lambda_per_hour": 2.757763446023075e-06,
-   "floor_brl_per_1000": 131.70392,
+   "lambda_per_hour": 8.104264025321121e-06,
+   "floor_brl_per_1000": 348.175048,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 634.83,
-    "loss": 133.01556,
-    "fixed_loss_same_fetches": 140.3137,
-    "gain_brl_per_1000": 7.2982,
-    "share_of_avoidable": 0.8477
+    "fetches_per_1000": 783.62,
+    "loss": 349.050362,
+    "fixed_loss_same_fetches": 356.2479,
+    "gain_brl_per_1000": 7.1975,
+    "share_of_avoidable": 0.8916
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 131.70392
+     "expected_loss_per_1000_brl": 348.175048
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 131.731212
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 348.258292
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 131.811257
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 348.482794
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 132.117295
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 349.363722
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 133.202667
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 352.587877
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 136.75878
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 362.688424
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 141.638108
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 376.610028
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 160.117941
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 429.998745
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 204.991385
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 558.50758
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 300.505111
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 837.456887
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 634.83,
-     "expected_loss_per_1000_brl": 133.01556
+     "fetches_per_1000": 783.62,
+     "expected_loss_per_1000_brl": 349.050362
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 486.85,
-     "expected_loss_per_1000_brl": 136.336979
+     "fetches_per_1000": 637.83,
+     "expected_loss_per_1000_brl": 352.085469
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 145.768108
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 363.543878
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 312.27,
-     "expected_loss_per_1000_brl": 161.272962
+     "fetches_per_1000": 372.9,
+     "expected_loss_per_1000_brl": 389.911165
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 294.48,
-     "expected_loss_per_1000_brl": 175.722289
+     "fetches_per_1000": 326.59,
+     "expected_loss_per_1000_brl": 424.083129
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 181.282363
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 440.307766
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 286.31,
-     "expected_loss_per_1000_brl": 195.378402
+     "fetches_per_1000": 297.5,
+     "expected_loss_per_1000_brl": 493.382926
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 285.57,
-     "expected_loss_per_1000_brl": 202.733614
+     "fetches_per_1000": 293.06,
+     "expected_loss_per_1000_brl": 535.777875
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 136.3965
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 361.696502
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 131.94293
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 348.862646
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 131.768957
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 348.359798
     }
    ]
   },
   {
    "multiplier": 30,
    "median_brl": 881.08,
-   "lambda_per_hour": 8.273290338069225e-06,
-   "floor_brl_per_1000": 394.343371,
+   "lambda_per_hour": 2.431279207596336e-05,
+   "floor_brl_per_1000": 1038.576105,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 781.77,
-    "loss": 395.226015,
-    "fixed_loss_same_fetches": 402.3376,
-    "gain_brl_per_1000": 7.1116,
-    "share_of_avoidable": 0.8896
+    "fetches_per_1000": 891.97,
+    "loss": 1039.047115,
+    "fixed_loss_same_fetches": 1043.8937,
+    "gain_brl_per_1000": 4.8465,
+    "share_of_avoidable": 0.9114
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 394.343371
+     "expected_loss_per_1000_brl": 1038.576105
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 394.425094
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 1038.824403
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 394.664751
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 1039.494131
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 395.581106
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 1042.121485
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 398.831008
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 1051.739263
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 409.47859
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 1081.870775
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 424.088043
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 1123.39866
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 479.420246
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 1282.664953
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 613.783096
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 1666.014804
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 899.784868
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 2498.260043
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 781.77,
-     "expected_loss_per_1000_brl": 395.226015
+     "fetches_per_1000": 891.97,
+     "expected_loss_per_1000_brl": 1039.047115
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 634.83,
-     "expected_loss_per_1000_brl": 398.270713
+     "fetches_per_1000": 783.62,
+     "expected_loss_per_1000_brl": 1041.187098
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 474.28,
-     "expected_loss_per_1000_brl": 409.786313
+     "fetches_per_1000": 623.05,
+     "expected_loss_per_1000_brl": 1051.879725
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 436.455078
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 1084.421782
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 320.6,
-     "expected_loss_per_1000_brl": 471.376846
+     "fetches_per_1000": 391.05,
+     "expected_loss_per_1000_brl": 1141.24821
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 309.19,
-     "expected_loss_per_1000_brl": 488.074758
+     "fetches_per_1000": 365.52,
+     "expected_loss_per_1000_brl": 1173.763177
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 542.793523
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 1313.419331
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 286.18,
-     "expected_loss_per_1000_brl": 587.746946
+     "fetches_per_1000": 296.78,
+     "expected_loss_per_1000_brl": 1485.018908
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 408.393984
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 1078.91043
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 395.05902
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 1040.62714
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 394.538105
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 1039.12717
     }
    ]
   },
   {
    "multiplier": 100,
    "median_brl": 881.08,
-   "lambda_per_hour": 2.7577634460230752e-05,
-   "floor_brl_per_1000": 1305.565577,
+   "lambda_per_hour": 8.104264025321121e-05,
+   "floor_brl_per_1000": 3393.692126,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 898.79,
-    "loss": 1306.009454,
-    "fixed_loss_same_fetches": 1310.2784,
-    "gain_brl_per_1000": 4.269,
-    "share_of_avoidable": 0.9058
+    "fetches_per_1000": 957.77,
+    "loss": 3393.883236,
+    "fixed_loss_same_fetches": 3396.0805,
+    "gain_brl_per_1000": 2.1973,
+    "share_of_avoidable": 0.92
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 1305.565577
+     "expected_loss_per_1000_brl": 3393.692126
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 1305.836212
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 3394.503363
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 1306.629534
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 3396.692455
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 1309.663636
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 3405.273364
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 1320.424567
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 3436.705279
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 1355.675762
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 3535.192217
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 1404.043014
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 3670.900938
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 1587.239135
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 4191.466798
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 2032.128609
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 5444.332566
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 2979.210535
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 8165.669219
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 898.79,
-     "expected_loss_per_1000_brl": 1306.009454
+     "fetches_per_1000": 957.77,
+     "expected_loss_per_1000_brl": 3393.883236
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 794.4,
-     "expected_loss_per_1000_brl": 1308.06435
+     "fetches_per_1000": 899.79,
+     "expected_loss_per_1000_brl": 3394.984527
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 634.83,
-     "expected_loss_per_1000_brl": 1318.56882
+     "fetches_per_1000": 783.62,
+     "expected_loss_per_1000_brl": 3402.224002
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 486.85,
-     "expected_loss_per_1000_brl": 1351.49719
+     "fetches_per_1000": 637.83,
+     "expected_loss_per_1000_brl": 3431.812129
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 395.61,
-     "expected_loss_per_1000_brl": 1410.333922
+     "fetches_per_1000": 520.44,
+     "expected_loss_per_1000_brl": 3498.15106
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 1445.000028
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 3543.519499
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 312.27,
-     "expected_loss_per_1000_brl": 1598.72132
+     "fetches_per_1000": 372.9,
+     "expected_loss_per_1000_brl": 3800.582198
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 1797.09148
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 4291.999818
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 1352.086315
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 3525.501499
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 1307.935047
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 3400.394087
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 1306.210311
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 3395.492519
     }
    ]
   },
   {
    "multiplier": 1,
    "median_brl": 78.23,
-   "lambda_per_hour": 2.757763446023075e-07,
-   "floor_brl_per_1000": 1.166669,
+   "lambda_per_hour": 8.104264025321121e-07,
+   "floor_brl_per_1000": 3.100718,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 829.83,
-    "loss": 1.277248,
-    "fixed_loss_same_fetches": 1.3185,
-    "gain_brl_per_1000": 0.0413,
-    "share_of_avoidable": 0.2719
+    "fetches_per_1000": 836.36,
+    "loss": 3.310696,
+    "fixed_loss_same_fetches": 3.5189,
+    "gain_brl_per_1000": 0.2082,
+    "share_of_avoidable": 0.4978
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 1.166669
+     "expected_loss_per_1000_brl": 3.100718
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 1.166692
+     "expected_loss_per_1000_brl": 3.100787
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 1.166751
+     "expected_loss_per_1000_brl": 3.100962
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 1.167019
+     "expected_loss_per_1000_brl": 3.10175
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 1.168014
+     "expected_loss_per_1000_brl": 3.104677
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 1.171888
+     "expected_loss_per_1000_brl": 3.116083
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 1.177956
+     "expected_loss_per_1000_brl": 3.133935
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 1.208848
+     "expected_loss_per_1000_brl": 3.224911
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "expected_loss_per_1000_brl": 3.556084
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 1.690027
+     "expected_loss_per_1000_brl": 4.641267
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 1.277248
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 3.310696
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 828.26,
-     "expected_loss_per_1000_brl": 1.304542
+     "fetches_per_1000": 829.75,
+     "expected_loss_per_1000_brl": 3.428663
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 1.317849
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 3.514514
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "fetches_per_1000": 828.01,
+     "expected_loss_per_1000_brl": 3.546334
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "expected_loss_per_1000_brl": 3.554788
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "expected_loss_per_1000_brl": 3.556084
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "expected_loss_per_1000_brl": 3.556084
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.321339
+     "expected_loss_per_1000_brl": 3.556084
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 1.1874
+     "expected_loss_per_1000_brl": 3.161744
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 1.170189
+     "expected_loss_per_1000_brl": 3.111081
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 1.167588
+     "expected_loss_per_1000_brl": 3.103425
     }
    ]
   },
   {
    "multiplier": 3,
    "median_brl": 78.23,
-   "lambda_per_hour": 8.273290338069226e-07,
-   "floor_brl_per_1000": 3.499323,
+   "lambda_per_hour": 2.431279207596336e-06,
+   "floor_brl_per_1000": 9.296819,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 836.58,
-    "loss": 3.71085,
-    "fixed_loss_same_fetches": 3.9243,
-    "gain_brl_per_1000": 0.2135,
-    "share_of_avoidable": 0.5023
+    "fetches_per_1000": 853.83,
+    "loss": 9.608807,
+    "fixed_loss_same_fetches": 10.3211,
+    "gain_brl_per_1000": 0.7123,
+    "share_of_avoidable": 0.6954
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 3.499323
+     "expected_loss_per_1000_brl": 9.296819
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 3.499393
+     "expected_loss_per_1000_brl": 9.297025
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 3.499572
+     "expected_loss_per_1000_brl": 9.297548
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 3.500375
+     "expected_loss_per_1000_brl": 9.299912
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 3.503359
+     "expected_loss_per_1000_brl": 9.308688
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 3.51498
+     "expected_loss_per_1000_brl": 9.342887
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 3.533178
+     "expected_loss_per_1000_brl": 9.396411
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 3.625839
+     "expected_loss_per_1000_brl": 9.669184
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 3.963245
+     "expected_loss_per_1000_brl": 10.662143
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 5.069096
+     "expected_loss_per_1000_brl": 13.915849
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 836.58,
-     "expected_loss_per_1000_brl": 3.71085
+     "fetches_per_1000": 853.83,
+     "expected_loss_per_1000_brl": 9.608807
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 3.830997
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 9.926392
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 828.2,
-     "expected_loss_per_1000_brl": 3.919317
+     "fetches_per_1000": 829.5,
+     "expected_loss_per_1000_brl": 10.3063
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 3.952777
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 10.537502
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 3.961922
+     "fetches_per_1000": 828.03,
+     "expected_loss_per_1000_brl": 10.611884
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 3.963245
+     "fetches_per_1000": 828.0,
+     "expected_loss_per_1000_brl": 10.63937
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 3.963245
+     "expected_loss_per_1000_brl": 10.662143
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 3.963245
+     "expected_loss_per_1000_brl": 10.662143
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 3.561506
+     "expected_loss_per_1000_brl": 9.479789
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 3.509882
+     "expected_loss_per_1000_brl": 9.327889
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 3.502081
+     "expected_loss_per_1000_brl": 9.304932
+    }
+   ]
+  },
+  {
+   "multiplier": 4.7,
+   "median_brl": 78.23,
+   "lambda_per_hour": 3.809004091900927e-06,
+   "floor_brl_per_1000": 14.557914,
+   "best": {
+    "setting": "L=0.01",
+    "fetches_per_1000": 865.2,
+    "loss": 14.894147,
+    "fixed_loss_same_fetches": 15.932,
+    "gain_brl_per_1000": 1.0378,
+    "share_of_avoidable": 0.7553
+   },
+   "rows": [
+    {
+     "policy": "consultar sempre",
+     "setting": "0 h",
+     "fetches_per_1000": 1000.0,
+     "expected_loss_per_1000_brl": 14.557914
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "0.25 h",
+     "fetches_per_1000": 997.85,
+     "expected_loss_per_1000_brl": 14.558236
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "0.5 h",
+     "fetches_per_1000": 995.75,
+     "expected_loss_per_1000_brl": 14.559057
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "1 h",
+     "fetches_per_1000": 991.39,
+     "expected_loss_per_1000_brl": 14.562759
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "2 h",
+     "fetches_per_1000": 982.83,
+     "expected_loss_per_1000_brl": 14.5765
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "4 h",
+     "fetches_per_1000": 966.22,
+     "expected_loss_per_1000_brl": 14.630054
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "6 h",
+     "fetches_per_1000": 950.09,
+     "expected_loss_per_1000_brl": 14.713865
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "12 h",
+     "fetches_per_1000": 905.49,
+     "expected_loss_per_1000_brl": 15.141006
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "24 h",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 16.695897
+    },
+    {
+     "policy": "prazo fixo",
+     "setting": "48 h",
+     "fetches_per_1000": 710.21,
+     "expected_loss_per_1000_brl": 21.790913
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.01",
+     "fetches_per_1000": 865.2,
+     "expected_loss_per_1000_brl": 14.894147
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.03",
+     "fetches_per_1000": 841.7,
+     "expected_loss_per_1000_brl": 15.327276
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.1",
+     "fetches_per_1000": 831.0,
+     "expected_loss_per_1000_brl": 15.937325
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.3",
+     "fetches_per_1000": 828.5,
+     "expected_loss_per_1000_brl": 16.36757
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 828.09,
+     "expected_loss_per_1000_brl": 16.56685
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=1",
+     "fetches_per_1000": 828.05,
+     "expected_loss_per_1000_brl": 16.603452
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=3",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 16.684542
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=10",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 16.695897
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, folgada",
+     "fetches_per_1000": 879.65,
+     "expected_loss_per_1000_brl": 14.844429
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, média",
+     "fetches_per_1000": 942.05,
+     "expected_loss_per_1000_brl": 14.606567
+    },
+    {
+     "policy": "faixas de valor",
+     "setting": "3 faixas, rígida",
+     "fetches_per_1000": 969.91,
+     "expected_loss_per_1000_brl": 14.570619
     }
    ]
   },
   {
    "multiplier": 10,
    "median_brl": 78.23,
-   "lambda_per_hour": 2.757763446023075e-06,
-   "floor_brl_per_1000": 11.656457,
+   "lambda_per_hour": 8.104264025321121e-06,
+   "floor_brl_per_1000": 30.927239,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 856.79,
-    "loss": 11.976167,
-    "fixed_loss_same_fetches": 12.7723,
-    "gain_brl_per_1000": 0.7962,
-    "share_of_avoidable": 0.7135
+    "fetches_per_1000": 889.5,
+    "loss": 31.266978,
+    "fixed_loss_same_fetches": 32.8238,
+    "gain_brl_per_1000": 1.5568,
+    "share_of_avoidable": 0.8209
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 11.656457
+     "expected_loss_per_1000_brl": 30.927239
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 11.65669
+     "expected_loss_per_1000_brl": 30.927924
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 11.657284
+     "expected_loss_per_1000_brl": 30.929666
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 11.659961
+     "expected_loss_per_1000_brl": 30.937532
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 11.669899
+     "expected_loss_per_1000_brl": 30.966725
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 11.708609
+     "expected_loss_per_1000_brl": 31.080499
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 11.769227
+     "expected_loss_per_1000_brl": 31.258538
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 12.07789
+     "expected_loss_per_1000_brl": 32.165998
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 13.201825
+     "expected_loss_per_1000_brl": 35.469342
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 16.885514
+     "expected_loss_per_1000_brl": 46.293535
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 856.79,
-     "expected_loss_per_1000_brl": 11.976167
+     "fetches_per_1000": 889.5,
+     "expected_loss_per_1000_brl": 31.266978
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 837.61,
-     "expected_loss_per_1000_brl": 12.325831
+     "fetches_per_1000": 856.3,
+     "expected_loss_per_1000_brl": 31.882376
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 12.761289
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 33.021646
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 828.26,
-     "expected_loss_per_1000_brl": 13.033994
+     "fetches_per_1000": 829.75,
+     "expected_loss_per_1000_brl": 34.198316
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 828.05,
-     "expected_loss_per_1000_brl": 13.133742
+     "fetches_per_1000": 828.4,
+     "expected_loss_per_1000_brl": 34.849801
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 13.166953
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 35.054647
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 13.201825
+     "fetches_per_1000": 828.01,
+     "expected_loss_per_1000_brl": 35.372074
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 13.201825
+     "expected_loss_per_1000_brl": 35.469342
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 11.86359
+     "expected_loss_per_1000_brl": 31.535923
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 11.691628
+     "expected_loss_per_1000_brl": 31.030601
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 11.665641
+     "expected_loss_per_1000_brl": 30.954231
     }
    ]
   },
   {
    "multiplier": 30,
    "median_brl": 78.23,
-   "lambda_per_hour": 8.273290338069225e-06,
-   "floor_brl_per_1000": 34.901311,
+   "lambda_per_hour": 2.431279207596336e-05,
+   "floor_brl_per_1000": 92.251686,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 890.24,
-    "loss": 35.239809,
-    "fixed_loss_same_fetches": 36.802,
-    "gain_brl_per_1000": 1.5622,
-    "share_of_avoidable": 0.8219
+    "fetches_per_1000": 929.85,
+    "loss": 92.516529,
+    "fixed_loss_same_fetches": 94.4523,
+    "gain_brl_per_1000": 1.9357,
+    "share_of_avoidable": 0.8796
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 34.901311
+     "expected_loss_per_1000_brl": 92.251686
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 34.902009
+     "expected_loss_per_1000_brl": 92.253731
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 34.903785
+     "expected_loss_per_1000_brl": 92.258925
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 34.911804
+     "expected_loss_per_1000_brl": 92.282393
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 34.941559
+     "expected_loss_per_1000_brl": 92.369477
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 35.057468
+     "expected_loss_per_1000_brl": 92.708883
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 35.238952
+     "expected_loss_per_1000_brl": 93.239827
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 36.163179
+     "expected_loss_per_1000_brl": 95.946977
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 39.52854
+     "expected_loss_per_1000_brl": 105.801415
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 50.558366
+     "expected_loss_per_1000_brl": 138.090711
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 890.24,
-     "expected_loss_per_1000_brl": 35.239809
+     "fetches_per_1000": 929.85,
+     "expected_loss_per_1000_brl": 92.516529
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 856.79,
-     "expected_loss_per_1000_brl": 35.858596
+     "fetches_per_1000": 889.5,
+     "expected_loss_per_1000_brl": 93.265167
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 836.58,
-     "expected_loss_per_1000_brl": 37.011073
+     "fetches_per_1000": 853.83,
+     "expected_loss_per_1000_brl": 95.347812
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 38.209431
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 98.499332
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 828.42,
-     "expected_loss_per_1000_brl": 38.879819
+     "fetches_per_1000": 830.56,
+     "expected_loss_per_1000_brl": 101.318291
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 828.2,
-     "expected_loss_per_1000_brl": 39.090335
+     "fetches_per_1000": 829.5,
+     "expected_loss_per_1000_brl": 102.269515
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 39.424109
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 104.563966
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 39.52854
+     "fetches_per_1000": 828.0,
+     "expected_loss_per_1000_brl": 105.575284
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 35.521506
+     "expected_loss_per_1000_brl": 94.06734
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 35.006619
+     "expected_loss_per_1000_brl": 92.560015
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 34.92881
+     "expected_loss_per_1000_brl": 92.332202
     }
    ]
   },
   {
    "multiplier": 100,
    "median_brl": 78.23,
-   "lambda_per_hour": 2.7577634460230752e-05,
-   "floor_brl_per_1000": 115.548284,
+   "lambda_per_hour": 8.104264025321121e-05,
+   "floor_brl_per_1000": 301.426907,
    "best": {
     "setting": "L=0.01",
-    "fetches_per_1000": 934.31,
-    "loss": 115.799878,
-    "fixed_loss_same_fetches": 117.732,
-    "gain_brl_per_1000": 1.9322,
-    "share_of_avoidable": 0.8848
+    "fetches_per_1000": 966.6,
+    "loss": 301.569353,
+    "fixed_loss_same_fetches": 302.8957,
+    "gain_brl_per_1000": 1.3263,
+    "share_of_avoidable": 0.903
    },
    "rows": [
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 115.548284
+     "expected_loss_per_1000_brl": 301.426907
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 115.550597
+     "expected_loss_per_1000_brl": 301.433595
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 115.556474
+     "expected_loss_per_1000_brl": 301.450539
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 115.583029
+     "expected_loss_per_1000_brl": 301.527298
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 115.681548
+     "expected_loss_per_1000_brl": 301.811893
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 116.065336
+     "expected_loss_per_1000_brl": 302.92127
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 116.666014
+     "expected_loss_per_1000_brl": 304.654694
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 119.726301
+     "expected_loss_per_1000_brl": 313.503852
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 130.869443
+     "expected_loss_per_1000_brl": 345.714199
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 167.389139
+     "expected_loss_per_1000_brl": 451.242475
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 934.31,
-     "expected_loss_per_1000_brl": 115.799878
+     "fetches_per_1000": 966.6,
+     "expected_loss_per_1000_brl": 301.569353
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 894.14,
-     "expected_loss_per_1000_brl": 116.542623
+     "fetches_per_1000": 933.56,
+     "expected_loss_per_1000_brl": 302.176059
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 856.79,
-     "expected_loss_per_1000_brl": 118.71785
+     "fetches_per_1000": 889.5,
+     "expected_loss_per_1000_brl": 304.73937
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 837.61,
-     "expected_loss_per_1000_brl": 122.184251
+     "fetches_per_1000": 856.3,
+     "expected_loss_per_1000_brl": 310.738765
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 831.1,
-     "expected_loss_per_1000_brl": 125.357702
+     "fetches_per_1000": 840.17,
+     "expected_loss_per_1000_brl": 318.454689
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 126.501386
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 321.844317
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 828.26,
-     "expected_loss_per_1000_brl": 129.204687
+     "fetches_per_1000": 829.75,
+     "expected_loss_per_1000_brl": 333.316283
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 130.523461
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 341.665505
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 117.601625
+     "expected_loss_per_1000_brl": 307.359835
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 115.896952
+     "expected_loss_per_1000_brl": 302.434528
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 115.639329
+     "expected_loss_per_1000_brl": 301.690003
     }
    ]
   }

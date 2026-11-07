@@ -1,6 +1,6 @@
 {
  "source": "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/versao/v1/odata/EstatisticasTransacoesPix(Database=@Database)",
- "fetched_at": "2026-11-06T13:13:45+00:00",
+ "fetched_at": "2026-11-07T21:59:56+00:00",
  "months": {
   "202511": {
    "B2B": {

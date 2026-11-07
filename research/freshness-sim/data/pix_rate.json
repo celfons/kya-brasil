@@ -1,66 +1,66 @@
 {
  "source": "https://olinda.bcb.gov.br/olinda/servico/Pix_DadosAbertos/versao/v1/odata/TransacoesPixPorMunicipio(DataBase=@DataBase)",
- "fetched_at": "2026-11-06T17:28:27+00:00",
+ "fetched_at": "2026-11-07T22:04:14+00:00",
  "months": {
   "202511": {
-   "pix_paid_by_companies": 117707211,
-   "paying_companies": 2797634,
+   "pix_paid_by_companies": 117689754,
+   "paying_companies": 2797224,
    "municipalities": 1537,
    "per_company_per_month": 42.07
   },
   "202512": {
-   "pix_paid_by_companies": 340287498,
-   "paying_companies": 4190496,
-   "municipalities": 1668,
-   "per_company_per_month": 81.2
+   "pix_paid_by_companies": 141863410,
+   "paying_companies": 3261897,
+   "municipalities": 1654,
+   "per_company_per_month": 43.49
   },
   "202601": {
-   "pix_paid_by_companies": 359781247,
-   "paying_companies": 5008747,
-   "municipalities": 1829,
-   "per_company_per_month": 71.83
+   "pix_paid_by_companies": 366395636,
+   "paying_companies": 5014877,
+   "municipalities": 1814,
+   "per_company_per_month": 73.06
   },
   "202602": {
-   "pix_paid_by_companies": 408682869,
-   "paying_companies": 5426838,
-   "municipalities": 1992,
-   "per_company_per_month": 75.31
+   "pix_paid_by_companies": 405960006,
+   "paying_companies": 5445860,
+   "municipalities": 1991,
+   "per_company_per_month": 74.54
   },
   "202603": {
-   "pix_paid_by_companies": 532239534,
-   "paying_companies": 5947053,
-   "municipalities": 2209,
-   "per_company_per_month": 89.5
+   "pix_paid_by_companies": 531267869,
+   "paying_companies": 5919938,
+   "municipalities": 2231,
+   "per_company_per_month": 89.74
   },
   "202604": {
-   "pix_paid_by_companies": 563944831,
-   "paying_companies": 6676740,
-   "municipalities": 2496,
-   "per_company_per_month": 84.46
+   "pix_paid_by_companies": 587287295,
+   "paying_companies": 6732167,
+   "municipalities": 2512,
+   "per_company_per_month": 87.24
   },
   "202605": {
-   "pix_paid_by_companies": 651170961,
-   "paying_companies": 7468388,
-   "municipalities": 2845,
-   "per_company_per_month": 87.19
+   "pix_paid_by_companies": 644918897,
+   "paying_companies": 7343409,
+   "municipalities": 2855,
+   "per_company_per_month": 87.82
   },
   "202606": {
-   "pix_paid_by_companies": 686983920,
-   "paying_companies": 8185264,
-   "municipalities": 3338,
-   "per_company_per_month": 83.93
+   "pix_paid_by_companies": 690753229,
+   "paying_companies": 8279850,
+   "municipalities": 3343,
+   "per_company_per_month": 83.43
   },
   "202607": {
-   "pix_paid_by_companies": 785783604,
-   "paying_companies": 9792193,
-   "municipalities": 3986,
-   "per_company_per_month": 80.25
+   "pix_paid_by_companies": 789935551,
+   "paying_companies": 9880993,
+   "municipalities": 3996,
+   "per_company_per_month": 79.94
   },
   "202608": {
-   "pix_paid_by_companies": 946866820,
-   "paying_companies": 11809373,
-   "municipalities": 5002,
-   "per_company_per_month": 80.18
+   "pix_paid_by_companies": 945078844,
+   "paying_companies": 11762955,
+   "municipalities": 5000,
+   "per_company_per_month": 80.34
   },
   "202609": {
    "pix_paid_by_companies": 988350820,
@@ -75,6 +75,6 @@
    "per_company_per_month": 78.43
   }
  },
- "per_company_per_hour": 0.10603,
- "per_company_per_month": 77.42
+ "per_company_per_hour": 0.1022,
+ "per_company_per_month": 74.57
 }

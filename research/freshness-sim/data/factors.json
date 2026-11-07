@@ -2,9 +2,9 @@
  "source": {
   "measured": "data/measured.json",
   "flow": "data/flow.json",
-  "flow_fetched_at": "2026-11-07T11:12:49Z"
+  "flow_fetched_at": "2026-11-07T21:58:08Z"
  },
- "month_peak_over_mean": 1.173,
+ "month_peak_over_mean": 1.135,
  "peak_month": "2026-07",
  "months_used": [
   "2026-01",
@@ -18,46 +18,52 @@
   "2026-09",
   "2026-10"
  ],
- "flow_over_stock": 1.169,
- "lambda_stock_per_year": 0.002415800778716214,
- "lambda_flow_per_year": 0.002824329256862325,
- "ac_relative_hazard_max": 2.83,
+ "flow_over_stock": 0.552,
+ "lambda_stock_per_year": 0.007099335286181302,
+ "lambda_flow_per_year": 0.003919482940325147,
+ "ac_relative_hazard_max": 4.659,
  "ac_relative_hazard_top": {
   "ac": "AC Certisign RFB G5",
-  "entries": 7632,
-  "new_entries": 47,
-  "relative_hazard": 2.830471922978461
+  "entries": 7616,
+  "new_entries": 48,
+  "relative_hazard": 4.658759943146398
  },
  "ac_relative_hazards": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
-   "entries": 33882,
-   "new_entries": 147,
-   "relative_hazard": 1.9941032973493913
+   "entries": 33863,
+   "new_entries": 149,
+   "relative_hazard": 3.252496729052507
   },
   "uf-ac-certisign-rfb-g5": {
    "ac": "AC Certisign RFB G5",
-   "entries": 7632,
-   "new_entries": 47,
-   "relative_hazard": 2.830471922978461
+   "entries": 7616,
+   "new_entries": 48,
+   "relative_hazard": 4.658759943146398
   },
   "uf-ac-serpro-rfb-v5": {
    "ac": "Autoridade Certificadora SERPRORFBv5",
    "entries": 77424,
    "new_entries": 108,
-   "relative_hazard": 0.6411320766298576
+   "relative_hazard": 1.0311080593324637
   },
   "uf-ac-serasa-rfb-v5": {
    "ac": "AC Serasa RFB v5",
-   "entries": 1059,
+   "entries": 1054,
    "new_entries": 0,
    "relative_hazard": 0.0
   },
+  "uf-ac-valid-rfb-v5": {
+   "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
+   "entries": 26107,
+   "new_entries": 1,
+   "relative_hazard": 0.028313858772713394
+  },
   "uf-ac-certisign-multipla-g7": {
    "ac": "AC Certisign Multipla G7",
-   "entries": 1215,
+   "entries": 1214,
    "new_entries": 1,
-   "relative_hazard": 0.3782884461285635
+   "relative_hazard": 0.6088879003123794
   },
   "uf-ac-alternative": {
    "ac": "Autoridade Certificadora ALTERNATIVE",
@@ -85,29 +91,59 @@
   },
   "uf-ac-oab-g3": {
    "ac": "AC OAB G3",
-   "entries": 6740,
+   "entries": 6733,
    "new_entries": 0,
    "relative_hazard": 0.0
   },
   "uf-ac-soluti-rfb-v5": {
    "ac": "AC SOLUTI RFB V5",
-   "entries": 1761,
+   "entries": 1757,
    "new_entries": 0,
    "relative_hazard": 0.0
   },
   "uf-ac-soluti-jus-v5": {
    "ac": "AC SOLUTI-JUS v5",
-   "entries": 1516,
+   "entries": 1514,
+   "new_entries": 0,
+   "relative_hazard": 0.0
+  },
+  "uf-ac-safeweb-rfb-v5": {
+   "ac": "AC SAFEWEB RFB v5",
+   "entries": 41519,
+   "new_entries": 29,
+   "relative_hazard": 0.5163059663864165
+  },
+  "uf-ac-syngularid-multipla": {
+   "ac": "AC SyngularID Multipla",
+   "entries": 34167,
+   "new_entries": 1,
+   "relative_hazard": 0.021634615593386263
+  },
+  "uf-ac-soluti-multipla-v5-g2": {
+   "ac": "AC SOLUTI Multipla v5 G2",
+   "entries": 4343,
+   "new_entries": 0,
+   "relative_hazard": 0.0
+  },
+  "uf-ac-online-rfb-v5": {
+   "ac": "AC ONLINE RFB v5",
+   "entries": 1432,
+   "new_entries": 0,
+   "relative_hazard": 0.0
+  },
+  "uf-ac-digitalsign-rfb-g3": {
+   "ac": "AC DIGITALSIGN RFB G3",
+   "entries": 2328,
    "new_entries": 0,
    "relative_hazard": 0.0
   }
  },
  "min_entries": 1000,
- "factor_max": 2.8,
+ "factor_max": 4.7,
  "multipliers": [
   1,
-  2.8,
   3,
+  4.7,
   10,
   30,
   100

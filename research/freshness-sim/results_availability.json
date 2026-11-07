@@ -2,26 +2,26 @@
  "seed": 20261106,
  "window": {
   "from": "2026-11-05T03:59:34.368Z",
-  "to": "2026-11-06T12:23:44.220Z"
+  "to": "2026-11-07T21:24:36.190Z"
  },
  "availability": {
   "per_source": {
    "uf-ac-soluti-multipla-v5": {
     "ac": "AC SOLUTI Multipla v5",
     "validity_h": 6.0,
-    "window_h": 32.4,
-    "versions": 29,
+    "window_h": 65.4,
+    "versions": 56,
     "available_share": 1.0,
     "longest_stale_h": 0.0,
     "age_median_h": 1.39,
-    "age_p95_h": 3.17
+    "age_p95_h": 3.04
    },
    "uf-ac-certisign-rfb-g5": {
     "ac": "AC Certisign RFB G5",
     "validity_h": 1.0,
-    "window_h": 32.4,
-    "versions": 34,
-    "available_share": 0.8781,
+    "window_h": 65.4,
+    "versions": 67,
+    "available_share": 0.8782,
     "longest_stale_h": 0.13,
     "age_median_h": 0.62,
     "age_p95_h": 1.07
@@ -29,8 +29,8 @@
    "uf-ac-serpro-rfb-v5": {
     "ac": "Autoridade Certificadora SERPRORFBv5",
     "validity_h": 6.0,
-    "window_h": 32.4,
-    "versions": 34,
+    "window_h": 65.4,
+    "versions": 67,
     "available_share": 1.0,
     "longest_stale_h": 0.0,
     "age_median_h": 0.85,
@@ -39,37 +39,847 @@
    "uf-ac-serasa-rfb-v5": {
     "ac": "AC Serasa RFB v5",
     "validity_h": 5.9997,
-    "window_h": 32.4,
-    "versions": 33,
+    "window_h": 65.4,
+    "versions": 66,
     "available_share": 1.0,
     "longest_stale_h": 0.0,
-    "age_median_h": 0.72,
-    "age_p95_h": 1.36
+    "age_median_h": 0.84,
+    "age_p95_h": 1.41
+   },
+   "uf-ac-valid-rfb-v5": {
+    "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.27
    },
    "uf-ac-certisign-multipla-g7": {
     "ac": "AC Certisign Multipla G7",
     "validity_h": 1.0,
-    "window_h": 32.3,
-    "versions": 34,
-    "available_share": 0.8024,
-    "longest_stale_h": 0.22,
-    "age_median_h": 0.69,
-    "age_p95_h": 1.15
+    "window_h": 65.3,
+    "versions": 65,
+    "available_share": 0.7751,
+    "longest_stale_h": 1.22,
+    "age_median_h": 0.71,
+    "age_p95_h": 1.18
    },
    "uf-ac-certisign-multipla-g8": {
     "ac": "AC Certisign Multipla G8",
     "validity_h": 1.0,
-    "window_h": 32.3,
-    "versions": 34,
-    "available_share": 0.7987,
-    "longest_stale_h": 0.22,
-    "age_median_h": 0.7,
-    "age_p95_h": 1.16
+    "window_h": 65.3,
+    "versions": 66,
+    "available_share": 0.7851,
+    "longest_stale_h": 1.22,
+    "age_median_h": 0.71,
+    "age_p95_h": 1.17
+   },
+   "uf-ac-alternative": {
+    "ac": "Autoridade Certificadora ALTERNATIVE",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-brasil-certec": {
+    "ac": "Autoridade Certificadora BRASIL CERTEC",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-digital-certy": {
+    "ac": "Autoridade Certificadora DIGITAL CERTY",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-idfederal": {
+    "ac": "Autoridade Certificadora IDFEDERAL",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-idfederal-v2": {
+    "ac": "Autoridade Certificadora IDFEDERAL v2",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.57,
+    "age_p95_h": 1.02
+   },
+   "uf-ac-infocomex": {
+    "ac": "Autoridade Certificadora INFOCOMEX",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-infocomex-v2": {
+    "ac": "Autoridade Certificadora INFOCOMEX v2",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-invia": {
+    "ac": "Autoridade Certificadora INVIA",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-nacional": {
+    "ac": "Autoridade Certificadora NACIONAL",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-primecert": {
+    "ac": "Autoridade Certificadora PRIMECERT",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-primecert-v2": {
+    "ac": "Autoridade Certificadora PRIMECERT v2",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-procerti": {
+    "ac": "Autoridade Certificadora PROCERTI",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-safe-id-brasil": {
+    "ac": "Autoridade Certificadora SAFE-ID BRASIL",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-sdi": {
+    "ac": "Autoridade Certificadora SDI",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.31
+   },
+   "uf-ac-sdi-v2": {
+    "ac": "Autoridade Certificadora SDI v2",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.86,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-sefazce": {
+    "ac": "Autoridade Certificadora SEFAZCE",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-sirius": {
+    "ac": "Autoridade Certificadora SIRIUS",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-zapsign": {
+    "ac": "Autoridade Certificadora ZAPSIGN",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-fecomercio-mg-rfb": {
+    "ac": "Autoridade Certificadora FECOMERCIO MG RFB",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-serpro-acf-v5": {
+    "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-serpro-acf-v6": {
+    "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.33
+   },
+   "uf-ac-serpro-jus-v5": {
+    "ac": "AC SERPRO-JUS v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-cacb-rfb-g2": {
+    "ac": "AC CACB RFB G2",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 20,
+    "available_share": 0.6872,
+    "longest_stale_h": 1.22,
+    "age_median_h": 0.8,
+    "age_p95_h": 1.4
+   },
+   "uf-ac-certisign-spb-g6": {
+    "ac": "AC Certisign SPB G6",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.8095,
+    "longest_stale_h": 0.47,
+    "age_median_h": 0.69,
+    "age_p95_h": 1.14
+   },
+   "uf-ac-certisign-tempo-g2": {
+    "ac": "AC Certisign Tempo G2 (carimbo do tempo)",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.683,
+    "longest_stale_h": 0.47,
+    "age_median_h": 0.82,
+    "age_p95_h": 1.3
+   },
+   "uf-ac-certisign-tempo-g3": {
+    "ac": "AC Certisign Tempo G3 (carimbo do tempo)",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.7554,
+    "longest_stale_h": 0.53,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.27
+   },
+   "uf-ac-oab-g3": {
+    "ac": "AC OAB G3",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.718,
+    "longest_stale_h": 0.3,
+    "age_median_h": 0.78,
+    "age_p95_h": 1.24
+   },
+   "uf-ac-oab-g4": {
+    "ac": "AC OAB G4",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.7047,
+    "longest_stale_h": 0.32,
+    "age_median_h": 0.79,
+    "age_p95_h": 1.25
+   },
+   "uf-ac-sincor-g4": {
+    "ac": "AC SINCOR G4",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.772,
+    "longest_stale_h": 0.52,
+    "age_median_h": 0.72,
+    "age_p95_h": 1.29
+   },
+   "uf-ac-sincor-g5": {
+    "ac": "AC SINCOR G5",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.812,
+    "longest_stale_h": 0.35,
+    "age_median_h": 0.69,
+    "age_p95_h": 1.14
+   },
+   "uf-ac-sincor-rfb-g5": {
+    "ac": "AC SINCOR RFB G5",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.9493,
+    "longest_stale_h": 0.08,
+    "age_median_h": 0.55,
+    "age_p95_h": 1.0
+   },
+   "uf-ac-sincor-rio-rfb-g2": {
+    "ac": "AC SINCOR RIO RFB G2",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 21,
+    "available_share": 0.8835,
+    "longest_stale_h": 0.18,
+    "age_median_h": 0.61,
+    "age_p95_h": 1.07
+   },
+   "uf-ac-soluti-rfb-v5": {
+    "ac": "AC SOLUTI RFB V5",
+    "validity_h": 1.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 0.5566,
+    "longest_stale_h": 2.33,
+    "age_median_h": 0.93,
+    "age_p95_h": 2.34
+   },
+   "uf-ac-soluti-spb-v5": {
+    "ac": "AC SOLUTI SPB v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.15,
+    "age_p95_h": 2.55
+   },
+   "uf-ac-soluti-jus-v5": {
+    "ac": "AC SOLUTI-JUS v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.39,
+    "age_p95_h": 2.79
+   },
+   "uf-ac-soluti-jus-v6": {
+    "ac": "AC SOLUTI-JUS v6",
+    "validity_h": 5.9997,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.16,
+    "age_p95_h": 2.56
+   },
+   "uf-ac-acd-v5": {
+    "ac": "AC ACD v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.16,
+    "age_p95_h": 2.56
+   },
+   "uf-ac-certfacil-v5": {
+    "ac": "AC CERTFACIL v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.15,
+    "age_p95_h": 2.55
+   },
+   "uf-ac-digisec-v5": {
+    "ac": "AC DIGISEC v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.16,
+    "age_p95_h": 2.56
+   },
+   "uf-ac-fcdl-sc-v5": {
+    "ac": "AC FCDL SC v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.15,
+    "age_p95_h": 2.55
+   },
+   "uf-ac-infoco-digital-v5": {
+    "ac": "AC INFOCO DIGITAL v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.41,
+    "age_p95_h": 2.81
+   },
+   "uf-ac-intercert-v5": {
+    "ac": "AC INTERCERT v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.15,
+    "age_p95_h": 2.55
+   },
+   "uf-ac-mult-v5": {
+    "ac": "AC MULT v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.41,
+    "age_p95_h": 2.81
+   },
+   "uf-ac-prime-v5": {
+    "ac": "AC PRIME v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.41,
+    "age_p95_h": 2.81
+   },
+   "uf-ac-qualitycert-v5": {
+    "ac": "AC QUALITYCERT v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.16,
+    "age_p95_h": 2.56
+   },
+   "uf-ac-redebrasil-v5": {
+    "ac": "AC REDE BRASIL v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.15,
+    "age_p95_h": 2.55
+   },
+   "uf-ac-segura-id-v5": {
+    "ac": "AC SEGURA ID v5",
+    "validity_h": 6.0,
+    "window_h": 20.0,
+    "versions": 18,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.16,
+    "age_p95_h": 2.56
+   },
+   "uf-ac-valid-brasil-v5": {
+    "ac": "AC VALID BRASIL v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-valid-brasil-v12": {
+    "ac": "AC VALID BRASIL V12",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-valid-plus-v5": {
+    "ac": "AC VALID PLUS v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.75,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-valid-spb-v5": {
+    "ac": "AC VALID SPB v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-valid-jus-v5": {
+    "ac": "AC VALID-JUS v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-valid-jus-v6": {
+    "ac": "AC VALID-JUS v6",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-online-brasil-v5": {
+    "ac": "AC ONLINE BRASIL v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.26
+   },
+   "uf-ac-certbank-v5": {
+    "ac": "AC CERTBANK",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.75,
+    "age_p95_h": 1.28
+   },
+   "uf-ac-sic-brasil-v5": {
+    "ac": "AC SIC BRASIL",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.75,
+    "age_p95_h": 1.28
+   },
+   "uf-ac-valid-plus-timestamping-v5": {
+    "ac": "AC VALID PLUS TIMESTAMPING (carimbo do tempo)",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.27
+   },
+   "uf-ac-safeweb-rfb-v5": {
+    "ac": "AC SAFEWEB RFB v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 8,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.43,
+    "age_p95_h": 3.3
+   },
+   "uf-ac-safeweb-cd-v12": {
+    "ac": "AC SAFEWEB CD V12",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.18,
+    "age_p95_h": 1.63
+   },
+   "uf-ac-prodesp-rfb-v1": {
+    "ac": "AC PRODESP RFB v1",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.68,
+    "age_p95_h": 1.13
+   },
+   "uf-ac-prodesp-v1": {
+    "ac": "AC PRODESP v1",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.68,
+    "age_p95_h": 1.13
+   },
+   "uf-ac-syngularid-multipla": {
+    "ac": "AC SyngularID Multipla",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.24,
+    "age_p95_h": 1.69
+   },
+   "uf-ac-validar-multipla": {
+    "ac": "AC Validar Multipla",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.23,
+    "age_p95_h": 1.68
+   },
+   "uf-ac-soluti-multipla-v5-g2": {
+    "ac": "AC SOLUTI Multipla v5 G2",
+    "validity_h": 6.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.32,
+    "age_p95_h": 1.77
+   },
+   "uf-ac-online-rfb-v5": {
+    "ac": "AC ONLINE RFB v5",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.74,
+    "age_p95_h": 1.28
+   },
+   "uf-ac-fenacor-rfb": {
+    "ac": "AC FENACOR RFB",
+    "validity_h": 1.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 0.6322,
+    "longest_stale_h": 0.45,
+    "age_median_h": 0.87,
+    "age_p95_h": 1.32
+   },
+   "uf-ac-a-r-a-certificacao-digital-v5": {
+    "ac": "AC A R A CERTIFICACAO DIGITAL v5",
+    "validity_h": 6.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.06,
+    "age_p95_h": 1.51
+   },
+   "uf-ac-fcdl-sc-v5-g2": {
+    "ac": "AC FCDL SC v5 G2",
+    "validity_h": 6.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.06,
+    "age_p95_h": 1.51
+   },
+   "uf-ac-safetech-cd": {
+    "ac": "AC SAFETECH CD",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.94,
+    "age_p95_h": 1.39
+   },
+   "uf-ac-sig-brasil": {
+    "ac": "AC SIG BRASIL",
+    "validity_h": 6.0,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.76,
+    "age_p95_h": 1.28
+   },
+   "uf-ac-digitalsign-rfb-g3": {
+    "ac": "AC DIGITALSIGN RFB G3",
+    "validity_h": 5.9997,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.85,
+    "age_p95_h": 1.58
+   },
+   "uf-ac-digitalsign-rfb-g2": {
+    "ac": "AC DIGITALSIGN RFB G2",
+    "validity_h": 5.9997,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 1.0,
+    "age_p95_h": 1.61
+   },
+   "uf-ac-digitalsign-g3": {
+    "ac": "AC DIGITALSIGN G3",
+    "validity_h": 5.9997,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.93,
+    "age_p95_h": 1.48
+   },
+   "uf-ac-digitalsign-g2": {
+    "ac": "AC DIGITALSIGN G2",
+    "validity_h": 5.9997,
+    "window_h": 9.0,
+    "versions": 10,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.95,
+    "age_p95_h": 1.53
+   },
+   "uf-ac-certisign-jus-g6": {
+    "ac": "AC CERTISIGN-JUS G6",
+    "validity_h": 1.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 0.7235,
+    "longest_stale_h": 0.33,
+    "age_median_h": 0.78,
+    "age_p95_h": 1.23
+   },
+   "uf-ac-certisign-jus-g7": {
+    "ac": "AC CERTISIGN-JUS G7",
+    "validity_h": 1.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 0.6653,
+    "longest_stale_h": 0.37,
+    "age_median_h": 0.85,
+    "age_p95_h": 1.3
+   },
+   "uf-ac-certisign-om-br": {
+    "ac": "AC Certisign OM-BR",
+    "validity_h": 2.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.9,
+    "age_p95_h": 1.35
+   },
+   "uf-ac-egba-multipla-g2": {
+    "ac": "AC EGBA Multipla G2",
+    "validity_h": 1.0,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 0.9751,
+    "longest_stale_h": 0.07,
+    "age_median_h": 0.53,
+    "age_p95_h": 0.98
+   },
+   "uf-ac-serasa-cd-v5": {
+    "ac": "SERASA Certificadora Digital v5 (SERASA CD)",
+    "validity_h": 5.9997,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.97,
+    "age_p95_h": 1.42
+   },
+   "uf-ac-serasa-jus-v5": {
+    "ac": "AC SERASA-JUS v5 (descredenciada; LCR publicada no repositório da AC)",
+    "validity_h": 5.9997,
+    "window_h": 8.0,
+    "versions": 9,
+    "available_share": 1.0,
+    "longest_stale_h": 0.0,
+    "age_median_h": 0.97,
+    "age_p95_h": 1.42
    }
   },
   "pooled": {
-   "available_share": 0.9898,
-   "age_median_h": 0.81
+   "available_share": 0.9827,
+   "age_median_h": 0.89
   }
  },
  "value_scales_median_brl": {
@@ -84,276 +894,283 @@
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 13.187266,
-     "refused_per_1000": 10.29
+     "expected_loss_per_1000_brl": 34.855298,
+     "refused_per_1000": 17.13
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 13.189998,
-     "refused_per_1000": 990.62
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 34.863639,
+     "refused_per_1000": 986.98
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
-     "fetches_per_1000": 949.43,
-     "expected_loss_per_1000_brl": 13.198006,
-     "refused_per_1000": 872.52
+     "fetches_per_1000": 951.25,
+     "expected_loss_per_1000_brl": 34.886154,
+     "refused_per_1000": 895.34
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
-     "fetches_per_1000": 903.52,
-     "expected_loss_per_1000_brl": 13.228647,
-     "refused_per_1000": 461.97
+     "fetches_per_1000": 906.71,
+     "expected_loss_per_1000_brl": 34.974456,
+     "refused_per_1000": 533.33
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 13.337328,
-     "refused_per_1000": 48.36
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 35.297852,
+     "refused_per_1000": 69.49
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 13.693195,
-     "refused_per_1000": 17.19
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 36.310408,
+     "refused_per_1000": 18.84
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 14.181646,
-     "refused_per_1000": 10.47
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 37.706633,
+     "refused_per_1000": 17.25
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 16.030927,
-     "refused_per_1000": 10.15
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 43.059191,
+     "refused_per_1000": 17.1
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.523827,
-     "refused_per_1000": 10.53
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.944896,
+     "refused_per_1000": 17.37
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 30.080112,
-     "refused_per_1000": 10.36
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 83.90777,
+     "refused_per_1000": 17.75
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 14.594889,
-     "refused_per_1000": 21.07
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 36.39613,
+     "refused_per_1000": 72.53
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 312.27,
-     "expected_loss_per_1000_brl": 16.146487,
-     "refused_per_1000": 11.61
+     "fetches_per_1000": 372.9,
+     "expected_loss_per_1000_brl": 39.039901,
+     "refused_per_1000": 29.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 18.149078,
-     "refused_per_1000": 10.0
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 44.091826,
+     "refused_per_1000": 18.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 286.31,
-     "expected_loss_per_1000_brl": 19.560518,
-     "refused_per_1000": 10.87
+     "fetches_per_1000": 297.5,
+     "expected_loss_per_1000_brl": 49.413138,
+     "refused_per_1000": 17.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 285.65,
-     "expected_loss_per_1000_brl": 20.135355,
-     "refused_per_1000": 10.48
+     "fetches_per_1000": 293.61,
+     "expected_loss_per_1000_brl": 52.751591,
+     "refused_per_1000": 17.02
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 285.57,
-     "expected_loss_per_1000_brl": 20.297772,
-     "refused_per_1000": 10.47
+     "fetches_per_1000": 293.06,
+     "expected_loss_per_1000_brl": 53.663498,
+     "refused_per_1000": 17.31
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.467161,
-     "refused_per_1000": 10.65
+     "fetches_per_1000": 292.53,
+     "expected_loss_per_1000_brl": 55.439485,
+     "refused_per_1000": 17.17
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.502488,
-     "refused_per_1000": 10.53
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.864771,
+     "refused_per_1000": 17.4
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 13.656911,
-     "refused_per_1000": 38.81
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 36.210976,
+     "refused_per_1000": 50.67
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 13.211182,
-     "refused_per_1000": 454.33
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 34.924233,
+     "refused_per_1000": 516.79
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 13.193773,
-     "refused_per_1000": 807.1
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 34.87382,
+     "refused_per_1000": 824.93
     }
    ],
    "pareto3": [
     {
      "policy": "prazo fixo",
      "setting": "48 h",
-     "fetches_per_1000": 168.66,
-     "expected_loss_per_1000_brl": 30.080112,
-     "refused_per_1000": 10.36
+     "fetches_per_1000": 173.37,
+     "expected_loss_per_1000_brl": 83.90777,
+     "refused_per_1000": 17.75
     },
     {
-     "policy": "proporcional ao valor",
-     "setting": "L=3",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.467161,
-     "refused_per_1000": 10.65
+     "policy": "prazo fixo",
+     "setting": "24 h",
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.944896,
+     "refused_per_1000": 17.37
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
-     "fetches_per_1000": 285.52,
-     "expected_loss_per_1000_brl": 20.502488,
-     "refused_per_1000": 10.53
+     "fetches_per_1000": 292.49,
+     "expected_loss_per_1000_brl": 55.864771,
+     "refused_per_1000": 17.4
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=3",
+     "fetches_per_1000": 292.53,
+     "expected_loss_per_1000_brl": 55.439485,
+     "refused_per_1000": 17.17
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
-     "fetches_per_1000": 285.57,
-     "expected_loss_per_1000_brl": 20.297772,
-     "refused_per_1000": 10.47
+     "fetches_per_1000": 293.06,
+     "expected_loss_per_1000_brl": 53.663498,
+     "refused_per_1000": 17.31
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
-     "fetches_per_1000": 285.65,
-     "expected_loss_per_1000_brl": 20.135355,
-     "refused_per_1000": 10.48
+     "fetches_per_1000": 293.61,
+     "expected_loss_per_1000_brl": 52.751591,
+     "refused_per_1000": 17.02
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 286.31,
-     "expected_loss_per_1000_brl": 19.560518,
-     "refused_per_1000": 10.87
+     "fetches_per_1000": 297.5,
+     "expected_loss_per_1000_brl": 49.413138,
+     "refused_per_1000": 17.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 290.92,
-     "expected_loss_per_1000_brl": 18.149078,
-     "refused_per_1000": 10.0
+     "fetches_per_1000": 315.34,
+     "expected_loss_per_1000_brl": 44.091826,
+     "refused_per_1000": 18.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 312.27,
-     "expected_loss_per_1000_brl": 16.146487,
-     "refused_per_1000": 11.61
-    },
-    {
-     "policy": "proporcional ao valor",
-     "setting": "L=0.01",
-     "fetches_per_1000": 367.96,
-     "expected_loss_per_1000_brl": 14.594889,
-     "refused_per_1000": 21.07
+     "fetches_per_1000": 372.9,
+     "expected_loss_per_1000_brl": 39.039901,
+     "refused_per_1000": 29.52
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
-     "fetches_per_1000": 441.66,
-     "expected_loss_per_1000_brl": 16.030927,
-     "refused_per_1000": 10.15
+     "fetches_per_1000": 450.08,
+     "expected_loss_per_1000_brl": 43.059191,
+     "refused_per_1000": 17.1
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.01",
+     "fetches_per_1000": 478.21,
+     "expected_loss_per_1000_brl": 36.39613,
+     "refused_per_1000": 72.53
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
-     "fetches_per_1000": 599.84,
-     "expected_loss_per_1000_brl": 13.656911,
-     "refused_per_1000": 38.81
+     "fetches_per_1000": 607.19,
+     "expected_loss_per_1000_brl": 36.210976,
+     "refused_per_1000": 50.67
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
-     "fetches_per_1000": 611.49,
-     "expected_loss_per_1000_brl": 14.181646,
-     "refused_per_1000": 10.47
+     "fetches_per_1000": 620.39,
+     "expected_loss_per_1000_brl": 37.706633,
+     "refused_per_1000": 17.25
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
-     "fetches_per_1000": 701.98,
-     "expected_loss_per_1000_brl": 13.693195,
-     "refused_per_1000": 17.19
+     "fetches_per_1000": 708.9,
+     "expected_loss_per_1000_brl": 36.310408,
+     "refused_per_1000": 18.84
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
-     "fetches_per_1000": 824.21,
-     "expected_loss_per_1000_brl": 13.337328,
-     "refused_per_1000": 48.36
+     "fetches_per_1000": 829.54,
+     "expected_loss_per_1000_brl": 35.297852,
+     "refused_per_1000": 69.49
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
-     "fetches_per_1000": 859.78,
-     "expected_loss_per_1000_brl": 13.211182,
-     "refused_per_1000": 454.33
+     "fetches_per_1000": 863.13,
+     "expected_loss_per_1000_brl": 34.924233,
+     "refused_per_1000": 516.79
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
-     "fetches_per_1000": 918.34,
-     "expected_loss_per_1000_brl": 13.193773,
-     "refused_per_1000": 807.1
+     "fetches_per_1000": 920.57,
+     "expected_loss_per_1000_brl": 34.87382,
+     "refused_per_1000": 824.93
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
-     "fetches_per_1000": 973.85,
-     "expected_loss_per_1000_brl": 13.189998,
-     "refused_per_1000": 990.62
+     "fetches_per_1000": 974.78,
+     "expected_loss_per_1000_brl": 34.863639,
+     "refused_per_1000": 986.98
     },
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 13.187266,
-     "refused_per_1000": 10.29
+     "expected_loss_per_1000_brl": 34.855298,
+     "refused_per_1000": 17.13
     }
    ]
   },
@@ -364,148 +1181,148 @@
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 1.168791,
-     "refused_per_1000": 10.2
+     "expected_loss_per_1000_brl": 3.1007,
+     "refused_per_1000": 17.11
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 1.168814,
-     "refused_per_1000": 990.46
+     "expected_loss_per_1000_brl": 3.100769,
+     "refused_per_1000": 986.82
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 1.168873,
-     "refused_per_1000": 872.06
+     "expected_loss_per_1000_brl": 3.100943,
+     "refused_per_1000": 894.07
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 1.169141,
-     "refused_per_1000": 462.06
+     "expected_loss_per_1000_brl": 3.101732,
+     "refused_per_1000": 531.83
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 1.170135,
-     "refused_per_1000": 47.93
+     "expected_loss_per_1000_brl": 3.104658,
+     "refused_per_1000": 69.5
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 1.174009,
-     "refused_per_1000": 17.09
+     "expected_loss_per_1000_brl": 3.11606,
+     "refused_per_1000": 19.36
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 1.180076,
-     "refused_per_1000": 10.19
+     "expected_loss_per_1000_brl": 3.133912,
+     "refused_per_1000": 17.41
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 1.210969,
-     "refused_per_1000": 10.2
+     "expected_loss_per_1000_brl": 3.224931,
+     "refused_per_1000": 16.81
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.01
+     "expected_loss_per_1000_brl": 3.556077,
+     "refused_per_1000": 16.98
     },
     {
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 1.692082,
-     "refused_per_1000": 10.13
+     "expected_loss_per_1000_brl": 4.641358,
+     "refused_per_1000": 17.31
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 1.279365,
-     "refused_per_1000": 10.39
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 3.310692,
+     "refused_per_1000": 18.52
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 828.26,
-     "expected_loss_per_1000_brl": 1.306651,
-     "refused_per_1000": 9.74
+     "fetches_per_1000": 829.75,
+     "expected_loss_per_1000_brl": 3.428703,
+     "refused_per_1000": 17.27
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 1.319947,
-     "refused_per_1000": 10.16
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 3.514483,
+     "refused_per_1000": 16.82
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.3",
-     "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.02
+     "fetches_per_1000": 828.01,
+     "expected_loss_per_1000_brl": 3.546325,
+     "refused_per_1000": 17.09
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.71",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.08
+     "expected_loss_per_1000_brl": 3.554781,
+     "refused_per_1000": 17.18
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=1",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.23
+     "expected_loss_per_1000_brl": 3.556077,
+     "refused_per_1000": 17.39
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=3",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.37
+     "expected_loss_per_1000_brl": 3.556077,
+     "refused_per_1000": 17.45
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=10",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.04
+     "expected_loss_per_1000_brl": 3.556077,
+     "refused_per_1000": 17.67
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 1.189521,
-     "refused_per_1000": 10.6
+     "expected_loss_per_1000_brl": 3.161724,
+     "refused_per_1000": 18.23
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 1.17231,
-     "refused_per_1000": 207.62
+     "expected_loss_per_1000_brl": 3.111061,
+     "refused_per_1000": 243.56
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 1.16971,
-     "refused_per_1000": 387.56
+     "expected_loss_per_1000_brl": 3.103406,
+     "refused_per_1000": 402.38
     }
    ],
    "pareto3": [
@@ -513,113 +1330,127 @@
      "policy": "prazo fixo",
      "setting": "48 h",
      "fetches_per_1000": 710.21,
-     "expected_loss_per_1000_brl": 1.692082,
-     "refused_per_1000": 10.13
+     "expected_loss_per_1000_brl": 4.641358,
+     "refused_per_1000": 17.31
     },
     {
      "policy": "prazo fixo",
      "setting": "24 h",
      "fetches_per_1000": 827.99,
-     "expected_loss_per_1000_brl": 1.323441,
-     "refused_per_1000": 10.01
+     "expected_loss_per_1000_brl": 3.556077,
+     "refused_per_1000": 16.98
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.71",
+     "fetches_per_1000": 827.99,
+     "expected_loss_per_1000_brl": 3.554781,
+     "refused_per_1000": 17.18
+    },
+    {
+     "policy": "proporcional ao valor",
+     "setting": "L=0.3",
+     "fetches_per_1000": 828.01,
+     "expected_loss_per_1000_brl": 3.546325,
+     "refused_per_1000": 17.09
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.1",
-     "fetches_per_1000": 828.01,
-     "expected_loss_per_1000_brl": 1.319947,
-     "refused_per_1000": 10.16
+     "fetches_per_1000": 828.19,
+     "expected_loss_per_1000_brl": 3.514483,
+     "refused_per_1000": 16.82
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.03",
-     "fetches_per_1000": 828.26,
-     "expected_loss_per_1000_brl": 1.306651,
-     "refused_per_1000": 9.74
+     "fetches_per_1000": 829.75,
+     "expected_loss_per_1000_brl": 3.428703,
+     "refused_per_1000": 17.27
     },
     {
      "policy": "proporcional ao valor",
      "setting": "L=0.01",
-     "fetches_per_1000": 829.83,
-     "expected_loss_per_1000_brl": 1.279365,
-     "refused_per_1000": 10.39
+     "fetches_per_1000": 836.36,
+     "expected_loss_per_1000_brl": 3.310692,
+     "refused_per_1000": 18.52
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, folgada",
      "fetches_per_1000": 879.65,
-     "expected_loss_per_1000_brl": 1.189521,
-     "refused_per_1000": 10.6
+     "expected_loss_per_1000_brl": 3.161724,
+     "refused_per_1000": 18.23
     },
     {
      "policy": "prazo fixo",
      "setting": "12 h",
      "fetches_per_1000": 905.49,
-     "expected_loss_per_1000_brl": 1.210969,
-     "refused_per_1000": 10.2
+     "expected_loss_per_1000_brl": 3.224931,
+     "refused_per_1000": 16.81
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, média",
      "fetches_per_1000": 942.05,
-     "expected_loss_per_1000_brl": 1.17231,
-     "refused_per_1000": 207.62
+     "expected_loss_per_1000_brl": 3.111061,
+     "refused_per_1000": 243.56
     },
     {
      "policy": "prazo fixo",
      "setting": "6 h",
      "fetches_per_1000": 950.09,
-     "expected_loss_per_1000_brl": 1.180076,
-     "refused_per_1000": 10.19
+     "expected_loss_per_1000_brl": 3.133912,
+     "refused_per_1000": 17.41
     },
     {
      "policy": "prazo fixo",
      "setting": "4 h",
      "fetches_per_1000": 966.22,
-     "expected_loss_per_1000_brl": 1.174009,
-     "refused_per_1000": 17.09
+     "expected_loss_per_1000_brl": 3.11606,
+     "refused_per_1000": 19.36
     },
     {
      "policy": "faixas de valor",
      "setting": "3 faixas, rígida",
      "fetches_per_1000": 969.91,
-     "expected_loss_per_1000_brl": 1.16971,
-     "refused_per_1000": 387.56
+     "expected_loss_per_1000_brl": 3.103406,
+     "refused_per_1000": 402.38
     },
     {
      "policy": "prazo fixo",
      "setting": "2 h",
      "fetches_per_1000": 982.83,
-     "expected_loss_per_1000_brl": 1.170135,
-     "refused_per_1000": 47.93
+     "expected_loss_per_1000_brl": 3.104658,
+     "refused_per_1000": 69.5
     },
     {
      "policy": "prazo fixo",
      "setting": "1 h",
      "fetches_per_1000": 991.39,
-     "expected_loss_per_1000_brl": 1.169141,
-     "refused_per_1000": 462.06
+     "expected_loss_per_1000_brl": 3.101732,
+     "refused_per_1000": 531.83
     },
     {
      "policy": "prazo fixo",
      "setting": "0.5 h",
      "fetches_per_1000": 995.75,
-     "expected_loss_per_1000_brl": 1.168873,
-     "refused_per_1000": 872.06
+     "expected_loss_per_1000_brl": 3.100943,
+     "refused_per_1000": 894.07
     },
     {
      "policy": "prazo fixo",
      "setting": "0.25 h",
      "fetches_per_1000": 997.85,
-     "expected_loss_per_1000_brl": 1.168814,
-     "refused_per_1000": 990.46
+     "expected_loss_per_1000_brl": 3.100769,
+     "refused_per_1000": 986.82
     },
     {
      "policy": "consultar sempre",
      "setting": "0 h",
      "fetches_per_1000": 1000.0,
-     "expected_loss_per_1000_brl": 1.168791,
-     "refused_per_1000": 10.2
+     "expected_loss_per_1000_brl": 3.1007,
+     "refused_per_1000": 17.11
     }
    ]
   }
