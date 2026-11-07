@@ -10,7 +10,7 @@
  * public key the caller lists (`issuerKeys`), so the credential's own fields (id, expiry, status) are not the
  * agent's word. Nothing here fetches: trust anchors, clock and certificate status are the caller's.
  */
-import { type Credential as CoreCredential, type FreshnessPolicy, type FreshnessPolicyInput, type PrincipalProof, type StatusEvidence, SELF_ISSUER, effectiveStatus, freshnessPolicy, verifyCredentialSignature, verifyPrincipalProof, verifySelfIssuedCredential } from "@kya-brasil/core";
+import { type Credential as CoreCredential, verifyCompanyWill, isPersonPrincipal, type FreshnessPolicy, type FreshnessPolicyInput, type PrincipalProof, type StatusEvidence, SELF_ISSUER, effectiveStatus, freshnessPolicy, verifyCredentialSignature, verifyPrincipalProof, verifySelfIssuedCredential } from "@kya-brasil/core";
 import type { Credential } from "./index.js";
 import { fromBase64Url, toBase64Url } from "./base64url.js";
 
@@ -47,6 +47,14 @@ export interface KyaOfflineOptions {
   issuerKeys?: Record<string, JsonWebKey>;
   /** A request without KYA-Credential-Document goes to the issuer as before when true; refused when false or absent. */
   issuerFallback?: boolean;
+  /**
+   * Optional (SPEC section 21): a self-issued COMPANY credential is accepted only if it carries the co-signature of
+   * a legal representative (e-CPF over the same text the e-CNPJ signed), checked by the core's verifyCompanyWill.
+   * Give `representatives(cnpj)` (the verifier's own list, e.g. the QSA), `acceptCertificateResponsible` (the CPF
+   * the e-CNPJ names as responsible counts), or both; `minCosigners` defaults to 1. Absent, the e-CNPJ alone is
+   * enough, as before. A refusal answers 403 KYA_COMPANY_WILL_REQUIRED with the core's code and detail.
+   */
+  companyWill?: { representatives?: (cnpj: string) => Promise<string[]> | string[]; acceptCertificateResponsible?: boolean; minCosigners?: number };
 }
 
 export interface ResolvedOffline {
@@ -56,6 +64,7 @@ export interface ResolvedOffline {
   policy: FreshnessPolicy | null;
   issuerKeys: Record<string, JsonWebKey>;
   issuerFallback: boolean;
+  companyWill: KyaOfflineOptions["companyWill"] | null;
 }
 
 /** Validates the offline options; throws on anything missing (no defaults for risk parameters). */
@@ -69,7 +78,15 @@ export function resolveOffline(o: KyaOfflineOptions): ResolvedOffline {
   if (typeof o.certificateStatus !== "function") no("certificateStatus (the certificate's revocation evidence) is required");
   if (o.issuerKeys !== undefined && (!o.issuerKeys || typeof o.issuerKeys !== "object" || Array.isArray(o.issuerKeys))) no("issuerKeys must map issuer -> public JWK");
   if (o.issuerFallback !== undefined && typeof o.issuerFallback !== "boolean") no("issuerFallback must be a boolean");
-  return { anchors: [...o.anchors], now: o.now, certificateStatus: o.certificateStatus, policy: o.freshness === undefined ? null : freshnessPolicy(o.freshness), issuerKeys: { ...(o.issuerKeys ?? {}) }, issuerFallback: o.issuerFallback ?? false };
+  if (o.companyWill !== undefined) {
+    const cw = o.companyWill;
+    if (!cw || typeof cw !== "object") no("companyWill must be an object");
+    if (cw.representatives !== undefined && typeof cw.representatives !== "function") no("companyWill.representatives must be (cnpj) => CPFs");
+    if (cw.acceptCertificateResponsible !== undefined && typeof cw.acceptCertificateResponsible !== "boolean") no("companyWill.acceptCertificateResponsible must be a boolean");
+    if (cw.representatives === undefined && cw.acceptCertificateResponsible !== true) no("companyWill needs representatives(cnpj), acceptCertificateResponsible: true, or both");
+    if (cw.minCosigners !== undefined && (!Number.isInteger(cw.minCosigners) || cw.minCosigners < 1)) no("companyWill.minCosigners must be an integer >= 1");
+  }
+  return { anchors: [...o.anchors], now: o.now, certificateStatus: o.certificateStatus, policy: o.freshness === undefined ? null : freshnessPolicy(o.freshness), issuerKeys: { ...(o.issuerKeys ?? {}) }, issuerFallback: o.issuerFallback ?? false, companyWill: o.companyWill ?? null };
 }
 
 /** KYA-Credential-Document value: base64url (no padding) of the credential's JSON. */
@@ -98,7 +115,14 @@ export async function verifyPresentedCredential(o: ResolvedOffline, credential: 
   const describe = (checks: { rule: string; ok: boolean; detail: string }[]) => failed(checks).map((x) => `${x.rule}: ${x.detail}`).join("; ");
   if (c.issuer === SELF_ISSUER) {
     const r = await verifySelfIssuedCredential({ credential: c, proof, anchors: o.anchors, now });
-    if (r.ok && r.revocation) return { ok: true, revocation: r.revocation };
+    if (r.ok && r.revocation) {
+      // Section 21: the company's will, when the verifier requires a representative's co-signature.
+      if (o.companyWill && c.principal && !isPersonPrincipal(c.principal)) {
+        const will = await verifyCompanyWill({ credential: c, proof }, { anchors: o.anchors, now, ...o.companyWill });
+        if (!will.ok) return { ok: false, status: 403, error: "KYA_COMPANY_WILL_REQUIRED", message: `${will.code}: ${will.detail}` };
+      }
+      return { ok: true, revocation: r.revocation };
+    }
     const bad = failed(r.checks);
     // Only the validity window failed: a sound credential that is not (or no longer) in force.
     if (bad.length && bad.every((x) => x.rule === "validity")) return { ok: false, status: 403, error: "KYA_CREDENTIAL_NOT_ACTIVE", message: describe(r.checks) };

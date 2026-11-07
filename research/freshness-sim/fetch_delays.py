@@ -13,6 +13,9 @@ import json
 import os
 import re
 import urllib.parse
+import sys
+import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
@@ -24,8 +27,15 @@ SOURCE_ID = re.compile(r"^[a-z0-9-]{1,80}$")
 
 def get(path):
     req = urllib.request.Request(COLLECTOR + path, headers={"User-Agent": "kya-brasil-research/1.0"})
-    with urllib.request.urlopen(req, timeout=180) as r:  # fixed host
-        return json.load(r)
+    for i in range(4):  # the collector sits behind a CDN that now and then resets a connection
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:  # fixed host
+                return json.load(r)
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            if i == 3:
+                raise
+            print(f"warning: {path}: {e}; retrying in {2 ** i} s", file=sys.stderr)
+            time.sleep(2 ** i)
 
 
 def main():

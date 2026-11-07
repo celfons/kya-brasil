@@ -30,6 +30,18 @@ REPLAY = {
     "WindowEdges": (False, ["ok", "ok"]),
 }
 FRESH = {"FreshNotListed": True, "StaleNotListed": False, "FreshListed": False, "ResidualWindow": True, "AgeEdge": True}
+# Co-signature (threats.als ii-b): verifyCompanyWill on a self-issued company credential. `mode` is the source of
+# representatives the verifier uses; `expected` is ok or the CompanyWillCode. StaleList and LentECpf are the trust
+# assumptions the library cannot check: it accepts them, and the vector records that it must.
+COSIGN = {
+    "CosignListedSameText": ("list", {"ok": True}),
+    "CosignNotListed": ("list", {"ok": False, "code": "COSIGNER_NOT_REPRESENTATIVE"}),
+    "CosignOtherText": ("list", {"ok": False, "code": "COSIGNATURE_TEXT_MISMATCH"}),
+    "CosignAbsent": ("list", {"ok": False, "code": "NO_COSIGNATURE"}),
+    "CosignByResponsible": ("responsible", {"ok": True}),
+    "CosignStaleList": ("list", {"ok": True, "assumption": "list is accurate"}),
+    "CosignLentECpf": ("list", {"ok": True, "assumption": "e-CPF operated by its owner"}),
+}
 
 
 def fields(path):
@@ -48,6 +60,24 @@ def replay(of, command):
     ats = sorted(int(of(a, "at")[0]) for a in ("A1$0", "A2$0"))
     return {"kind": "replay", "replay_cache": cache, "created": created * REPLAY_UNIT_S, "expires": expires * REPLAY_UNIT_S,
             "presented_at": [t * REPLAY_UNIT_S for t in ats], "expected": expected}
+
+
+def cosign(of, command):
+    mode, expected = COSIGN[command]
+    cos = of("M$0", "cosigner")
+    ecnpj = of("M$0", "ecnpj")[0]
+    firm = of(ecnpj, "firm")[0]
+    listed = set(of(firm, "listed"))
+    real_cpfs = {of(h, "cpf")[0] for h in of(firm, "realReps")}
+    responsible = of(next(r for r in ("threats/Responsible$0", "threats/Responsible$1") if of(r, "ecnpjOf") == [ecnpj]), "named")[0]
+    v = {"kind": "cosign", "mode": mode, "has_cosigner": bool(cos), "same_text": bool(cos) and of("M$0", "cosignedText") == of("M$0", "challenge")}
+    if cos:
+        owner = of(cos[0], "owner")[0]
+        operator_cpf = of(of(cos[0], "operator")[0], "cpf")[0]
+        v.update({"cosigner_listed": owner in listed, "cosigner_is_responsible": owner == responsible,
+                  "cosigner_operated_by_owner": operator_cpf == owner, "cosigner_owner_is_real_rep": owner in real_cpfs})
+    v["expected"] = expected
+    return v
 
 
 def fresh(of, command):
@@ -75,10 +105,11 @@ def main():
     vectors = []
     for fname in sorted(os.listdir(SRC)):
         m = re.match(r"(\w+)-solution-(\d+)\.xml$", fname)
-        if not m or (m.group(1) not in REPLAY and m.group(1) not in FRESH):
+        if not m or (m.group(1) not in REPLAY and m.group(1) not in FRESH and m.group(1) not in COSIGN):
             continue
         of = fields(os.path.join(SRC, fname))
-        v = replay(of, m.group(1)) if m.group(1) in REPLAY else fresh(of, m.group(1))
+        cmd = m.group(1)
+        v = replay(of, cmd) if cmd in REPLAY else fresh(of, cmd) if cmd in FRESH else cosign(of, cmd)
         v.update({"command": m.group(1), "solution": int(m.group(2)), "source": "alloy"})
         vectors.append(v)
     vectors.sort(key=lambda v: (v["command"], v["solution"]))
@@ -89,7 +120,11 @@ def main():
         "2027-01-01T00:00:00Z) and presented at each presented_at, with the expected result per presentation ('ok' or the error "
         "code of createKyaAuth, defaults maxSkewSeconds=300, maxTtlSeconds=600, replayCache=memoryReplayCache when replay_cache). "
         "kind=freshness: CRL evidence dated this_update, certificate revoked at revoked_at (null = never), checkFreshness at now "
-        "with max_age_seconds as the ceiling must give ok == expected_ok.",
+        "with max_age_seconds as the ceiling must give ok == expected_ok. kind=cosign: a self-issued company credential with (or without) one "
+        "e-CPF co-signature; mode=list gives verifyCompanyWill a representatives list that contains the co-signer's CPF iff cosigner_listed, "
+        "mode=responsible gives acceptCertificateResponsible with the e-CNPJ naming the co-signer iff cosigner_is_responsible; same_text says "
+        "whether the co-signed text is the challenge; expected is ok or the CompanyWillCode. StaleList and LentECpf are accepted: the library cannot "
+        "see who left the firm or who holds the token, and the vector records that assumption.",
         "generator": "docs/formal/generate-adversarial.py",
         "epoch": "2027-01-01T00:00:00Z",
         "count": len(vectors),
