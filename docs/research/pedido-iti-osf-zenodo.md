@@ -101,6 +101,10 @@ As hipóteses acima foram escritas antes dos 12 meses de coleta, que são a base
 
 ## 3. DOI no Zenodo (código e dados)
 
+**Feito em 7 nov. 2026.** Chaves ligadas; releases `v2026.11` (kya-icp) e `research-2026.11` (kya-brasil)
+publicadas. DOI conceito: kya-icp 10.5281/zenodo.23973109, kya-brasil 10.5281/zenodo.23973230, dados
+10.5281/zenodo.24011370. A release de abril de 2027 acrescenta uma versão sob os mesmos DOIs conceito.
+
 Os repositórios já têm `CITATION.cff` e `.zenodo.json` (PRs celfons/kya-brasil#32 e celfons/kya-icp#8).
 
 1. Em https://zenodo.org, entre com a conta do GitHub ("Log in with GitHub").
