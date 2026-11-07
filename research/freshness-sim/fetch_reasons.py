@@ -11,6 +11,9 @@ share of compromise among all revocations only if the ACs that state reasons beh
 """
 import json
 import os
+import sys
+import time
+import urllib.error
 import urllib.request
 from collections import Counter
 from datetime import datetime, timezone
@@ -24,8 +27,15 @@ COLLECTOR = "https://kya-icp-collector.marcelfons.workers.dev"
 
 def get(url, timeout=180):
     req = urllib.request.Request(url, headers={"User-Agent": "kya-brasil-research/1.0"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:  # collector and AC distribution points
-        return r.read()
+    for i in range(4):  # the collector sits behind a CDN that now and then resets a connection
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:  # collector and AC distribution points
+                return r.read()
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            if i == 3:
+                raise
+            print(f"warning: {url}: {e}; retrying in {2 ** i} s", file=sys.stderr)
+            time.sleep(2 ** i)
 
 
 def main():

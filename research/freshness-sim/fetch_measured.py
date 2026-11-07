@@ -15,7 +15,9 @@ import io
 import json
 import os
 import sys
+import time
 import urllib.parse
+import urllib.error
 import urllib.request
 from collections import Counter
 from datetime import timezone, datetime, timedelta
@@ -44,9 +46,17 @@ def reissue_interval(files):
     return round(min(gaps), 3) if gaps else None
 
 
-def get(path):
-    with urllib.request.urlopen(urllib.request.Request(BASE + path, headers=UA), timeout=180) as r:
-        return r.read()
+def get(path, attempts=4):
+    """GET with retries: the collector sits behind a CDN that now and then resets a connection."""
+    for i in range(attempts):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(BASE + path, headers=UA), timeout=180) as r:
+                return r.read()
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:
+            if i == attempts - 1:
+                raise
+            print(f"warning: {path}: {e}; retrying in {2 ** i} s", file=sys.stderr)
+            time.sleep(2 ** i)
 
 
 def hours(a, b):
