@@ -27,6 +27,7 @@ Not hypotheses and not in the pre-registration; reported apart from H1–H3 and 
 | Evaluation | What | Status |
 | --- | --- | --- |
 | Legal validation | two specialists rate the preliminary legal reading (mandate, representation of the company, good-faith third party, delegation, LGPD) on a fixed set of questions | dossier ready; no answers yet |
+| Integration without participants | the study kit's four tasks run on the reference solution, many times, with no people involved: whether every case passes, lines of code, library calls, latency ([integration](integration)) | done; stands in for H3 in the journal article while H3 waits for ethics approval |
 | Demand | short conversations with those who would receive agents' actions (marketplaces, fintechs, ERPs): would they require the credential, and what would stop them | not started |
 | gov.br, considered and excluded | Login Único is open only to government systems (D-13); the gov.br advanced signature carries less weight between private parties than the qualified ICP-Brasil signature, so the design keeps the qualified one | decided |
 
@@ -38,6 +39,7 @@ Not hypotheses and not in the pre-registration; reported apart from H1–H3 and 
 | [crl-compat](crl-compat) | the current ICP-Brasil CRLs verified with OpenSSL, Go, Python `cryptography`, `@peculiar/x509`, PKI.js, node-forge and the core; weekly on GitHub Actions | paper (library compatibility) |
 | [bench](bench) | latency and size of issuance, verification, co-signature, request signing and CRLs, on a test PKI | paper (performance) |
 | [study](study) | H3 protocol, ethics note and `analyze.py` for the kit's reports | H3 |
+| [integration](integration) | the kit's four tasks run on the reference solution, no participants: passes, lines, library calls, latency | paper (integration without participants, while H3 is deferred) |
 | [paper](paper) | `figuras.py`: the paper's figures and every number its text cites, from the results above | paper |
 | [../docs/formal](../docs/formal) | Alloy models (`mandate.als`, `threats.als`, `conformance.als`) and the vector generator | H1 |
 | [../docs/vectors](../docs/vectors) | conformance and test vectors, also run by the core's tests | H1, SPEC |
