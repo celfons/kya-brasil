@@ -124,4 +124,4 @@ a pasta.
 
 Este projeto conversa com as comunidades brasileiras de JavaScript e TypeScript no Telegram:
 [JavaScript Brasil](https://t.me/javascriptbr) e [TypeScript Brasil](https://t.me/typescriptbr).
-Dúvidas sobre o kit podem ser levadas lá ou abertas como issue neste repositório.
+Dúvidas sobre o kit podem ser  abertas como issue neste repositório.
