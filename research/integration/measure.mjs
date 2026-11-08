@@ -30,6 +30,7 @@ globalThis.fetch = () => {
   throw new Error("integration run must never use the network");
 };
 
+const byName = (a, b) => a.localeCompare(b);
 const io = (cwd) => ({ cwd, env: {}, out: (s) => process.env.INTEGRATION_DEBUG && process.stderr.write(`${s}\n`), err: (s) => process.stderr.write(`${s}\n`), ask: async () => "aceito" });
 const version = (pkg) => JSON.parse(readFileSync(join(packages, pkg, "package.json"), "utf8")).version;
 
@@ -40,8 +41,8 @@ function codeCost(file) {
   const imports = [...src.matchAll(/import\s*\{([^}]*)\}\s*from\s*"(@kya-brasil\/[a-z-]+)"/g)];
   const functions = imports.flatMap((m) => m[1].split(",").map((s) => s.trim()).filter(Boolean));
   const body = lines.filter((l) => !l.trim().startsWith("import ")).join("\n");
-  const calls = functions.reduce((n, f) => n + (body.match(new RegExp(`\\b${f}\\(`, "g")) ?? []).length, 0);
-  return { tasks: FILES[file], lines: lines.length, packages: [...new Set(imports.map((m) => m[2]))].sort(), functions: functions.sort(), call_sites: calls };
+  const calls = functions.reduce((n, f) => n + (body.match(new RegExp(String.raw`\b${f}\(`, "g")) ?? []).length, 0);
+  return { tasks: FILES[file], lines: lines.length, packages: [...new Set(imports.map((m) => m[2]))].toSorted(byName), functions: functions.toSorted(byName), call_sites: calls };
 }
 
 const runs = [];
@@ -89,8 +90,8 @@ const results = {
   code: {
     files,
     lines: files.reduce((n, f) => n + f.lines, 0),
-    packages: [...new Set(files.flatMap((f) => f.packages))].sort(),
-    functions: [...new Set(files.flatMap((f) => f.functions))].sort(),
+    packages: [...new Set(files.flatMap((f) => f.packages))].toSorted(byName),
+    functions: [...new Set(files.flatMap((f) => f.functions))].toSorted(byName),
     call_sites: files.reduce((n, f) => n + f.call_sites, 0)
   }
 };
