@@ -1,0 +1,19 @@
+{
+  "name": "@kya-brasil/research-integration",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Integration without participants: runs the study kit's four tasks on the reference solution, several times, and measures what integrating the library takes (lines, library calls, packages, results, latency). No people involved. TEST ONLY PKI.",
+  "type": "module",
+  "scripts": {
+    "measure": "tsx measure.mjs",
+    "measure:smoke": "INTEGRATION_RUNS=2 tsx measure.mjs"
+  },
+  "dependencies": {
+    "@kya-brasil/agent-tools": "workspace:*",
+    "@kya-brasil/core": "workspace:*",
+    "@kya-brasil/study-kit": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "4.20.6"
+  }
+}

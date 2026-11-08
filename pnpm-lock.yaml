@@ -330,6 +330,22 @@ importers:
         specifier: 4.20.6
         version: 4.20.6
 
+  research/integration:
+    dependencies:
+      '@kya-brasil/agent-tools':
+        specifier: workspace:*
+        version: link:../../packages/agent-tools
+      '@kya-brasil/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@kya-brasil/study-kit':
+        specifier: workspace:*
+        version: link:../../packages/study-kit
+    devDependencies:
+      tsx:
+        specifier: 4.20.6
+        version: 4.20.6
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':

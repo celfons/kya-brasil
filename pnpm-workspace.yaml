@@ -4,6 +4,7 @@ packages:
   - "infra"
   - "examples/quickstart"
   - "research/bench"
+  - "research/integration"
   - "research/crl-compat"
 onlyBuiltDependencies:
   - pkcs11js
