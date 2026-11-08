@@ -119,3 +119,9 @@ cinco perguntas no fim. Busca na web e assistentes de IA são permitidos; no fim
 O kit só usa a rede no `send`, quando você confirma, e não guarda seu código, nome, e-mail nem dados da máquina. Os certificados
 da pasta `pki/` são de teste, sem valor. Você pode parar a qualquer momento: é só não enviar o relatório e apagar
 a pasta.
+
+## Comunidade
+
+Este projeto conversa com as comunidades brasileiras de JavaScript e TypeScript no Telegram:
+[JavaScript Brasil](https://t.me/javascriptbr) e [TypeScript Brasil](https://t.me/typescriptbr).
+Dúvidas sobre o kit podem ser levadas lá ou abertas como issue neste repositório.
