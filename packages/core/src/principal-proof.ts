@@ -102,7 +102,7 @@ export async function verifyPrincipalProof(p: { credential: Pick<Credential, "ag
   push("issuer", issuer === c.issuer, issuer === c.issuer ? `text names issuer ${c.issuer}` : `text names issuer ${issuer ?? "(none)"}, the credential ${c.issuer}`);
 
   const signed = mandateSha256OfChallenge(proof.text);
-  const actual = await mandateSha256(c.mandate);
+  const actual = await mandateSha256(c.mandate).catch(() => null); // not JSON data (RFC 8785): commits to nothing
   const recorded = c.authorized_by.mandate_sha256;
   const mandateOk = signed !== null && signed === actual && (!recorded || recorded === signed);
   push("mandate", mandateOk, signed === null ? "text carries no mandate hash (signed before D-33)" : mandateOk ? "text commits to the credential's mandate" : "text commits to another mandate than the credential's");

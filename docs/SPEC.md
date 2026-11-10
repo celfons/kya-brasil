@@ -186,7 +186,7 @@ mandate MUST NOT exceed 8192 bytes.
 ## 7. Signature (attestation)
 
 1. Remove the `attestation` and `receipt` fields.
-2. Canonicalize: JSON with object keys sorted lexicographically at every level, no whitespace, `undefined` members omitted, arrays in order, numbers as JavaScript `JSON.stringify` prints them.
+2. Canonicalize as RFC 8785 (JSON Canonicalization Scheme, JCS): no whitespace; object members sorted at every level by the UTF-16 code units of their names; arrays in order; strings and numbers serialized as ECMAScript does (RFC 8785 sections 3.2.2.2 and 3.2.2.3). An implementation in any language that follows RFC 8785 produces the same bytes. A number that is not finite, a string with a lone surrogate, or a value of a type JSON does not have MUST be refused (`INVALID_INPUT`), never serialized; a verifier that meets one treats the document as not matching its hash. `canonicalize` in the core is the one implementation, and its tests run the samples of the RFC (sections 3.2.2 to 3.2.4 and Appendix B).
 3. `sha256` = hex SHA-256 of the UTF-8 canonical string.
 4. The signed message is the UTF-8 string `<sha256>\n<signed_at>`.
 5. `signature` = base64 of the Ed25519 signature over that message.

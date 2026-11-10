@@ -17,7 +17,7 @@
  *   expires: <ISO 8601>
  *   mandate-sha256: <hex SHA-256 of the canonical JSON of the delegated mandate>
  */
-import { canonicalize } from "./attestation.js";
+import { canonicalEquals, canonicalize } from "./attestation.js";
 import { normalizeAgentKey, verifyAgentSignature } from "./challenge.js";
 import { type ActionQuery, type ActionVerdict, DELEGATION_MAX_DEPTH, DELEGATION_MIN_TTL_SECONDS, checkAction, counterpartyMatches, normalizeCounterparty, validateMandate } from "./mandate.js";
 import { type AgentKey, type Mandate, KyaError } from "./types.js";
@@ -198,7 +198,7 @@ export async function verifyDelegationChain(p: { credential: DelegationAnchor; c
     } catch (e) {
       return fail("KYA_DELEGATION_MALFORMED", `${at}: ${(e as Error).message}`);
     }
-    if (delegate.id !== raw.delegate?.id || canonicalize(mandate) !== canonicalize(raw.mandate)) return fail("KYA_DELEGATION_MALFORMED", `${at}: delegate or mandate not in normalized form`);
+    if (delegate.id !== raw.delegate?.id || !canonicalEquals(mandate, raw.mandate)) return fail("KYA_DELEGATION_MALFORMED", `${at}: delegate or mandate not in normalized form`);
     const policy = parentMandate.delegation;
     if (!policy) return fail("KYA_DELEGATION_NOT_ALLOWED", i === 0 ? "the credential's mandate does not allow delegation" : `${at}: the delegator's mandate does not allow further delegation`);
     const issued = Date.parse(raw.issued_at);

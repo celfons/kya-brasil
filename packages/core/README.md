@@ -7,7 +7,7 @@ systems, with no hosted service in the path: the same code the reference issuer 
 - **Revocation**: CRL verification against the issuing AC and the effect on a credential (revoke, suspend, nothing).
 - **Agent keys**: challenge text and signature checks for EVM wallets (EIP-191), Ed25519 (Web Bot Auth, RFC 9421) and ERC-8004 agents.
 - **Mandate**: schema, validation and deterministic evaluation of an intended action, including **payment instruments** for card networks, acquirers and issuers.
-- **Credential**: build, sign and verify (Ed25519 over canonical JSON), offline.
+- **Credential**: build, sign and verify (Ed25519 over canonical JSON, RFC 8785), offline.
 - **Issuance by the principal**: the e-CNPJ / e-CPF holder issues the credential itself, with no issuer service: build the mandate, get the exact bytes to sign, assemble, and verify (`buildMandate`, `mandateSigningInput`, `assembleCredential`, `buildDelegation`).
 - **CNPJ**: normalize, validate, format.
 
@@ -64,7 +64,7 @@ not a service in between: no account, no API, no one else sees the certificate o
 delegation, the parent agent is the issuer of its sub-agent's mandate. SPEC section 20, decision D-37.
 
 Issuance is symmetric to verification and uses the same functions: the mandate is validated by the verifier's
-schema, hashed with the same canonical JSON (SPEC section 7), and the text the certificate signs is the same
+schema, hashed with the same canonical JSON (RFC 8785; SPEC section 7), and the text the certificate signs is the same
 challenge text `verifyPrincipalProof` reads. Every risk field is required (no defaults: `[]` says "any",
 `delegation: null` says "may not delegate"), and whatever verification would refuse is refused at issuance.
 
