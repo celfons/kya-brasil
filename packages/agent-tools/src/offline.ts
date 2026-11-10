@@ -114,7 +114,9 @@ export async function verifyPresentedCredential(o: ResolvedOffline, credential: 
   const failed = (checks: { rule: string; ok: boolean; detail: string }[]) => checks.filter((x) => !x.ok);
   const describe = (checks: { rule: string; ok: boolean; detail: string }[]) => failed(checks).map((x) => `${x.rule}: ${x.detail}`).join("; ");
   if (c.issuer === SELF_ISSUER) {
-    const r = await verifySelfIssuedCredential({ credential: c, proof, anchors: o.anchors, now });
+    // D-43: a company credential signed by a representative verifies only against the verifier's list; without
+    // companyWill.representatives it is refused here, never accepted on the e-CPF alone.
+    const r = await verifySelfIssuedCredential({ credential: c, proof, anchors: o.anchors, now, ...(o.companyWill?.representatives ? { representatives: o.companyWill.representatives } : {}) });
     if (r.ok && r.revocation) {
       // Section 21: the company's will, when the verifier requires a representative's co-signature.
       if (o.companyWill && c.principal && !isPersonPrincipal(c.principal)) {

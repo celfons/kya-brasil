@@ -74,11 +74,59 @@ function otherNameValue(cert: X509Certificate, oidSuffix: string): string | null
   return null;
 }
 
+const OID_DN_SERIAL_NUMBER = "2.5.4.5";
+
+/**
+ * serialNumber attribute (OID 2.5.4.5) of the subject's Distinguished Name, or null. Resolução CG ICP-Brasil
+ * 211/2024, art. 8, puts there the CPF of a natural person's certificate and the CNPJ of an electronic seal; in the
+ * seal, the CNPJ otherName becomes optional after 31 Dec 2028 (DOC-ICP-04 v8.3, Anexo I).
+ */
+function subjectSerialNumber(cert: X509Certificate): string | null {
+  const values = cert.subjectName.getField(OID_DN_SERIAL_NUMBER);
+  return values.length === 1 ? values[0]! : null;
+}
+
 export function cnpjFromCertificate(cert: X509Certificate): string | null {
   // Alphanumeric since 2026 (IN RFB 2.229/2024): letters in the first 12 positions, digits in the 2 check digits.
-  const value = otherNameValue(cert, "3");
-  const cnpj = value === null ? "" : normalizeCnpj(value);
-  return /^[0-9A-Z]{12}\d{2}$/.test(cnpj) ? cnpj : null;
+  const isCnpj = (v: string | null): string | null => {
+    const cnpj = v === null ? "" : normalizeCnpj(v);
+    return /^[0-9A-Z]{12}\d{2}$/.test(cnpj) ? cnpj : null;
+  };
+  // The otherName first (every profile before 2029); then the DN serialNumber (the seal, once the otherName is optional).
+  return isCnpj(otherNameValue(cert, "3")) ?? isCnpj(subjectSerialNumber(cert));
+}
+
+const OID_CERTIFICATE_POLICIES = "2.5.29.32";
+const ICP_POLICY_PREFIX = "2.16.76.1.2.";
+
+/**
+ * ICP-Brasil certificate types named by the certificate's policy OIDs, 2.16.76.1.2.<type>.<n> (DOC-ICP-04 v8.3,
+ * item 1.2): "1" A1, "3" A3, "4" A4, "201" SE-S, "202" SE-H, "401" AE-S, "402" AE-H and so on. Empty when the
+ * certificate names no ICP-Brasil policy (a test certificate, or another PKI).
+ */
+export function icpCertificateTypes(cert: X509Certificate): string[] {
+  const ext = cert.extensions.find((e) => e.type === OID_CERTIFICATE_POLICIES);
+  if (!ext) return [];
+  const parsed = asn1js.fromBER(ext.value);
+  if (parsed.offset === -1) return [];
+  const types: string[] = [];
+  for (const info of (parsed.result as asn1js.Sequence).valueBlock.value) {
+    const oid = ((info as asn1js.Sequence).valueBlock?.value?.[0] as asn1js.ObjectIdentifier | undefined)?.valueBlock?.toString?.() ?? "";
+    if (oid.startsWith(ICP_POLICY_PREFIX)) types.push(oid.slice(ICP_POLICY_PREFIX.length).split(".")[0]!);
+  }
+  return types;
+}
+
+/** Electronic seal types: SE-S (software) and SE-H (hardware), issued to legal persons only. */
+export const ICP_SEAL_TYPES: readonly string[] = ["201", "202"];
+
+/**
+ * Is this an electronic seal certificate (SE-S or SE-H)? A seal attests the origin and integrity of a document. It
+ * may not sign as the company's will: Resolução CG ICP-Brasil 211/2024, art. 4, and DOC-ICP-04 v8.3, item 1.4.2.2.
+ * Its key usage still has digitalSignature, so only the policy OID tells it from a signature certificate.
+ */
+export function isElectronicSeal(cert: X509Certificate): boolean {
+  return icpCertificateTypes(cert).some((t) => ICP_SEAL_TYPES.includes(t));
 }
 
 /** OID 2.16.76.1.3.1: data of the e-CPF holder, "ddmmaaaa" birth date followed by the 11-digit CPF (DOC-ICP-04). */
@@ -92,6 +140,9 @@ export function cpfFromCertificate(cert: X509Certificate): string | null {
   if (cnpjFromCertificate(cert)) return null;
   const data = otherNameValue(cert, "1")?.replace(/\D/g, "") ?? null;
   if (data && data.length >= 19) return data.slice(8, 19);
+  // Resolução CG ICP-Brasil 211/2024, art. 8: the DN serialNumber of a natural person's certificate holds the CPF.
+  const serial = subjectSerialNumber(cert);
+  if (serial !== null && /^\d{11}$/.test(serial)) return serial;
   const cn = /CN=([^,]+)/.exec(cert.subject)?.[1] ?? "";
   return /:(\d{11})\s*$/.exec(cn)?.[1] ?? null;
 }
@@ -186,6 +237,11 @@ async function checkCms(p: { cmsBase64: string; challenge: string; anchors: stri
   const der = signerCert.toSchema().toBER(false);
   const x = new X509Certificate(der);
   if (x.notBefore > now || x.notAfter < now) throw new KyaError("CERTIFICATE_INVALID", `certificate valid from ${x.notBefore.toISOString()} to ${x.notAfter.toISOString()}`);
+
+  // A seal is not a signature of will, whoever it names: refused before the identity is even read.
+  if (isElectronicSeal(x)) {
+    throw new KyaError("CERTIFICATE_INVALID", "this is an electronic seal certificate (SE-S or SE-H): it attests origin and integrity and may not sign as the company's will (Resolução CG ICP-Brasil 211/2024, art. 4; DOC-ICP-04, item 1.4.2.2). Sign with a natural person's certificate");
+  }
 
   identify(x);
 

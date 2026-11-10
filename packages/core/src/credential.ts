@@ -5,7 +5,7 @@
  */
 import { attestedPayload, canonicalize, signAttestation, verifyAttestation } from "./attestation.js";
 import { formatCnpj, normalizeCnpj } from "./cnpj.js";
-import { type Credential, type CredentialStatus, type KybSnapshot, type Mandate, type AgentKey, KyaError } from "./types.js";
+import { type Credential, type CredentialStatus, type KybSnapshot, type Mandate, type AgentKey, KyaError, REPRESENTATIVE_METHOD } from "./types.js";
 
 /**
  * D-35: when a credential expires. The lifetime is the caller's (`ttl_seconds`, no default: it is a risk decision),
@@ -55,6 +55,43 @@ export function buildCredential(p: {
     kyb_snapshot: p.kyb ?? null,
     status: p.status ?? "active",
     status_reason: p.status_reason ?? null,
+    issued_at: now.toISOString(),
+    expires_at: expires.toISOString(),
+    issuer: p.issuer,
+    verify_url: `${p.issuer}/v1/agents/${p.credential_id}`,
+    revocation_url: `${p.issuer}/v1/agents/${p.credential_id}/status`
+  };
+}
+
+/**
+ * D-43: credential of a company signed by a legal representative's e-CPF alone. Nothing personal: the certificate
+ * is recorded by hash, with no subject. The legal name is not in an e-CPF, so it stays empty: a verifier that wants
+ * it asks its own source, as for the registration status.
+ */
+export function buildRepresentativeCredential(p: {
+  credential_id: string;
+  agent: AgentKey;
+  cnpj: string;
+  certificate: { sha256: string; issuer: string; signed_at: string; not_after: string };
+  mandate: Mandate;
+  ttl_seconds: number;
+  mandate_sha256?: string;
+  issuer: string;
+  now?: Date;
+}): Credential {
+  const now = p.now ?? new Date();
+  const cnpj = normalizeCnpj(p.cnpj);
+  const expires = credentialExpiry({ now, ttl_seconds: p.ttl_seconds, mandate: p.mandate, certificate_not_after: p.certificate.not_after });
+  return {
+    credential_id: p.credential_id,
+    version: 1,
+    agent: p.agent,
+    principal: { cnpj, cnpj_formatted: formatCnpj(cnpj), legal_name: "", registration_status: "NOT_CHECKED" },
+    authorized_by: { method: REPRESENTATIVE_METHOD, certificate_sha256: p.certificate.sha256, issuer: p.certificate.issuer, signed_at: p.certificate.signed_at, ...(p.mandate_sha256 ? { mandate_sha256: p.mandate_sha256 } : {}) },
+    mandate: p.mandate,
+    kyb_snapshot: null,
+    status: "active",
+    status_reason: null,
     issued_at: now.toISOString(),
     expires_at: expires.toISOString(),
     issuer: p.issuer,

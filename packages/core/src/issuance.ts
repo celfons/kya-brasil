@@ -24,13 +24,13 @@ import * as pkijs from "pkijs";
 import { canonicalize } from "./attestation.js";
 import { challengeText, normalizeAgentKey } from "./challenge.js";
 import { isValidCnpj, normalizeCnpj } from "./cnpj.js";
-import { buildCredential, buildPersonCredential, effectiveStatus, mandateSha256 } from "./credential.js";
+import { buildCredential, buildPersonCredential, buildRepresentativeCredential, effectiveStatus, mandateSha256 } from "./credential.js";
 import { type Delegation, type DelegationAnchor, prepareDelegation, verifyDelegationChain } from "./delegation.js";
 import { verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
 import { validateMandate } from "./mandate.js";
 import { personChallengeText } from "./person.js";
-import { type PrincipalProof, type PrincipalProofCheck, verifyPrincipalProof } from "./principal-proof.js";
-import { type AgentKey, type Credential, type DelegationPolicy, type Mandate, type PaymentInstrument, KyaError, isPersonPrincipal } from "./types.js";
+import { type PrincipalProof, type PrincipalProofCheck, type Representatives, verifyPrincipalProof } from "./principal-proof.js";
+import { type AgentKey, type Credential, type DelegationPolicy, type Mandate, type PaymentInstrument, KyaError, REPRESENTATIVE_METHOD, isPersonPrincipal } from "./types.js";
 
 /**
  * The `issuer` of a credential issued by its own principal. It goes in the signed text (`issuer:` line) and in the
@@ -38,6 +38,9 @@ import { type AgentKey, type Credential, type DelegationPolicy, type Mandate, ty
  * certificate (signature, chain, CRL) and the credential's own expiry do.
  */
 export const SELF_ISSUER = "urn:kya-brasil:self";
+
+/** Last line of the text a legal representative signs for a company (D-43, SPEC section 22). */
+export const REPRESENTATIVE_LINE = "signed-by: legal representative (e-CPF)";
 
 /** Fields every issued mandate must state: no default stands in for a risk decision (an empty list is explicit: any). */
 export const MANDATE_REQUIRED_FIELDS = ["actions", "max_per_operation", "max_per_day", "currencies", "counterparties", "payment_instruments", "valid_from", "valid_until", "delegation"] as const;
@@ -65,7 +68,11 @@ export interface MandateInput {
   /** The agent's public key: evm address, Ed25519 (web-bot-auth) or ERC-8004 identity. */
   agent: { kind: unknown; id: unknown };
   /** Who answers for the agent. A person gives nothing personal: the e-CPF that signs identifies them. */
-  principal: { kind: "company"; cnpj: string } | { kind: "person" };
+  /**
+   * A company signed by its e-CNPJ (the default while that certificate exists) or, with `signed_by: "representative"`,
+   * by a legal representative's e-CPF alone (D-43): the only form left from 3 March 2029.
+   */
+  principal: { kind: "company"; cnpj: string; signed_by?: "e-cnpj" | "representative" } | { kind: "person" };
   mandate: MandateTerms;
   /** Credential lifetime in seconds (D-35). Capped by `valid_until` here and by the certificate's notAfter at assembly. */
   ttl_seconds: number;
@@ -79,7 +86,8 @@ export interface BuiltMandate {
   credential_id: string;
   issuer: typeof SELF_ISSUER;
   agent: AgentKey;
-  principal: { kind: "company"; cnpj: string } | { kind: "person" };
+  /** `signed_by` is present only for a representative (D-43), so a mandate built before it keeps its exact form. */
+  principal: { kind: "company"; cnpj: string; signed_by?: "representative" } | { kind: "person" };
   mandate: Mandate;
   /** SHA-256 of the canonical JSON of `mandate` (mandateSha256): what the signed text commits to. */
   mandate_sha256: string;
@@ -140,7 +148,9 @@ export async function buildMandate(input: MandateInput): Promise<BuiltMandate> {
   let principal: BuiltMandate["principal"];
   if (p?.kind === "company") {
     if (typeof p.cnpj !== "string" || !isValidCnpj(p.cnpj)) throw bad("principal.cnpj must be a valid CNPJ");
-    principal = { kind: "company", cnpj: normalizeCnpj(p.cnpj) };
+    const by = (p as { signed_by?: unknown }).signed_by;
+    if (by !== undefined && by !== "e-cnpj" && by !== "representative") throw bad('principal.signed_by must be "e-cnpj" or "representative"');
+    principal = by === "representative" ? { kind: "company", cnpj: normalizeCnpj(p.cnpj), signed_by: "representative" } : { kind: "company", cnpj: normalizeCnpj(p.cnpj) };
   }
   else if (p?.kind === "person") principal = { kind: "person" };
   else throw bad('principal.kind must be "company" (with cnpj) or "person"');
@@ -170,6 +180,7 @@ async function checkBuilt(b: BuiltMandate): Promise<void> {
   if (agent.id !== b.agent.id) throw bad("agent is not in normalized form");
   if (b.principal?.kind === "company" && normalizeCnpj(b.principal.cnpj) !== b.principal.cnpj) throw bad("principal.cnpj is not in normalized form");
   if (b.principal?.kind !== "company" && b.principal?.kind !== "person") throw bad("principal.kind must be company or person");
+  if (b.principal.kind === "company" && b.principal.signed_by !== undefined && b.principal.signed_by !== "representative") throw bad("principal.signed_by is not in normalized form");
   const m = validateMandate(b.mandate);
   if (canonicalize(m) !== canonicalize(b.mandate)) throw bad("mandate is not in normalized form");
   if ((await mandateSha256(b.mandate)) !== b.mandate_sha256) throw bad("mandate_sha256 does not match the mandate: it was changed after buildMandate");
@@ -186,7 +197,9 @@ async function checkBuilt(b: BuiltMandate): Promise<void> {
 export async function mandateSigningInput(b: BuiltMandate): Promise<SigningInput> {
   await checkBuilt(b);
   const base = { issuer: b.issuer, challenge_id: b.credential_id, agent: b.agent, mandate_sha256: b.mandate_sha256, expires_at: b.expires_at };
-  const text = b.principal.kind === "company" ? challengeText({ ...base, cnpj: b.principal.cnpj }) : personChallengeText(base);
+  let text = b.principal.kind === "company" ? challengeText({ ...base, cnpj: b.principal.cnpj }) : personChallengeText(base);
+  // D-43: the person states, in what they sign, in which capacity they sign for the company.
+  if (b.principal.kind === "company" && b.principal.signed_by === "representative") text += `\n${REPRESENTATIVE_LINE}`;
   const bytes = new TextEncoder().encode(text);
   return { text, bytes, sha256: hex(await crypto.subtle.digest("SHA-256", bytes)) };
 }
@@ -250,7 +263,7 @@ function legalNameOf(subject: string): string {
  * Returns the credential in the /v1 format (issuer SELF_ISSUER, no issuer attestation: the principal's signature
  * is the proof) and the proof the agent presents with it (KYA-Principal-Proof, encodePrincipalProofHeader).
  */
-export async function assembleCredential(b: BuiltMandate, signature: string, certChain: (Uint8Array | string)[], opts: { anchors: string[]; now: Date }): Promise<IssuedCredential> {
+export async function assembleCredential(b: BuiltMandate, signature: string, certChain: (Uint8Array | string)[], opts: { anchors: string[]; now: Date; representatives?: Representatives }): Promise<IssuedCredential> {
   const { text } = await mandateSigningInput(b);
   const now = requireDate(opts?.now, "opts.now");
   if (!Array.isArray(opts.anchors) || !opts.anchors.length) throw bad("opts.anchors: the ICP-Brasil trust anchors are required (the same a verifier uses)");
@@ -260,7 +273,20 @@ export async function assembleCredential(b: BuiltMandate, signature: string, cer
   const issuedAt = new Date(b.issued_at);
   const ttl_seconds = (Date.parse(b.expires_at) - issuedAt.getTime()) / 1000;
   let credential: Credential;
-  if (b.principal.kind === "company") {
+  if (b.principal.kind === "company" && b.principal.signed_by === "representative") {
+    const icp = await verifyIcpPersonSignature({ cmsBase64: cms, challenge: text, anchors: opts.anchors, now });
+    credential = buildRepresentativeCredential({
+      credential_id: b.credential_id,
+      agent: b.agent,
+      cnpj: b.principal.cnpj,
+      certificate: { sha256: icp.certificate_sha256, issuer: icp.issuer, signed_at: now.toISOString(), not_after: icp.not_after },
+      mandate: b.mandate,
+      mandate_sha256: b.mandate_sha256,
+      ttl_seconds,
+      issuer: SELF_ISSUER,
+      now: issuedAt
+    });
+  } else if (b.principal.kind === "company") {
     const icp = await verifyIcpSignature({ cmsBase64: cms, challenge: text, expectedCnpj: b.principal.cnpj, anchors: opts.anchors, now });
     credential = buildCredential({
       credential_id: b.credential_id,
@@ -292,8 +318,11 @@ export async function assembleCredential(b: BuiltMandate, signature: string, cer
   // No status service behind a self-issued credential: both URLs name the issuer, never a host to call.
   credential = { ...credential, verify_url: SELF_ISSUER, revocation_url: SELF_ISSUER };
   const issued: IssuedCredential = { credential, proof: { text, cms } };
-  const check = await verifySelfIssuedCredential({ ...issued, anchors: opts.anchors, now });
-  if (!check.ok) throw new KyaError("CHALLENGE_FAILED", `the assembled credential would not verify: ${check.checks.filter((c) => !c.ok).map((c) => `${c.rule}: ${c.detail}`).join("; ")}`);
+  // A representative's credential verifies only against a list of representatives (D-43). The issuer may supply
+  // its own, to refuse here what a verifier would refuse; without one, that single check is left to the verifier.
+  const check = await verifySelfIssuedCredential({ ...issued, anchors: opts.anchors, now, ...(opts.representatives ? { representatives: opts.representatives } : {}) });
+  const failed = check.checks.filter((c) => !c.ok && !(c.rule === "representative" && !opts.representatives));
+  if (failed.length) throw new KyaError("CHALLENGE_FAILED", `the assembled credential would not verify: ${failed.map((c) => `${c.rule}: ${c.detail}`).join("; ")}`);
   return issued;
 }
 
@@ -322,21 +351,23 @@ const lineOf = (text: string, key: string): string | null => {
  * outlive the text's `expires:` line, the mandate passes the schema, and the credential is in force at `now`.
  * Never throws on a bad credential. The certificate's revocation (CRL) is the caller's, with `revocation`.
  */
-export async function verifySelfIssuedCredential(p: { credential: Credential; proof: PrincipalProof; anchors: string[]; now: Date }): Promise<SelfIssuedResult> {
+export async function verifySelfIssuedCredential(p: { credential: Credential; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives }): Promise<SelfIssuedResult> {
   const checks: SelfIssuedCheck[] = [];
   const c = p.credential;
   if (!c || typeof c !== "object" || !c.agent || !c.principal || !c.authorized_by || !c.mandate) {
     return { ok: false, checks: [{ rule: "credential", ok: false, detail: "not a credential" }], revocation: null };
   }
-  const base = await verifyPrincipalProof({ credential: c, proof: p.proof, anchors: p.anchors, now: p.now });
+  const base = await verifyPrincipalProof({ credential: c, proof: p.proof, anchors: p.anchors, now: p.now, ...(p.representatives ? { representatives: p.representatives } : {}) });
   checks.push(...base.checks);
   const text = typeof p.proof?.text === "string" ? p.proof.text : "";
   const problems: string[] = [];
   if (c.issuer !== SELF_ISSUER) problems.push(`issuer is ${c.issuer}, not ${SELF_ISSUER}`);
   if (c.version !== 1) problems.push("version is not 1");
   if (lineOf(text, "challenge") !== c.credential_id) problems.push("the signed text does not name this credential id");
-  const method = isPersonPrincipal(c.principal) ? "icp-brasil-e-cpf" : "icp-brasil-e-cnpj";
-  if (c.authorized_by.method !== method) problems.push(`authorized_by.method must be ${method}`);
+  const methods: string[] = isPersonPrincipal(c.principal) ? ["icp-brasil-e-cpf"] : ["icp-brasil-e-cnpj", REPRESENTATIVE_METHOD];
+  if (!methods.includes(c.authorized_by.method)) problems.push(`authorized_by.method must be ${methods.join(" or ")}`);
+  const signedAsRepresentative = lineOf(text, "signed-by") !== null;
+  if (signedAsRepresentative !== (c.authorized_by.method === REPRESENTATIVE_METHOD)) problems.push("the signed text and authorized_by.method disagree on who signed (e-CNPJ or legal representative)");
   try {
     if (canonicalize(validateMandate(c.mandate)) !== canonicalize(c.mandate)) problems.push("mandate is not in normalized form");
   } catch (e) {

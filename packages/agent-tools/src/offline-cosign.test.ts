@@ -52,7 +52,10 @@ async function setup() {
   const byRep = await addCosignature(plain, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
   const byOther = await addCosignature(plain, await signerOf(other, root).sign(text), [], { anchors, now: NOW });
   const crl = (await x509.X509CrlGenerator.create({ issuer: root.cert.subject, thisUpdate: new Date(NOW.getTime() - 3600_000), nextUpdate: new Date(NOW.getTime() + 86400_000), signingAlgorithm: alg, signingKey: root.keys.privateKey, entries: [] })).rawData;
-  return { anchors, plain, byRep, byOther, crl };
+  // D-43: the same company, signed by the representative's e-CPF alone, with no e-CNPJ.
+  const builtRep = await buildMandate({ credential_id: "cred-cw-rep", agent: built.agent, principal: { kind: "company", cnpj: CNPJ, signed_by: "representative" }, mandate: { ...built.mandate, delegation: null } as never, ttl_seconds: 86400, now: NOW });
+  const repIssued = await assembleCredential(builtRep, await signerOf(rep, root).sign((await mandateSigningInput(builtRep)).text), [], { anchors, now: NOW });
+  return { anchors, plain, byRep, byOther, repIssued, crl };
 }
 let cache: ReturnType<typeof setup> | null = null;
 const k = () => (cache ??= setup());
@@ -92,6 +95,15 @@ describe("offline verification with companyWill (section 21)", () => {
     const a = await auth({ acceptCertificateResponsible: true });
     expect((await a.authenticate(await request(byRep))).ok).toBe(true);
     expect(await a.authenticate(await request(byOther))).toMatchObject({ ok: false, error: "KYA_COMPANY_WILL_REQUIRED" });
+  });
+
+  it("a company credential signed by a representative alone needs the verifier's list (section 22)", async () => {
+    const { repIssued } = await k();
+    expect((await (await auth({ representatives: () => [REP] })).authenticate(await request(repIssued))).ok).toBe(true);
+    // No option, or no list: refused, never accepted on the e-CPF alone.
+    expect((await (await auth()).authenticate(await request(repIssued))).ok).toBe(false);
+    expect((await (await auth({ acceptCertificateResponsible: true })).authenticate(await request(repIssued))).ok).toBe(false);
+    expect((await (await auth({ representatives: () => [OTHER] })).authenticate(await request(repIssued))).ok).toBe(false);
   });
 
   it("refuses an option with no source of representatives", async () => {

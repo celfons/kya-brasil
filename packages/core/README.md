@@ -8,6 +8,9 @@ systems, with no hosted service in the path: the same code the reference issuer 
 - **Agent keys**: challenge text and signature checks for EVM wallets (EIP-191), Ed25519 (Web Bot Auth, RFC 9421) and ERC-8004 agents.
 - **Mandate**: schema, validation and deterministic evaluation of an intended action, including **payment instruments** for card networks, acquirers and issuers.
 - **Credential**: build, sign and verify (Ed25519 over canonical JSON, RFC 8785), offline.
+- **After Resolução CG ICP-Brasil 211/2024** (SPEC section 22): a company mandate signed by a legal representative's
+  e-CPF alone (`signed_by: "representative"`), accepted only against your own list of representatives and refused
+  without it; electronic seal certificates refused as a signature; CNPJ and CPF also read from the DN `serialNumber`.
 - **Issuance by the principal**: the e-CNPJ / e-CPF holder issues the credential itself, with no issuer service: build the mandate, get the exact bytes to sign, assemble, and verify (`buildMandate`, `mandateSigningInput`, `assembleCredential`, `buildDelegation`).
 - **CNPJ**: normalize, validate, format.
 
