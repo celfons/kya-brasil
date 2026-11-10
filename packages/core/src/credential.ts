@@ -150,6 +150,10 @@ export async function mandateSha256(mandate: Mandate): Promise<string> {
 export async function verifyMandateAuthorization(c: Pick<Credential, "mandate" | "authorized_by">): Promise<"signed" | "mismatch" | "not_covered"> {
   const h = c.authorized_by?.mandate_sha256;
   if (!h) return "not_covered";
-  return (await mandateSha256(c.mandate)) === h ? "signed" : "mismatch";
+  try {
+    return (await mandateSha256(c.mandate)) === h ? "signed" : "mismatch";
+  } catch {
+    return "mismatch"; // a mandate that is not JSON data (RFC 8785) is not the one the principal signed
+  }
 }
 

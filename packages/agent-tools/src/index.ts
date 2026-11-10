@@ -364,28 +364,6 @@ export function revocationText(credentialId: string, nonce: string = crypto.rand
 
 // --- Local verification of a credential or a signed answer (no network once you hold the key) ---
 
-/**
- * Key order of the canonical JSON: UTF-16 code units, exactly what a comparator-less sort() does. Not
- * localeCompare: a locale-dependent order would change the signed bytes between machines and break every
- * signature already issued.
- */
-function byCodeUnit(a: string, b: string): number {
-  if (a < b) return -1;
-  if (a > b) return 1;
-  return 0;
-}
-
-function canonicalize(v: unknown): string {
-  if (v === null || typeof v !== "object") return JSON.stringify(v);
-  if (Array.isArray(v)) return `[${v.map(canonicalize).join(",")}]`;
-  const o = v as Record<string, unknown>;
-  const members = Object.keys(o)
-    .filter((k) => o[k] !== undefined)
-    .sort(byCodeUnit)
-    .map((k) => JSON.stringify(k) + ":" + canonicalize(o[k]));
-  return "{" + members.join(",") + "}";
-}
-
 export interface VerifyResult { valid: boolean; reason?: string; key_id?: string; signed_at?: string }
 
 /**
@@ -405,7 +383,13 @@ export async function verifyAttestation(doc: Record<string, unknown>, opts: { ba
     if (!jwk) return { valid: false, reason: `key ${att.key_id} not published by ${base}`, key_id: att.key_id, signed_at: att.signed_at };
   }
   const { attestation: _a, receipt: _r, ...payload } = doc;
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalize(payload)));
+  let canonical: string;
+  try {
+    canonical = canonicalize(payload); // RFC 8785; the one definition lives in the core
+  } catch (e) {
+    return { valid: false, reason: (e as Error).message, key_id: att.key_id, signed_at: att.signed_at };
+  }
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical));
   const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
   if (hex !== att.sha256) return { valid: false, reason: "content hash mismatch: the document was modified", key_id: att.key_id, signed_at: att.signed_at };
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "Ed25519" }, true, ["verify"]);
@@ -440,7 +424,7 @@ export { isValidCpf, personAgentsText } from "@kya-brasil/core";
 export { checkDelegatedAction, decodeDelegationHeader, encodeDelegationHeader, isMandateSubset, mandateSubsetProblems, verifyDelegationChain } from "@kya-brasil/core";
 export { buildDetachedCms, cnpjFromCommonName, ecnpjSigner, openPfx, readSigningLink, signWithECnpjPfx, type ECnpjSigner, type RawSigner } from "@kya-brasil/core";
 export { listTokenCertificates, openToken, type TokenCertificate, type TokenOptions } from "./pkcs11.js";
-import { normalizeCnpj, signingLink as coreSigningLink } from "@kya-brasil/core";
+import { canonicalize, normalizeCnpj, signingLink as coreSigningLink } from "@kya-brasil/core";
 
 /**
  * Link to the issuer's signing page (<issuer>/sign) for the person who holds the company's e-CNPJ, usually the

@@ -1,5 +1,13 @@
 # Case study (H3): independent integration from the docs alone
 
+> **Status, 9 Nov 2026.** No participant has been recruited and no report has been collected. H3 is deferred to
+> the master's programme, with ethics approval. Before any collection, the hypothesis and the sample rule below
+> will be restated, and the change registered on OSF. As written, they conflict when every participant uses an AI
+> assistant: the hypothesis is about the documentation alone, results with AI are exploratory, and yet the first
+> three complete reports are the confirmatory sample whether or not AI was used. The direction is to take the AI
+> assistant as the normal working condition and to measure whether the integration that comes out is correct.
+> Until that change is registered, this protocol is not to be run. See kya-paper `docs/osf-adiamento-h3.md`.
+
 Hypothesis H3 of the pre-registration (osf.io/t59kv, `docs/research/pedido-iti-osf-zenodo.md`): *an independent
 developer integrates KYA using only the documentation, without changing the library.* Pre-registered measures:
 time to the first correct verification, changes requested to the library ("alterações pedidas na biblioteca"),

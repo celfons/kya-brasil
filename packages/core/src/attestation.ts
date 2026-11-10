@@ -1,9 +1,9 @@
 /**
  * Signed attestation of an answer: "this service returned exactly this JSON at this time".
- * Ed25519 over the SHA-256 of the canonical JSON (keys sorted, no whitespace) of the answer
+ * Ed25519 over the SHA-256 of the canonical JSON (RFC 8785, JCS) of the answer
  * without `attestation` and `receipt`. WebCrypto only, so it runs on Workers and Node alike.
  */
-import type { Attestation } from "./types.js";
+import { type Attestation, KyaError } from "./types.js";
 
 /**
  * Key order of the canonical JSON: UTF-16 code units, exactly what a comparator-less sort() does. Not
@@ -16,15 +16,59 @@ function byCodeUnit(a: string, b: string): number {
   return 0;
 }
 
+const notCanonical = (what: string) => new KyaError("INVALID_INPUT", `canonical JSON (RFC 8785): ${what}`);
+
+/** RFC 8785 section 3.2.2.2: a lone surrogate is not Unicode text and must end the serialization with an error. */
+function assertUnicode(s: string): void {
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c >= 0xd800 && c <= 0xdbff) {
+      const next = s.charCodeAt(i + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) throw notCanonical("a string has a lone surrogate");
+      i++;
+    } else if (c >= 0xdc00 && c <= 0xdfff) {
+      throw notCanonical("a string has a lone surrogate");
+    }
+  }
+}
+
+/**
+ * Canonical JSON as RFC 8785 (JSON Canonicalization Scheme) defines it: no whitespace, object members sorted by
+ * the UTF-16 code units of their names at every level, arrays in order, strings and numbers as ECMAScript
+ * serializes them. What is not JSON data is refused instead of guessed: a number that is not finite, a string with
+ * a lone surrogate, and a value of a type JSON does not have (also inside an array). An object member whose value
+ * is `undefined` is left out, as JSON.stringify does.
+ */
 export function canonicalize(v: unknown): string {
-  if (v === null || typeof v !== "object") return JSON.stringify(v);
-  if (Array.isArray(v)) return `[${v.map(canonicalize).join(",")}]`;
+  if (v === null || typeof v === "boolean") return JSON.stringify(v);
+  if (typeof v === "number") {
+    if (!Number.isFinite(v)) throw notCanonical("a number is not finite");
+    return JSON.stringify(v);
+  }
+  if (typeof v === "string") {
+    assertUnicode(v);
+    return JSON.stringify(v);
+  }
+  if (typeof v !== "object") throw notCanonical(`a value of type ${typeof v} is not JSON`);
+  if (Array.isArray(v)) return `[${Array.from(v, canonicalize).join(",")}]`;
   const o = v as Record<string, unknown>;
   const members = Object.keys(o)
     .filter((k) => o[k] !== undefined)
     .sort(byCodeUnit)
-    .map((k) => JSON.stringify(k) + ":" + canonicalize(o[k]));
+    .map((k) => {
+      assertUnicode(k);
+      return JSON.stringify(k) + ":" + canonicalize(o[k]);
+    });
   return "{" + members.join(",") + "}";
+}
+
+/** Do the two values have the same canonical JSON? False when either is not JSON data, never an exception. */
+export function canonicalEquals(a: unknown, b: unknown): boolean {
+  try {
+    return canonicalize(a) === canonicalize(b);
+  } catch {
+    return false;
+  }
 }
 
 export function attestedPayload(answer: Record<string, unknown>): Record<string, unknown> {
@@ -80,7 +124,13 @@ export async function signAttestation(answer: Record<string, unknown>, privateKe
 export async function verifyAttestation(answer: Record<string, unknown>, publicJwk: JsonWebKey): Promise<{ valid: boolean; reason?: string; key_id?: string; signed_at?: string }> {
   const att = answer.attestation as Attestation | undefined;
   if (!att || att.algorithm !== "ed25519") return { valid: false, reason: "no ed25519 attestation in the answer" };
-  const { hex: digestHex } = await sha256(canonicalize(attestedPayload(answer)));
+  let canonical: string;
+  try {
+    canonical = canonicalize(attestedPayload(answer));
+  } catch (e) {
+    return { valid: false, reason: (e as Error).message, key_id: att.key_id, signed_at: att.signed_at };
+  }
+  const { hex: digestHex } = await sha256(canonical);
   if (digestHex !== att.sha256) return { valid: false, reason: "content hash mismatch: the answer was modified", key_id: att.key_id, signed_at: att.signed_at };
   const keyId = await keyIdOf(publicJwk);
   if (keyId !== att.key_id) return { valid: false, reason: `signed with key ${att.key_id}, verifying with ${keyId}`, key_id: att.key_id, signed_at: att.signed_at };
