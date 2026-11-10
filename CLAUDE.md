@@ -23,7 +23,7 @@ pesquisa que a acompanha.
 - **Agnóstica quanto ao risco.** Nenhum parâmetro de política tem valor padrão (`max_age_seconds`, L, λ,
   `delegation`, coassinatura). Quem verifica decide; a biblioteca recusa entrada incompleta em vez de assumir.
 - **Uma regra, um lugar.** `mandateSubsetProblems` é a única definição de contenção; emissão e verificação a
-  chamam. `checkAction` é a única avaliação de ação. O Alloy espelha essas funções, predicado por regra: mudou a
+  chamam. `checkAction` é a única avaliação de ação. `canonicalize` (core, `attestation.ts`) é o único JSON canônico, conforme a RFC 8785; o cliente o importa. O Alloy espelha essas funções, predicado por regra: mudou a
   regra, muda o modelo e regeneram-se os vetores.
 - **Falhar fechado.** LCR velha, assinatura que não verifica, algoritmo fora do conjunto, cadeia desconhecida:
   recusa com `KyaError` e código nomeado. Nunca aceitar por omissão.
