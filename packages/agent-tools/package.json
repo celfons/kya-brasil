@@ -51,22 +51,22 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@kya-brasil/core": "workspace:^",
     "@x402/core": "^2.28.0",
     "@x402/evm": "^2.28.0",
     "@x402/fetch": "^2.28.0",
     "pkijs": "^3.4.1",
-    "viem": "^2.57.5",
-    "@kya-brasil/core": "workspace:^"
+    "viem": "^2.57.5"
   },
   "devDependencies": {
     "@peculiar/asn1-schema": "^2.3.15",
     "@peculiar/asn1-x509": "^2.3.15",
     "@peculiar/x509": "^2.1.0",
     "@types/node": "^22.20.5",
+    "pkcs11js": "2.1.7",
     "reflect-metadata": "^0.2.2",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.11",
-    "pkcs11js": "2.1.7"
+    "vitest": "^4.1.12"
   },
   "bin": {
     "kya-sign": "./dist/cli.js"
