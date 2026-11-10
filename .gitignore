@@ -10,3 +10,4 @@ infra/Pulumi.*.yaml
 out/
 __pycache__/
 out-adversarial/
+out-representative/

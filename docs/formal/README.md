@@ -211,5 +211,19 @@ java -jar org.alloytools.alloy.dist.jar exec -f -o out-representative docs/forma
 
 The library's counterpart is `packages/core/src/cosign.test.ts` (issuance, refusal with no list, list that
 does not name the signer or fails, method swapped after signing, counting with co-signatures) and three constructions
-of the certificate catalogue. No vectors are generated from this module yet.
+of the certificate catalogue.
+
+Seven run commands at the end of the module, one verification each, give the vectors:
+
+```
+java -jar org.alloytools.alloy.dist.jar exec -f -r 20 -t xml -o out-representative representative.als
+python3 -I docs/formal/generate-representative.py
+```
+
+`docs/vectors/representative-v1.json` holds 140 vectors, 20 instances of each command: accepted (`RepListedSameText`),
+refused because the signer is not listed, signed another text, the verifier has no list, or the signer is the
+company's seal (`RepNotListed`, `RepOtherText`, `RepNoList`, `RepSeal`), and the two assumptions the library cannot
+check and must accept (`RepStaleList`, `RepLentECpf`). The enumeration is Alloy's first 20 instances per command,
+not all of them, and instances that differ only in atoms the library does not see give equal vectors.
+`cosign.test.ts` replays every one against `assembleCredential` and `verifySelfIssuedCredential`.
 
