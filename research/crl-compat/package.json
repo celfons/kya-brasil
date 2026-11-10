@@ -12,7 +12,7 @@
   "dependencies": {
     "@kya-brasil/core": "workspace:*",
     "@peculiar/x509": "2.1.0",
-    "node-forge": "1.4.1",
+    "node-forge": "1.4.3",
     "pkijs": "3.4.1",
     "reflect-metadata": "^0.2.2"
   },
