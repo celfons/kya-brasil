@@ -227,3 +227,35 @@ check and must accept (`RepStaleList`, `RepLentECpf`). The enumeration is Alloy'
 not all of them, and instances that differ only in atoms the library does not see give equal vectors.
 `cosign.test.ts` replays every one against `assembleCredential` and `verifySelfIssuedCredential`.
 
+
+## Time-stamp on the principal's signature (D-45)
+
+`timestamp.als` is a separate module. One signature has the time it was really made, the time the credential
+declares and, when there is a token, the time an authority attests; one certificate has the time its key was stolen
+and the time it was revoked. The verifier's rule is `revocationEffect` under `keep`: kept only when the revocation
+comes strictly after the time compared.
+
+```
+java -jar org.alloytools.alloy.dist.jar exec -f -o out-timestamp timestamp.als
+```
+
+| Command | Result | Reading |
+|---|---|---|
+| `check DeclaredTimeSound` | counterexample (expected) | On the declared time, a signature made after the revocation is kept: the signer writes an earlier time. |
+| `check AttestedTimeSound` | UNSAT, holds | On the attested time, with an authority that stamps only what exists, what is kept was made before the revocation. |
+| `check AttestedNeedsHonestAuthority` | counterexample (expected) | The guarantee is the authority's: one that stamps a time before the signature existed brings backdating back. |
+| `check AttestedExcludesThief` | counterexample (expected) | The token does not close the window between the theft and the revocation: the thief signs and stamps inside it. |
+| `check NoStampNotKept` | UNSAT, by construction | With no token there is nothing to compare: a consistency check of the rule, not a theorem. |
+| `run HolderKept` | SAT | Sanity check: the holder signs and stamps, the certificate is revoked later, and the signature is kept. |
+
+An absent time is the empty set, which Alloy compares as 0, so every comparison in the module is guarded by `some`.
+Six run commands give `docs/vectors/timestamp-v1.json`, 120 vectors (the first 20 instances of each; 90 distinct):
+
+```
+java -jar org.alloytools.alloy.dist.jar exec -f -r 20 -t xml -o out-timestamp timestamp.als
+python3 -I docs/formal/generate-timestamp.py
+```
+
+`packages/core/src/timestamp.test.ts` replays them with `revocationEffect` on the declared and on the attested
+time. The model has the times, not the token: that a token is authentic, stamps this signature and comes from a
+trusted authority is tested by construction in the same file, with an authority built at run time.

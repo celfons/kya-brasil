@@ -698,3 +698,58 @@ second signature: the representative's certificate is the only one between the c
 that took the seal for a signature would accept whoever holds it (`SealAsSignatureIsCompanyWill`, counterexample),
 which is the flaw found for the e-CNPJ in section 21.
 
+
+## 23. Time-stamp on the principal's signature (D-45)
+
+`authorized_by.signed_at` is the clock of whoever assembled the credential. In a self-issued credential that is the
+signer. A verifier whose policy keeps an authorization signed before the certificate was revoked
+(`revocationEffect`, effect `keep`, section 10) compares the revocation with that time, and whoever holds a stolen
+key can sign after the revocation and write an earlier one.
+
+A time-stamp token (RFC 3161) by a time-stamping authority says that the signature already existed at the token's
+time. The signer does not choose that time.
+
+**What is stamped.** The signature value of the mandate's CMS (the `signature` octets of its first SignerInfo), as
+in the CAdES signature-time-stamp attribute (`id-aa-signatureTimeStampToken`, 1.2.840.113549.1.9.16.2.14) that
+ICP-Brasil's signature policies with time reference use. The token is carried beside the CMS, in the proof
+(`proof.timestamp`, base64 DER of the TimeStampToken, also in `KYA-Principal-Proof`), or inside the CMS as that
+unsigned attribute; the proof's own member comes first.
+
+**Issuance.** The core has no network. `timestampRequest(cms)` returns the DER of the TimeStampReq (SHA-256 of the
+signature value, certificate requested); the caller sends it to the authority it chose and gives the token to
+`addTimestamp(issued, token, { anchors, now })`, which verifies it and puts it in the proof. The credential itself
+does not change: the token is evidence about the signature, not a field the principal signed.
+
+**Verification.** `verifyTimestamp({ token, cms, anchors, now })` refuses, with `TIMESTAMP_INVALID`:
+
+- a token that is not a CMS SignedData with a TSTInfo (`id-ct-TSTInfo`) as content;
+- a message imprint that is not the SHA-256, SHA-384 or SHA-512 of this signature value;
+- a signature that does not verify over the signed attributes, or signed attributes that do not carry the digest
+  of the TSTInfo;
+- a signer whose extended key usage is not critical and exactly `id-kp-timeStamping` (RFC 3161, 2.3);
+- a signer not valid at the token's time, or whose chain does not end in one of `anchors` at that time;
+- a time after `now`.
+
+It returns `attested_at`, the authority's subject, certificate hash and policy OID, and what the caller needs to
+check the authority's own revocation. The revocation of the authority's certificate is the caller's, like the
+principal's.
+
+**Policy.** `verifyPrincipalProof` and `verifySelfIssuedCredential` take `timestamp: { anchors, required }`. Both
+members are required and there is no default: which authorities to trust and whether a token is mandatory are the
+verifier's. With the option, the result has the rule `timestamp` and the member `timestamp` (the proof, or null). A
+token that is presented and does not verify fails the rule whatever `required` says. Without the option nothing
+changes. In the client, `createKyaAuth({ offline: { timestamp } })` passes it on and gives `attested_at` to the
+`certificateStatus` callback.
+
+**What to compare.** With a token, the time to give `revocationEffect` is `attested_at`, not `signed_at`. With no
+token there is no attested time, and `revocationEffect(entry, null, policy)` already turns `keep` into `revoke`.
+
+**What it rests on** (Alloy, `docs/formal/timestamp.als`): on the declared time, a signature made after the
+revocation is kept (`DeclaredTimeSound`, expected counterexample); on the attested time, with an authority that
+stamps only what exists, what is kept was made before the revocation (`AttestedTimeSound` holds). The guarantee is
+the authority's (`AttestedNeedsHonestAuthority`, counterexample). The token does not close the window between the
+theft of a key and the revocation: the thief signs and stamps inside it (`AttestedExcludesThief`, counterexample).
+
+**Not covered.** The signing certificate reference inside the token (ESSCertID) is not compared; the token's nonce
+is not used, since the request is built without one; tokens were verified only against an authority built by the
+test suite, not one accredited by ICP-Brasil.

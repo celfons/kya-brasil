@@ -11,6 +11,9 @@ systems, with no hosted service in the path: the same code the reference issuer 
 - **After Resolução CG ICP-Brasil 211/2024** (SPEC section 22): a company mandate signed by a legal representative's
   e-CPF alone (`signed_by: "representative"`), accepted only against your own list of representatives and refused
   without it; electronic seal certificates refused as a signature; CNPJ and CPF also read from the DN `serialNumber`.
+- **Time-stamp on the signature** (SPEC section 23): `timestampRequest` builds the RFC 3161 request over the mandate's
+  signature, `addTimestamp` and `verifyTimestamp` check the token of the authority you asked, and the verifier that
+  gives `timestamp: { anchors, required }` gets the attested time to compare a revocation with. No default, no network.
 - **Issuance by the principal**: the e-CNPJ / e-CPF holder issues the credential itself, with no issuer service: build the mandate, get the exact bytes to sign, assemble, and verify (`buildMandate`, `mandateSigningInput`, `assembleCredential`, `buildDelegation`).
 - **CNPJ**: normalize, validate, format.
 
