@@ -30,6 +30,7 @@ import { verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
 import { validateMandate } from "./mandate.js";
 import { personChallengeText } from "./person.js";
 import { type PrincipalProof, type PrincipalProofCheck, type Representatives, verifyPrincipalProof } from "./principal-proof.js";
+import { type TimestampPolicy, type TimestampProof, verifyTimestamp } from "./timestamp.js";
 import { type AgentKey, type Credential, type DelegationPolicy, type Mandate, type PaymentInstrument, KyaError, REPRESENTATIVE_METHOD, isPersonPrincipal } from "./types.js";
 
 /**
@@ -337,6 +338,8 @@ export interface SelfIssuedResult {
   checks: SelfIssuedCheck[];
   /** For the caller's revocation check of the signing certificate (checkRevocation); null when the signature did not verify. */
   revocation: { serial_number: string; issuer_certificate: string | null; crl_urls: string[] } | null;
+  /** Present only when a timestamp policy was given: what the token says, or null (SPEC section 23). */
+  timestamp?: TimestampProof | null;
 }
 
 const lineOf = (text: string, key: string): string | null => {
@@ -361,13 +364,13 @@ function methodProblems(c: Credential, text: string): string[] {
  * outlive the text's `expires:` line, the mandate passes the schema, and the credential is in force at `now`.
  * Never throws on a bad credential. The certificate's revocation (CRL) is the caller's, with `revocation`.
  */
-export async function verifySelfIssuedCredential(p: { credential: Credential; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives }): Promise<SelfIssuedResult> {
+export async function verifySelfIssuedCredential(p: { credential: Credential; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives; timestamp?: TimestampPolicy }): Promise<SelfIssuedResult> {
   const checks: SelfIssuedCheck[] = [];
   const c = p.credential;
   if (!c || typeof c !== "object" || !c.agent || !c.principal || !c.authorized_by || !c.mandate) {
     return { ok: false, checks: [{ rule: "credential", ok: false, detail: "not a credential" }], revocation: null };
   }
-  const base = await verifyPrincipalProof({ credential: c, proof: p.proof, anchors: p.anchors, now: p.now, ...(p.representatives ? { representatives: p.representatives } : {}) });
+  const base = await verifyPrincipalProof({ credential: c, proof: p.proof, anchors: p.anchors, now: p.now, ...(p.representatives ? { representatives: p.representatives } : {}), ...(p.timestamp ? { timestamp: p.timestamp } : {}) });
   checks.push(...base.checks);
   const text = typeof p.proof?.text === "string" ? p.proof.text : "";
   const problems: string[] = [];
@@ -394,7 +397,21 @@ export async function verifySelfIssuedCredential(p: { credential: Credential; pr
   else if (now < issued) validity.push(`not yet valid (issued ${c.issued_at})`);
   else if (effectiveStatus(c, new Date(now)) !== "active") validity.push(`credential is ${effectiveStatus(c, new Date(now))}`);
   checks.push({ rule: "validity", ok: validity.length === 0, detail: validity.length ? validity.join("; ") : `in force until ${c.expires_at}` });
-  return { ok: checks.every((x) => x.ok), checks, revocation: base.revocation };
+  return { ok: checks.every((x) => x.ok), checks, revocation: base.revocation, ...(p.timestamp ? { timestamp: base.timestamp ?? null } : {}) };
+}
+
+/**
+ * Attaches a time-stamp token (RFC 3161, base64 DER) to an issued credential, after verifying that it stamps this
+ * credential's signature and chains to `anchors` (SPEC section 23). The token comes from the authority the caller
+ * asked with timestampRequest(issued.proof.cms). Throws KyaError (INVALID_INPUT, TIMESTAMP_INVALID).
+ */
+export async function addTimestamp(issued: IssuedCredential, token: string, opts: { anchors: string[]; now: Date }): Promise<IssuedCredential & { timestamp: TimestampProof }> {
+  if (!issued?.credential || !issued.proof || typeof issued.proof.cms !== "string") throw new KyaError("INVALID_INPUT", "issued: { credential, proof } from assembleCredential is required");
+  if (typeof token !== "string" || !token.trim()) throw new KyaError("INVALID_INPUT", "token: the time-stamp token (base64 DER) is required");
+  if (!(opts?.now instanceof Date) || Number.isNaN(opts.now.getTime())) throw new KyaError("INVALID_INPUT", "opts.now must be a valid Date (the clock is the caller's)");
+  if (!Array.isArray(opts.anchors) || !opts.anchors.length) throw new KyaError("INVALID_INPUT", "opts.anchors: the time-stamping trust anchors are required");
+  const timestamp = await verifyTimestamp({ token, cms: issued.proof.cms, anchors: opts.anchors, now: opts.now });
+  return { credential: issued.credential, proof: { ...issued.proof, timestamp: token.replace(/\s+/g, "") }, timestamp };
 }
 
 /** Who issues the next link: an issued credential (its agent delegates), or that credential and the chain so far. */

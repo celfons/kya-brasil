@@ -496,7 +496,7 @@ export function createKyaAuth(opts: KyaAuthOptions = {}): KyaAuth {
 
     const presented = await verifyPresentedCredential(o, credential, proof, p.at);
     if (!presented.ok) return fail(presented.status, presented.error, presented.message);
-    const status = await certificateStatusOf(o, { credential, revocation: presented.revocation }, p.at);
+    const status = await certificateStatusOf(o, { credential, revocation: presented.revocation, ...(presented.attested_at === undefined ? {} : { attested_at: presented.attested_at }) }, p.at);
     if (!status.ok) return fail(status.status, status.error, status.message);
 
     const v: Verification = { credential_id: p.credentialId, status: "active", status_reason: null, agent: credential.agent, principal: credential.principal as Verification["principal"], credential, events: [] };

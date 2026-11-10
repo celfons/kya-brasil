@@ -13,8 +13,8 @@ pesquisa que a acompanha.
 | `packages/core` | A biblioteca: mandato, delegação, emissão, LCR, atualidade, coassinatura. Pura, sem rede. |
 | `packages/agent-tools` | Verificador HTTP (`createKyaAuth`), assinatura de requisições, cache de replay, modo offline. |
 | `packages/mcp`, `packages/study-kit`, `apps/worker`, `infra` | Servidor MCP, kit do estudo H3, emissor hospedado, infraestrutura. |
-| `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`, `representative.als` (D-43); geradores; `results-2026-11.txt` (saída literal). |
-| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (23), representante (140, de `representative.als`). Os testes das bibliotecas os replicam. |
+| `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`, `representative.als` (D-43), `timestamp.als` (D-45); geradores; `results-2026-11.txt` (saída literal). |
+| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (23), representante (140, de `representative.als`), carimbo do tempo (120, de `timestamp.als`). Os testes das bibliotecas os replicam. |
 | `research/freshness-sim` | Scripts de medição (`fetch_*.py`), fatores (`fetch_factors.py`), simulações (semente fixa) e `data/`. |
 | `research/paper/figuras.py` | Cópia pública do gerador de figuras do kya-paper, sincronizada em 7 nov. 2026 (corte teste-2026-11). A cada corte, copiar de novo de `kya-paper/scripts/figuras.py`. |
 
@@ -30,6 +30,9 @@ pesquisa que a acompanha.
 - **ICP-Brasil depois da Resolução 211/2024** (SPEC seção 22): selo eletrônico (SE-S, SE-H) é recusado como
   assinatura; mandato de empresa assinado só pelo e-CPF do representante só é aceito contra a lista de
   representantes de quem verifica, e sem lista é recusado. Não afrouxar nenhum dos dois.
+- **Carimbo do tempo** (SPEC seção 23): a biblioteca confere o carimbo e devolve a hora atestada; confiar numa
+  autoridade e exigir carimbo são de quem verifica, sem padrão. A biblioteca monta o pedido e não fala com a
+  autoridade. Carimbo apresentado que não confere é recusado, exigido ou não.
 - **Privacidade da coassinatura**: a credencial guarda hash do certificado do e-CPF, nunca o CPF.
 - `verifyDelegationChain` também recusa elo expirado, emitido no futuro ou que vive mais que o de cima; o modelo
   não tem tempo nos elos, e o README diz isso.

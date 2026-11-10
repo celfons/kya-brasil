@@ -11,7 +11,7 @@ import { type ActionQuery, type Mandate, KyaError, checkAction, checkDelegatedAc
 import { type Credential, type KyaClient, createKyaClient, verifyCredentialOffline } from "@kya-brasil/agent-tools";
 
 export const SERVER_NAME = "KYA Brasil";
-export const SERVER_VERSION = "0.1.0";
+export const SERVER_VERSION = "0.1.1";
 export const DEFAULT_ISSUER = "https://kya-br-agents.marcelfons.workers.dev";
 
 export interface KyaMcpOptions {

@@ -10,7 +10,7 @@
  * public key the caller lists (`issuerKeys`), so the credential's own fields (id, expiry, status) are not the
  * agent's word. Nothing here fetches: trust anchors, clock and certificate status are the caller's.
  */
-import { type Credential as CoreCredential, verifyCompanyWill, isPersonPrincipal, type FreshnessPolicy, type FreshnessPolicyInput, type PrincipalProof, type StatusEvidence, SELF_ISSUER, effectiveStatus, freshnessPolicy, verifyCredentialSignature, verifyPrincipalProof, verifySelfIssuedCredential } from "@kya-brasil/core";
+import { type Credential as CoreCredential, verifyCompanyWill, isPersonPrincipal, type FreshnessPolicy, type FreshnessPolicyInput, type PrincipalProof, type StatusEvidence, type TimestampPolicy, SELF_ISSUER, timestampPolicy, effectiveStatus, freshnessPolicy, verifyCredentialSignature, verifyPrincipalProof, verifySelfIssuedCredential } from "@kya-brasil/core";
 import type { Credential } from "./index.js";
 import { fromBase64Url, toBase64Url } from "./base64url.js";
 
@@ -19,6 +19,12 @@ export interface CertificateStatusQuery {
   credential: Credential;
   /** Serial number, issuing AC certificate (base64 DER, null when the CMS does not carry it) and CRL URLs of the signing certificate. */
   revocation: { serial_number: string; issuer_certificate: string | null; crl_urls: string[] };
+  /**
+   * With `offline.timestamp`: the time a time-stamping authority attests the principal's signature already existed,
+   * or null when no token was presented. Compare a revocation with this time (revocationEffect), not with the
+   * credential's own `signed_at`, which the signer chose. Absent without `offline.timestamp`.
+   */
+  attested_at?: string | null;
 }
 
 export interface KyaOfflineOptions {
@@ -55,6 +61,12 @@ export interface KyaOfflineOptions {
    * enough, as before. A refusal answers 403 KYA_COMPANY_WILL_REQUIRED with the core's code and detail.
    */
   companyWill?: { representatives?: (cnpj: string) => Promise<string[]> | string[]; acceptCertificateResponsible?: boolean; minCosigners?: number };
+  /**
+   * Time-stamp on the principal's signature (SPEC section 23). Off unless given, and with no default: `anchors` are
+   * the roots of the time-stamping authorities this verifier trusts, `required` says whether a credential without
+   * a valid token is refused. A token that is presented and does not verify is refused either way.
+   */
+  timestamp?: TimestampPolicy;
 }
 
 export interface ResolvedOffline {
@@ -65,6 +77,7 @@ export interface ResolvedOffline {
   issuerKeys: Record<string, JsonWebKey>;
   issuerFallback: boolean;
   companyWill: KyaOfflineOptions["companyWill"] | null;
+  timestamp: TimestampPolicy | null;
 }
 
 /** Validates the offline options; throws on anything missing (no defaults for risk parameters). */
@@ -86,7 +99,7 @@ export function resolveOffline(o: KyaOfflineOptions): ResolvedOffline {
     if (cw.representatives === undefined && cw.acceptCertificateResponsible !== true) no("companyWill needs representatives(cnpj), acceptCertificateResponsible: true, or both");
     if (cw.minCosigners !== undefined && (!Number.isInteger(cw.minCosigners) || cw.minCosigners < 1)) no("companyWill.minCosigners must be an integer >= 1");
   }
-  return { anchors: [...o.anchors], now: o.now, certificateStatus: o.certificateStatus, policy: o.freshness === undefined ? null : freshnessPolicy(o.freshness), issuerKeys: { ...(o.issuerKeys ?? {}) }, issuerFallback: o.issuerFallback ?? false, companyWill: o.companyWill ?? null };
+  return { anchors: [...o.anchors], now: o.now, certificateStatus: o.certificateStatus, policy: o.freshness === undefined ? null : freshnessPolicy(o.freshness), issuerKeys: { ...(o.issuerKeys ?? {}) }, issuerFallback: o.issuerFallback ?? false, companyWill: o.companyWill ?? null, timestamp: o.timestamp === undefined ? null : timestampPolicy(o.timestamp) };
 }
 
 /** KYA-Credential-Document value: base64url (no padding) of the credential's JSON. */
@@ -106,24 +119,26 @@ export function decodeCredentialHeader(value: string): Credential {
   return parsed as Credential;
 }
 
-export type OfflineCredentialResult = { ok: true; revocation: CertificateStatusQuery["revocation"] } | { ok: false; status: 401 | 403; error: string; message: string };
+export type OfflineCredentialResult = { ok: true; revocation: CertificateStatusQuery["revocation"]; attested_at?: string | null } | { ok: false; status: 401 | 403; error: string; message: string };
 
 /** Checks the presented credential and proof, without the issuer and without the certificate's status. */
 export async function verifyPresentedCredential(o: ResolvedOffline, credential: Credential, proof: PrincipalProof, now: Date): Promise<OfflineCredentialResult> {
   const c = credential as unknown as CoreCredential;
   const failed = (checks: { rule: string; ok: boolean; detail: string }[]) => checks.filter((x) => !x.ok);
   const describe = (checks: { rule: string; ok: boolean; detail: string }[]) => failed(checks).map((x) => `${x.rule}: ${x.detail}`).join("; ");
+  const stamp = o.timestamp ? { timestamp: o.timestamp } : {};
+  const attested = (r: { timestamp?: { attested_at: string } | null }) => (o.timestamp ? { attested_at: r.timestamp?.attested_at ?? null } : {});
   if (c.issuer === SELF_ISSUER) {
     // D-43: a company credential signed by a representative verifies only against the verifier's list; without
     // companyWill.representatives it is refused here, never accepted on the e-CPF alone.
-    const r = await verifySelfIssuedCredential({ credential: c, proof, anchors: o.anchors, now, ...(o.companyWill?.representatives ? { representatives: o.companyWill.representatives } : {}) });
+    const r = await verifySelfIssuedCredential({ credential: c, proof, anchors: o.anchors, now, ...(o.companyWill?.representatives ? { representatives: o.companyWill.representatives } : {}), ...stamp });
     if (r.ok && r.revocation) {
       // Section 21: the company's will, when the verifier requires a representative's co-signature.
       if (o.companyWill && c.principal && !isPersonPrincipal(c.principal)) {
         const will = await verifyCompanyWill({ credential: c, proof }, { anchors: o.anchors, now, ...o.companyWill });
         if (!will.ok) return { ok: false, status: 403, error: "KYA_COMPANY_WILL_REQUIRED", message: `${will.code}: ${will.detail}` };
       }
-      return { ok: true, revocation: r.revocation };
+      return { ok: true, revocation: r.revocation, ...attested(r) };
     }
     const bad = failed(r.checks);
     // Only the validity window failed: a sound credential that is not (or no longer) in force.
@@ -134,13 +149,13 @@ export async function verifyPresentedCredential(o: ResolvedOffline, credential: 
   if (!key) return { ok: false, status: 401, error: "KYA_ISSUER_NOT_TRUSTED", message: `credentials from issuer ${String(c.issuer)} are not accepted offline (list its key in issuerKeys)` };
   const att = await verifyCredentialSignature(c, key);
   if (!att.valid) return { ok: false, status: 401, error: "KYA_CREDENTIAL_SIGNATURE_INVALID", message: `issuer attestation: ${att.reason ?? "does not verify"}` };
-  const r = await verifyPrincipalProof({ credential: c, proof, anchors: o.anchors, now });
+  const r = await verifyPrincipalProof({ credential: c, proof, anchors: o.anchors, now, ...stamp });
   if (!r.ok || !r.revocation) return { ok: false, status: 401, error: "KYA_PRINCIPAL_PROOF_INVALID", message: describe(r.checks) || "proof does not verify" };
   const issued = Date.parse(c.issued_at);
   const status = effectiveStatus(c, now);
   if (!Number.isFinite(issued) || issued > now.getTime()) return { ok: false, status: 403, error: "KYA_CREDENTIAL_NOT_ACTIVE", message: `not yet valid (issued ${c.issued_at})` };
   if (status !== "active") return { ok: false, status: 403, error: "KYA_CREDENTIAL_NOT_ACTIVE", message: `credential is ${status}` };
-  return { ok: true, revocation: r.revocation };
+  return { ok: true, revocation: r.revocation, ...attested(r) };
 }
 
 export type CertificateStatusResult = { ok: true; evidence: StatusEvidence[] } | { ok: false; status: 403 | 502; error: string; message: string };

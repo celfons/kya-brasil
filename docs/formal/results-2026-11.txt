@@ -90,3 +90,20 @@
 14. run   RepLentECpf              0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
 # python3 -I docs/formal/generate-representative.py -> 140 vectors -> docs/vectors/representative-v1.json
 
+
+## timestamp.als (added 10 Nov 2026; Alloy 6.2.0, SAT4J)
+# Command: java -jar alloy.jar exec -f -o out-timestamp timestamp.als
+00. check DeclaredTimeSound        0    1/1     SAT
+01. check AttestedTimeSound        0       UNSAT
+02. check AttestedNeedsHonestAuthority     0    1/1     SAT
+03. check AttestedExcludesThief     0    1/1     SAT
+04. check NoStampNotKept           0       UNSAT
+05. run   HolderKept               0    1/1     SAT
+06. run   StampNeverRevoked        0    1/1     SAT
+07. run   StampBeforeRevocation     0    1/1     SAT
+08. run   StampAtRevocation        0    1/1     SAT
+09. run   BackdatedAfterRevocation     0    1/1     SAT
+10. run   NoStampDeclaredBefore     0    1/1     SAT
+11. run   ThiefInsideWindow        0    1/1     SAT
+# With -r 20 -t xml the six vector commands (06 to 11) list 20 instances each.
+# python3 -I docs/formal/generate-timestamp.py -> 120 vectors -> docs/vectors/timestamp-v1.json

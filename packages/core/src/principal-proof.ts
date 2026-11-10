@@ -16,6 +16,7 @@ import { mandateSha256 } from "./credential.js";
 import { verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
 import { normalizeCnpj } from "./cnpj.js";
 import { type Credential, KyaError, REPRESENTATIVE_METHOD, isPersonPrincipal } from "./types.js";
+import { type TimestampPolicy, type TimestampProof, checkTimestamp } from "./timestamp.js";
 
 /** What the agent presents: the exact challenge text the principal signed, and the detached CMS (base64 DER). */
 export interface PrincipalProof {
@@ -27,13 +28,18 @@ export interface PrincipalProof {
    * credential.
    */
   cosignatures?: string[];
+  /**
+   * Time-stamp token over the signature of `cms` (SPEC section 23): base64 DER of the RFC 3161 TimeStampToken.
+   * Optional, additive. A token inside the CMS (signature-time-stamp attribute) is read when this is absent.
+   */
+  timestamp?: string;
 }
 
 /** The verifier's source of who represents a company: the CPFs of its legal representatives (digits only or formatted). */
 export type Representatives = (cnpj: string) => Promise<string[]> | string[];
 
 export interface PrincipalProofCheck {
-  rule: "signature" | "certificate" | "agent" | "principal" | "issuer" | "mandate" | "representative";
+  rule: "signature" | "certificate" | "agent" | "principal" | "issuer" | "mandate" | "representative" | "timestamp";
   ok: boolean;
   detail: string;
 }
@@ -43,6 +49,12 @@ export interface PrincipalProofResult {
   checks: PrincipalProofCheck[];
   /** For the caller's revocation check of the signing certificate; null when the signature did not verify. */
   revocation: { serial_number: string; issuer_certificate: string | null; crl_urls: string[] } | null;
+  /**
+   * Present only when the verifier gave a timestamp policy: what the token says, or null when none was presented
+   * or it did not verify. `attested_at` is the time to compare a revocation with (revocationEffect), in place of
+   * the credential's own `signed_at`, which the signer chose.
+   */
+  timestamp?: TimestampProof | null;
 }
 
 const lineOf = (text: string, key: string): string | null => {
@@ -95,7 +107,7 @@ async function representativeCheck(cnpj: string, signerCpf: string | null, repre
  * in the text equals the hash of the credential's mandate. `anchors`, `now` and the revocation check are the
  * caller's. Never throws on a bad proof: every check is reported.
  */
-export async function verifyPrincipalProof(p: { credential: Pick<Credential, "agent" | "principal" | "authorized_by" | "mandate" | "issuer">; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives }): Promise<PrincipalProofResult> {
+export async function verifyPrincipalProof(p: { credential: Pick<Credential, "agent" | "principal" | "authorized_by" | "mandate" | "issuer">; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives; timestamp?: TimestampPolicy }): Promise<PrincipalProofResult> {
   const { credential: c, proof } = p;
   const checks: PrincipalProofCheck[] = [];
   const push = (rule: PrincipalProofCheck["rule"], ok: boolean, detail: string) => checks.push({ rule, ok, detail });
@@ -148,12 +160,15 @@ export async function verifyPrincipalProof(p: { credential: Pick<Credential, "ag
   const mandateOk = signed !== null && signed === actual && (!recorded || recorded === signed);
   push("mandate", mandateOk, signed === null ? "text carries no mandate hash (signed before D-33)" : mandateOk ? "text commits to the credential's mandate" : "text commits to another mandate than the credential's");
 
-  return { ok: checks.every((x) => x.ok), checks, revocation };
+  if (!p.timestamp) return { ok: checks.every((x) => x.ok), checks, revocation };
+  const stamp = await checkTimestamp({ cms: proof.cms, token: proof.timestamp ?? null, policy: p.timestamp, now: p.now });
+  push("timestamp", stamp.ok, stamp.detail);
+  return { ok: checks.every((x) => x.ok), checks, revocation, timestamp: stamp.proof };
 }
 
 /** Header value for a request: base64url of the JSON { text, cms }. */
 export function encodePrincipalProofHeader(proof: PrincipalProof): string {
-  return base64url.encode(new TextEncoder().encode(JSON.stringify(proof.cosignatures?.length ? { text: proof.text, cms: proof.cms, cosignatures: proof.cosignatures } : { text: proof.text, cms: proof.cms })));
+  return base64url.encode(new TextEncoder().encode(JSON.stringify({ text: proof.text, cms: proof.cms, ...(proof.cosignatures?.length ? { cosignatures: proof.cosignatures } : {}), ...(proof.timestamp ? { timestamp: proof.timestamp } : {}) })));
 }
 
 /** Parses the header value; throws INVALID_INPUT when it is not a proof. */
@@ -166,7 +181,9 @@ export function decodePrincipalProofHeader(value: string): PrincipalProof {
   }
   const o = parsed as Record<string, unknown> | null;
   if (!o || typeof o.text !== "string" || typeof o.cms !== "string") throw new KyaError("INVALID_INPUT", "KYA-Principal-Proof must carry text and cms");
-  if (o.cosignatures === undefined) return { text: o.text, cms: o.cms };
+  if (o.timestamp !== undefined && typeof o.timestamp !== "string") throw new KyaError("INVALID_INPUT", "KYA-Principal-Proof timestamp must be a base64 time-stamp token");
+  const stamp = typeof o.timestamp === "string" ? { timestamp: o.timestamp } : {};
+  if (o.cosignatures === undefined) return { text: o.text, cms: o.cms, ...stamp };
   if (!Array.isArray(o.cosignatures) || !o.cosignatures.every((c) => typeof c === "string")) throw new KyaError("INVALID_INPUT", "KYA-Principal-Proof cosignatures must be a list of base64 CMS");
-  return { text: o.text, cms: o.cms, cosignatures: o.cosignatures as string[] };
+  return { text: o.text, cms: o.cms, cosignatures: o.cosignatures as string[], ...stamp };
 }

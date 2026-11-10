@@ -110,4 +110,20 @@ describe("offline verification with companyWill (section 21)", () => {
     const { anchors } = await k();
     expect(() => createKyaAuth({ baseUrl: "https://kya.test", offline: { anchors, now: () => NOW, certificateStatus: async () => [], companyWill: {} } })).toThrow(/representatives/);
   });
+
+  it("time-stamp policy (section 23): no default, and a required token that is absent refuses the credential", async () => {
+    const { anchors, plain } = await k();
+    const offline = { anchors, now: () => NOW, certificateStatus: async () => [] };
+    expect(() => createKyaAuth({ baseUrl: "https://kya.test", offline: { ...offline, timestamp: { anchors } as never } })).toThrow(/no default/);
+    const seen: (string | null | undefined)[] = [];
+    const status: KyaOfflineOptions["certificateStatus"] = async (q) => (seen.push(q.attested_at), []);
+    const must = createKyaAuth({ baseUrl: "https://kya.test", fetch: globalThis.fetch, offline: { ...offline, certificateStatus: status, timestamp: { anchors, required: true } } });
+    const refused = await must.authenticate(await request(plain));
+    expect(refused).toMatchObject({ ok: false, status: 401, error: "KYA_PRINCIPAL_PROOF_INVALID" });
+    expect(JSON.stringify(refused)).toContain("timestamp");
+    // Not required and absent: the status callback is told that no time is attested.
+    const may = createKyaAuth({ baseUrl: "https://kya.test", fetch: globalThis.fetch, offline: { ...offline, certificateStatus: status, timestamp: { anchors, required: false } } });
+    await may.authenticate(await request(plain));
+    expect(seen).toEqual([null]);
+  });
 });

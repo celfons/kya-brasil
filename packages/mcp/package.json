@@ -1,6 +1,6 @@
 {
   "name": "@kya-brasil/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "KYA Brasil as a local MCP server (stdio): verify that an AI agent acts for a Brazilian company (e-CNPJ) or person (e-CPF), check an action against its mandate, verify credentials and sub-agent delegation chains offline. No key needed for the free and offline tools; paid checks with a wallet key (x402, USDC on Base).",
   "license": "MIT",
   "type": "module",
