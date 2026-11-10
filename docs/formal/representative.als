@@ -90,3 +90,25 @@ check SealAsSignatureIsCompanyWill for 5
 
 -- Sanity: the rule accepts something, and that something is the company's will.
 run RepresentativeAccepts { listIsAccurate and eCpfHeldByOwner and some a: Attempt | accepted[a] and companyWillOf[a.m] } for 5
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Vector commands: one attempt each. generate-representative.py turns the instances into
+ * docs/vectors/representative-v1.json, and the library replays them (packages/core/src/cosign.test.ts).
+ *
+ *   java -jar org.alloytools.alloy.dist.jar exec -f -r 20 -t xml -o out-representative representative.als
+ *   python3 -I docs/formal/generate-representative.py
+ * ---------------------------------------------------------------------------------------------------------- */
+
+-- Accepted, and it is the company's will: listed e-CPF, same text, both assumptions hold.
+run RepListedSameText { listIsAccurate and eCpfHeldByOwner and all a: Attempt | accepted[a] } for 3 but exactly 1 Attempt, exactly 1 Mandate
+-- Refused: the signer's CPF is not in the verifier's list.
+run RepNotListed { all a: Attempt | some a.hasList and a.m.signer in ECpf and a.m.signedText = a.m.challenge and a.m.signer.owner not in a.m.firm.listed } for 3 but exactly 1 Attempt, exactly 1 Mandate
+-- Refused: a listed representative's signature over another text.
+run RepOtherText { all a: Attempt | some a.hasList and a.m.signer in ECpf and a.m.signedText != a.m.challenge and a.m.signer.owner in a.m.firm.listed } for 3 but exactly 1 Attempt, exactly 1 Mandate
+-- Refused: the verifier has no list, whoever signed.
+run RepNoList { all a: Attempt | no a.hasList and a.m.signer in ECpf and a.m.signedText = a.m.challenge } for 3 but exactly 1 Attempt, exactly 1 Mandate
+-- Refused: the company's own seal over the same text, with a list.
+run RepSeal { all a: Attempt | some a.hasList and a.m.signer in Seal and a.m.signer.of = a.m.firm and a.m.signedText = a.m.challenge } for 3 but exactly 1 Attempt, exactly 1 Mandate
+-- Accepted although it is not the company's will: the two assumptions the library cannot check.
+run RepStaleList { eCpfHeldByOwner and all a: Attempt | accepted[a] and a.m.signer.operator not in a.m.firm.realReps } for 3 but exactly 1 Attempt, exactly 1 Mandate
+run RepLentECpf { listIsAccurate and all a: Attempt | accepted[a] and a.m.signer.operator.cpf != a.m.signer.owner } for 3 but exactly 1 Attempt, exactly 1 Mandate

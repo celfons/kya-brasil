@@ -78,3 +78,15 @@
 06. check SealAsSignatureIsCompanyWill     0    1/1     SAT
 07. run   RepresentativeAccepts     0    1/1     SAT
 
+## representative.als, vector commands (added 10 Nov 2026; Alloy 6.2.0, SAT4J)
+# Command: java -jar alloy.jar exec -f -r 20 -t xml -o out-representative representative.als
+# The eight commands above give the same verdicts in this run (with -r 20 the SAT ones list 20 instances).
+08. run   RepListedSameText        0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+09. run   RepNotListed             0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+10. run   RepOtherText             0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+11. run   RepNoList                0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+12. run   RepSeal                  0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+13. run   RepStaleList             0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+14. run   RepLentECpf              0    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20/20    SAT
+# python3 -I docs/formal/generate-representative.py -> 140 vectors -> docs/vectors/representative-v1.json
+

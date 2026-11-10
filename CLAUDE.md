@@ -14,7 +14,7 @@ pesquisa que a acompanha.
 | `packages/agent-tools` | Verificador HTTP (`createKyaAuth`), assinatura de requisições, cache de replay, modo offline. |
 | `packages/mcp`, `packages/study-kit`, `apps/worker`, `infra` | Servidor MCP, kit do estudo H3, emissor hospedado, infraestrutura. |
 | `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`, `representative.als` (D-43); geradores; `results-2026-11.txt` (saída literal). |
-| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (23). Os testes das bibliotecas os replicam. |
+| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (23), representante (140, de `representative.als`). Os testes das bibliotecas os replicam. |
 | `research/freshness-sim` | Scripts de medição (`fetch_*.py`), fatores (`fetch_factors.py`), simulações (semente fixa) e `data/`. |
 | `research/paper/figuras.py` | Cópia pública do gerador de figuras do kya-paper, sincronizada em 7 nov. 2026 (corte teste-2026-11). A cada corte, copiar de novo de `kya-paper/scripts/figuras.py`. |
 
