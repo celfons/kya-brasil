@@ -97,6 +97,19 @@ async function registerPerson(env: AppEnv, origin: string, agent: AgentKey, body
   };
 }
 
+/**
+ * D-46: this issuer issues a company credential only on the company's own certificate. A legal representative's
+ * e-CPF says who signed, not whom that person represents, and the issuer has no list of each company's
+ * representatives: issuing on it would hand any company's credential to anyone with an e-CPF. The mandate signed by
+ * a representative is issued by the principal itself and checked by each verifier against its own list (SPEC 22).
+ */
+function notByRepresentative(e: unknown): never {
+  if (e instanceof KyaError && e.code === "CERTIFICATE_INVALID" && e.message.includes("natural person")) {
+    throw new KyaError("CERTIFICATE_INVALID", "this issuer issues a company credential only on the company's e-CNPJ: a representative's e-CPF does not say whom the signer represents, and the issuer has no list of the company's representatives. A mandate signed by a legal representative is issued by the principal itself (buildMandate with signed_by: \"representative\") and verified against each verifier's own list (SPEC section 22)");
+  }
+  throw e;
+}
+
 /** The company name in an e-CNPJ subject ("CN=ACME LTDA:11222333000181, ..."), used when the registration is unknown. */
 const certificateName = (subject: string) => /CN=([^:,]+)/.exec(subject)?.[1]?.trim() ?? "";
 
@@ -119,7 +132,7 @@ async function issueFor(env: AppEnv, origin: string, row: AgentRow, proof: { cha
     return issued;
   }
   const anchors = await icpAnchors(env);
-  const icp = await verifyIcpSignature({ cmsBase64: proof.ecnpj_signature, challenge: ch.text, expectedCnpj: row.cnpj, anchors });
+  const icp = await verifyIcpSignature({ cmsBase64: proof.ecnpj_signature, challenge: ch.text, expectedCnpj: row.cnpj, anchors }).catch(notByRepresentative);
   // D-16: a revoked e-CNPJ authorizes nothing; without a trustworthy CRL nothing is issued (fail closed, like D-08).
   const revocation = await certificateRevocation(env, icp);
   if (revocation.revoked) throw new KyaError("CERTIFICATE_REVOKED", `the e-CNPJ certificate was revoked by its AC on ${revocation.revoked_at}${revocation.reason ? ` (${revocation.reason})` : ""}`);

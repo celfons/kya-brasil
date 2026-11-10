@@ -29,7 +29,8 @@ pesquisa que a acompanha.
   recusa com `KyaError` e código nomeado. Nunca aceitar por omissão.
 - **ICP-Brasil depois da Resolução 211/2024** (SPEC seção 22): selo eletrônico (SE-S, SE-H) é recusado como
   assinatura; mandato de empresa assinado só pelo e-CPF do representante só é aceito contra a lista de
-  representantes de quem verifica, e sem lista é recusado. Não afrouxar nenhum dos dois.
+  representantes de quem verifica, e sem lista é recusado. Não afrouxar nenhum dos dois. O emissor hospedado não
+  emite essa forma (D-46): não tem lista de representantes, e recusa o e-CPF num desafio de empresa dizendo por quê.
 - **Carimbo do tempo** (SPEC seção 23): a biblioteca confere o carimbo e devolve a hora atestada; confiar numa
   autoridade e exigir carimbo são de quem verifica, sem padrão. A biblioteca monta o pedido e não fala com a
   autoridade. Carimbo apresentado que não confere é recusado, exigido ou não.

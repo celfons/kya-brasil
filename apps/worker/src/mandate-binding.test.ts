@@ -53,7 +53,7 @@ async function pki() {
   const san = sanWithCnpj(CNPJ);
   const leaf = await x509.X509CertificateGenerator.create({ serialNumber: "02", subject: `CN=ACME LTDA:${CNPJ}, O=ICP-Brasil, C=BR`, issuer: ca.subject, notBefore: new Date(Date.now() - 86400_000), notAfter: new Date(Date.now() + 365 * 86400_000), signingAlgorithm: alg, publicKey: leafKeys.publicKey, signingKey: caKeys.privateKey, extensions: [san, new x509.CRLDistributionPointsExtension([CRL_URL]), new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.nonRepudiation, true)] });
   const crl = await x509.X509CrlGenerator.create({ issuer: ca.subject, thisUpdate: new Date(Date.now() - 3600_000), nextUpdate: new Date(Date.now() + 86400_000), signingAlgorithm: alg, signingKey: caKeys.privateKey, entries: [] });
-  return { ca, leaf, leafKeys, crl: crl.rawData };
+  return { ca, caKeys, leaf, leafKeys, crl: crl.rawData };
 }
 
 async function ecnpjSign(p: Awaited<ReturnType<typeof pki>>, text: string): Promise<string> {
@@ -95,6 +95,22 @@ describe("the mandate issued is the one the certificate holder was shown", () =>
     // The second challenge issues `large`, which is what its link shows.
     const issued = await prove(env, ORIGIN, second.credential_id, { challenge_id: second.challenge.id, ...(await signBoth(second.challenge.text)) });
     expect(issued.credential.mandate).toEqual(large);
+  });
+
+  it("does not issue a company credential on a representative's e-CPF (D-46)", async () => {
+    // subjectAltName with the ICP-Brasil person otherName (2.16.76.1.3.1): birth date, CPF, padding.
+    const person = new TextEncoder().encode("0101199052998224725" + "0".repeat(29));
+    const value = [0x04, person.length, ...person];
+    const other = [0x06, 0x05, 0x60, 0x4c, 0x01, 0x03, 0x01, 0xa0, value.length, ...value];
+    const san = new x509.Extension("2.5.29.17", false, new Uint8Array([0x30, other.length + 2, 0xa0, other.length, ...other]));
+    const keys = (await crypto.subtle.generateKey(alg, true, ["sign", "verify"])) as CryptoKeyPair;
+    const ecpf = await x509.X509CertificateGenerator.create({ serialNumber: "03", subject: "CN=FULANO DE TAL:52998224725, O=ICP-Brasil, C=BR", issuer: p.ca.subject, notBefore: new Date(Date.now() - 86400_000), notAfter: new Date(Date.now() + 365 * 86400_000), signingAlgorithm: alg, publicKey: keys.publicKey, signingKey: p.caKeys.privateKey, extensions: [san] });
+    const r = await register(env, ORIGIN, { agent: { kind: "evm", id: AGENT.address }, cnpj: CNPJ, mandate: small });
+    const sign = async (data: Uint8Array) => new Uint8Array(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", keys.privateKey, data as BufferSource));
+    const byRepresentative = await buildDetachedCms({ text: r.challenge.text, certificates: [new Uint8Array(ecpf.rawData), new Uint8Array(p.ca.rawData)], sign });
+    const attempt = prove(env, ORIGIN, r.credential_id, { challenge_id: r.challenge.id, agent_signature: await AGENT.signMessage({ message: r.challenge.text }), ecnpj_signature: byRepresentative });
+    await expect(attempt).rejects.toMatchObject({ code: "CERTIFICATE_INVALID" });
+    await expect(attempt).rejects.toThrow(/no list of the company's representatives/);
   });
 
   it("issues the challenge's mandate even if the pending row changed underneath", async () => {

@@ -691,6 +691,11 @@ representative and the co-signatures of section 21 as the next ones (`minCosigne
 `createKyaAuth` passes `offline.companyWill.representatives` to this check; without it a representative's
 credential is refused.
 
+**The hosted issuer** (D-46) does not issue this form. It has no list of each company's representatives, and a
+verifier that trusts its attestation never sees the proof, so issuing on the e-CPF alone would give any company's
+credential to anyone with an e-CPF. It refuses a representative's e-CPF on a company challenge and says why. The
+form exists only as issuance by the principal (section 20), where each verifier checks its own list.
+
 **What it rests on** (Alloy, `docs/formal/representative.als`): acceptance implies the company's will when the list
 is accurate and each e-CPF is operated by its owner (`RepresentativeSound`); a stale list, a lent e-CPF and a
 verifier that does not compare the signed text break it (expected counterexamples). With no e-CNPJ there is no
