@@ -121,11 +121,13 @@ a lent e-CPF, which it must accept), replayed by `packages/core/src/adversarial-
 a fake issuer.
 
 What the model cannot produce, the certificate itself, is covered by `docs/vectors/adversarial-certificate.json`
-and `packages/core/src/adversarial-certificate.test.ts`: twenty constructions on a test PKI generated at run time
+and `packages/core/src/adversarial-certificate.test.ts`: twenty-three constructions on a test PKI generated at run time
 (impostor CRL under the AC's name, CRL from another AC, stale CRL, flipped byte in a listed serial or in the
 signature, truncated CRL, random bytes, RSA-PSS as an algorithm outside the verifier's set; e-CNPJ under an
 unknown root, expired or not yet valid, e-CPF instead of e-CNPJ, CNPJ mismatch, wrong text, no anchors, random
-bytes), each with the error code the library must return. All twenty pass.
+bytes; and, since Resolução CG ICP-Brasil 211/2024, an e-CNPJ naming the A3 policy, accepted, and an electronic seal
+in software and in hardware, the second with the CNPJ only in the DN, both refused), each with the error code the
+library must return. All twenty-three pass.
 
 ## What the model leaves out
 
@@ -184,3 +186,30 @@ remove acceptances and are left out of the model. The co-signature is a design b
 model fixes its acceptance rule (same text, listed CPF) and shows its two trust assumptions. In the product the
 freshness policy is applied by `check()` / `allowed()` (`checkFreshAction`), not by `authenticate`, which takes the
 CRL the caller's `certificateStatus` returns; "accepts" in the model is the action decision.
+
+## Company mandate signed by a representative (D-43)
+
+`representative.als` is a separate module, with its own signatures, so that `threats.als` and the vectors generated
+from it stay as they are. It models the form a company mandate takes once the company has no signature certificate
+(Resolução CG ICP-Brasil 211/2024, from 3 March 2029; SPEC section 22): one CMS by a natural person's e-CPF, accepted
+only when the verifier has a list of representatives and the signer's CPF is in it.
+
+```
+java -jar org.alloytools.alloy.dist.jar exec -f -o out-representative docs/formal/representative.als
+```
+
+| Command | Result | Reading |
+|---|---|---|
+| `check RepresentativeSound` | UNSAT, holds | With an accurate list and e-CPFs operated by their owners, acceptance implies that a real representative agreed to this mandate. |
+| `check RepresentativeStaleList` | counterexample (expected) | Someone who left the company is still in the verifier's list. |
+| `check RepresentativeLentECpf` | counterexample (expected) | An e-CPF operated by someone else. With no e-CNPJ there is no second signature: this certificate is the only one between the company and the mandate. |
+| `check RepresentativeNeedsSameText` | counterexample (expected) | A verifier that does not compare the signed text with the challenge accepts a signature of another text. |
+| `check NoListNoAcceptance` | UNSAT, by construction | With no list nothing is accepted: a consistency check of the rule, not a theorem. |
+| `check SealNeverAccepted` | UNSAT, by construction | A mandate signed with the company's seal is never accepted. |
+| `check SealAsSignatureIsCompanyWill` | counterexample (expected) | A verifier that took the seal for a signature would accept whoever holds it: the flaw `IssuanceImpliesCompanyWill` found for the e-CNPJ. |
+| `run RepresentativeAccepts` | SAT | Sanity check: the rule accepts something, and it is the company's will. |
+
+The library's counterpart is `packages/core/src/cosign.test.ts` (issuance, refusal with no list, list that
+does not name the signer or fails, method swapped after signing, counting with co-signatures) and three constructions
+of the certificate catalogue. No vectors are generated from this module yet.
+

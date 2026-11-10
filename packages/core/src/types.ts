@@ -86,6 +86,14 @@ export interface CompanyPrincipal { kind?: "company"; cnpj: string; cnpj_formatt
 export interface PersonPrincipal { kind: "person"; verified_by: "icp-brasil-e-cpf" }
 export const isPersonPrincipal = (p: CompanyPrincipal | PersonPrincipal): p is PersonPrincipal => (p as PersonPrincipal).kind === "person";
 
+/**
+ * `authorized_by.method` of a company credential signed by a legal representative's e-CPF alone, with no e-CNPJ
+ * (SPEC section 22, D-43). From 3 March 2029 a legal person has no signature certificate (Resolução CG ICP-Brasil
+ * 211/2024), so this is how a company states its will. The certificate does not say whom the person represents:
+ * the verifier's list of representatives does, and verification refuses without it.
+ */
+export const REPRESENTATIVE_METHOD = "icp-brasil-e-cpf-representative" as const;
+
 /** The credential: "this agent key acts for this company, within this mandate, verified on this date". */
 export interface Credential {
   credential_id: string;
@@ -98,7 +106,7 @@ export interface Credential {
    * persons. `mandate_sha256` (D-33) is the mandate's SHA-256 that the signed challenge carried: when it equals
    * mandateSha256(mandate), the certificate signature covers these powers (see verifyMandateAuthorization).
    */
-  authorized_by: { method: "icp-brasil-e-cnpj" | "icp-brasil-e-cpf"; certificate_sha256: string; certificate_subject?: string; issuer: string; signed_at: string; mandate_sha256?: string };
+  authorized_by: { method: "icp-brasil-e-cnpj" | "icp-brasil-e-cpf" | typeof REPRESENTATIVE_METHOD; certificate_sha256: string; certificate_subject?: string; issuer: string; signed_at: string; mandate_sha256?: string };
   mandate: Mandate;
   /** Informative since D-15: the issuance decision uses only principal.registration_status and the certificate's revocation status. Always null from the reference issuer since D-23 (no KYB dependency); kept in /v1. Null when the issuer has no KYB source (D-17). */
   kyb_snapshot: KybSnapshot | null;

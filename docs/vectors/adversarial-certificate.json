@@ -168,6 +168,32 @@
     "error": "CHALLENGE_FAILED",
     "message": "not a CMS SignedData"
    }
+  },
+  {
+   "id": "cms-a3-policy",
+   "kind": "cms",
+   "construction": "e-CNPJ whose certificate names the A3 signature policy (2.16.76.1.2.3.n): a signature certificate, accepted",
+   "expect": {
+    "cnpj": "11222333000181"
+   }
+  },
+  {
+   "id": "cms-seal-software",
+   "kind": "cms",
+   "construction": "electronic seal in software (SE-S, policy 2.16.76.1.2.201.n) with the company's CNPJ signs the challenge: a seal may not express the company's will (Resolução CG ICP-Brasil 211/2024, art. 4)",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "electronic seal"
+   }
+  },
+  {
+   "id": "cms-seal-hardware-dn-serial",
+   "kind": "cms",
+   "construction": "electronic seal in hardware (SE-H, policy 2.16.76.1.2.202.n) with the CNPJ only in the DN serialNumber, the profile after 2028",
+   "expect": {
+    "error": "CERTIFICATE_INVALID",
+    "message": "electronic seal"
+   }
   }
  ]
 }

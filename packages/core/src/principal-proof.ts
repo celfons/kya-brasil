@@ -14,7 +14,8 @@
 import { base64url, mandateSha256OfChallenge } from "./challenge.js";
 import { mandateSha256 } from "./credential.js";
 import { verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
-import { type Credential, KyaError, isPersonPrincipal } from "./types.js";
+import { normalizeCnpj } from "./cnpj.js";
+import { type Credential, KyaError, REPRESENTATIVE_METHOD, isPersonPrincipal } from "./types.js";
 
 /** What the agent presents: the exact challenge text the principal signed, and the detached CMS (base64 DER). */
 export interface PrincipalProof {
@@ -28,8 +29,11 @@ export interface PrincipalProof {
   cosignatures?: string[];
 }
 
+/** The verifier's source of who represents a company: the CPFs of its legal representatives (digits only or formatted). */
+export type Representatives = (cnpj: string) => Promise<string[]> | string[];
+
 export interface PrincipalProofCheck {
-  rule: "signature" | "certificate" | "agent" | "principal" | "issuer" | "mandate";
+  rule: "signature" | "certificate" | "agent" | "principal" | "issuer" | "mandate" | "representative";
   ok: boolean;
   detail: string;
 }
@@ -46,6 +50,44 @@ const lineOf = (text: string, key: string): string | null => {
   return lines.length === 1 ? lines[0]!.slice(key.length + 2) : null;
 };
 
+interface Signer {
+  certificate_sha256: string | null;
+  /** The signer's CPF when an e-CPF signed: compared by the caller and dropped, never returned nor stored. */
+  cpf: string | null;
+  revocation: PrincipalProofResult["revocation"];
+  error: string | null;
+}
+
+/** Verifies the CMS over the text with the kind of certificate the credential calls for. Never throws. */
+async function signerOf(c: Pick<Credential, "principal">, proof: PrincipalProof, anchors: string[], now: Date, byPerson: boolean): Promise<Signer> {
+  try {
+    const icp = byPerson
+      ? await verifyIcpPersonSignature({ cmsBase64: proof.cms, challenge: proof.text, anchors, now })
+      : await verifyIcpSignature({ cmsBase64: proof.cms, challenge: proof.text, expectedCnpj: (c.principal as { cnpj: string }).cnpj, anchors, now });
+    const revocation = { serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls };
+    return { certificate_sha256: icp.certificate_sha256, cpf: "cpf" in icp ? icp.cpf : null, revocation, error: null };
+  } catch (e) {
+    return { certificate_sha256: null, cpf: null, revocation: null, error: e instanceof KyaError ? e.message : `signature does not verify: ${(e as Error).message}` };
+  }
+}
+
+/**
+ * D-43: the e-CPF says who signed, not whom that person represents. Only the verifier's own list can say that the
+ * signer may bind this company: with no list, a representative's credential is refused, never accepted on trust.
+ */
+async function representativeCheck(cnpj: string, signerCpf: string | null, representatives: Representatives | undefined): Promise<{ ok: boolean; detail: string }> {
+  if (typeof representatives !== "function") {
+    return { ok: false, detail: "a company credential signed by a legal representative needs the verifier's list of representatives (representatives(cnpj)); none was given" };
+  }
+  if (signerCpf === null) return { ok: false, detail: "the signer could not be identified" };
+  try {
+    const listed = (await representatives(cnpj)).map((x) => String(x).replace(/\D/g, "")).includes(signerCpf);
+    return { ok: listed, detail: listed ? `the signer is a legal representative of CNPJ ${cnpj} in the verifier's list` : `the signer is not a legal representative of CNPJ ${cnpj} in the verifier's list` };
+  } catch (e) {
+    return { ok: false, detail: `the list of representatives is unavailable: ${(e as Error).message}` };
+  }
+}
+
 /**
  * Checks, against the credential and without the issuer, that the principal's own signature authorizes this
  * agent with this mandate: the CMS verifies over the text up to the ICP-Brasil anchors; the certificate is the
@@ -53,7 +95,7 @@ const lineOf = (text: string, key: string): string | null => {
  * in the text equals the hash of the credential's mandate. `anchors`, `now` and the revocation check are the
  * caller's. Never throws on a bad proof: every check is reported.
  */
-export async function verifyPrincipalProof(p: { credential: Pick<Credential, "agent" | "principal" | "authorized_by" | "mandate" | "issuer">; proof: PrincipalProof; anchors: string[]; now: Date }): Promise<PrincipalProofResult> {
+export async function verifyPrincipalProof(p: { credential: Pick<Credential, "agent" | "principal" | "authorized_by" | "mandate" | "issuer">; proof: PrincipalProof; anchors: string[]; now: Date; representatives?: Representatives }): Promise<PrincipalProofResult> {
   const { credential: c, proof } = p;
   const checks: PrincipalProofCheck[] = [];
   const push = (rule: PrincipalProofCheck["rule"], ok: boolean, detail: string) => checks.push({ rule, ok, detail });
@@ -67,17 +109,16 @@ export async function verifyPrincipalProof(p: { credential: Pick<Credential, "ag
   }
 
   const person = isPersonPrincipal(c.principal);
-  let certificateSha256: string | null = null;
-  let revocation: PrincipalProofResult["revocation"] = null;
-  try {
-    const icp = person
-      ? await verifyIcpPersonSignature({ cmsBase64: proof.cms, challenge: proof.text, anchors: p.anchors, now: p.now })
-      : await verifyIcpSignature({ cmsBase64: proof.cms, challenge: proof.text, expectedCnpj: (c.principal as { cnpj: string }).cnpj, anchors: p.anchors, now: p.now });
-    certificateSha256 = icp.certificate_sha256;
-    revocation = { serial_number: icp.serial_number, issuer_certificate: icp.issuer_certificate, crl_urls: icp.crl_urls };
-    push("signature", true, `${person ? "e-CPF" : "e-CNPJ"} signature over the text verifies up to the ICP-Brasil anchors`);
-  } catch (e) {
-    push("signature", false, e instanceof KyaError ? e.message : `signature does not verify: ${(e as Error).message}`);
+  // D-43: a company credential signed by a legal representative's e-CPF alone, with no e-CNPJ.
+  const representative = !person && c.authorized_by?.method === REPRESENTATIVE_METHOD;
+  const signer = await signerOf(c, proof, p.anchors, p.now, person || representative);
+  const certificateSha256 = signer.certificate_sha256;
+  const revocation = signer.revocation;
+  push("signature", signer.error === null, signer.error ?? `${person || representative ? "e-CPF" : "e-CNPJ"} signature over the text verifies up to the ICP-Brasil anchors`);
+
+  if (representative) {
+    const r = await representativeCheck(normalizeCnpj((c.principal as { cnpj: string }).cnpj), signer.cpf, p.representatives);
+    push("representative", r.ok, r.detail);
   }
 
   if (certificateSha256 !== null) {

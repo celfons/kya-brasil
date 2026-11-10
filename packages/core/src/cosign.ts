@@ -14,7 +14,7 @@
 import { normalizeCnpj } from "./cnpj.js";
 import { ecnpjResponsibleCpf, verifyIcpPersonSignature } from "./icp-brasil.js";
 import { type IssuedCredential, SELF_ISSUER, verifySelfIssuedCredential, withCertificates } from "./issuance.js";
-import { type Cosignature, KyaError, isPersonPrincipal } from "./types.js";
+import { type Cosignature, KyaError, REPRESENTATIVE_METHOD, isPersonPrincipal } from "./types.js";
 
 const bad = (why: string) => new KyaError("INVALID_INPUT", why);
 const validDate = (d: unknown): d is Date => d instanceof Date && !Number.isNaN(d.getTime());
@@ -102,17 +102,26 @@ export async function verifyCompanyWill(
   if (!byList && !byResponsible) throw bad("a source of legal representatives is required: representatives(cnpj), acceptCertificateResponsible, or both");
   const c = issued?.credential;
   if (!c?.principal || isPersonPrincipal(c.principal)) return refuse("COMPANY_SIGNATURE_INVALID", "not a company credential");
-  const base = await verifySelfIssuedCredential({ credential: c, proof: issued.proof, anchors: opts.anchors, now: opts.now });
+  // D-43: signed by a representative's e-CPF alone. There is no e-CNPJ to name a person responsible, so only the
+  // verifier's list counts, and the signer is already the first representative.
+  const byRepresentative = c.authorized_by?.method === REPRESENTATIVE_METHOD;
+  if (byRepresentative && !byList) return refuse("COMPANY_SIGNATURE_INVALID", "a company credential signed by a legal representative needs representatives(cnpj): there is no e-CNPJ to name a person responsible");
+  const base = await verifySelfIssuedCredential({ credential: c, proof: issued.proof, anchors: opts.anchors, now: opts.now, ...(byList ? { representatives: opts.representatives! } : {}) });
   if (!base.ok) return refuse("COMPANY_SIGNATURE_INVALID", base.checks.filter((x) => !x.ok).map((x) => `${x.rule}: ${x.detail}`).join("; "));
   const cmsList = issued.proof.cosignatures ?? [];
   const recorded = c.cosignatures ?? [];
-  if (!cmsList.length && !recorded.length) return refuse("NO_COSIGNATURE", "the credential carries no co-signature by a legal representative (e-CPF)");
+  if (!byRepresentative && !cmsList.length && !recorded.length) return refuse("NO_COSIGNATURE", "the credential carries no co-signature by a legal representative (e-CPF)");
 
   const cnpj = normalizeCnpj(c.principal.cnpj);
   const reps = new Set(byList ? (await opts.representatives!(cnpj)).map((x) => String(x).replace(/\D/g, "")) : []);
-  const responsible = byResponsible ? ecnpjResponsibleCpf(issued.proof.cms) : null;
+  const responsible = byResponsible && !byRepresentative ? ecnpjResponsibleCpf(issued.proof.cms) : null;
   const cosigners: CosignerCheck[] = [];
   const counted = new Set<string>();
+  if (byRepresentative) {
+    // The base check already found the signer in the list; the CPF is read again only to count distinct people.
+    const signer = await verifyIcpPersonSignature({ cmsBase64: issued.proof.cms, challenge: issued.proof.text, anchors: opts.anchors, now: opts.now });
+    counted.add(signer.cpf);
+  }
   const seenCerts = new Set<string>();
   for (const cms of cmsList) {
     try {
@@ -140,7 +149,7 @@ export async function verifyCompanyWill(
   // A tampered or unmatched record is a refusal on its own: nothing about the cosignatures may be inconsistent.
   const broken = cosigners.find((x) => x.code && x.code !== "COSIGNER_NOT_REPRESENTATIVE");
   if (broken) return refuse(broken.code!, broken.detail, cosigners, counted.size);
-  if (counted.size >= min) return { ok: true, detail: `${counted.size} legal representative(s) co-signed`, representatives_counted: counted.size, cosigners };
+  if (counted.size >= min) return { ok: true, detail: byRepresentative ? `${counted.size} legal representative(s) signed` : `${counted.size} legal representative(s) co-signed`, representatives_counted: counted.size, cosigners };
   if (counted.size === 0) return refuse("COSIGNER_NOT_REPRESENTATIVE", `no co-signer is a legal representative of CNPJ ${cnpj}`, cosigners, 0);
   return refuse("INSUFFICIENT_COSIGNERS", `${counted.size} of ${min} required legal representatives co-signed`, cosigners, counted.size);
 }

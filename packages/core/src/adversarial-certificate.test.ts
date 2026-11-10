@@ -12,7 +12,7 @@ import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
 import { GeneralName, GeneralNames, OtherName, id_ce_subjectAltName } from "@peculiar/asn1-x509";
 import * as pkijs from "pkijs";
 import * as asn1js from "asn1js";
-import { OID_ICP_CNPJ, OID_ICP_PERSON, verifyIcpSignature } from "./icp-brasil.js";
+import { OID_ICP_CNPJ, OID_ICP_PERSON, cnpjFromCertificate, cpfFromCertificate, icpCertificateTypes, isElectronicSeal, verifyIcpSignature } from "./icp-brasil.js";
 import { checkRevocation } from "./revocation.js";
 import { KyaError } from "./types.js";
 
@@ -43,14 +43,19 @@ function otherNameSan(oid: string, value: string) {
   return new x509.Extension(id_ce_subjectAltName, false, AsnConvert.serialize(new GeneralNames([new GeneralName({ otherName: other })])));
 }
 
-async function leaf(ca: Ac, p: { oid?: string; id?: string; notBefore?: Date; notAfter?: Date } = {}) {
+/** `policy`: an ICP-Brasil certificate policy OID; `dnSerialOnly`: the identifier only in the DN serialNumber, no otherName (the seal profile after 2028). */
+async function leaf(ca: Ac, p: { oid?: string; id?: string; notBefore?: Date; notAfter?: Date; policy?: string; dnSerialOnly?: boolean } = {}) {
   const keys = (await crypto.subtle.generateKey(RSA, true, ["sign", "verify"])) as CryptoKeyPair;
   const id = p.id ?? CNPJ;
   const cert = await x509.X509CertificateGenerator.create({
-    serialNumber: "0a1b", subject: `CN=ACME LTDA:${id}, O=ICP-Brasil, C=BR`, issuer: ca.cert.subject,
+    serialNumber: "0a1b", subject: p.dnSerialOnly ? `CN=ACME LTDA, 2.5.4.5=${id}, O=ICP-Brasil, C=BR` : `CN=ACME LTDA:${id}, O=ICP-Brasil, C=BR`, issuer: ca.cert.subject,
     notBefore: p.notBefore ?? new Date("2026-01-01"), notAfter: p.notAfter ?? new Date("2027-01-01"),
     signingAlgorithm: RSA, publicKey: keys.publicKey, signingKey: ca.keys.privateKey,
-    extensions: [otherNameSan(p.oid ?? OID_ICP_CNPJ, id), new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.nonRepudiation, true)]
+    extensions: [
+      ...(p.dnSerialOnly ? [] : [otherNameSan(p.oid ?? OID_ICP_CNPJ, id)]),
+      ...(p.policy ? [new x509.CertificatePolicyExtension([p.policy])] : []),
+      new x509.KeyUsagesExtension(x509.KeyUsageFlags.digitalSignature | x509.KeyUsageFlags.nonRepudiation, true)
+    ]
   });
   return { keys, cert };
 }
@@ -118,6 +123,9 @@ async function build(c: Case): Promise<() => Promise<unknown>> {
       case "cms-wrong-text": return verify(await cms(await leaf(a), a, CHALLENGE + " "));
       case "cms-no-anchors": return verify(await cms(await leaf(a), a, CHALLENGE), { anchors: [] });
       case "cms-garbage": return verify(b64(crypto.getRandomValues(new Uint8Array(200)).buffer));
+      case "cms-a3-policy": return verify(await cms(await leaf(a, { policy: "2.16.76.1.2.3.1" }), a, CHALLENGE));
+      case "cms-seal-software": return verify(await cms(await leaf(a, { policy: "2.16.76.1.2.201.1" }), a, CHALLENGE));
+      case "cms-seal-hardware-dn-serial": return verify(await cms(await leaf(a, { policy: "2.16.76.1.2.202.1", dnSerialOnly: true }), a, CHALLENGE));
     }
   }
   throw new Error(`no construction for ${c.id}`);
@@ -143,4 +151,33 @@ describe("adversarial vectors (H4): certificates and CRLs", () => {
       }
     });
   }
+});
+
+/** Resolução CG ICP-Brasil 211/2024: the identifier moves to the DN serialNumber, and the policy OID names the type. */
+describe("certificate profile after Resolução CG ICP-Brasil 211/2024", () => {
+  const parsed = (c: { cert: x509.X509Certificate }) => new x509.X509Certificate(c.cert.rawData);
+
+  it("reads the CNPJ from the DN serialNumber when the otherName is absent", async () => {
+    const a = await ac();
+    expect(cnpjFromCertificate(parsed(await leaf(a, { dnSerialOnly: true })))).toBe(CNPJ);
+    expect(cnpjFromCertificate(parsed(await leaf(a)))).toBe(CNPJ); // the otherName still comes first
+  });
+
+  it("reads the CPF from the DN serialNumber, and never takes it for a CNPJ", async () => {
+    const x = parsed(await leaf(await ac(), { dnSerialOnly: true, id: "12345678909" }));
+    expect(cnpjFromCertificate(x)).toBeNull();
+    expect(cpfFromCertificate(x)).toBe("12345678909");
+  });
+
+  it("tells a seal from a signature certificate by the policy OID only", async () => {
+    const a = await ac();
+    const seal = parsed(await leaf(a, { policy: "2.16.76.1.2.201.1" }));
+    const a3 = parsed(await leaf(a, { policy: "2.16.76.1.2.3.1" }));
+    expect(icpCertificateTypes(seal)).toEqual(["201"]);
+    expect(isElectronicSeal(seal)).toBe(true);
+    expect(isElectronicSeal(parsed(await leaf(a, { policy: "2.16.76.1.2.202.7" })))).toBe(true);
+    expect(icpCertificateTypes(a3)).toEqual(["3"]);
+    expect(isElectronicSeal(a3)).toBe(false);
+    expect(isElectronicSeal(parsed(await leaf(a)))).toBe(false); // no ICP-Brasil policy named: not a seal
+  });
 });

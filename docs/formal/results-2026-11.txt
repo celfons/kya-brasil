@@ -66,3 +66,15 @@
 05. check IssuedChainNonAmplification     0    1/1     SAT
 06. check NoPermissionNoIssue      0       UNSAT
 07. run   ProperDelegation         0    1/1     SAT
+
+## representative.als (added 10 Nov 2026; Alloy 6.2.0, SAT4J)
+# Command: java -jar alloy.jar exec -f -o out-representative docs/formal/representative.als
+00. check RepresentativeSound      0       UNSAT
+01. check RepresentativeStaleList     0    1/1     SAT
+02. check RepresentativeLentECpf     0    1/1     SAT
+03. check RepresentativeNeedsSameText     0    1/1     SAT
+04. check NoListNoAcceptance       0       UNSAT
+05. check SealNeverAccepted        0       UNSAT
+06. check SealAsSignatureIsCompanyWill     0    1/1     SAT
+07. run   RepresentativeAccepts     0    1/1     SAT
+

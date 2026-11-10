@@ -639,3 +639,62 @@ natural person acting for a company):
 The result carries the certificate hash of each co-signer, why it counted (`basis`: `representatives` or
 `ecnpj_responsible`) and what its CRL check needs (section 10), never the CPF.
 The revocation of the e-CPF certificates is checked by the verifier, as for the principal's certificate.
+
+## 22. Company mandate signed by a legal representative (D-43), and the 2029 transition
+
+Resolução CG ICP-Brasil 211/2024 extinguished the A1 signature certificate, reserved signature certificates (A3,
+A4) to natural persons, and gave legal persons an electronic seal (SE-S, SE-H), which attests the origin and
+integrity of a document and may not be used as the company's manifestation of will (art. 4; DOC-ICP-04 v8.3, item
+1.4.2.2). Certificates of the earlier profiles, the e-CNPJ among them, may be issued and used until 2 March 2029
+(art. 13). From then on the form of section 20 signed by an e-CNPJ no longer exists, and a company states its will
+through a natural person. The reference implementation is in `packages/core/src/icp-brasil.ts`, `issuance.ts`,
+`principal-proof.ts` and `cosign.ts`.
+
+**Seal certificates are refused.** A verifier MUST refuse, as a signature of any text of this specification
+(principal's proof, co-signature), a certificate whose policy OID is `2.16.76.1.2.201.n` (SE-S) or
+`2.16.76.1.2.202.n` (SE-H), with `CERTIFICATE_INVALID`. The seal's key usage still has `digitalSignature`: only the
+policy OID tells it from a signature certificate (`isElectronicSeal`, `icpCertificateTypes`).
+
+**Identifiers in the Distinguished Name.** The resolution puts the CPF of a natural person's certificate, and the
+CNPJ of a seal, in the `serialNumber` attribute (OID 2.5.4.5) of the subject (art. 8); in the seal the CNPJ
+otherName (2.16.76.1.3.3) becomes optional after 31 December 2028. `cnpjFromCertificate` and `cpfFromCertificate`
+read the otherName first and the DN `serialNumber` next. A 14-character CNPJ and an 11-digit CPF never collide.
+
+**Issuance by a representative.** `buildMandate` takes `principal: { kind: "company", cnpj, signed_by:
+"representative" }`. The text to sign is the company text of section 20 with one more line, the last:
+
+```
+signed-by: legal representative (e-CPF)
+```
+
+The representative signs it with their e-CPF (CMS as in section 20). `assembleCredential` returns a company
+credential with `authorized_by.method: "icp-brasil-e-cpf-representative"`, the certificate recorded by hash only (no
+subject, no CPF, no name, as in section 12), `principal.legal_name` empty and `registration_status: "NOT_CHECKED"`
+(an e-CPF carries neither). Additive to /v1.
+
+**Verification.** The e-CPF says who signed, not whom that person represents. A verifier MUST accept such a
+credential only when:
+
+1. the e-CPF signature verifies over the text, up to the ICP-Brasil anchors, and the certificate is the one the
+   credential records;
+2. the text names the credential's agent, CNPJ, issuer and mandate hash (section 19), and carries the `signed-by`
+   line; a text with that line and a credential with another method, or the reverse, MUST be refused;
+3. the signer's CPF is in the verifier's own list of the company's legal representatives
+   (`representatives(cnpj)`), compared and dropped, never returned.
+
+With no list the credential MUST be refused (`verifyPrincipalProof` and `verifySelfIssuedCredential` report the
+failed rule `representative`): it is never accepted on the e-CPF alone. There is no e-CNPJ to name a person
+responsible, so `acceptCertificateResponsible` (section 21) does not apply. Where the powers come from is the
+verifier's decision; the legal source is the company's constitutive act in the commercial registry, of which the
+Receita Federal's partner list is only a screening. `verifyCompanyWill` counts the signer as the first
+representative and the co-signatures of section 21 as the next ones (`minCosigners` counts distinct people).
+`createKyaAuth` passes `offline.companyWill.representatives` to this check; without it a representative's
+credential is refused.
+
+**What it rests on** (Alloy, `docs/formal/representative.als`): acceptance implies the company's will when the list
+is accurate and each e-CPF is operated by its owner (`RepresentativeSound`); a stale list, a lent e-CPF and a
+verifier that does not compare the signed text break it (expected counterexamples). With no e-CNPJ there is no
+second signature: the representative's certificate is the only one between the company and the mandate. A verifier
+that took the seal for a signature would accept whoever holds it (`SealAsSignatureIsCompanyWill`, counterexample),
+which is the flaw found for the e-CNPJ in section 21.
+

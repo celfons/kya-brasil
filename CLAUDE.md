@@ -13,8 +13,8 @@ pesquisa que a acompanha.
 | `packages/core` | A biblioteca: mandato, delegação, emissão, LCR, atualidade, coassinatura. Pura, sem rede. |
 | `packages/agent-tools` | Verificador HTTP (`createKyaAuth`), assinatura de requisições, cache de replay, modo offline. |
 | `packages/mcp`, `packages/study-kit`, `apps/worker`, `infra` | Servidor MCP, kit do estudo H3, emissor hospedado, infraestrutura. |
-| `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`; geradores; `results-2026-11.txt` (saída literal). |
-| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (20). Os testes das bibliotecas os replicam. |
+| `docs/formal` | Alloy 6: `mandate.als` (H1), `threats.als`, `adversarial.als` (H4), `conformance.als`, `representative.als` (D-43); geradores; `results-2026-11.txt` (saída literal). |
+| `docs/vectors` | Vetores gerados: conformidade (1.320), adversariais (326), certificado (23). Os testes das bibliotecas os replicam. |
 | `research/freshness-sim` | Scripts de medição (`fetch_*.py`), fatores (`fetch_factors.py`), simulações (semente fixa) e `data/`. |
 | `research/paper/figuras.py` | Cópia pública do gerador de figuras do kya-paper, sincronizada em 7 nov. 2026 (corte teste-2026-11). A cada corte, copiar de novo de `kya-paper/scripts/figuras.py`. |
 
@@ -27,6 +27,9 @@ pesquisa que a acompanha.
   regra, muda o modelo e regeneram-se os vetores.
 - **Falhar fechado.** LCR velha, assinatura que não verifica, algoritmo fora do conjunto, cadeia desconhecida:
   recusa com `KyaError` e código nomeado. Nunca aceitar por omissão.
+- **ICP-Brasil depois da Resolução 211/2024** (SPEC seção 22): selo eletrônico (SE-S, SE-H) é recusado como
+  assinatura; mandato de empresa assinado só pelo e-CPF do representante só é aceito contra a lista de
+  representantes de quem verifica, e sem lista é recusado. Não afrouxar nenhum dos dois.
 - **Privacidade da coassinatura**: a credencial guarda hash do certificado do e-CPF, nunca o CPF.
 - `verifyDelegationChain` também recusa elo expirado, emitido no futuro ou que vive mais que o de cima; o modelo
   não tem tempo nos elos, e o README diz isso.
