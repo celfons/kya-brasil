@@ -209,7 +209,7 @@ java -jar org.alloytools.alloy.dist.jar exec -f -o out-representative docs/forma
 | `check SealAsSignatureIsCompanyWill` | counterexample (expected) | A verifier that took the seal for a signature would accept whoever holds it: the flaw `IssuanceImpliesCompanyWill` found for the e-CNPJ. |
 | `run RepresentativeAccepts` | SAT | Sanity check: the rule accepts something, and it is the company's will. |
 
-The library's counterpart is `packages/core/src/representative.test.ts` (issuance, refusal with no list, list that
+The library's counterpart is `packages/core/src/cosign.test.ts` (issuance, refusal with no list, list that
 does not name the signer or fails, method swapped after signing, counting with co-signatures) and three constructions
 of the certificate catalogue. No vectors are generated from this module yet.
 

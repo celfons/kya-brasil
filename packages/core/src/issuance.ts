@@ -322,7 +322,7 @@ export async function assembleCredential(b: BuiltMandate, signature: string, cer
   // its own, to refuse here what a verifier would refuse; without one, that single check is left to the verifier.
   const check = await verifySelfIssuedCredential({ ...issued, anchors: opts.anchors, now, ...(opts.representatives ? { representatives: opts.representatives } : {}) });
   const failed = check.checks.filter((c) => !c.ok && !(c.rule === "representative" && !opts.representatives));
-  if (failed.length) throw new KyaError("CHALLENGE_FAILED", `the assembled credential would not verify: ${failed.map((c) => `${c.rule}: ${c.detail}`).join("; ")}`);
+  if (failed.length) throw new KyaError("CHALLENGE_FAILED", "the assembled credential would not verify: " + failed.map((c) => c.rule + ": " + c.detail).join("; "));
   return issued;
 }
 
@@ -344,6 +344,16 @@ const lineOf = (text: string, key: string): string | null => {
   return lines.length === 1 ? lines[0]!.slice(key.length + 2) : null;
 };
 
+/** The signing method the credential records must fit its principal and what the signed text says (D-43). */
+function methodProblems(c: Credential, text: string): string[] {
+  const out: string[] = [];
+  const methods: string[] = isPersonPrincipal(c.principal) ? ["icp-brasil-e-cpf"] : ["icp-brasil-e-cnpj", REPRESENTATIVE_METHOD];
+  if (!methods.includes(c.authorized_by.method)) out.push(`authorized_by.method must be ${methods.join(" or ")}`);
+  const signedAsRepresentative = lineOf(text, "signed-by") !== null;
+  if (signedAsRepresentative !== (c.authorized_by.method === REPRESENTATIVE_METHOD)) out.push("the signed text and authorized_by.method disagree on who signed (e-CNPJ or legal representative)");
+  return out;
+}
+
 /**
  * Verifies a credential issued by its principal, offline: every check of verifyPrincipalProof (signature and chain
  * to the anchors, certificate, agent, principal, issuer, mandate hash), plus what binds the credential's own fields
@@ -364,10 +374,7 @@ export async function verifySelfIssuedCredential(p: { credential: Credential; pr
   if (c.issuer !== SELF_ISSUER) problems.push(`issuer is ${c.issuer}, not ${SELF_ISSUER}`);
   if (c.version !== 1) problems.push("version is not 1");
   if (lineOf(text, "challenge") !== c.credential_id) problems.push("the signed text does not name this credential id");
-  const methods: string[] = isPersonPrincipal(c.principal) ? ["icp-brasil-e-cpf"] : ["icp-brasil-e-cnpj", REPRESENTATIVE_METHOD];
-  if (!methods.includes(c.authorized_by.method)) problems.push(`authorized_by.method must be ${methods.join(" or ")}`);
-  const signedAsRepresentative = lineOf(text, "signed-by") !== null;
-  if (signedAsRepresentative !== (c.authorized_by.method === REPRESENTATIVE_METHOD)) problems.push("the signed text and authorized_by.method disagree on who signed (e-CNPJ or legal representative)");
+  problems.push(...methodProblems(c, text));
   try {
     if (canonicalize(validateMandate(c.mandate)) !== canonicalize(c.mandate)) problems.push("mandate is not in normalized form");
   } catch (e) {
