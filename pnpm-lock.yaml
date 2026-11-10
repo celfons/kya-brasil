@@ -39,8 +39,8 @@ importers:
         specifier: ^2.28.0
         version: 2.28.0(hono@4.13.13)(typescript@5.9.3)
       agents:
-        specifier: ^0.28.0
-        version: 0.28.0(@babel/core@8.0.7)(@babel/runtime@7.29.10)(@modelcontextprotocol/client@2.3.1)(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@modelcontextprotocol/server@2.0.0)(@x402/core@2.28.0)(@x402/evm@2.28.0(typescript@5.9.3))(rolldown@1.2.13)(vite@7.3.7(@types/node@22.20.5)(tsx@4.20.6)(yaml@2.9.1))(zod@4.6.7)
+        specifier: ^0.28.1
+        version: 0.28.1(@babel/core@8.0.7)(@babel/runtime@7.29.10)(@modelcontextprotocol/client@2.3.1)(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@modelcontextprotocol/server@2.0.0)(@x402/core@2.28.0)(@x402/evm@2.28.0(typescript@5.9.3))(rolldown@1.2.13)(vite@7.3.7(@types/node@22.20.5)(tsx@4.20.6)(yaml@2.9.1))(zod@4.6.7)
       hono:
         specifier: ^4.13.13
         version: 4.13.13
@@ -2182,8 +2182,8 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  agents@0.28.0:
-    resolution: {integrity: sha512-5nYoykTqL6HWLwRyPP9XL4triRg+kkc6W1Ovt58lMz3oLbChRst6GWQVU3LvLgve8YIbo1SvQp0IR4TOrxAD6g==}
+  agents@0.28.1:
+    resolution: {integrity: sha512-rhQax1hg0v4QWQhkIH3W2kywrj55fsHde3E+bSnsGkv2gH5nJUVyw6o6xeVnQrCbaLt8YXMhGw+hj4v82at/4g==}
     hasBin: true
     peerDependencies:
       '@ai-sdk/provider': ^4.0.0
@@ -2191,9 +2191,9 @@ packages:
       '@cloudflare/codemode': '>=0.5.0'
       '@earendil-works/pi-ai': ^1.0.0
       '@earendil-works/pi-durable': ^1.0.0
-      '@modelcontextprotocol/client': 2.0.0
-      '@modelcontextprotocol/sdk': 1.30.0
-      '@modelcontextprotocol/server': 2.0.0
+      '@modelcontextprotocol/client': 2.3.1
+      '@modelcontextprotocol/sdk': 1.32.1
+      '@modelcontextprotocol/server': 2.3.1
       '@opencode/plugin': ^2.0.24
       '@opencode/sdk': ^2.0.24
       '@tanstack/ai': '>=0.10.2 <1.0.0'
@@ -5489,7 +5489,7 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  agents@0.28.0(@babel/core@8.0.7)(@babel/runtime@7.29.10)(@modelcontextprotocol/client@2.3.1)(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@modelcontextprotocol/server@2.0.0)(@x402/core@2.28.0)(@x402/evm@2.28.0(typescript@5.9.3))(rolldown@1.2.13)(vite@7.3.7(@types/node@22.20.5)(tsx@4.20.6)(yaml@2.9.1))(zod@4.6.7):
+  agents@0.28.1(@babel/core@8.0.7)(@babel/runtime@7.29.10)(@modelcontextprotocol/client@2.3.1)(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))(@modelcontextprotocol/server@2.0.0)(@x402/core@2.28.0)(@x402/evm@2.28.0(typescript@5.9.3))(rolldown@1.2.13)(vite@7.3.7(@types/node@22.20.5)(tsx@4.20.6)(yaml@2.9.1))(zod@4.6.7):
     dependencies:
       '@babel/plugin-proposal-decorators': 8.0.2(@babel/core@8.0.7)
       '@cfworker/json-schema': 4.1.1
