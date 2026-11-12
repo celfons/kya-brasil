@@ -1,0 +1,1278 @@
+{
+  "cut": "2026-11-07T21:24:36.190Z",
+  "core_version": "0.22.0",
+  "commit": "d394637e5243efc500cce460ba817abfed07f417",
+  "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
+  "seed": 20261112,
+  "entries": {
+    "lists": 100,
+    "entries": 340588,
+    "with_reason": 53398,
+    "negative_serials": 12,
+    "lists_that_differ": 0,
+    "differences": [],
+    "per_list": [
+      {
+        "source": "uf-ac-a-r-a-certificacao-digital-v5",
+        "bytes": 740,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-acd-v5",
+        "bytes": 717,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-alternative",
+        "bytes": 70458,
+        "entries": 2209,
+        "distinct_serials": 2209,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-brasil-certec",
+        "bytes": 877,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-cacb-rfb-g2",
+        "bytes": 1040,
+        "entries": 6,
+        "distinct_serials": 6,
+        "with_reason": 5,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certbank-v5",
+        "bytes": 857,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certfacil-v5",
+        "bytes": 3509,
+        "entries": 103,
+        "distinct_serials": 103,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-jus-g6",
+        "bytes": 46485,
+        "entries": 990,
+        "distinct_serials": 990,
+        "with_reason": 790,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-jus-g7",
+        "bytes": 2654,
+        "entries": 39,
+        "distinct_serials": 39,
+        "with_reason": 38,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-multipla-g7",
+        "bytes": 55277,
+        "entries": 1214,
+        "distinct_serials": 1214,
+        "with_reason": 859,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-multipla-g8",
+        "bytes": 16972,
+        "entries": 350,
+        "distinct_serials": 350,
+        "with_reason": 283,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-om-br",
+        "bytes": 714,
+        "entries": 7,
+        "distinct_serials": 7,
+        "with_reason": 7,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-rfb-g5",
+        "bytes": 360890,
+        "entries": 7616,
+        "distinct_serials": 7616,
+        "with_reason": 6683,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-spb-g6",
+        "bytes": 1824,
+        "entries": 22,
+        "distinct_serials": 22,
+        "with_reason": 20,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-tempo-g2",
+        "bytes": 805,
+        "entries": 1,
+        "distinct_serials": 1,
+        "with_reason": 1,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-certisign-tempo-g3",
+        "bytes": 853,
+        "entries": 2,
+        "distinct_serials": 2,
+        "with_reason": 2,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digisec-v5",
+        "bytes": 724,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digital-certy",
+        "bytes": 34474,
+        "entries": 1067,
+        "distinct_serials": 1067,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-g1",
+        "bytes": 963,
+        "entries": 2,
+        "distinct_serials": 2,
+        "with_reason": 2,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-g2",
+        "bytes": 1519,
+        "entries": 15,
+        "distinct_serials": 15,
+        "with_reason": 5,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-g3",
+        "bytes": 900,
+        "entries": 1,
+        "distinct_serials": 1,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-rfb-g1",
+        "bytes": 6797,
+        "entries": 141,
+        "distinct_serials": 141,
+        "with_reason": 141,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-rfb-g2",
+        "bytes": 4027,
+        "entries": 71,
+        "distinct_serials": 71,
+        "with_reason": 27,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-digitalsign-rfb-g3",
+        "bytes": 113963,
+        "entries": 2328,
+        "distinct_serials": 2328,
+        "with_reason": 1592,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-egba-multipla-g2",
+        "bytes": 1183,
+        "entries": 9,
+        "distinct_serials": 9,
+        "with_reason": 8,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-fcdl-sc-v5",
+        "bytes": 12525,
+        "entries": 437,
+        "distinct_serials": 437,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-fcdl-sc-v5-g2",
+        "bytes": 727,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-fecomercio-mg-rfb",
+        "bytes": 2362,
+        "entries": 47,
+        "distinct_serials": 47,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-fenacor-rfb",
+        "bytes": 3784,
+        "entries": 64,
+        "distinct_serials": 64,
+        "with_reason": 56,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-idfederal",
+        "bytes": 11289,
+        "entries": 331,
+        "distinct_serials": 331,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-idfederal-v2",
+        "bytes": 874,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-infoco-digital-v5",
+        "bytes": 1192,
+        "entries": 17,
+        "distinct_serials": 17,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-infocomex",
+        "bytes": 1222,
+        "entries": 11,
+        "distinct_serials": 11,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-infocomex-v2",
+        "bytes": 874,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-intercert-v5",
+        "bytes": 11042,
+        "entries": 382,
+        "distinct_serials": 382,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-invia",
+        "bytes": 927,
+        "entries": 2,
+        "distinct_serials": 2,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-mult-v5",
+        "bytes": 718,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-nacional",
+        "bytes": 3144,
+        "entries": 72,
+        "distinct_serials": 72,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-oab-g3",
+        "bytes": 319238,
+        "entries": 6733,
+        "distinct_serials": 6733,
+        "with_reason": 5916,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-oab-g4",
+        "bytes": 23687,
+        "entries": 484,
+        "distinct_serials": 484,
+        "with_reason": 428,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-online-brasil-v5",
+        "bytes": 10219,
+        "entries": 346,
+        "distinct_serials": 346,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-online-rfb-v5",
+        "bytes": 39533,
+        "entries": 1432,
+        "distinct_serials": 1432,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-prime-v5",
+        "bytes": 803,
+        "entries": 3,
+        "distinct_serials": 3,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-primecert",
+        "bytes": 2985,
+        "entries": 67,
+        "distinct_serials": 67,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-primecert-v2",
+        "bytes": 874,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-procerti",
+        "bytes": 14163,
+        "entries": 422,
+        "distinct_serials": 422,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-prodesp-rfb-v1",
+        "bytes": 45085,
+        "entries": 999,
+        "distinct_serials": 999,
+        "with_reason": 439,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-prodesp-v1",
+        "bytes": 953,
+        "entries": 3,
+        "distinct_serials": 3,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-qualitycert-v5",
+        "bytes": 725,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-redebrasil-v5",
+        "bytes": 725,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-safe-id-brasil",
+        "bytes": 16303,
+        "entries": 489,
+        "distinct_serials": 489,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-safetech-cd",
+        "bytes": 720,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-safeweb-cd-v12",
+        "bytes": 6987,
+        "entries": 228,
+        "distinct_serials": 228,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-safeweb-rfb-v5",
+        "bytes": 1121880,
+        "entries": 41519,
+        "distinct_serials": 41519,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sdi",
+        "bytes": 41526,
+        "entries": 1292,
+        "distinct_serials": 1292,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sdi-v2",
+        "bytes": 862,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sefazce",
+        "bytes": 3060,
+        "entries": 73,
+        "distinct_serials": 73,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-segura-id-v5",
+        "bytes": 726,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-cd-v1",
+        "bytes": 356394,
+        "entries": 13181,
+        "distinct_serials": 13181,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-cd-v2",
+        "bytes": 851,
+        "entries": 1,
+        "distinct_serials": 1,
+        "with_reason": 1,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-cd-v5",
+        "bytes": 1295,
+        "entries": 14,
+        "distinct_serials": 14,
+        "with_reason": 14,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-jus-v1",
+        "bytes": 7994,
+        "entries": 274,
+        "distinct_serials": 274,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-jus-v2",
+        "bytes": 849,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-jus-v5",
+        "bytes": 766,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serasa-rfb-v5",
+        "bytes": 43158,
+        "entries": 1054,
+        "distinct_serials": 1054,
+        "with_reason": 989,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-acf-v4",
+        "bytes": 163944,
+        "entries": 7416,
+        "distinct_serials": 7416,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-acf-v5",
+        "bytes": 95514,
+        "entries": 3468,
+        "distinct_serials": 3468,
+        "with_reason": 0,
+        "negative_serials": 3
+      },
+      {
+        "source": "uf-ac-serpro-acf-v6",
+        "bytes": 2515,
+        "entries": 52,
+        "distinct_serials": 52,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-jus-v5",
+        "bytes": 3222,
+        "entries": 75,
+        "distinct_serials": 75,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-rfb-v1",
+        "bytes": 523,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-rfb-v3",
+        "bytes": 117558,
+        "entries": 3334,
+        "distinct_serials": 3334,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-rfb-v4",
+        "bytes": 257889,
+        "entries": 11234,
+        "distinct_serials": 11234,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-serpro-rfb-v5",
+        "bytes": 2340083,
+        "entries": 77424,
+        "distinct_serials": 77424,
+        "with_reason": 0,
+        "negative_serials": 9
+      },
+      {
+        "source": "uf-ac-sic-brasil-v5",
+        "bytes": 861,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sig-brasil",
+        "bytes": 859,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sincor-g4",
+        "bytes": 2422,
+        "entries": 35,
+        "distinct_serials": 35,
+        "with_reason": 30,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sincor-g5",
+        "bytes": 3723,
+        "entries": 61,
+        "distinct_serials": 61,
+        "with_reason": 60,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sincor-rfb-g5",
+        "bytes": 23792,
+        "entries": 486,
+        "distinct_serials": 486,
+        "with_reason": 430,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sincor-rio-rfb-g2",
+        "bytes": 2894,
+        "entries": 44,
+        "distinct_serials": 44,
+        "with_reason": 42,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-sirius",
+        "bytes": 863,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-jus-v1",
+        "bytes": 15478,
+        "entries": 542,
+        "distinct_serials": 542,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-jus-v5",
+        "bytes": 41649,
+        "entries": 1514,
+        "distinct_serials": 1514,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-jus-v6",
+        "bytes": 749,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-multipla-v1",
+        "bytes": 1270966,
+        "entries": 46852,
+        "distinct_serials": 46852,
+        "with_reason": 363,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-multipla-v5",
+        "bytes": 915038,
+        "entries": 33863,
+        "distinct_serials": 33863,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-multipla-v5-g2",
+        "bytes": 118004,
+        "entries": 4343,
+        "distinct_serials": 4343,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-rfb-v1",
+        "bytes": 894,
+        "entries": 2,
+        "distinct_serials": 2,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-rfb-v5",
+        "bytes": 48201,
+        "entries": 1757,
+        "distinct_serials": 1757,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-soluti-spb-v5",
+        "bytes": 6092,
+        "entries": 198,
+        "distinct_serials": 198,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-syngularid-multipla",
+        "bytes": 1488282,
+        "entries": 34167,
+        "distinct_serials": 34167,
+        "with_reason": 34167,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-brasil-v12",
+        "bytes": 7885,
+        "entries": 260,
+        "distinct_serials": 260,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-brasil-v5",
+        "bytes": 16183,
+        "entries": 567,
+        "distinct_serials": 567,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-jus-v5",
+        "bytes": 16130,
+        "entries": 565,
+        "distinct_serials": 565,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-jus-v6",
+        "bytes": 1371,
+        "entries": 19,
+        "distinct_serials": 19,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-plus-timestamping-v5",
+        "bytes": 981,
+        "entries": 3,
+        "distinct_serials": 3,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-plus-v5",
+        "bytes": 866,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-rfb-v5",
+        "bytes": 705758,
+        "entries": 26107,
+        "distinct_serials": 26107,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-valid-spb-v5",
+        "bytes": 1637,
+        "entries": 30,
+        "distinct_serials": 30,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-validar-multipla",
+        "bytes": 853,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      },
+      {
+        "source": "uf-ac-zapsign",
+        "bytes": 865,
+        "entries": 0,
+        "distinct_serials": 0,
+        "with_reason": 0,
+        "negative_serials": 0
+      }
+    ]
+  },
+  "mutated_crls": {
+    "mutants_per_list": 200,
+    "openssl_max_bytes": 300000,
+    "tally": {
+      "mutants": 20000,
+      "core_parsed": 11198,
+      "core_refused": 8802,
+      "core_other_error": 0,
+      "slowest_ms": 179,
+      "compared_with_openssl": 18200,
+      "both_accept": 8096,
+      "both_refuse": 6404,
+      "only_core_accepts": 2112,
+      "only_openssl_accepts": 1588,
+      "dates_differ": 0
+    },
+    "signature": {
+      "lists": 76,
+      "mutants": 15200,
+      "both_verify": 12,
+      "both_refuse": 15183,
+      "only_core_verifies": 0,
+      "only_openssl_verifies": 5
+    },
+    "examples": {
+      "core_other_error": [],
+      "only_core_accepts": [
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 7,
+          "kind": "bit"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 23,
+          "kind": "four-bytes"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 40,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 41,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 43,
+          "kind": "four-bytes"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 74,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 76,
+          "kind": "bit"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 77,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 80,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 82,
+          "kind": "header-byte"
+        }
+      ],
+      "only_openssl_accepts": [
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 3,
+          "kind": "bit",
+          "error": "Error: signature algorithm differs between TBSCertList and CertificateList"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 4,
+          "kind": "header-byte",
+          "error": "Error: not a DER time: \"26110720Ñ017Z\""
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 14,
+          "kind": "four-bytes",
+          "error": "Error: not a DER time: \"26\u000fÆÛÐ025017Z\""
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 17,
+          "kind": "bit",
+          "error": "Error: signature algorithm differs between TBSCertList and CertificateList"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 26,
+          "kind": "header-byte",
+          "error": "Error: not a DER time: \"2R1107205017Z\""
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 29,
+          "kind": "bit",
+          "error": "Error: not a DER time: \"26!108025017Z\""
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 64,
+          "kind": "header-byte",
+          "error": "Error: signature algorithm differs between TBSCertList and CertificateList"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 96,
+          "kind": "four-bytes",
+          "error": "Error: not a DER time: \"26110Ì­ÞÊ017Z\""
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 97,
+          "kind": "four-bytes",
+          "error": "Error: signature algorithm differs between TBSCertList and CertificateList"
+        },
+        {
+          "source": "uf-ac-a-r-a-certificacao-digital-v5",
+          "mutant": 99,
+          "kind": "header-byte",
+          "error": "Error: not a DER time: \"26-107205017Z\""
+        }
+      ],
+      "dates_differ": [],
+      "only_core_verifies": [],
+      "only_openssl_verifies": [
+        {
+          "source": "uf-ac-acd-v5",
+          "mutant": 169,
+          "kind": "header-byte"
+        },
+        {
+          "source": "uf-ac-certisign-tempo-g3",
+          "mutant": 115,
+          "kind": "bit"
+        },
+        {
+          "source": "uf-ac-digitalsign-g3",
+          "mutant": 86,
+          "kind": "bit"
+        },
+        {
+          "source": "uf-ac-egba-multipla-g2",
+          "mutant": 52,
+          "kind": "bit"
+        },
+        {
+          "source": "uf-ac-safetech-cd",
+          "mutant": 151,
+          "kind": "header-byte"
+        }
+      ]
+    }
+  },
+  "cms": {
+    "cms_bytes": 2176,
+    "original": {
+      "core": true,
+      "openssl": true
+    },
+    "other_text": {
+      "core": false,
+      "openssl": false
+    },
+    "tally": {
+      "mutants": 2000,
+      "both_accept": 278,
+      "both_refuse": 1290,
+      "only_core_accepts": 36,
+      "only_openssl_accepts": 396
+    },
+    "examples": {
+      "only_core_accepts": [
+        {
+          "mutant": 3,
+          "offset": 35,
+          "byte_before": 1,
+          "byte_after": 65
+        },
+        {
+          "mutant": 70,
+          "offset": 36,
+          "byte_before": 101,
+          "byte_after": 117
+        },
+        {
+          "mutant": 151,
+          "offset": 1776,
+          "byte_before": 19,
+          "byte_after": 18
+        },
+        {
+          "mutant": 159,
+          "offset": 9,
+          "byte_before": 134,
+          "byte_after": 142
+        },
+        {
+          "mutant": 254,
+          "offset": 1710,
+          "byte_before": 29,
+          "byte_after": 28
+        },
+        {
+          "mutant": 633,
+          "offset": 18,
+          "byte_before": 109,
+          "byte_after": 77
+        },
+        {
+          "mutant": 694,
+          "offset": 10,
+          "byte_before": 247,
+          "byte_after": 243
+        },
+        {
+          "mutant": 773,
+          "offset": 1784,
+          "byte_before": 11,
+          "byte_after": 9
+        },
+        {
+          "mutant": 790,
+          "offset": 13,
+          "byte_before": 7,
+          "byte_after": 6
+        },
+        {
+          "mutant": 823,
+          "offset": 32,
+          "byte_before": 96,
+          "byte_after": 104
+        },
+        {
+          "mutant": 865,
+          "offset": 35,
+          "byte_before": 1,
+          "byte_after": 3
+        },
+        {
+          "mutant": 901,
+          "offset": 32,
+          "byte_before": 96,
+          "byte_after": 98
+        },
+        {
+          "mutant": 1072,
+          "offset": 38,
+          "byte_before": 4,
+          "byte_after": 132
+        },
+        {
+          "mutant": 1123,
+          "offset": 38,
+          "byte_before": 4,
+          "byte_after": 20
+        },
+        {
+          "mutant": 1153,
+          "offset": 61,
+          "byte_before": 55,
+          "byte_after": 54
+        },
+        {
+          "mutant": 1200,
+          "offset": 6,
+          "byte_before": 42,
+          "byte_after": 46
+        },
+        {
+          "mutant": 1270,
+          "offset": 61,
+          "byte_before": 55,
+          "byte_after": 63
+        },
+        {
+          "mutant": 1311,
+          "offset": 9,
+          "byte_before": 134,
+          "byte_after": 135
+        },
+        {
+          "mutant": 1316,
+          "offset": 1708,
+          "byte_before": 31,
+          "byte_after": 27
+        },
+        {
+          "mutant": 1329,
+          "offset": 6,
+          "byte_before": 42,
+          "byte_after": 10
+        },
+        {
+          "mutant": 1398,
+          "offset": 1695,
+          "byte_before": 224,
+          "byte_after": 192
+        },
+        {
+          "mutant": 1480,
+          "offset": 622,
+          "byte_before": 5,
+          "byte_after": 4
+        },
+        {
+          "mutant": 1498,
+          "offset": 11,
+          "byte_before": 13,
+          "byte_after": 45
+        },
+        {
+          "mutant": 1572,
+          "offset": 1695,
+          "byte_before": 224,
+          "byte_after": 96
+        },
+        {
+          "mutant": 1694,
+          "offset": 9,
+          "byte_before": 134,
+          "byte_after": 135
+        },
+        {
+          "mutant": 1698,
+          "offset": 34,
+          "byte_before": 72,
+          "byte_after": 200
+        },
+        {
+          "mutant": 1702,
+          "offset": 12,
+          "byte_before": 1,
+          "byte_after": 17
+        },
+        {
+          "mutant": 1715,
+          "offset": 1708,
+          "byte_before": 31,
+          "byte_after": 30
+        },
+        {
+          "mutant": 1727,
+          "offset": 36,
+          "byte_before": 101,
+          "byte_after": 97
+        },
+        {
+          "mutant": 1729,
+          "offset": 13,
+          "byte_before": 7,
+          "byte_after": 3
+        },
+        {
+          "mutant": 1877,
+          "offset": 33,
+          "byte_before": 134,
+          "byte_after": 150
+        },
+        {
+          "mutant": 1892,
+          "offset": 628,
+          "byte_before": 0,
+          "byte_after": 1
+        },
+        {
+          "mutant": 1901,
+          "offset": 61,
+          "byte_before": 55,
+          "byte_after": 54
+        },
+        {
+          "mutant": 1910,
+          "offset": 61,
+          "byte_before": 55,
+          "byte_after": 51
+        },
+        {
+          "mutant": 1924,
+          "offset": 61,
+          "byte_before": 55,
+          "byte_after": 53
+        },
+        {
+          "mutant": 1966,
+          "offset": 7,
+          "byte_before": 134,
+          "byte_after": 142
+        }
+      ],
+      "only_openssl_accepts": [
+        {
+          "mutant": 1,
+          "offset": 1329,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 5,
+          "offset": 1124,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 7,
+          "offset": 1334,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 9,
+          "offset": 998,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 18,
+          "offset": 1272,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 19,
+          "offset": 1036,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 21,
+          "offset": 1206,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 24,
+          "offset": 1132,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 30,
+          "offset": 1296,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        },
+        {
+          "mutant": 44,
+          "offset": 1256,
+          "error": "CERTIFICATE_INVALID: certificate chain not trusted: No valid certificate paths found"
+        }
+      ]
+    }
+  }
+}

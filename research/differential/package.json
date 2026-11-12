@@ -1,0 +1,19 @@
+{
+  "name": "@kya-brasil/research-differential",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Differential test of @kya-brasil/core against OpenSSL: the entries of the CRLs of a cut, mutated CRLs, and the CMS signature of the self-issued vector.",
+  "type": "module",
+  "scripts": {
+    "fetch": "python3 -I fetch.py",
+    "openssl": "python3 -I openssl_entries.py",
+    "compare": "tsx compare.mjs",
+    "all": "python3 -I fetch.py && python3 -I openssl_entries.py && tsx compare.mjs"
+  },
+  "dependencies": {
+    "@kya-brasil/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "4.20.6"
+  }
+}

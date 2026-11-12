@@ -1,0 +1,17 @@
+{
+  "name": "@kya-brasil/research-mutation",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Mutation testing of @kya-brasil/core: how many injected faults the library's own tests and vectors catch.",
+  "type": "module",
+  "scripts": {
+    "batch": "cd ../../packages/core && node ../../research/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run ../../research/mutation/stryker.config.mjs; rm -f stryker-setup-*.js",
+    "all": "KYA_MUTATION_BATCH=rules pnpm -s batch && KYA_MUTATION_BATCH=pki pnpm -s batch && KYA_MUTATION_BATCH=credential pnpm -s batch && node report.mjs",
+    "report": "node report.mjs"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
+    "vitest": "^4.1.12"
+  }
+}
