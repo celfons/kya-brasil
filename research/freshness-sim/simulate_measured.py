@@ -38,6 +38,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import value_scale as V  # noqa: E402
 DATA = os.path.join(HERE, "data")
 SEED = 20261105
@@ -156,6 +157,7 @@ def sweep(prm, lam_assumed):
 
 
 def main():
+    inputs = provenance.stamp("results.json")
     m, w = load()
     staff = staffing(w)
     lam = lambda_per_hour(m)
@@ -203,6 +205,7 @@ def main():
         old = json.load(f)
     out["scenarios"]["sintético (results.json)"] = {"lambda_per_hour": old["params"]["lambda_per_hour"], "pareto": old["pareto"]}
 
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "results_measured.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
     summary = {k: v for k, v in out.items() if k in ("lambda", "weekday_hour", "pools", "staff_scale")}

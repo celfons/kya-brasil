@@ -2,10 +2,11 @@
 Sensitivity of the policy comparison to the two parameters the measurement cannot pin down: the rate at which a
 certificate stops being trustworthy (lambda) and the value of the actions.
 
-The measured lambda is a floor (results_measured.json: 11 end-user CRLs; expired certificates leave the CRL) and
-counts every revocation, not only compromises, so the comparison is repeated at multiples of the measured rate: the
-factor measured from the data by fetch_factors.py (peak month, flow over stock, highest AC) and a grid up to 100x as a
-stress test beyond what was observed,
+The measured lambda errs both ways. It is a floor for coverage (part of the end-user ACs; expired certificates leave
+the CRL), and it counts every revocation, not only compromises. So the comparison is repeated at multiples of the
+measured rate: below 1, the share of key compromise among the entries that state a reason (fetch_factors.py,
+factor_min); above 1, the factor measured from the data (peak month, flow over stock, highest AC) and a grid up to
+100x as a stress test beyond what was observed,
 for the two scenarios of value_scale.py (Pix, the main one, and company credit card), each with its own rate. The publication delay is the measured one
 (simulate_measured.py, reissue every 0.5 h).
 
@@ -25,6 +26,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
 GRID = (1, 3, 10, 30, 100)
@@ -97,6 +99,7 @@ def run(task):
 
 
 def main():
+    inputs = provenance.stamp()
     lam, pool = measured_delay_pool()
     out = {"seed": M.SEED, "lambda_measured_per_hour": lam, "multipliers": MULTIPLIERS, "medians_brl": MEDIANS_BRL,
            "scales": SCALES, "sigma": V.SIGMA, "scenarios": []}
@@ -105,6 +108,7 @@ def main():
         for row in p.imap(run, tasks):
             out["scenarios"].append(row)
             print(json.dumps({kk: vv for kk, vv in row.items() if kk != "rows"}, ensure_ascii=False), flush=True)
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "sensitivity.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
 

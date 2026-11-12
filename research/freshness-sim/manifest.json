@@ -1,0 +1,64 @@
+{
+ "cut": "2026-11-07T21:24:36.190Z",
+ "window_h": 6.0,
+ "inputs": {
+  "data/availability.json": {
+   "sha256": "61178772ff6a96b4df77e00a7ac011fab47477291b8e3764de398890f2e4ee34",
+   "at": "2026-11-07T21:24:36.190Z"
+  },
+  "data/cards.json": {
+   "sha256": "959a4659cfc29798744d0d2d0007671eaedc3c22d39264499d5cb481ad06455d"
+  },
+  "data/delays.json": {
+   "sha256": "e6b250fb360d288536f034959be38f0d6e345bbc1db1aa8ef138ce9c3432b060",
+   "at": "2026-11-07T21:24:36.190Z"
+  },
+  "data/factors.json": {
+   "sha256": "92ce43c77e9afb6bd8ec1bd12486e7cad2be3614fe67c0e3a6d614f9177696e8"
+  },
+  "data/flow.json": {
+   "sha256": "bd0129b6608dc6165e9eb63b35d57b230c3d56a8b2c21d491d95d88a024cc709",
+   "at": "2026-11-07T21:58:08Z"
+  },
+  "data/measured.json": {
+   "sha256": "dfbfcc0c14b55a5f0ecbc8bbd014c06e6cb216d00b7add00b98a9cc18d299924",
+   "at": "2026-11-07T21:24:36.190Z"
+  },
+  "data/pix.json": {
+   "sha256": "64399012c851a6d75826bc0ec34085234c1b8ffae76ab9065e426670b30dc660"
+  },
+  "data/pix_cnae.json": {
+   "sha256": "c1eb90bf99cd17fffe3bee4a195dc671f52db66ddcedf086453c35c165f41d7d"
+  },
+  "data/pix_fraud.json": {
+   "sha256": "3447649f9b9d498a5feae72fdda04609b81c502ff43aec6b1d0fe6b29e91c8e9"
+  },
+  "data/pix_rate.json": {
+   "sha256": "c8d724504ad9a4ccef67f5f89400d34fc30ff7471ff35a69e4f23a601f482088"
+  },
+  "data/reasons.json": {
+   "sha256": "7bf8afdf7db13a0b1274786133bda9296879862a7c846d2181abb40f7fb705f7",
+   "at": "2026-11-07T21:24:36+00:00"
+  },
+  "data/weekday_hour.csv": {
+   "sha256": "0080c97ac99cf3ef94bd0e7bdfe2ada00224a9305ef8e8bae780804b94fef6f5"
+  }
+ },
+ "results": {
+  "results_measured.json": {
+   "sha256": "e5b3aeb1389640644ee484d3923af7046e1f0547d51588dcd43bba6b78c31707"
+  },
+  "results_measured_delay.json": {
+   "sha256": "3642ef4bc2bfb627d98ef319a8738c1827198f938e7cdc6f187deceb6d7cd513"
+  },
+  "results_availability.json": {
+   "sha256": "3092a346cd832e627ab81aa660186fbcc84d5e054b81ebd4f64b571f85cedcff"
+  },
+  "scenarios.json": {
+   "sha256": "c4f72316078096c8dd915b24b5ec991aaeabb2fd3d0937264bd12e9d19c5a0b4"
+  },
+  "sensitivity.json": {
+   "sha256": "1aec1860698d3f86e56fbb85050deedca41c0c77a00e401a01a1d9d961582d34"
+  }
+ }
+}

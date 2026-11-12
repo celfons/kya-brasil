@@ -64,7 +64,10 @@
  "window_share": 0.9,
  "longest_window_h": 66.88,
  "factor_max": 2.5,
+ "key_compromise_share_of_with_reason": 0.3449,
+ "factor_min": 0.34,
  "multipliers": [
+  0.34,
   1,
   2.5,
   3,

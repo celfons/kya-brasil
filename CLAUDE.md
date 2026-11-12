@@ -50,12 +50,18 @@ pesquisa que a acompanha.
   mudança em `.als` atualiza `results-2026-11.txt` (ou um novo arquivo datado) e o README de `docs/formal`.
 - **Scripts de pesquisa** (`research/freshness-sim`): ordem `fetch_measured`, `fetch_flow`, `fetch_delays`,
   `fetch_availability`, `fetch_reasons`, `fetch_pix*`, `fetch_factors`; depois `simulate_measured`,
-  `simulate_measured_delay`, `scenarios`, `sensitivity`. Precisam de `cryptography >= 50` (versões anteriores
+  `simulate_measured_delay`, `simulate_availability`, `scenarios`, `sensitivity`, e por fim `manifest`. Cada simulação
+  registra o SHA-256 das entradas que havia em `data/` (`provenance.py`), e `manifest.py` só escreve `manifest.json` se
+  as entradas do coletor forem do mesmo corte e os resultados tiverem saído delas; mudou uma entrada, rodam-se de novo
+  as simulações. `research/bench` e `research/integration` são medidos no mesmo commit, para saírem da mesma versão
+  do core. Precisam de `cryptography >= 50` (versões anteriores
   recusam uma LCR do Serpro); nenhuma LCR é pulada: a que a biblioteca Python não decodifica (hoje só a Certisign
   OM-BR, Ed448) é lida pelo leitor DER de `crl_entries.py`, e, se nenhum dos dois a lê, o corte para.
   `fetch_reasons` lê os mesmos arquivos que `fetch_measured` nomeou; `fetch_measured --reread` refaz a grade de um
   corte a partir deles. A escala da chance de registro por hora em `simulate_measured` é escolha declarada, e
-  `staff_scale` dá a janela com metade e com o dobro. As chamadas ao coletor têm 4 tentativas.
+  `staff_scale` dá a janela com metade e com o dobro. `fetch_factors` dá o fator de cima (`factor_max`, só entre listas
+  observadas pelo mesmo tempo) e o de baixo (`factor_min`, a fração de comprometimento de chave entre as entradas com
+  motivo). As chamadas ao coletor têm 4 tentativas.
 - Nome de AC no ITI ≠ id da fonte: `figuras.py` tem `ALIAS_ITI`; fonte nova com grafia diferente entra lá (nas
   duas cópias).
 - Releases: `research-AAAA.MM` no GitHub viram versão no Zenodo (DOI conceito 10.5281/zenodo.23973230).

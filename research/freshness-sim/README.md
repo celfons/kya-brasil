@@ -102,6 +102,18 @@ observed bound and present the rest as a stress test. On the cut of 7 Nov 2026: 
 windows were compared, the third was 4.7, because 81 of the 87 lists in force had been watched only from Friday
 night to Saturday.
 
+**The rate errs both ways.** `fetch_factors.py` also writes `factor_min`, the share of key compromise among the
+entries that state a reason (`data/reasons.json`): what the rate of compromise would be if the lists that give no
+reason behaved like those that do. `sensitivity.py` adds it to the grid below 1, so the comparison runs from that
+share to 100 times the measured rate. On the cut of 7 Nov 2026 it is 0.34.
+
+**The manifest of a cut.** Every simulation records under `inputs` the SHA-256 of each file in `data/` when it
+started (`provenance.py`). `manifest.py`, run last, writes `manifest.json` (the SHA-256 and the date of each input,
+the SHA-256 of each result) only if the inputs taken from the collector are dated within 6 h of the cut and every
+result was computed from the `data/` that is there now; otherwise it exits with the list of what to run again. The
+paper repository copies the manifest with the data and refuses files that do not match it. The rule comes from the
+cut of 7 Nov 2026, when `data/availability.json` here was a day older than the results computed from it.
+
 **Sensitivity.** `results.json` also holds the three main policies under true rates of 1e-6 and 1e-4 per hour,
 with the verifier still assuming 1e-5. Loss scales roughly with the true rate, and the ranking of the policies
 does not change.
