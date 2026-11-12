@@ -195,6 +195,31 @@ async function sha256Hex(bytes: Uint8Array): Promise<string> {
   return hex(await crypto.subtle.digest("SHA-256", bytes.slice().buffer as ArrayBuffer));
 }
 
+/** Signature algorithms of a certificate that the chain validation verifies: RSA (PKCS#1 v1.5, PSS) and ECDSA. */
+const CHAIN_SIGNATURE_ALGORITHMS = new Set(["1.2.840.113549.1.1.5", "1.2.840.113549.1.1.10", "1.2.840.113549.1.1.11", "1.2.840.113549.1.1.12", "1.2.840.113549.1.1.13", "1.2.840.10045.4.1", "1.2.840.10045.4.3.1", "1.2.840.10045.4.3.2", "1.2.840.10045.4.3.3", "1.2.840.10045.4.3.4"]);
+/** Names of the Edwards-curve algorithms of the newer ICP-Brasil roots, for the refusal's text. */
+const EDWARDS_ALGORITHMS: Record<string, string> = { "1.3.101.112": "Ed25519", "1.3.101.113": "Ed448", "1.3.6.1.4.1.44588.2.1": "Ed521" };
+
+/**
+ * Why a chain that did not validate could not have: the first certificate from the signer upwards that is signed
+ * with an algorithm the validation does not verify, as "name (OID)" or the OID alone. Null when every link is in
+ * the supported set, and the chain is then simply not trusted. Only read after the validation failed: it names the
+ * reason of a refusal and never turns one into an acceptance.
+ */
+function unsupportedChainAlgorithm(signer: pkijs.Certificate, pool: pkijs.Certificate[]): string | null {
+  let current = signer;
+  for (let depth = 0; depth < 8; depth++) {
+    const oid = current.signatureAlgorithm.algorithmId;
+    if (!CHAIN_SIGNATURE_ALGORITHMS.has(oid)) return EDWARDS_ALGORITHMS[oid] ? `${EDWARDS_ALGORITHMS[oid]} (${oid})` : oid;
+    if (current.issuer.isEqual(current.subject)) return null;
+    const issuerName = current.issuer;
+    const next = pool.find((c) => c.subject.isEqual(issuerName));
+    if (!next) return null;
+    current = next;
+  }
+  return null;
+}
+
 /** What every ICP-Brasil signature check yields before the identity (CNPJ or CPF) is read. */
 interface CheckedCms {
   x: X509Certificate;
@@ -259,7 +284,11 @@ async function checkCms(p: { cmsBase64: string; challenge: string; anchors: stri
     if (!trusted.length) throw new KyaError("CERTIFICATE_INVALID", "no ICP-Brasil trust anchors configured");
     const engine = new pkijs.CertificateChainValidationEngine({ certs: certs, trustedCerts: trusted, checkDate: now });
     const chain = await engine.verify();
-    if (!chain.result) throw new KyaError("CERTIFICATE_INVALID", `certificate chain not trusted: ${chain.resultMessage}`);
+    if (!chain.result) {
+      const unsupported = unsupportedChainAlgorithm(signerCert, [...certs, ...trusted]);
+      if (unsupported) throw new KyaError("CERTIFICATE_INVALID", `certificate chain signed with ${unsupported}, which is not supported (RSA and ECDSA on NIST curves are)`);
+      throw new KyaError("CERTIFICATE_INVALID", `certificate chain not trusted: ${chain.resultMessage}`);
+    }
   }
   return { x, der, certs, trusted, now };
 }

@@ -1,6 +1,6 @@
 # Differential test against OpenSSL
 
-Cut of 2026-11-07T21:24:36.190Z, @kya-brasil/core 0.22.1 (commit bec0c7f5f6af), OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024). Seed 20261112.
+Cut of 2026-11-07T21:24:36.190Z, @kya-brasil/core 0.22.2 (commit bd0ff4de7970), OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024). Seed 20261112.
 
 ## Entries of the CRLs of the cut
 
@@ -14,7 +14,7 @@ Cut of 2026-11-07T21:24:36.190Z, @kya-brasil/core 0.22.1 (commit bec0c7f5f6af), 
 
 | Mutants | Core parsed | Core refused (DerError) | Core failed otherwise | Slowest (ms) |
 |---:|---:|---:|---:|---:|
-| 20000 | 11198 | 8802 | 0 | 175 |
+| 20000 | 11198 | 8802 | 0 | 147 |
 
 Mutants of lists up to 300000 bytes were also given to OpenSSL.
 
