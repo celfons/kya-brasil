@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "batch": "cd ../../packages/core && node ../../research/mutation/node_modules/@stryker-mutator/core/bin/stryker.js run ../../research/mutation/stryker.config.mjs; rm -f stryker-setup-*.js",
-    "all": "KYA_MUTATION_BATCH=rules pnpm -s batch && KYA_MUTATION_BATCH=pki pnpm -s batch && KYA_MUTATION_BATCH=credential pnpm -s batch && node report.mjs",
+    "all": "for b in mandate issuance policy pki credential; do KYA_MUTATION_BATCH=$b pnpm -s batch || exit 1; done; node report.mjs",
     "report": "node report.mjs"
   },
   "devDependencies": {

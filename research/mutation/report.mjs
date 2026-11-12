@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATA = join(HERE, "data");
 const batches = readdirSync(DATA).filter((n) => /^mutation-[a-z]+\.json$/.test(n)).sort();
-if (batches.length !== 3) throw new Error(`expected the three batches in data/, found ${batches.join(", ") || "none"}`);
+if (batches.length !== 5) throw new Error(`expected the five batches in data/, found ${batches.join(", ") || "none"}`);
 
 const files = {};
 for (const name of batches) {

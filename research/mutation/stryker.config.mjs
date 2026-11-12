@@ -9,9 +9,11 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
-// Three batches, so that each run stays under two hours on four cores. KYA_MUTATION_BATCH picks one.
+// Five batches, so that each run stays well under two hours on four cores. KYA_MUTATION_BATCH picks one.
 const BATCHES = {
-  rules: ["src/mandate.ts", "src/delegation.ts", "src/issuance.ts", "src/principal-proof.ts", "src/freshness.ts", "src/cosign.ts"],
+  mandate: ["src/mandate.ts", "src/delegation.ts"],
+  issuance: ["src/issuance.ts", "src/principal-proof.ts"],
+  policy: ["src/freshness.ts", "src/cosign.ts"],
   pki: ["src/crl-der.ts", "src/revocation.ts", "src/icp-brasil.ts", "src/timestamp.ts"],
   credential: ["src/attestation.ts", "src/credential.ts", "src/challenge.ts", "src/person.ts", "src/cnpj.ts"]
 };
