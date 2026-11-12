@@ -38,10 +38,9 @@ def load(path):
         return json.load(f)
 
 
-def main():
-    problems = []
-    cut = load(os.path.join(provenance.DATA, "measured.json"))["generated_at"]
-    inputs = {}
+def read_inputs(cut):
+    """({"data/<name>": {"sha256", "at"?}}, problems): every file in data/, and the dated ones against the cut."""
+    inputs, problems = {}, []
     for name in provenance.data_files():
         path = os.path.join(provenance.DATA, name)
         entry = {"sha256": provenance.sha256(path)}
@@ -51,22 +50,37 @@ def main():
             if apart > WINDOW_H:
                 problems.append(f"data/{name} is dated {entry['at']}, {apart:.0f} h from the cut ({cut}): it is from another cut")
         inputs["data/" + name] = entry
+    return inputs, problems
+
+
+def digest_now(key, inputs):
+    """SHA-256 today of something a result says it read: a file in data/, or another file next to the scripts."""
+    if key in inputs:
+        return inputs[key]["sha256"]
+    other = os.path.join(HERE, key)
+    return provenance.sha256(other) if os.path.isfile(other) else None
+
+
+def result_problems(name, recorded, inputs):
+    """What keeps one result from belonging to this cut, given the inputs it recorded."""
+    if not recorded:
+        return [f"{name} does not say what it was computed from: run its simulation again"]
+    problems = [f"{name} was computed from another {key}: run its simulation again"
+                for key, digest in recorded.items() if digest_now(key, inputs) != digest]
+    missing = sorted(set(inputs) - set(recorded))
+    if missing:
+        problems.append(f"{name} was computed without {', '.join(missing)} in data/: run its simulation again")
+    return problems
+
+
+def main():
+    cut = load(os.path.join(provenance.DATA, "measured.json"))["generated_at"]
+    inputs, problems = read_inputs(cut)
     results = {}
     for name in RESULTS:
         path = os.path.join(HERE, name)
         results[name] = {"sha256": provenance.sha256(path)}
-        recorded = load(path).get("inputs")
-        if not recorded:
-            problems.append(f"{name} does not say what it was computed from: run its simulation again")
-            continue
-        for key, digest in recorded.items():
-            other = os.path.join(HERE, key)
-            now = inputs[key]["sha256"] if key in inputs else provenance.sha256(other) if os.path.isfile(other) else None
-            if now != digest:
-                problems.append(f"{name} was computed from another {key}: run its simulation again")
-        missing = sorted(set(inputs) - set(recorded))
-        if missing:
-            problems.append(f"{name} was computed without {', '.join(missing)} in data/: run its simulation again")
+        problems += result_problems(name, load(path).get("inputs"), inputs)
     if problems:
         raise SystemExit("error: the cut is not consistent\n  " + "\n  ".join(problems))
     with open(os.path.join(HERE, "manifest.json"), "w", encoding="utf-8") as f:
