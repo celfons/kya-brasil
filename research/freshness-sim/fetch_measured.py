@@ -2,13 +2,18 @@
 Fetch the measured inputs of simulate_measured.py from the public ICP-Brasil CRL collector and write them under
 data/ (fixed paths inside the repository; no command-line paths).
 
-    python3 -I fetch_measured.py
+    python3 -I fetch_measured.py            # a new cut: the latest CRL of every source
+    python3 -I fetch_measured.py --reread   # the same cut again: the files data/measured.json names
 
 Writes:
   data/weekday_hour.csv   revocations per (weekday, hour) in Brasília time (UTC-3, no DST since 2019), counted
                           over the latest raw CRL of every end-user ("usuario-final") source;
   data/measured.json      monthly revocations of 2026, active certificates (ITI), CRL cadence per AC.
 Needs `cryptography`. The collector rejects the default Python user agent, so requests send "curl/8".
+
+No list is skipped: a CRL the package refuses is read by the DER walker of crl_entries.py, and one that neither
+decodes stops the run. --reread exists because the collector never deletes a file: when a reader is fixed, the grid of
+a cut is rebuilt from the same bytes, and the monthly counts, the ITI figure and the cadence of that cut are kept.
 """
 import csv
 import io
@@ -24,11 +29,12 @@ from datetime import timezone, datetime, timedelta
 
 import re
 
-from cryptography import x509
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
+import crl_entries  # noqa: E402
 
 BASE = "https://kya-icp-collector.marcelfons.workers.dev"
 # Fixed paths, relative to this file (no command-line paths: nothing outside the repository is written).
-HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
 UA = {"user-agent": "curl/8"}
 BRT = timedelta(hours=-3)
@@ -65,42 +71,17 @@ def hours(a, b):
     return (f(b) - f(a)).total_seconds() / 3600.0
 
 
-def main():
-    os.makedirs(DATA, exist_ok=True)
+def snapshot():
+    """A new cut: (measured.json without the grid, {source: key of its latest file})."""
     summary = json.loads(get("/api/summary"))
     uf = [s for s in summary["sources"] if s["kind"] == "usuario-final"]
-    grid = Counter()
-    per_source = {}
-    reissue = {}
+    keys, reissue = {}, {}
     for s in uf:
         files = json.loads(get("/api/files/" + urllib.parse.quote(s["source"])))["files"]
         if not files:
             continue
         reissue[s["source"]] = reissue_interval(files)
-        key = max(files, key=lambda f: f["key"])["key"]
-        try:
-            crl = x509.load_der_x509_crl(get("/files/" + urllib.parse.quote(key)))
-        except ValueError as e:
-            # A CRL the cryptography library cannot decode (e.g. a signature algorithm it does not know) is skipped
-            # with a warning, and the collector's own header parser still counts it in the aggregates.
-            print(f"warning: {s['source']}: {key}: {e}", file=sys.stderr)
-            per_source[s["source"]] = {"file": key, "revocations": None, "error": str(e)}
-            continue
-        n = 0
-        for rc in crl:
-            # cryptography >= 42 has revocation_date_utc; older versions give a naive UTC datetime.
-            rev = rc.revocation_date_utc if hasattr(rc, "revocation_date_utc") else rc.revocation_date.replace(tzinfo=timezone.utc)
-            t = rev + BRT
-            grid[(t.weekday(), t.hour)] += 1
-            n += 1
-        per_source[s["source"]] = {"file": key, "revocations": n}
-    with open(os.path.join(DATA, "weekday_hour.csv"), "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f, lineterminator="\n")
-        w.writerow(["weekday", "dia", "hour_brt", "revocations"])
-        for d in range(7):
-            for h in range(24):
-                w.writerow([d, DAYS[d], h, grid[(d, h)]])
-
+        keys[s["source"]] = max(files, key=lambda f: f["key"])["key"]
     monthly = Counter()
     for r in csv.DictReader(io.StringIO(get("/api/monthly.csv").decode("utf-8"))):
         if r["tipo"] == "usuario-final" and r["mes"].startswith("2026-"):
@@ -118,10 +99,45 @@ def main():
     out = {
         "generated_at": summary["generated_at"], "collector": BASE,
         "monthly_2026_usuario_final": dict(sorted(monthly.items())), "iti": iti,
-        "cadence_usuario_final": cadence, "weekday_hour_sources": per_source,
-        "weekday_hour_total": sum(grid.values()),
+        "cadence_usuario_final": cadence,
     }
-    with open(os.path.join(DATA, "measured.json"), "w", encoding="utf-8") as f:
+    return out, keys
+
+
+def profile(keys):
+    """(weekday x hour grid in Brasília time, per-source record) over the entries of the files named in keys."""
+    grid = Counter()
+    per_source = {}
+    for source, key in keys.items():
+        entries, reader = crl_entries.decode(get("/files/" + urllib.parse.quote(key)), f"{source}: {key}")
+        for rev, _ in entries:
+            t = rev + BRT
+            grid[(t.weekday(), t.hour)] += 1
+        per_source[source] = {"file": key, "revocations": len(entries)}
+        if reader != "cryptography":
+            per_source[source]["reader"] = reader
+    return grid, per_source
+
+
+def main():
+    os.makedirs(DATA, exist_ok=True)
+    path = os.path.join(DATA, "measured.json")
+    if "--reread" in sys.argv[1:]:
+        with open(path, encoding="utf-8") as f:
+            out = json.load(f)
+        keys = {source: v["file"] for source, v in out["weekday_hour_sources"].items()}
+    else:
+        out, keys = snapshot()
+    grid, per_source = profile(keys)
+    with open(os.path.join(DATA, "weekday_hour.csv"), "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f, lineterminator="\n")
+        w.writerow(["weekday", "dia", "hour_brt", "revocations"])
+        for d in range(7):
+            for h in range(24):
+                w.writerow([d, DAYS[d], h, grid[(d, h)]])
+    out["weekday_hour_sources"] = per_source
+    out["weekday_hour_total"] = sum(grid.values())
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
     print(json.dumps({"total": out["weekday_hour_total"], "monthly": out["monthly_2026_usuario_final"]}))
 

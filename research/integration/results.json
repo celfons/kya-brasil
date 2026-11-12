@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-11-08T14:07:17.765Z",
+  "generated_at": "2026-11-12T10:10:19.242Z",
   "what": "study kit tasks T1 to T4 on the reference solution; no participants",
   "solution": "packages/study-kit/test/fixtures/solution",
   "versions": {
-    "core": "0.20.0",
-    "agent-tools": "0.14.1",
+    "core": "0.22.0",
+    "agent-tools": "0.16.0",
     "study-kit": "0.1.3",
     "node": "v22.23.4"
   },
   "machine": {
     "platform": "linux",
     "cpus": 4,
-    "model": "Intel(R) Xeon(R) Processor @ 2.30GHz"
+    "model": "Intel(R) Xeon(R) Processor @ 2.10GHz"
   },
   "runs": 20,
   "runs_all_passed": 20,
@@ -50,9 +50,9 @@
   },
   "accept_ms": {
     "n": 182,
-    "median": 20.47,
-    "p95": 78.37,
-    "max": 104.99
+    "median": 31.78,
+    "p95": 126.23,
+    "max": 151.62
   },
   "code": {
     "files": [

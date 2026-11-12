@@ -23,6 +23,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
 DATA = os.path.join(HERE, "data")
@@ -87,8 +88,9 @@ def window(rng, staff, delay, diss):
 
 
 def main():
+    inputs = provenance.stamp("results_measured.json")
     m, w = M.load()
-    staff = w / w.max()
+    staff = M.staffing(w)
     lam = M.lambda_per_hour(m)["per_hour"]
     delay, diss = pools()
     rng = np.random.default_rng(SEED)
@@ -105,9 +107,10 @@ def main():
     base = {**S.PARAMS, "lambda_per_hour": lam, "publication_delay": {"crl_interval_h": 0.0, "publish_latency_h": 0.0}}
     pool = exposure(rng, rng.uniform(0, M.WEEK, M.POOL), staff, delay, diss)
     out["sweep"]["atraso medido + divulgação medida"] = M.sweep({**base, "delay_pool": pool}, lam)
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "results_measured_delay.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
-    print(json.dumps({k: v for k, v in out.items() if k != "sweep"}, ensure_ascii=False, indent=1))
+    print(json.dumps({k: v for k, v in out.items() if k not in ("sweep", "inputs")}, ensure_ascii=False, indent=1))
     for r in out["sweep"]["atraso medido + divulgação medida"]["pareto"]:
         print(f"  pareto: {r['policy']:22} {r['setting']:10} {r['fetches_per_1000']:8.1f} {r['expected_loss_per_1000_brl']:.4f}")
 

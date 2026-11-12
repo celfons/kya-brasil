@@ -1,12 +1,13 @@
 {
  "collector": "https://kya-icp-collector.marcelfons.workers.dev",
- "fetched_at": "2026-11-07T21:58:43+00:00",
+ "fetched_at": "2026-11-07T21:24:36+00:00",
+ "files": "data/measured.json",
  "sources": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
-   "entries": 33860,
+   "entries": 33863,
    "reasons": {
-    "sem motivo": 33860
+    "sem motivo": 33863
    }
   },
   "uf-ac-certisign-rfb-g5": {
@@ -24,13 +25,16 @@
   },
   "uf-ac-serpro-rfb-v5": {
    "ac": "Autoridade Certificadora SERPRORFBv5",
-   "error": "ValueError"
+   "entries": 77424,
+   "reasons": {
+    "sem motivo": 77424
+   }
   },
   "uf-ac-serasa-rfb-v5": {
    "ac": "AC Serasa RFB v5",
-   "entries": 1051,
+   "entries": 1054,
    "reasons": {
-    "key_compromise": 986,
+    "key_compromise": 989,
     "sem motivo": 65
    }
   },
@@ -187,7 +191,10 @@
   },
   "uf-ac-serpro-acf-v5": {
    "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
-   "error": "ValueError"
+   "entries": 3468,
+   "reasons": {
+    "sem motivo": 3468
+   }
   },
   "uf-ac-serpro-acf-v6": {
    "ac": "Autoridade Certificadora do SERPRO Final v6 (SERPRO ACF)",
@@ -351,9 +358,9 @@
   },
   "uf-ac-fcdl-sc-v5": {
    "ac": "AC FCDL SC v5",
-   "entries": 436,
+   "entries": 437,
    "reasons": {
-    "sem motivo": 436
+    "sem motivo": 437
    }
   },
   "uf-ac-infoco-digital-v5": {
@@ -463,9 +470,9 @@
   },
   "uf-ac-safeweb-rfb-v5": {
    "ac": "AC SAFEWEB RFB v5",
-   "entries": 41516,
+   "entries": 41519,
    "reasons": {
-    "sem motivo": 41516
+    "sem motivo": 41519
    }
   },
   "uf-ac-safeweb-cd-v12": {
@@ -497,11 +504,11 @@
   },
   "uf-ac-syngularid-multipla": {
    "ac": "AC SyngularID Multipla",
-   "entries": 34158,
+   "entries": 34167,
    "reasons": {
-    "unspecified": 14892,
-    "superseded": 10051,
-    "key_compromise": 7743,
+    "unspecified": 14896,
+    "superseded": 10053,
+    "key_compromise": 7746,
     "privilege_withdrawn": 999,
     "affiliation_changed": 473
    }
@@ -559,11 +566,11 @@
   },
   "uf-ac-digitalsign-rfb-g3": {
    "ac": "AC DIGITALSIGN RFB G3",
-   "entries": 2327,
+   "entries": 2328,
    "reasons": {
     "superseded": 1151,
     "sem motivo": 736,
-    "key_compromise": 309,
+    "key_compromise": 310,
     "cessation_of_operation": 88,
     "affiliation_changed": 27,
     "privilege_withdrawn": 9,
@@ -623,7 +630,10 @@
   },
   "uf-ac-certisign-om-br": {
    "ac": "AC Certisign OM-BR",
-   "error": "ValueError"
+   "entries": 7,
+   "reasons": {
+    "key_compromise": 7
+   }
   },
   "uf-ac-egba-multipla-g2": {
    "ac": "AC EGBA Multipla G2",
@@ -647,19 +657,19 @@
   }
  },
  "total": {
-  "entries": 176690,
-  "with_reason": 52871,
+  "entries": 257609,
+  "with_reason": 52891,
   "reasons": {
-   "sem motivo": 123819,
-   "key_compromise": 18229,
-   "unspecified": 14892,
-   "superseded": 11789,
+   "sem motivo": 204718,
+   "key_compromise": 18243,
+   "unspecified": 14896,
+   "superseded": 11791,
    "cessation_of_operation": 3650,
    "ca_compromise": 1802,
    "affiliation_changed": 1460,
    "privilege_withdrawn": 1025,
    "certificate_hold": 24
   },
-  "key_compromise_share_of_with_reason": 0.3448
+  "key_compromise_share_of_with_reason": 0.3449
  }
 }

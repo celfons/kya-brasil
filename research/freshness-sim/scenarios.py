@@ -19,6 +19,7 @@ from multiprocessing import Pool
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import simulate_measured as M  # noqa: E402
 import value_scale as V  # noqa: E402
 from sensitivity import measured_delay_pool  # noqa: E402
@@ -60,6 +61,7 @@ def run(task):
 
 
 def main():
+    inputs = provenance.stamp()
     lam, pool = measured_delay_pool()
     tasks = [(*s, lam, pool) for s in SCENARIOS]
     out = {"seed": S.PARAMS["seed"], "lambda_per_hour": lam, "sigma_lower_bound": LOW, "means_brl": V.means(), "scenarios": []}
@@ -67,6 +69,7 @@ def main():
         for r in p.imap(run, tasks):
             out["scenarios"].append(r)
             print(json.dumps({k: v for k, v in r.items() if k != "rows"}, ensure_ascii=False), flush=True)
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "scenarios.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
 

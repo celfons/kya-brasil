@@ -7,13 +7,17 @@ offline and reproducible:
     python3 -I simulate_measured.py   # numpy only; writes results_measured.json
 
 Measured model (certificate evidence):
-  - lambda: end-user revocations per month in 2026 (Jan-Oct, the 11 collected end-user CRLs) x 12 / active
-    ICP-Brasil certificates (ITI). A FLOOR: the collector covers a few of the end-user ACs, and a CRL drops a
+  - lambda: end-user revocations per month in 2026 (Jan-Oct, the collected end-user CRLs) x 12 / active
+    ICP-Brasil certificates (ITI). A FLOOR: the collector covers part of the end-user ACs, and a CRL drops a
     certificate once it expires, so past months undercount;
-  - the moment a credential stops being trustworthy (compromise) is uniform over the week; the AC acts on it
-    only in an hour slot it is staffed, with probability w(h) / max(w) per hour-of-week slot h, where w is the
-    empirical weekday x hour distribution of revocation dates (data/weekday_hour.csv); the first staffed slot
-    at or after the compromise is the revocation, uniform inside the slot;
+  - the moment a credential stops being trustworthy (compromise) is uniform over the week; the revocation is
+    registered only in an hour slot in which revocations are registered, with probability w(h) / max(w) per
+    hour-of-week slot h, where w is the empirical weekday x hour distribution of revocation dates
+    (data/weekday_hour.csv); the first such slot at or after the compromise is the revocation, uniform inside
+    the slot. The model does not say who waits, the AC or whoever asks for the revocation;
+  - w(h) / max(w) is a CHOICE: the data give the shape of w, not its scale, and dividing by the busiest slot
+    says that registration is certain there. STAFF_SCALES repeats the window with half and with twice that
+    chance (capped at 1), with a generator of its own, so the main run does not depend on it;
   - the revocation enters the next CRL of its AC (publication interval P, phase uniform) and the CRL reaches
     the distribution point within U(0, 4) h (DOC-ICP-05 4.9.8 maximum);
   - P per AC from the collector: observed reissue every 0.5 h where two versions were seen; nextUpdate minus
@@ -34,12 +38,14 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import value_scale as V  # noqa: E402
 DATA = os.path.join(HERE, "data")
 SEED = 20261105
 DISSEMINATION_H = 4.0
 POOL = 200_000
 WEEK = 168
+STAFF_SCALES = (0.5, 2.0)  # multiples of the registration chance of the main run (see the docstring)
 
 
 def load():
@@ -71,6 +77,11 @@ def cadence_mix(m, conservative):
         wt.append(c["entries"])
     wt = np.array(wt, float)
     return np.array(p), wt / wt.sum()
+
+
+def staffing(w, scale=1.0):
+    """Chance of registration in each hour slot of the week: the slot's count over the busiest slot's, times scale."""
+    return np.minimum(1.0, scale * w / w.max())
 
 
 def revocation_time(rng, comp, staff):
@@ -146,8 +157,9 @@ def sweep(prm, lam_assumed):
 
 
 def main():
+    inputs = provenance.stamp("results.json")
     m, w = load()
-    staff = w / w.max()
+    staff = staffing(w)
     lam = lambda_per_hour(m)
     rng = np.random.default_rng(SEED)
     biz = np.array([(s // 24) < 5 and 8 <= s % 24 < 18 for s in range(WEEK)])
@@ -155,11 +167,11 @@ def main():
         "seed": SEED,
         "value_scale": {"source": "Pix B2B (value_scale.py)", "mean_brl": V.means()["B2B"], "median_brl": V.median("B2B"), "sigma": V.SIGMA,
                         "actions_per_hour": V.rate("B2B")},
-        "lambda": {**lam, "note": "floor: 11 end-user CRLs only; expired certificates leave the CRL"},
+        "lambda": {**lam, "note": "floor: part of the end-user ACs only; expired certificates leave the CRL"},
         "weekday_hour": {"total": int(w.sum()), "business_share": round(float(w[biz].sum() / w.sum()), 4),
                          "weekend_share": round(float(w[120:].sum() / w.sum()), 4),
                          "business_hours_share_of_week": round(biz.mean(), 4)},
-        "counterfactual": {}, "pools": {}, "scenarios": {},
+        "counterfactual": {}, "staff_scale": {}, "pools": {}, "scenarios": {},
     }
     pools = {}
     for label, conservative in (("medido (reemissão 0,5 h)", False), ("conservador (nextUpdate 1 h/6 h)", True)):
@@ -170,6 +182,12 @@ def main():
         pools[label] = e
         out["pools"][label] = {"intervals_h": p.tolist(), "weights": [round(x, 4) for x in wt],
                                "mean_h": round(float(e.mean()), 2), "p95_h": round(float(np.quantile(e, 0.95)), 2)}
+
+    rng_scale = np.random.default_rng(SEED + 1)
+    p, wt = cadence_mix(m, False)
+    for scale in STAFF_SCALES:
+        cf = counterfactual(rng_scale, staffing(w, scale), p, wt)
+        out["staff_scale"][str(scale)] = {k: v for k, v in cf.items() if k != "per_slot"}
 
     base = {**S.PARAMS, "value_median_brl": V.median("B2B"), "value_sigma": V.SIGMA,  # Pix scenario (value_scale.py)
             "actions_per_hour": V.rate("B2B"), "credentials": V.credentials_for(V.rate("B2B"))}
@@ -187,9 +205,10 @@ def main():
         old = json.load(f)
     out["scenarios"]["sintético (results.json)"] = {"lambda_per_hour": old["params"]["lambda_per_hour"], "pareto": old["pareto"]}
 
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "results_measured.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
-    summary = {k: v for k, v in out.items() if k in ("lambda", "weekday_hour", "pools")}
+    summary = {k: v for k, v in out.items() if k in ("lambda", "weekday_hour", "pools", "staff_scale")}
     summary["counterfactual"] = {k: {kk: vv for kk, vv in v.items() if kk != "per_slot"} for k, v in out["counterfactual"].items()}
     print(json.dumps(summary, ensure_ascii=False, indent=1, default=float))
 

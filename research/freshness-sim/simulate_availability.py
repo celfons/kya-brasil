@@ -31,6 +31,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # python3 -I leaves the script directory out of sys.path
 import simulate as S  # noqa: E402
+import provenance  # noqa: E402
 import value_scale as V  # noqa: E402
 import simulate_measured as M  # noqa: E402
 
@@ -118,6 +119,7 @@ def pareto3(rows):
 
 
 def main():
+    inputs = provenance.stamp()
     av, pix, m = load_json("availability.json"), load_json("pix.json"), load_json("measured.json")
     per, pooled, age, stale, w = availability(av)
     lam = M.lambda_per_hour(m)["per_hour"]
@@ -128,8 +130,7 @@ def main():
 
     # delay pool and base parameters exactly as in simulate_measured.py (measured cadence)
     rng = np.random.default_rng(SEED)
-    staff = M.load()[1]
-    staff = staff / staff.max()
+    staff = M.staffing(M.load()[1])
     p, wt = M.cadence_mix(m, False)
     comp = rng.uniform(0, M.WEEK, M.POOL)
     pool, _ = M.exposure(rng, comp, staff, p, wt)
@@ -155,6 +156,7 @@ def main():
         print(name, "median", median)
         for r in rows:
             print(f"  {r['policy']:22} {r['setting']:18} fetches={r['fetches_per_1000']:8.1f} loss={r['expected_loss_per_1000_brl']:10.4f} refused={r['refused_per_1000']:7.1f}")
+    out["inputs"] = inputs
     with open(os.path.join(HERE, "results_availability.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     print(json.dumps(out["availability"], ensure_ascii=False, indent=1))

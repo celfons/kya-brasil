@@ -77,16 +77,42 @@ policy is the worst of the three here, because the attacker picks a value that i
 The daily ceiling is what bounds the loss, which is why counting and enforcing it is part of the verifier's
 policy (SPEC section 18, "Daily ceilings").
 
-**CRLs the `cryptography` library cannot decode.** `fetch_measured.py` skips, with a warning and an `error` field in
-`measured.json`, any CRL that `load_der_x509_crl` refuses; on 7 Nov 2026 that is only the AC Certisign OM-BR list
-(Ed448 signature whose AlgorithmIdentifier the library rejects, 7 entries). The collector's own header parser still
-counts it in the aggregates.
+**CRLs the `cryptography` library cannot decode.** No list is skipped. `fetch_measured.py` and `fetch_reasons.py`
+read every CRL through `crl_entries.py`: a CRL that `load_der_x509_crl` refuses is read by a small DER walker that
+looks only at the revoked entries, with a warning and a `reader` field in `measured.json`, and a CRL that neither
+reads stops the run. On 7 Nov 2026 the walker reads the AC Certisign OM-BR list (Ed448 signature whose
+AlgorithmIdentifier the library rejects, 7 entries); on the other 99 lists of that cut the two readers give the same
+340,581 dates and reasons. The rule comes from that cut: the first run skipped three lists, the two Serpro ones
+among them (versions of the package before 50 refuse one of their serial numbers), and the totals went out without
+the largest list of the collection. `fetch_measured.py --reread` rebuilds the grid of a cut from the files
+`measured.json` names, which the collector keeps, and `fetch_reasons.py` counts the reasons in those same files.
+
+**The scale of the registration chance.** The weekday-hour profile gives the shape of the wait for a revocation to be
+registered, not its scale. `simulate_measured.py` divides each hour's count by the busiest hour's, which says that
+registration is certain in the busiest hour. That is a choice, and `staff_scale` in `results_measured.json` repeats
+the window with half and with twice that chance.
 
 **Sensitivity factors from the data.** `fetch_factors.py` writes `data/factors.json` with three multiples of the
 measured rate taken from the collection itself: the peak month over the mean month, the flow rate over the stock
 rate, and the highest relative hazard of one AC (its share of new entries over its share of the stock, a proxy
-since the ITI keeps no per-AC counts). `sensitivity.py` adds the largest of them to its grid (1, 3, 10, 30, 100),
-so the paper can cite the observed bound and present the rest as a stress test. On 7 Nov 2026: 1.17, 1.17 and 2.8.
+since the ITI keeps no per-AC counts). The hazard compares only lists watched for about as long as the longest-watched
+one: a list that entered the collection later saw fewer hours, and its few new entries would inflate the share of
+the others. `sensitivity.py` adds the largest of the three to its grid (1, 3, 10, 30, 100), so the paper can cite the
+observed bound and present the rest as a stress test. On the cut of 7 Nov 2026: 1.14, 0.55 and 2.5. Before the
+windows were compared, the third was 4.7, because 81 of the 87 lists in force had been watched only from Friday
+night to Saturday.
+
+**The rate errs both ways.** `fetch_factors.py` also writes `factor_min`, the share of key compromise among the
+entries that state a reason (`data/reasons.json`): what the rate of compromise would be if the lists that give no
+reason behaved like those that do. `sensitivity.py` adds it to the grid below 1, so the comparison runs from that
+share to 100 times the measured rate. On the cut of 7 Nov 2026 it is 0.34.
+
+**The manifest of a cut.** Every simulation records under `inputs` the SHA-256 of each file in `data/` when it
+started (`provenance.py`). `manifest.py`, run last, writes `manifest.json` (the SHA-256 and the date of each input,
+the SHA-256 of each result) only if the inputs taken from the collector are dated within 6 h of the cut and every
+result was computed from the `data/` that is there now; otherwise it exits with the list of what to run again. The
+paper repository copies the manifest with the data and refuses files that do not match it. The rule comes from the
+cut of 7 Nov 2026, when `data/availability.json` here was a day older than the results computed from it.
 
 **Sensitivity.** `results.json` also holds the three main policies under true rates of 1e-6 and 1e-4 per hour,
 with the verifier still assuming 1e-5. Loss scales roughly with the true rate, and the ranking of the policies

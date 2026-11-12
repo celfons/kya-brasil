@@ -942,8 +942,7 @@
     },
     "uf-ac-serpro-rfb-v5": {
       "file": "lcr/uf-ac-serpro-rfb-v5/20261107T210159Z_a1d916fb535338ef.crl",
-      "revocations": null,
-      "error": "error parsing asn1 value: ParseError { kind: InvalidValue, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::revoked_certificates\", 57070, \"RevokedCertificate::user_certificate\"] }"
+      "revocations": 77424
     },
     "uf-ac-serasa-rfb-v5": {
       "file": "lcr/uf-ac-serasa-rfb-v5/20261107T205510Z_be9e3ee38871b79e.crl",
@@ -1055,8 +1054,7 @@
     },
     "uf-ac-serpro-acf-v5": {
       "file": "lcr/uf-ac-serpro-acf-v5/20261107T210159Z_1ebe5155f7808a91.crl",
-      "revocations": null,
-      "error": "error parsing asn1 value: ParseError { kind: InvalidValue, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::revoked_certificates\", 2020, \"RevokedCertificate::user_certificate\"] }"
+      "revocations": 3468
     },
     "uf-ac-serpro-acf-v6": {
       "file": "lcr/uf-ac-serpro-acf-v6/20261107T210158Z_d3b6d61b636c172e.crl",
@@ -1300,8 +1298,8 @@
     },
     "uf-ac-certisign-om-br": {
       "file": "lcr/uf-ac-certisign-om-br/20261107T210000Z_d247a6926e22daad.crl",
-      "revocations": null,
-      "error": "error parsing asn1 value: ParseError { kind: ExtraData, location: [\"CertificateRevocationList::tbs_cert_list\", \"TBSCertList::signature\"] }"
+      "revocations": 7,
+      "reader": "der"
     },
     "uf-ac-egba-multipla-g2": {
       "file": "lcr/uf-ac-egba-multipla-g2/20261107T212402Z_071a3cea6b9bedbe.crl",
@@ -1332,5 +1330,5 @@
       "revocations": 274
     }
   },
-  "weekday_hour_total": 259689
+  "weekday_hour_total": 340588
 }
