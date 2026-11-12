@@ -1,0 +1,228 @@
+{
+  "spec": "KYA Brasil: company mandate signed by a legal representative (D-43, SPEC section 22)",
+  "note": "Throwaway test chain, not ICP-Brasil, and a CPF that belongs to no one. Verify at `verify_at` with `anchors` and with `representatives` as the verifier's list for the CNPJ; with no list the credential is refused. No private key is included.",
+  "anchors": [
+    "MIIDIzCCAgugAwIBAgIBATANBgkqhkiG9w0BAQsFADBJMR8wHQYDVQQDExZBQyBUZXN0ZSBLWUEgKHZldG9yZXMpMRkwFwYDVQQKExBJQ1AtQnJhc2lsIFRFU1RFMQswCQYDVQQGEwJCUjAeFw0yNjAxMDEwMDAwMDBaFw0zMTAxMDEwMDAwMDBaMEkxHzAdBgNVBAMTFkFDIFRlc3RlIEtZQSAodmV0b3JlcykxGTAXBgNVBAoTEElDUC1CcmFzaWwgVEVTVEUxCzAJBgNVBAYTAkJSMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu9ttSRTxgNFlx6BiWoQLejf6opSM76ja8rrPeY/WQUnDpVdGUe0xisngEJcMxRa4fqXkNg/fdW5bfpwGlMmQdsRpZgV/I3ch6JkjoZ+Qx3vDBPfYMukdlTg2iH6KYspLk/TX7xgeoo0JRf4nBy1i//K5U8tuZJDMcd5eJtY97q0eXPjFy+MKebiIK8mwd3DnhjsWD85djtismjX8AeoMiBWNibVdc0STJCvi9QgFWzAQKDBqL/X4qOM5in/lGFjYE78svFNHtrtQv0GlXf96uy+vm2XEPWgC7hMGcHbfG7DvDb+5Abkmm1jce/VPEpmH21fRXfUJJOD5qDRO7FOVwwIDAQABoxYwFDASBgNVHRMBAf8ECDAGAQH/AgEBMA0GCSqGSIb3DQEBCwUAA4IBAQC4L7wi45djFY+QuaJlR/MzvcS9H7l0kzlxMHnoyLgnmqWTHgxvmubguv5y5yEsnZjUYUvpLx1GGAxG3vM7UF7yTwnJZIPx6cWQLpllotvm1cy7DeEmf1zRR8fFl6jR8n33qBV8agRa8xlms/Zz99OUwer3ZXYNzmIDs3mnrKbzQm0vKc37tl49fErMO2fLPPSswJmElIukHpbDMPcm0/nhRacV9NkUsTPuO2YozVjB0EnXvdxcjWC5/bxttgwZamVFnVaYjHPgh5XTlu1VSuspUsp4sWWueFFpJjpn1x7WBroHDeXohH0csV4Azkg5AdCiVza6/CYT1ab1m4ekYQIL"
+  ],
+  "verify_at": "2026-11-04T12:00:00.000Z",
+  "representatives": [
+    "52998224725"
+  ],
+  "input": {
+    "credential_id": "7e1d2c3b-0000-4000-8000-000000000038",
+    "agent": {
+      "kind": "evm",
+      "id": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    },
+    "principal": {
+      "kind": "company",
+      "cnpj": "11.222.333/0001-81",
+      "signed_by": "representative"
+    },
+    "mandate": {
+      "actions": [
+        "quote",
+        "order",
+        "pay"
+      ],
+      "max_per_operation": {
+        "amount": 5000,
+        "currency": "BRL"
+      },
+      "max_per_day": {
+        "amount": 20000,
+        "currency": "BRL"
+      },
+      "currencies": [
+        "BRL"
+      ],
+      "counterparties": [
+        "33000167000101",
+        "*.beta.com.br"
+      ],
+      "payment_instruments": [],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2027-03-01T00:00:00Z",
+      "delegation": {
+        "max_depth": 1,
+        "max_ttl_seconds": 3600
+      },
+      "notes": "free-form fields are kept but not evaluated"
+    },
+    "ttl_seconds": 2592000,
+    "now": "2026-11-04T12:00:00.000Z"
+  },
+  "built": {
+    "version": 1,
+    "credential_id": "7e1d2c3b-0000-4000-8000-000000000038",
+    "issuer": "urn:kya-brasil:self",
+    "agent": {
+      "kind": "evm",
+      "id": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    },
+    "principal": {
+      "kind": "company",
+      "cnpj": "11222333000181",
+      "signed_by": "representative"
+    },
+    "mandate": {
+      "actions": [
+        "quote",
+        "order",
+        "pay"
+      ],
+      "max_per_operation": {
+        "amount": 5000,
+        "currency": "BRL"
+      },
+      "max_per_day": {
+        "amount": 20000,
+        "currency": "BRL"
+      },
+      "currencies": [
+        "BRL"
+      ],
+      "counterparties": [
+        "33000167000101",
+        "*.beta.com.br"
+      ],
+      "payment_instruments": [],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2027-03-01T00:00:00Z",
+      "notes": "free-form fields are kept but not evaluated",
+      "delegation": {
+        "max_depth": 1,
+        "max_ttl_seconds": 3600
+      }
+    },
+    "mandate_sha256": "3fefd57007cfb745c26f953601494e266fc0422859a11101f5d01dcd4061ed71",
+    "issued_at": "2026-11-04T12:00:00.000Z",
+    "expires_at": "2026-12-04T12:00:00.000Z"
+  },
+  "signing_input": {
+    "text": "KYA Brasil: prove this agent key acts for a company\nissuer: urn:kya-brasil:self\nchallenge: 7e1d2c3b-0000-4000-8000-000000000038\nagent: evm:0x70997970C51812dc3A010C7d01b50e0d17dc79C8\ncnpj: 11222333000181\nmandate-sha256: 3fefd57007cfb745c26f953601494e266fc0422859a11101f5d01dcd4061ed71\nexpires: 2026-12-04T12:00:00.000Z\nsigned-by: legal representative (e-CPF)",
+    "sha256": "7e76c07c44f0b06ed1fa60754a3adbbe6b764670e41a46845c1b013c8336b560"
+  },
+  "credential": {
+    "credential_id": "7e1d2c3b-0000-4000-8000-000000000038",
+    "version": 1,
+    "agent": {
+      "kind": "evm",
+      "id": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    },
+    "principal": {
+      "cnpj": "11222333000181",
+      "cnpj_formatted": "11.222.333/0001-81",
+      "legal_name": "",
+      "registration_status": "NOT_CHECKED"
+    },
+    "authorized_by": {
+      "method": "icp-brasil-e-cpf-representative",
+      "certificate_sha256": "a6893fcce12c6bd9f4886f09102a254982bcb357e6c58f6407999ce475da6aa7",
+      "issuer": "CN=AC Teste KYA (vetores), O=ICP-Brasil TESTE, C=BR",
+      "signed_at": "2026-11-04T12:00:00.000Z",
+      "mandate_sha256": "3fefd57007cfb745c26f953601494e266fc0422859a11101f5d01dcd4061ed71"
+    },
+    "mandate": {
+      "actions": [
+        "quote",
+        "order",
+        "pay"
+      ],
+      "max_per_operation": {
+        "amount": 5000,
+        "currency": "BRL"
+      },
+      "max_per_day": {
+        "amount": 20000,
+        "currency": "BRL"
+      },
+      "currencies": [
+        "BRL"
+      ],
+      "counterparties": [
+        "33000167000101",
+        "*.beta.com.br"
+      ],
+      "payment_instruments": [],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2027-03-01T00:00:00Z",
+      "notes": "free-form fields are kept but not evaluated",
+      "delegation": {
+        "max_depth": 1,
+        "max_ttl_seconds": 3600
+      }
+    },
+    "kyb_snapshot": null,
+    "status": "active",
+    "status_reason": null,
+    "issued_at": "2026-11-04T12:00:00.000Z",
+    "expires_at": "2026-12-04T12:00:00.000Z",
+    "issuer": "urn:kya-brasil:self",
+    "verify_url": "urn:kya-brasil:self",
+    "revocation_url": "urn:kya-brasil:self"
+  },
+  "proof": {
+    "text": "KYA Brasil: prove this agent key acts for a company\nissuer: urn:kya-brasil:self\nchallenge: 7e1d2c3b-0000-4000-8000-000000000038\nagent: evm:0x70997970C51812dc3A010C7d01b50e0d17dc79C8\ncnpj: 11222333000181\nmandate-sha256: 3fefd57007cfb745c26f953601494e266fc0422859a11101f5d01dcd4061ed71\nexpires: 2026-12-04T12:00:00.000Z\nsigned-by: legal representative (e-CPF)",
+    "cms": "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"
+  },
+  "tampered": {
+    "credential_id": "7e1d2c3b-0000-4000-8000-000000000038",
+    "version": 1,
+    "agent": {
+      "kind": "evm",
+      "id": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+    },
+    "principal": {
+      "cnpj": "11222333000181",
+      "cnpj_formatted": "11.222.333/0001-81",
+      "legal_name": "",
+      "registration_status": "NOT_CHECKED"
+    },
+    "authorized_by": {
+      "method": "icp-brasil-e-cpf-representative",
+      "certificate_sha256": "a6893fcce12c6bd9f4886f09102a254982bcb357e6c58f6407999ce475da6aa7",
+      "issuer": "CN=AC Teste KYA (vetores), O=ICP-Brasil TESTE, C=BR",
+      "signed_at": "2026-11-04T12:00:00.000Z",
+      "mandate_sha256": "3fefd57007cfb745c26f953601494e266fc0422859a11101f5d01dcd4061ed71"
+    },
+    "mandate": {
+      "actions": [
+        "quote",
+        "order",
+        "pay"
+      ],
+      "max_per_operation": {
+        "amount": 5000,
+        "currency": "BRL"
+      },
+      "max_per_day": {
+        "amount": 200000,
+        "currency": "BRL"
+      },
+      "currencies": [
+        "BRL"
+      ],
+      "counterparties": [
+        "33000167000101",
+        "*.beta.com.br"
+      ],
+      "payment_instruments": [],
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_until": "2027-03-01T00:00:00Z",
+      "notes": "free-form fields are kept but not evaluated",
+      "delegation": {
+        "max_depth": 1,
+        "max_ttl_seconds": 3600
+      }
+    },
+    "kyb_snapshot": null,
+    "status": "active",
+    "status_reason": null,
+    "issued_at": "2026-11-04T12:00:00.000Z",
+    "expires_at": "2026-12-04T12:00:00.000Z",
+    "issuer": "urn:kya-brasil:self",
+    "verify_url": "urn:kya-brasil:self",
+    "revocation_url": "urn:kya-brasil:self"
+  }
+}

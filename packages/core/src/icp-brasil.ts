@@ -30,6 +30,19 @@ function ensureEngine() {
 }
 
 const unb64 = (s: string) => Uint8Array.from(atob(s.replace(/\s+/g, "")), (c) => c.charCodeAt(0));
+
+/** Content type of a CMS SignedData (RFC 5652, section 5.1). */
+export const OID_CMS_SIGNED_DATA = "1.2.840.113549.1.7.2";
+
+/**
+ * The SignedData inside a DER or BER ContentInfo. The outer content type must say SignedData: PKI.js decodes the
+ * content whatever the type says, so a CMS relabelled as another type would be read as if it were one.
+ */
+export function signedDataOf(der: Uint8Array): { contentInfo: pkijs.ContentInfo; signed: pkijs.SignedData } {
+  const contentInfo = pkijs.ContentInfo.fromBER(der.buffer.slice(der.byteOffset, der.byteOffset + der.byteLength) as ArrayBuffer);
+  if (contentInfo.contentType !== OID_CMS_SIGNED_DATA) throw new Error(`content type ${contentInfo.contentType} is not SignedData`);
+  return { contentInfo, signed: new pkijs.SignedData({ schema: contentInfo.content }) };
+}
 const b64 = (buf: ArrayBuffer) => btoa(String.fromCharCode(...new Uint8Array(buf)));
 const hex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
 
@@ -168,7 +181,7 @@ export function responsibleCpfFromCertificate(cert: X509Certificate): string | n
  */
 export function ecnpjResponsibleCpf(cmsBase64: string): string | null {
   try {
-    const signed = new pkijs.SignedData({ schema: pkijs.ContentInfo.fromBER(unb64(cmsBase64)).content });
+    const { signed } = signedDataOf(unb64(cmsBase64));
     const certs = (signed.certificates ?? []).filter((c): c is pkijs.Certificate => c instanceof pkijs.Certificate);
     const sid = signed.signerInfos[0]?.sid as pkijs.IssuerAndSerialNumber | undefined;
     const signer = (sid && certs.find((c) => c.serialNumber.isEqual(sid.serialNumber) && c.issuer.isEqual(sid.issuer))) ?? certs[0];
@@ -198,12 +211,9 @@ interface CheckedCms {
 async function checkCms(p: { cmsBase64: string; challenge: string; anchors: string[]; now?: Date; requireChain?: boolean }, identify: (x: X509Certificate) => void): Promise<CheckedCms> {
   ensureEngine();
   const now = p.now ?? new Date();
-  let cms: pkijs.ContentInfo;
   let signed: pkijs.SignedData;
   try {
-    const der = unb64(p.cmsBase64);
-    cms = pkijs.ContentInfo.fromBER(der);
-    signed = new pkijs.SignedData({ schema: cms.content });
+    signed = signedDataOf(unb64(p.cmsBase64)).signed;
   } catch (e) {
     throw new KyaError("CHALLENGE_FAILED", `signature is not a CMS SignedData: ${(e as Error).message}`);
   }

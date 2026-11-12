@@ -6,5 +6,7 @@ packages:
   - "research/bench"
   - "research/integration"
   - "research/crl-compat"
+  - "research/differential"
+  - "research/mutation"
 onlyBuiltDependencies:
   - pkcs11js
