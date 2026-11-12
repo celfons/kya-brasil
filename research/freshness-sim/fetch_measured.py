@@ -108,15 +108,20 @@ def profile(keys):
     """(weekday x hour grid in Brasília time, per-source record) over the entries of the files named in keys."""
     grid = Counter()
     per_source = {}
+    batches = Counter()  # (source, local date, hour): a mass revocation shows up as one cell of one day
     for source, key in keys.items():
         entries, reader = crl_entries.decode(get("/files/" + urllib.parse.quote(key)), f"{source}: {key}")
         for rev, _ in entries:
             t = rev + BRT
             grid[(t.weekday(), t.hour)] += 1
+            batches[(source, t.date().isoformat(), t.weekday(), t.hour)] += 1
         per_source[source] = {"file": key, "revocations": len(entries)}
         if reader != "cryptography":
             per_source[source]["reader"] = reader
-    return grid, per_source
+    (source, date, weekday, hour), n = batches.most_common(1)[0]
+    largest = {"source": source, "date": date, "weekday": weekday, "hour_brt": hour, "entries": n,
+               "share_of_slot": round(n / grid[(weekday, hour)], 4)}
+    return grid, per_source, largest
 
 
 def main():
@@ -128,7 +133,7 @@ def main():
         keys = {source: v["file"] for source, v in out["weekday_hour_sources"].items()}
     else:
         out, keys = snapshot()
-    grid, per_source = profile(keys)
+    grid, per_source, largest = profile(keys)
     with open(os.path.join(DATA, "weekday_hour.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f, lineterminator="\n")
         w.writerow(["weekday", "dia", "hour_brt", "revocations"])
@@ -137,6 +142,9 @@ def main():
                 w.writerow([d, DAYS[d], h, grid[(d, h)]])
     out["weekday_hour_sources"] = per_source
     out["weekday_hour_total"] = sum(grid.values())
+    # The largest group of entries registered by one list in one hour of one day. The grid sums 18 years, so a single
+    # mass revocation can stand out as a cell; simulate_measured.py repeats the window without it.
+    out["weekday_hour_largest_batch"] = largest
     with open(path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
     print(json.dumps({"total": out["weekday_hour_total"], "monthly": out["monthly_2026_usuario_final"]}))

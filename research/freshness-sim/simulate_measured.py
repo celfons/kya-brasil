@@ -188,6 +188,14 @@ def main():
     for scale in STAFF_SCALES:
         cf = counterfactual(rng_scale, staffing(w, scale), p, wt)
         out["staff_scale"][str(scale)] = {k: v for k, v in cf.items() if k != "per_slot"}
+    # The same window without the largest single batch of the grid (fetch_measured.py): one mass revocation on one
+    # day is not an hour in which revocations are usually registered.
+    batch = m.get("weekday_hour_largest_batch")
+    if batch:
+        w2 = w.copy()
+        w2[batch["weekday"] * 24 + batch["hour_brt"]] -= batch["entries"]
+        cf = counterfactual(np.random.default_rng(SEED + 2), staffing(w2), p, wt)
+        out["without_largest_batch"] = {"batch": batch, **{k: v for k, v in cf.items() if k != "per_slot"}}
 
     base = {**S.PARAMS, "value_median_brl": V.median("B2B"), "value_sigma": V.SIGMA,  # Pix scenario (value_scale.py)
             "actions_per_hour": V.rate("B2B"), "credentials": V.credentials_for(V.rate("B2B"))}
