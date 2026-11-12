@@ -1,7 +1,7 @@
 {
   "cut": "2026-11-07T21:24:36.190Z",
-  "core_version": "0.22.0",
-  "commit": "d394637e5243efc500cce460ba817abfed07f417",
+  "core_version": "0.22.1",
+  "commit": "1c44c6f1fdd24b42e2d045a240c2b3a78f2980b8",
   "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
   "seed": 20261112,
   "entries": {
@@ -822,7 +822,7 @@
       "core_parsed": 11198,
       "core_refused": 8802,
       "core_other_error": 0,
-      "slowest_ms": 179,
+      "slowest_ms": 178,
       "compared_with_openssl": 18200,
       "both_accept": 8096,
       "both_refuse": 6404,
@@ -998,8 +998,8 @@
     "tally": {
       "mutants": 2000,
       "both_accept": 278,
-      "both_refuse": 1290,
-      "only_core_accepts": 36,
+      "both_refuse": 1301,
+      "only_core_accepts": 25,
       "only_openssl_accepts": 396
     },
     "examples": {
@@ -1023,12 +1023,6 @@
           "byte_after": 18
         },
         {
-          "mutant": 159,
-          "offset": 9,
-          "byte_before": 134,
-          "byte_after": 142
-        },
-        {
           "mutant": 254,
           "offset": 1710,
           "byte_before": 29,
@@ -1041,22 +1035,10 @@
           "byte_after": 77
         },
         {
-          "mutant": 694,
-          "offset": 10,
-          "byte_before": 247,
-          "byte_after": 243
-        },
-        {
           "mutant": 773,
           "offset": 1784,
           "byte_before": 11,
           "byte_after": 9
-        },
-        {
-          "mutant": 790,
-          "offset": 13,
-          "byte_before": 7,
-          "byte_after": 6
         },
         {
           "mutant": 823,
@@ -1095,34 +1077,16 @@
           "byte_after": 54
         },
         {
-          "mutant": 1200,
-          "offset": 6,
-          "byte_before": 42,
-          "byte_after": 46
-        },
-        {
           "mutant": 1270,
           "offset": 61,
           "byte_before": 55,
           "byte_after": 63
         },
         {
-          "mutant": 1311,
-          "offset": 9,
-          "byte_before": 134,
-          "byte_after": 135
-        },
-        {
           "mutant": 1316,
           "offset": 1708,
           "byte_before": 31,
           "byte_after": 27
-        },
-        {
-          "mutant": 1329,
-          "offset": 6,
-          "byte_before": 42,
-          "byte_after": 10
         },
         {
           "mutant": 1398,
@@ -1137,34 +1101,16 @@
           "byte_after": 4
         },
         {
-          "mutant": 1498,
-          "offset": 11,
-          "byte_before": 13,
-          "byte_after": 45
-        },
-        {
           "mutant": 1572,
           "offset": 1695,
           "byte_before": 224,
           "byte_after": 96
         },
         {
-          "mutant": 1694,
-          "offset": 9,
-          "byte_before": 134,
-          "byte_after": 135
-        },
-        {
           "mutant": 1698,
           "offset": 34,
           "byte_before": 72,
           "byte_after": 200
-        },
-        {
-          "mutant": 1702,
-          "offset": 12,
-          "byte_before": 1,
-          "byte_after": 17
         },
         {
           "mutant": 1715,
@@ -1177,12 +1123,6 @@
           "offset": 36,
           "byte_before": 101,
           "byte_after": 97
-        },
-        {
-          "mutant": 1729,
-          "offset": 13,
-          "byte_before": 7,
-          "byte_after": 3
         },
         {
           "mutant": 1877,
@@ -1213,12 +1153,6 @@
           "offset": 61,
           "byte_before": 55,
           "byte_after": 53
-        },
-        {
-          "mutant": 1966,
-          "offset": 7,
-          "byte_before": 134,
-          "byte_after": 142
         }
       ],
       "only_openssl_accepts": [

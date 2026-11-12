@@ -25,9 +25,10 @@ Needs network access to the collector (`fetch.py`, once per cut), `openssl` and 
 `results/results.json` and `results/RESULTS.md` are, with the cut, the version of the core, the commit and the
 version of OpenSSL.
 
-## What the run of 12 November 2026 found
+## What the runs of 12 November 2026 found
 
-Cut of 7 November 2026, core 0.22.0, OpenSSL 3.0.13.
+Cut of 7 November 2026, OpenSSL 3.0.13. The first run was on core 0.22.0. The numbers below are of that run, and
+`results/` holds the second, on core 0.22.1, which differs only in the CMS.
 
 - **Entries.** The 100 lists and their 340 588 entries are read the same by both, the 53 398 reasons included.
   Two Serpro lists carry 12 negative serial numbers, which RFC 5280 forbids. OpenSSL prints them as a minus sign
@@ -62,8 +63,8 @@ The consequence is that one signature has more than one accepted encoding. Nothi
 of the CMS as an identifier of the signature, and whoever does should hash the signed text and the certificate,
 which the library returns.
 
-Since core 0.22.1 the library refuses the first row: the outer content type must say SignedData. The other rows
-are left as they are, because a strict DER check would also refuse CMS files that real signers write in BER.
+Since core 0.22.1 the library refuses the first row: the outer content type must say SignedData. On that version
+the core alone accepts 25 of the 2 000 mutants, and both refuse 1 301. The other rows are left as they are, because a strict DER check would also refuse CMS files that real signers write in BER.
 
 ## What this does not show
 
