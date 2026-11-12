@@ -128,8 +128,7 @@ def main():
 
     # delay pool and base parameters exactly as in simulate_measured.py (measured cadence)
     rng = np.random.default_rng(SEED)
-    staff = M.load()[1]
-    staff = staff / staff.max()
+    staff = M.staffing(M.load()[1])
     p, wt = M.cadence_mix(m, False)
     comp = rng.uniform(0, M.WEEK, M.POOL)
     pool, _ = M.exposure(rng, comp, staff, p, wt)

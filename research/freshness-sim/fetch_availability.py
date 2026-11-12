@@ -2,13 +2,18 @@
 Timeline of the end-user CRLs as an hourly poller saw them, from the public ICP-Brasil CRL collector, for the
 availability analysis (simulate_availability.py).
 
-    python3 -I fetch_availability.py   # standard library only; writes data/availability.json
+    python3 -I fetch_availability.py            # standard library only; writes data/availability.json
+    python3 -I fetch_availability.py --reread   # the cut of data/measured.json again: its sources, versions up to it
 
 For each end-user CRL still issued in 2026, the collector's file list gives every version it stored: the CRL's
 thisUpdate (in the file name) and the moment the collector got it (uploaded). The validity of each version is the
 source's nextUpdate - thisUpdate interval, read from the latest version (the same for every version of a source in the
 data seen so far). A verifier polling as often as the collector (hourly) sees, at time t, the latest version uploaded
 before t. EXPLORATORY: the window is as long as the collection so far, and a collector outage looks like an AC outage.
+
+--reread rebuilds the timeline of a cut already taken: the sources and their validity come from data/measured.json,
+and only the versions the collector had stored by that file's generated_at are kept. The collector never deletes a
+version, so the timeline of a past cut can be read again at any time.
 """
 import json
 import os
@@ -21,6 +26,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+MEASURED = os.path.join(HERE, "data", "measured.json")
 OUT = os.path.join(HERE, "data", "availability.json")
 COLLECTOR = "https://kya-icp-collector.marcelfons.workers.dev"
 SOURCE_ID = re.compile(r"^[a-z0-9-]{1,80}$")
@@ -48,12 +54,27 @@ def hours(a, b):
     return (datetime.fromisoformat(b.replace("Z", "+00:00")) - datetime.fromisoformat(a.replace("Z", "+00:00"))).total_seconds() / 3600
 
 
-def main():
+def live():
+    """(generated_at, [end-user sources of the collector's summary], no cut-off, now)."""
     summary = get("/api/summary")
-    out = {"collector": COLLECTOR, "summary_generated_at": summary["generated_at"],
-           "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "sources": {}}
-    for s in summary["sources"]:
-        if s["kind"] != "usuario-final" or not (s.get("last_this_update") or "").startswith("2026") or not s.get("next_update"):
+    sources = [s for s in summary["sources"] if s["kind"] == "usuario-final"]
+    return summary["generated_at"], sources, None, datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def cut():
+    """The same four values for the cut data/measured.json records; versions stored after it are left out."""
+    with open(MEASURED, encoding="utf-8") as f:
+        measured = json.load(f)
+    sources = [{"source": k, **v} for k, v in measured["cadence_usuario_final"].items()]
+    at = measured["generated_at"]
+    return at, sources, at, at
+
+
+def main():
+    generated_at, sources, until, fetched_at = cut() if "--reread" in sys.argv[1:] else live()
+    out = {"collector": COLLECTOR, "summary_generated_at": generated_at, "fetched_at": fetched_at, "sources": {}}
+    for s in sources:
+        if not (s.get("last_this_update") or "").startswith("2026") or not s.get("next_update"):
             continue
         sid = s["source"]
         if not SOURCE_ID.match(sid):
@@ -62,7 +83,7 @@ def main():
         versions = []
         for f in files:
             m = KEY_TS.search(f["key"])
-            if m:
+            if m and (until is None or f["uploaded"] <= until):
                 versions.append({"this_update": iso(m.group(1)), "uploaded": f["uploaded"]})
         versions.sort(key=lambda v: v["uploaded"])
         out["sources"][sid] = {"ac": s["ac"], "entries": s["entries"],

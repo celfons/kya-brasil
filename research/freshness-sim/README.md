@@ -77,10 +77,20 @@ policy is the worst of the three here, because the attacker picks a value that i
 The daily ceiling is what bounds the loss, which is why counting and enforcing it is part of the verifier's
 policy (SPEC section 18, "Daily ceilings").
 
-**CRLs the `cryptography` library cannot decode.** `fetch_measured.py` skips, with a warning and an `error` field in
-`measured.json`, any CRL that `load_der_x509_crl` refuses; on 7 Nov 2026 that is only the AC Certisign OM-BR list
-(Ed448 signature whose AlgorithmIdentifier the library rejects, 7 entries). The collector's own header parser still
-counts it in the aggregates.
+**CRLs the `cryptography` library cannot decode.** No list is skipped. `fetch_measured.py` and `fetch_reasons.py`
+read every CRL through `crl_entries.py`: a CRL that `load_der_x509_crl` refuses is read by a small DER walker that
+looks only at the revoked entries, with a warning and a `reader` field in `measured.json`, and a CRL that neither
+reads stops the run. On 7 Nov 2026 the walker reads the AC Certisign OM-BR list (Ed448 signature whose
+AlgorithmIdentifier the library rejects, 7 entries); on the other 99 lists of that cut the two readers give the same
+340,581 dates and reasons. The rule comes from that cut: the first run skipped three lists, the two Serpro ones
+among them (versions of the package before 50 refuse one of their serial numbers), and the totals went out without
+the largest list of the collection. `fetch_measured.py --reread` rebuilds the grid of a cut from the files
+`measured.json` names, which the collector keeps, and `fetch_reasons.py` counts the reasons in those same files.
+
+**The scale of the registration chance.** The weekday-hour profile gives the shape of the wait for a revocation to be
+registered, not its scale. `simulate_measured.py` divides each hour's count by the busiest hour's, which says that
+registration is certain in the busiest hour. That is a choice, and `staff_scale` in `results_measured.json` repeats
+the window with half and with twice that chance.
 
 **Sensitivity factors from the data.** `fetch_factors.py` writes `data/factors.json` with three multiples of the
 measured rate taken from the collection itself: the peak month over the mean month, the flow rate over the stock

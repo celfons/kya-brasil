@@ -64,7 +64,7 @@ def measured_delay_pool():
     m, w = M.load()
     rng = np.random.default_rng(M.SEED)
     p, wt = M.cadence_mix(m, False)
-    pool, _ = M.exposure(rng, rng.uniform(0, M.WEEK, M.POOL), w / w.max(), p, wt)
+    pool, _ = M.exposure(rng, rng.uniform(0, M.WEEK, M.POOL), M.staffing(w), p, wt)
     return M.lambda_per_hour(m)["per_hour"], pool
 
 

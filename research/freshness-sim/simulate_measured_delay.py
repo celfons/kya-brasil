@@ -88,7 +88,7 @@ def window(rng, staff, delay, diss):
 
 def main():
     m, w = M.load()
-    staff = w / w.max()
+    staff = M.staffing(w)
     lam = M.lambda_per_hour(m)["per_hour"]
     delay, diss = pools()
     rng = np.random.default_rng(SEED)
