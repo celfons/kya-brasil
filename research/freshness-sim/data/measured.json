@@ -1330,5 +1330,13 @@
       "revocations": 274
     }
   },
-  "weekday_hour_total": 340588
+  "weekday_hour_total": 340588,
+  "weekday_hour_largest_batch": {
+    "source": "uf-ac-serasa-cd-v1",
+    "date": "2011-04-01",
+    "weekday": 4,
+    "hour_brt": 22,
+    "entries": 3811,
+    "share_of_slot": 0.9779
+  }
 }
