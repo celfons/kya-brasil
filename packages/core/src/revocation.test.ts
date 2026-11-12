@@ -189,3 +189,57 @@ describe("EdDSA CRLs (AC Raiz v6 and AC INMETRO sign with Ed448)", () => {
     await expect(verifyCrl({ crlDer: der, issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now })).rejects.toThrow(/1\.3\.6\.1\.4\.1\.44588\.2\.1 is not supported/);
   });
 });
+
+// Mutation testing (research/mutation) showed that these edges could be moved without any test failing.
+describe("revocation at the edge of each rule", () => {
+  it("takes a CRL as current through the instant of its nextUpdate", async () => {
+    const a = await ac();
+    const crl = await crlOf(a, [], new Date("2026-10-12T00:00:00Z"));
+    const check = (at: Date) => checkRevocation({ crlDer: crl.rawData, serial: "01", issuerCertificate: b64(a.cert.rawData), pastNextUpdate: "refuse", now: at });
+    expect(await check(new Date("2026-10-12T00:00:00.000Z"))).toMatchObject({ revoked: false, crl_this_update: "2026-10-11T00:00:00.000Z", crl_next_update: "2026-10-12T00:00:00.000Z" });
+    await expect(check(new Date("2026-10-12T00:00:00.001Z"))).rejects.toMatchObject({ code: "REVOCATION_UNAVAILABLE", message: "CRL is stale (nextUpdate 2026-10-12T00:00:00.000Z)" });
+  });
+
+  it("lists each HTTP or HTTPS distribution point once, and nothing for a certificate that has none", async () => {
+    const a = await ac();
+    const keys = (await crypto.subtle.generateKey(alg, true, ["sign", "verify"])) as CryptoKeyPair;
+    const leaf = (extensions: x509.Extension[]) => x509.X509CertificateGenerator.create({ serialNumber: "0e", subject: "CN=ACME LTDA:11222333000181, O=ICP-Brasil, C=BR", issuer: a.cert.subject, notBefore: new Date("2026-01-01"), notAfter: new Date("2027-01-01"), signingAlgorithm: alg, publicKey: keys.publicKey, signingKey: a.keys.privateKey, extensions });
+    expect(crlUrlsOf(await leaf([]))).toEqual([]);
+    const urls = ["http://lcr.ac-teste.br/ac.crl", "http://lcr.ac-teste.br/ac.crl", "HTTPS://repositorio.example/ac.crl", "ldap://diretorio.example/ac", "ftp://example/http://ac.crl", "xhttp://example/ac.crl"];
+    expect(crlUrlsOf(await leaf([new x509.CRLDistributionPointsExtension(urls)]))).toEqual(["http://lcr.ac-teste.br/ac.crl", "HTTPS://repositorio.example/ac.crl"]);
+  });
+
+  it("keeps an authorization only when the revocation and the suspected compromise come strictly after it", () => {
+    const at = "2026-10-01T00:00:00Z";
+    const keep: CertificateRevocationPolicy = { by_reason: { superseded: "keep" }, other: "revoke" };
+    const entry = (revoked_at: string | null, invalidity_date: string | null = null) => ({ revoked: true, revoked_at, reason: "superseded", invalidity_date });
+    expect(revocationEffect(entry("2026-10-01T00:00:00.001Z"), at, keep)).toBe("none");
+    expect(revocationEffect(entry("2026-10-01T00:00:00Z"), at, keep)).toBe("revoke");
+    expect(revocationEffect(entry(null), at, keep)).toBe("revoke");
+    expect(revocationEffect(entry("2026-10-05T00:00:00Z", "2026-10-01T00:00:00.001Z"), at, keep)).toBe("none");
+    expect(revocationEffect(entry("2026-10-05T00:00:00Z", "2026-10-01T00:00:00Z"), at, keep)).toBe("revoke");
+    expect(revocationEffect(entry("2026-10-05T00:00:00Z", ""), at, keep)).toBe("none");
+    expect(revocationEffect(entry("2026-10-05T00:00:00Z"), "", keep)).toBe("revoke");
+  });
+
+  it("gives a reason it does not know, or none, the effect of `other`", () => {
+    const policy: CertificateRevocationPolicy = { by_reason: { superseded: "keep", certificateHold: "suspend" }, other: "suspend" };
+    const entry = (reason: string | null) => ({ revoked: true, revoked_at: "2026-10-05T00:00:00Z", reason });
+    for (const reason of [null, "", "stolen", "toString", "constructor", "KEYCOMPROMISE"]) expect(revocationEffect(entry(reason), "2026-10-01T00:00:00Z", policy), String(reason)).toBe("suspend");
+    expect(revocationEffect(entry("superseded"), "2026-10-01T00:00:00Z", policy)).toBe("none");
+    expect(revocationEffect(entry("keyCompromise"), "2026-10-01T00:00:00Z", { by_reason: {}, other: "revoke" })).toBe("revoke");
+  });
+
+  it("requires the policy to be an object with both parts, and returns a copy of it", () => {
+    for (const p of [null, undefined, "revoke", 5]) expect(() => certificateRevocationPolicy(p as never), String(p)).toThrow("a certificate revocation policy is required: { by_reason, other }");
+    for (const other of [undefined, "keep", "none", true]) expect(() => certificateRevocationPolicy({ by_reason: {}, other } as never)).toThrow('policy.other is required: "revoke" or "suspend"');
+    for (const by_reason of [undefined, null, "keep", 5]) expect(() => certificateRevocationPolicy({ by_reason, other: "revoke" } as never)).toThrow("policy.by_reason is required (it may be empty)");
+    expect(() => certificateRevocationPolicy({ by_reason: { stolen: "revoke" }, other: "revoke" } as never)).toThrow("policy.by_reason.stolen is not an RFC 5280 reason");
+    for (const v of ["ignore", "", null, true]) expect(() => certificateRevocationPolicy({ by_reason: { superseded: v }, other: "revoke" } as never)).toThrow('policy.by_reason.superseded must be "revoke", "suspend" or "keep"');
+    const mine: CertificateRevocationPolicy = { by_reason: { superseded: "keep" }, other: "suspend" };
+    const copy = certificateRevocationPolicy(mine);
+    expect(copy).toEqual(mine);
+    expect(copy).not.toBe(mine);
+    expect(copy.by_reason).not.toBe(mine.by_reason);
+  });
+});

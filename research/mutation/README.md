@@ -35,14 +35,25 @@ first run: the rules were right and untested at the edge.
 | `src/mandate.ts` | 67.2% | 90.3% |
 | `src/delegation.ts` | 66.4% | 93.2% |
 | `src/freshness.ts` | 74.7% | 95.4% |
+| `src/cosign.ts` | 66.2% | 95.1% |
+| `src/crl-der.ts` | 65.8% | 95.0% |
 | `src/attestation.ts` | 75.7% | 94.7% |
 | `src/cnpj.ts` | 64.7% | 94.1% |
-| All fifteen | 69.4% | 78.1% |
+| `src/principal-proof.ts` | 62.4% | 93.7% |
+| `src/revocation.ts` | 82.8% | 86.4% |
+| All fifteen | 69.4% | 84.0% |
 
 The same was then done for the freshness policy (`freshness-boundaries.test.ts`), for the CNPJ, which had no test
-of its own (`cnpj.test.ts`), and for the CPF digits, the surrogates of the canonical JSON and the reasons a signed
-answer gives (`identity-boundaries.test.ts`). The other ten files are as measured on core 0.22.0: `results/` holds
-each batch as last run, some after the new tests and some before them.
+of its own (`cnpj.test.ts`), for the CPF digits, the surrogates of the canonical JSON and the reasons a signed
+answer gives (`identity-boundaries.test.ts`), for the DER reader of CRLs, on lists built byte by byte
+(`crl-der.test.ts`), for the revocation rules (`revocation.test.ts`), and for the principal's proof and the
+co-signature, check by check (`cosign.test.ts`). No new test found a fault in the library.
+
+Six files were left as measured, between 64.6% and 80.6%: `icp-brasil.ts`, `issuance.ts`, `timestamp.ts`,
+`person.ts`, `credential.ts` and `challenge.ts`. Their survivors are mostly in the validation of the issuer's own
+input and in paths that need a time-stamping authority or a certificate of an unusual shape to reach; the
+verification they feed is covered by the vectors and by `research/differential`. The count of mutants is 4 489
+since core 0.22.2 added code to `icp-brasil.ts`.
 
 ## What this does not show
 
