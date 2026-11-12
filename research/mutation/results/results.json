@@ -1,14 +1,14 @@
 {
-  "core_version": "0.22.1",
-  "commit": "8aff7ea665d5a433246235614c24062afb3d9108",
+  "core_version": "0.22.2",
+  "commit": "9bf0445a2459c19b2b89888558f880c58500e999",
   "stryker": "10.1.1",
-  "mutants": 4447,
-  "Killed": 3465,
+  "mutants": 4489,
+  "Killed": 3761,
   "Timeout": 8,
-  "Survived": 803,
-  "NoCoverage": 171,
+  "Survived": 599,
+  "NoCoverage": 121,
   "other": 14,
-  "score": 78.1,
+  "score": 84,
   "files": {
     "src/attestation.ts": {
       "batch": "credential",
@@ -315,239 +315,17 @@
     },
     "src/cosign.ts": {
       "batch": "policy",
-      "Killed": 174,
+      "Killed": 250,
       "Timeout": 0,
-      "Survived": 71,
-      "NoCoverage": 18,
+      "Survived": 12,
+      "NoCoverage": 1,
       "other": 0,
       "survived": [
-        {
-          "line": 31,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 33,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 34,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 35,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 36,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 37,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 38,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 98,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 101,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 104,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 104,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 131,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 132,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 132,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 132,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 132,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 132,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
         {
           "line": 141,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
-        },
-        {
-          "line": 20,
-          "mutator": "LogicalOperator",
-          "replacement": "d instanceof Date || !Number.isNaN(d.getTime())",
-          "status": "Survived"
-        },
-        {
-          "line": 20,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "LogicalOperator",
-          "replacement": "(!issued?.credential || !issued.proof) && typeof issued.proof.text !== \"string\"",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "LogicalOperator",
-          "replacement": "!issued?.credential && !issued.proof",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "OptionalChaining",
-          "replacement": "issued.credential",
-          "status": "Survived"
-        },
-        {
-          "line": 31,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 33,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 34,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 34,
-          "mutator": "LogicalOperator",
-          "replacement": "!c.principal && isPersonPrincipal(c.principal)",
-          "status": "Survived"
-        },
-        {
-          "line": 35,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 35,
-          "mutator": "OptionalChaining",
-          "replacement": "opts.now",
-          "status": "Survived"
-        },
-        {
-          "line": 36,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 36,
-          "mutator": "LogicalOperator",
-          "replacement": "!Array.isArray(opts.anchors) && !opts.anchors.length",
-          "status": "Survived"
-        },
-        {
-          "line": 37,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 37,
-          "mutator": "LogicalOperator",
-          "replacement": "typeof cms !== \"string\" && !cms.trim()",
-          "status": "Survived"
-        },
-        {
-          "line": 37,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 37,
-          "mutator": "MethodExpression",
-          "replacement": "cms",
-          "status": "Survived"
-        },
-        {
-          "line": 38,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
         },
         {
           "line": 42,
@@ -556,39 +334,9 @@
           "status": "Survived"
         },
         {
-          "line": 96,
-          "mutator": "ArrayDeclaration",
-          "replacement": "[\"Stryker was here\"]",
-          "status": "Survived"
-        },
-        {
-          "line": 43,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
           "line": 97,
           "mutator": "OptionalChaining",
           "replacement": "opts.minCosigners",
-          "status": "Survived"
-        },
-        {
-          "line": 98,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 98,
-          "mutator": "LogicalOperator",
-          "replacement": "!Number.isInteger(min) && min < 1",
-          "status": "Survived"
-        },
-        {
-          "line": 98,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -605,50 +353,8 @@
         },
         {
           "line": 101,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 102,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 101,
           "mutator": "OptionalChaining",
           "replacement": "opts.representatives",
-          "status": "Survived"
-        },
-        {
-          "line": 103,
-          "mutator": "OptionalChaining",
-          "replacement": "issued.credential",
-          "status": "Survived"
-        },
-        {
-          "line": 104,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 104,
-          "mutator": "LogicalOperator",
-          "replacement": "!c?.principal && isPersonPrincipal(c.principal)",
-          "status": "Survived"
-        },
-        {
-          "line": 104,
-          "mutator": "OptionalChaining",
-          "replacement": "c.principal",
-          "status": "Survived"
-        },
-        {
-          "line": 108,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
           "status": "Survived"
         },
         {
@@ -658,49 +364,7 @@
           "status": "Survived"
         },
         {
-          "line": 108,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 110,
-          "mutator": "MethodExpression",
-          "replacement": "base.checks",
-          "status": "Survived"
-        },
-        {
-          "line": 110,
-          "mutator": "ArrowFunction",
-          "replacement": "() => undefined",
-          "status": "Survived"
-        },
-        {
-          "line": 110,
-          "mutator": "BooleanLiteral",
-          "replacement": "x.ok",
-          "status": "Survived"
-        },
-        {
-          "line": 110,
-          "mutator": "ArrowFunction",
-          "replacement": "() => undefined",
-          "status": "Survived"
-        },
-        {
-          "line": 110,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 110,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 113,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
@@ -712,18 +376,6 @@
           "status": "Survived"
         },
         {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 135,
           "mutator": "ConditionalExpression",
           "replacement": "true",
@@ -732,18 +384,6 @@
         {
           "line": 138,
           "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "EqualityOperator",
-          "replacement": "basis !== \"representatives\"",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
@@ -757,106 +397,10 @@
           "line": 138,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "EqualityOperator",
-          "replacement": "basis !== \"ecnpj_responsible\"",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 139,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 147,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 147,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 147,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 152,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 154,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 153,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 152,
-          "mutator": "StringLiteral",
-          "replacement": "``",
           "status": "Survived"
         }
       ],
-      "score": 66.2
+      "score": 95.1
     },
     "src/credential.ts": {
       "batch": "credential",
@@ -1033,126 +577,12 @@
     },
     "src/crl-der.ts": {
       "batch": "pki",
-      "Killed": 234,
+      "Killed": 340,
       "Timeout": 5,
-      "Survived": 99,
-      "NoCoverage": 25,
+      "Survived": 17,
+      "NoCoverage": 1,
       "other": 0,
       "survived": [
-        {
-          "line": 25,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 27,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 30,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 34,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 54,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 54,
-          "mutator": "EqualityOperator",
-          "replacement": "t.tag !== 0x18",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 67,
-          "mutator": "ArithmeticOperator",
-          "replacement": "1900 - yy",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 72,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 85,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 128,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 131,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 143,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 144,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 146,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 148,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 152,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 162,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 172,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 174,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
         {
           "line": 175,
           "mutator": "StringLiteral",
@@ -1160,171 +590,9 @@
           "status": "NoCoverage"
         },
         {
-          "line": 200,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 233,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 237,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 237,
-          "mutator": "EqualityOperator",
-          "replacement": "v[0] !== 0",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 238,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 25,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 25,
-          "mutator": "ArithmeticOperator",
-          "replacement": "pos - 2",
-          "status": "Survived"
-        },
-        {
-          "line": 27,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 33,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 30,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 33,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 33,
-          "mutator": "EqualityOperator",
-          "replacement": "n >= 4",
-          "status": "Survived"
-        },
-        {
-          "line": 34,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 34,
           "mutator": "EqualityOperator",
           "replacement": "start + n >= limit",
-          "status": "Survived"
-        },
-        {
-          "line": 34,
-          "mutator": "ArithmeticOperator",
-          "replacement": "start - n",
-          "status": "Survived"
-        },
-        {
-          "line": 40,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 40,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 54,
-          "mutator": "LogicalOperator",
-          "replacement": "!!t || t.tag === 0x17 || t.tag === 0x18",
-          "status": "Survived"
-        },
-        {
-          "line": 54,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 54,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 65,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 65,
-          "mutator": "Regex",
-          "replacement": "/(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})Z$/",
-          "status": "Survived"
-        },
-        {
-          "line": 65,
-          "mutator": "Regex",
-          "replacement": "/^(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})Z/",
-          "status": "Survived"
-        },
-        {
-          "line": 68,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 68,
-          "mutator": "Regex",
-          "replacement": "/(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\.\\d+)?Z$/",
-          "status": "Survived"
-        },
-        {
-          "line": 68,
-          "mutator": "Regex",
-          "replacement": "/^(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\.\\d+)?Z/",
-          "status": "Survived"
-        },
-        {
-          "line": 67,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 67,
-          "mutator": "EqualityOperator",
-          "replacement": "yy > 50",
           "status": "Survived"
         },
         {
@@ -1334,117 +602,15 @@
           "status": "Survived"
         },
         {
-          "line": 68,
-          "mutator": "Regex",
-          "replacement": "/^(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\.\\D+)?Z$/",
-          "status": "Survived"
-        },
-        {
-          "line": 72,
-          "mutator": "LogicalOperator",
-          "replacement": "!d && Number.isNaN(d.getTime())",
-          "status": "Survived"
-        },
-        {
-          "line": 72,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 79,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
           "line": 79,
           "mutator": "EqualityOperator",
           "replacement": "v <= 80",
           "status": "Survived"
         },
         {
-          "line": 85,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 126,
           "mutator": "EqualityOperator",
           "replacement": "b.length >= MAX_CRL_BYTES",
-          "status": "Survived"
-        },
-        {
-          "line": 128,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 128,
-          "mutator": "LogicalOperator",
-          "replacement": "outer.tag !== 0x30 && outer.end !== b.length",
-          "status": "Survived"
-        },
-        {
-          "line": 128,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 128,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "LogicalOperator",
-          "replacement": "(top.length !== 3 || tbsT?.tag !== 0x30 || algT?.tag !== 0x30) && sigT?.tag !== 0x03",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "LogicalOperator",
-          "replacement": "(top.length !== 3 || tbsT?.tag !== 0x30) && algT?.tag !== 0x30",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "LogicalOperator",
-          "replacement": "top.length !== 3 && tbsT?.tag !== 0x30",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -1455,20 +621,8 @@
         },
         {
           "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
           "mutator": "OptionalChaining",
           "replacement": "algT.tag",
-          "status": "Survived"
-        },
-        {
-          "line": 131,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -1478,93 +632,9 @@
           "status": "Survived"
         },
         {
-          "line": 141,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 141,
-          "mutator": "OptionalChaining",
-          "replacement": "f[i].tag",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "OptionalChaining",
-          "replacement": "innerAlg.tag",
-          "status": "Survived"
-        },
-        {
-          "line": 144,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 146,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 146,
           "mutator": "OptionalChaining",
           "replacement": "issuer.tag",
-          "status": "Survived"
-        },
-        {
-          "line": 148,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 152,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "EqualityOperator",
-          "replacement": "p.tag === 0x05",
-          "status": "Survived"
-        },
-        {
-          "line": 162,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 162,
-          "mutator": "LogicalOperator",
-          "replacement": "sigT.end - sigT.start < 1 && b[sigT.start] !== 0",
-          "status": "Survived"
-        },
-        {
-          "line": 162,
-          "mutator": "EqualityOperator",
-          "replacement": "sigT.end - sigT.start <= 1",
           "status": "Survived"
         },
         {
@@ -1580,42 +650,6 @@
           "status": "Survived"
         },
         {
-          "line": 162,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 172,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "LogicalOperator",
-          "replacement": "serial.tag !== 0x02 && serial.end === serial.start",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 175,
           "mutator": "ConditionalExpression",
           "replacement": "false",
@@ -1628,57 +662,9 @@
           "status": "Survived"
         },
         {
-          "line": 176,
-          "mutator": "Regex",
-          "replacement": "/^0(?=.)/",
-          "status": "Survived"
-        },
-        {
-          "line": 186,
-          "mutator": "UnaryOperator",
-          "replacement": "+1",
-          "status": "Survived"
-        },
-        {
-          "line": 187,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 189,
-          "mutator": "LogicalOperator",
-          "replacement": "oid === \"2.5.29.21\" || v.tag === 0x0a",
-          "status": "Survived"
-        },
-        {
           "line": 189,
           "mutator": "ConditionalExpression",
           "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 189,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 193,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 193,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 193,
-          "mutator": "LogicalOperator",
-          "replacement": "oid === \"2.5.29.24\" || v.tag === 0x18",
           "status": "Survived"
         },
         {
@@ -1694,72 +680,6 @@
           "status": "Survived"
         },
         {
-          "line": 200,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "LogicalOperator",
-          "replacement": "(!r || !s || r.tag !== 0x02) && s.tag !== 0x02",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "LogicalOperator",
-          "replacement": "(!r || !s) && r.tag !== 0x02",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "LogicalOperator",
-          "replacement": "!r && !s",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 233,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 237,
-          "mutator": "LogicalOperator",
-          "replacement": "v.length > size || v[0] === 0",
-          "status": "Survived"
-        },
-        {
-          "line": 237,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 237,
           "mutator": "ConditionalExpression",
           "replacement": "true",
@@ -1770,21 +690,9 @@
           "mutator": "EqualityOperator",
           "replacement": "v.length >= size",
           "status": "Survived"
-        },
-        {
-          "line": 237,
-          "mutator": "EqualityOperator",
-          "replacement": "v.length <= size",
-          "status": "Survived"
-        },
-        {
-          "line": 238,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
         }
       ],
-      "score": 65.8
+      "score": 95
     },
     "src/delegation.ts": {
       "batch": "mandate",
@@ -2104,158 +1012,152 @@
     },
     "src/icp-brasil.ts": {
       "batch": "pki",
-      "Killed": 219,
+      "Killed": 243,
       "Timeout": 0,
-      "Survived": 89,
-      "NoCoverage": 25,
+      "Survived": 109,
+      "NoCoverage": 24,
       "other": 0,
       "survived": [
         {
-          "line": 66,
+          "line": 79,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "NoCoverage"
         },
         {
-          "line": 111,
+          "line": 124,
           "mutator": "ArrayDeclaration",
           "replacement": "[\"Stryker was here\"]",
           "status": "NoCoverage"
         },
         {
-          "line": 114,
+          "line": 127,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "NoCoverage"
         },
         {
-          "line": 146,
+          "line": 159,
           "mutator": "LogicalOperator",
           "replacement": "/CN=([^,]+)/.exec(cert.subject)?.[1] && \"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 146,
+          "line": 159,
           "mutator": "OptionalChaining",
           "replacement": "/CN=([^,]+)/.exec(cert.subject)[1]",
           "status": "NoCoverage"
         },
         {
-          "line": 146,
+          "line": 159,
           "mutator": "Regex",
           "replacement": "/CN=([^,])/",
           "status": "NoCoverage"
         },
         {
-          "line": 146,
+          "line": 159,
           "mutator": "Regex",
           "replacement": "/CN=([,]+)/",
           "status": "NoCoverage"
         },
         {
-          "line": 146,
+          "line": 159,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "LogicalOperator",
           "replacement": "/:(\\d{11})\\s*$/.exec(cn)?.[1] && null",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "OptionalChaining",
           "replacement": "/:(\\d{11})\\s*$/.exec(cn)[1]",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "Regex",
           "replacement": "/:(\\d{11})\\s*/",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "Regex",
           "replacement": "/:(\\d)\\s*$/",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "Regex",
           "replacement": "/:(\\D{11})\\s*$/",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "Regex",
           "replacement": "/:(\\d{11})\\s$/",
           "status": "NoCoverage"
         },
         {
-          "line": 147,
+          "line": 160,
           "mutator": "Regex",
           "replacement": "/:(\\d{11})\\S*$/",
           "status": "NoCoverage"
         },
         {
-          "line": 172,
+          "line": 185,
           "mutator": "ArrayDeclaration",
           "replacement": "[\"Stryker was here\"]",
           "status": "NoCoverage"
         },
         {
-          "line": 176,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 210,
+          "line": 245,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 210,
+          "line": 245,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 211,
+          "line": 246,
           "mutator": "ArrayDeclaration",
           "replacement": "[\"Stryker was here\"]",
           "status": "NoCoverage"
         },
         {
-          "line": 212,
+          "line": 247,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 212,
+          "line": 247,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 271,
+          "line": 310,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 308,
+          "line": 347,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 308,
+          "line": 347,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
@@ -2279,6 +1181,12 @@
           "status": "Survived"
         },
         {
+          "line": 26,
+          "mutator": "BlockStatement",
+          "replacement": "{}",
+          "status": "Survived"
+        },
+        {
           "line": 27,
           "mutator": "ConditionalExpression",
           "replacement": "false",
@@ -2288,12 +1196,6 @@
           "line": 27,
           "mutator": "ConditionalExpression",
           "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 26,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
           "status": "Survived"
         },
         {
@@ -2304,486 +1206,540 @@
         },
         {
           "line": 32,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
-          "status": "Survived"
-        },
-        {
-          "line": 32,
           "mutator": "Regex",
           "replacement": "/\\s/g",
           "status": "Survived"
         },
         {
-          "line": 55,
+          "line": 32,
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
+          "status": "Survived"
+        },
+        {
+          "line": 68,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 58,
+          "line": 71,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 58,
+          "line": 71,
           "mutator": "UnaryOperator",
           "replacement": "+1",
           "status": "Survived"
         },
         {
-          "line": 63,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 63,
+          "line": 76,
           "mutator": "LogicalOperator",
           "replacement": "block.idBlock.tagClass !== 3 && block.idBlock.tagNumber !== 0",
           "status": "Survived"
         },
         {
-          "line": 63,
+          "line": 76,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 63,
+          "line": 76,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 66,
+          "line": 76,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 79,
           "mutator": "OptionalChaining",
           "replacement": "oid?.valueBlock?.toString()",
           "status": "Survived"
         },
         {
-          "line": 66,
+          "line": 79,
           "mutator": "OptionalChaining",
           "replacement": "oid?.valueBlock.toString",
           "status": "Survived"
         },
         {
-          "line": 66,
+          "line": 79,
           "mutator": "OptionalChaining",
           "replacement": "oid.valueBlock",
           "status": "Survived"
         },
         {
-          "line": 70,
+          "line": 83,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 71,
+          "line": 84,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 71,
+          "line": 84,
           "mutator": "LogicalOperator",
           "replacement": "\"valueBlock\" in valueBlock || \"valueHexView\" in valueBlock.valueBlock",
           "status": "Survived"
         },
         {
-          "line": 92,
+          "line": 105,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
-          "line": 93,
+          "line": 106,
           "mutator": "Regex",
           "replacement": "/[0-9A-Z]{12}\\d{2}$/",
           "status": "Survived"
         },
         {
-          "line": 93,
+          "line": 106,
           "mutator": "Regex",
           "replacement": "/^[0-9A-Z]{12}\\d{2}/",
           "status": "Survived"
         },
         {
-          "line": 111,
+          "line": 124,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 111,
+          "line": 124,
           "mutator": "UnaryOperator",
           "replacement": "+1",
           "status": "Survived"
         },
         {
-          "line": 114,
+          "line": 127,
           "mutator": "OptionalChaining",
           "replacement": "((info as asn1js.Sequence).valueBlock?.value?.[0] as asn1js.ObjectIdentifier | undefined)?.valueBlock?.toString()",
           "status": "Survived"
         },
         {
-          "line": 114,
-          "mutator": "OptionalChaining",
-          "replacement": "((info as asn1js.Sequence).valueBlock?.value?.[0] as asn1js.ObjectIdentifier | undefined)?.valueBlock.toString",
-          "status": "Survived"
-        },
-        {
-          "line": 114,
+          "line": 127,
           "mutator": "OptionalChaining",
           "replacement": "((info as asn1js.Sequence).valueBlock?.value?.[0] as asn1js.ObjectIdentifier | undefined).valueBlock",
           "status": "Survived"
         },
         {
-          "line": 115,
+          "line": 127,
+          "mutator": "OptionalChaining",
+          "replacement": "((info as asn1js.Sequence).valueBlock?.value?.[0] as asn1js.ObjectIdentifier | undefined)?.valueBlock.toString",
+          "status": "Survived"
+        },
+        {
+          "line": 128,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 109,
-          "mutator": "ArrayDeclaration",
-          "replacement": "[\"Stryker was here\"]",
-          "status": "Survived"
-        },
-        {
-          "line": 140,
+          "line": 153,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 141,
+          "line": 122,
+          "mutator": "ArrayDeclaration",
+          "replacement": "[\"Stryker was here\"]",
+          "status": "Survived"
+        },
+        {
+          "line": 154,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
-          "line": 145,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 145,
-          "mutator": "LogicalOperator",
-          "replacement": "serial !== null || /^\\d{11}$/.test(serial)",
-          "status": "Survived"
-        },
-        {
-          "line": 145,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 145,
-          "mutator": "Regex",
-          "replacement": "/\\d{11}$/",
-          "status": "Survived"
-        },
-        {
-          "line": 145,
-          "mutator": "Regex",
-          "replacement": "/^\\d{11}/",
-          "status": "Survived"
-        },
-        {
-          "line": 142,
+          "line": 158,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
           "line": 158,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 142,
-          "mutator": "EqualityOperator",
-          "replacement": "data.length > 19",
-          "status": "Survived"
-        },
-        {
-          "line": 159,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
-          "status": "Survived"
-        },
-        {
-          "line": 160,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 160,
-          "mutator": "EqualityOperator",
-          "replacement": "data.length > 19",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
           "mutator": "LogicalOperator",
-          "replacement": "cpf && /^\\d{11}$/.test(cpf) || !/^(\\d)\\1{10}$/.test(cpf)",
+          "replacement": "serial !== null || /^\\d{11}$/.test(serial)",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 158,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 161,
-          "mutator": "LogicalOperator",
-          "replacement": "cpf || /^\\d{11}$/.test(cpf)",
+          "line": 155,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 158,
           "mutator": "Regex",
           "replacement": "/\\d{11}$/",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 158,
           "mutator": "Regex",
           "replacement": "/^\\d{11}/",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 155,
+          "mutator": "EqualityOperator",
+          "replacement": "data.length > 19",
+          "status": "Survived"
+        },
+        {
+          "line": 171,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 172,
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
+          "status": "Survived"
+        },
+        {
+          "line": 173,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 173,
+          "mutator": "EqualityOperator",
+          "replacement": "data.length > 19",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "LogicalOperator",
+          "replacement": "cpf && /^\\d{11}$/.test(cpf) || !/^(\\d)\\1{10}$/.test(cpf)",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "LogicalOperator",
+          "replacement": "cpf || /^\\d{11}$/.test(cpf)",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "Regex",
+          "replacement": "/\\d{11}$/",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
+          "mutator": "Regex",
+          "replacement": "/^\\d{11}/",
+          "status": "Survived"
+        },
+        {
+          "line": 174,
           "mutator": "Regex",
           "replacement": "/(\\d)\\1{10}$/",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 174,
           "mutator": "Regex",
           "replacement": "/^(\\d)\\1{10}/",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 174,
           "mutator": "Regex",
           "replacement": "/^(\\D)\\1{10}$/",
           "status": "Survived"
         },
         {
-          "line": 161,
+          "line": 174,
           "mutator": "Regex",
           "replacement": "/^(\\d)\\1$/",
           "status": "Survived"
         },
         {
-          "line": 172,
+          "line": 185,
           "mutator": "MethodExpression",
           "replacement": "signed.certificates ?? []",
           "status": "Survived"
         },
         {
-          "line": 174,
+          "line": 187,
           "mutator": "LogicalOperator",
           "replacement": "sid && certs.find(c => c.serialNumber.isEqual(sid.serialNumber) && c.issuer.isEqual(sid.issuer)) && certs[0]",
           "status": "Survived"
         },
         {
-          "line": 174,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
+          "line": 187,
           "mutator": "ArrowFunction",
           "replacement": "() => undefined",
           "status": "Survived"
         },
         {
-          "line": 174,
+          "line": 187,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 187,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 174,
+          "line": 187,
           "mutator": "LogicalOperator",
           "replacement": "c.serialNumber.isEqual(sid.serialNumber) || c.issuer.isEqual(sid.issuer)",
           "status": "Survived"
         },
         {
-          "line": 199,
-          "mutator": "CallExpression",
-          "replacement": ";",
+          "line": 211,
+          "mutator": "EqualityOperator",
+          "replacement": "depth <= 8",
           "status": "Survived"
         },
         {
-          "line": 210,
+          "line": 211,
+          "mutator": "UpdateOperator",
+          "replacement": "depth--",
+          "status": "Survived"
+        },
+        {
+          "line": 214,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 214,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 211,
+          "line": 216,
+          "mutator": "ArrowFunction",
+          "replacement": "() => undefined",
+          "status": "Survived"
+        },
+        {
+          "line": 217,
+          "mutator": "BooleanLiteral",
+          "replacement": "next",
+          "status": "Survived"
+        },
+        {
+          "line": 217,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 217,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 237,
+          "mutator": "CallExpression",
+          "replacement": ";",
+          "status": "Survived"
+        },
+        {
+          "line": 246,
           "mutator": "MethodExpression",
           "replacement": "signed.certificates ?? []",
           "status": "Survived"
         },
         {
-          "line": 212,
+          "line": 245,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 213,
+          "line": 247,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 248,
           "mutator": "Regex",
           "replacement": "/-----[^-]-----/g",
           "status": "Survived"
         },
         {
-          "line": 221,
+          "line": 256,
           "mutator": "LogicalOperator",
           "replacement": "content.length !== data.length && !content.every((b, i) => b === data[i])",
           "status": "Survived"
         },
         {
-          "line": 213,
-          "mutator": "Regex",
-          "replacement": "/-----[-]+-----/g",
-          "status": "Survived"
-        },
-        {
-          "line": 221,
+          "line": 256,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 213,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
-          "status": "Survived"
-        },
-        {
-          "line": 221,
+          "line": 256,
           "mutator": "MethodExpression",
           "replacement": "content.some((b, i) => b === data[i])",
           "status": "Survived"
         },
         {
-          "line": 221,
+          "line": 256,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 222,
+          "line": 248,
+          "mutator": "Regex",
+          "replacement": "/-----[-]+-----/g",
+          "status": "Survived"
+        },
+        {
+          "line": 248,
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
+          "status": "Survived"
+        },
+        {
+          "line": 257,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 228,
+          "line": 263,
           "mutator": "BlockStatement",
           "replacement": "{}",
           "status": "Survived"
         },
         {
-          "line": 229,
+          "line": 264,
           "mutator": "CallExpression",
           "replacement": ";",
           "status": "Survived"
         },
         {
-          "line": 225,
+          "line": 260,
           "mutator": "BooleanLiteral",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 236,
-          "mutator": "LogicalOperator",
-          "replacement": "certs.find(c => c.serialNumber.isEqual(sid.serialNumber) && c.issuer.isEqual(sid.issuer)) && certs[0]!",
-          "status": "Survived"
-        },
-        {
-          "line": 236,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 236,
+          "line": 271,
           "mutator": "ArrowFunction",
           "replacement": "() => undefined",
           "status": "Survived"
         },
         {
-          "line": 236,
+          "line": 271,
+          "mutator": "LogicalOperator",
+          "replacement": "certs.find(c => c.serialNumber.isEqual(sid.serialNumber) && c.issuer.isEqual(sid.issuer)) && certs[0]!",
+          "status": "Survived"
+        },
+        {
+          "line": 271,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 271,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 236,
+          "line": 271,
           "mutator": "LogicalOperator",
           "replacement": "c.serialNumber.isEqual(sid.serialNumber) || c.issuer.isEqual(sid.issuer)",
           "status": "Survived"
         },
         {
-          "line": 239,
+          "line": 274,
           "mutator": "EqualityOperator",
           "replacement": "x.notBefore >= now",
           "status": "Survived"
         },
         {
-          "line": 239,
+          "line": 274,
           "mutator": "EqualityOperator",
           "replacement": "x.notAfter <= now",
           "status": "Survived"
         },
         {
-          "line": 248,
+          "line": 288,
+          "mutator": "ArrayDeclaration",
+          "replacement": "[]",
+          "status": "Survived"
+        },
+        {
+          "line": 283,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 248,
+          "line": 283,
           "mutator": "BooleanLiteral",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 304,
+          "line": 307,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
-          "line": 268,
+          "line": 343,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
-          "line": 308,
+          "line": 347,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
@@ -2793,16 +1749,82 @@
           "mutator": "BooleanLiteral",
           "replacement": "true",
           "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 199,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 201,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 201,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
         }
       ],
-      "score": 65.8
+      "score": 64.6
     },
     "src/issuance.ts": {
       "batch": "issuance",
-      "Killed": 433,
+      "Killed": 435,
       "Timeout": 0,
-      "Survived": 164,
-      "NoCoverage": 54,
+      "Survived": 165,
+      "NoCoverage": 50,
       "other": 0,
       "survived": [
         {
@@ -2860,51 +1882,33 @@
           "status": "NoCoverage"
         },
         {
-          "line": 223,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 224,
-          "mutator": "CallExpression",
-          "replacement": ";",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 224,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 224,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 226,
+          "line": 225,
           "mutator": "ArrayDeclaration",
           "replacement": "[\"Stryker was here\"]",
           "status": "NoCoverage"
         },
         {
-          "line": 234,
+          "line": 233,
           "mutator": "BlockStatement",
           "replacement": "{}",
           "status": "NoCoverage"
         },
         {
-          "line": 235,
+          "line": 234,
           "mutator": "StringLiteral",
           "replacement": "``",
           "status": "NoCoverage"
         },
         {
-          "line": 253,
+          "line": 252,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 270,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
@@ -2914,97 +1918,97 @@
           "status": "NoCoverage"
         },
         {
-          "line": 272,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 354,
+          "line": 353,
           "mutator": "StringLiteral",
           "replacement": "``",
           "status": "NoCoverage"
         },
         {
-          "line": 354,
+          "line": 353,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 369,
+          "mutator": "BlockStatement",
+          "replacement": "{}",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 370,
+          "mutator": "ObjectLiteral",
+          "replacement": "{}",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 370,
+          "mutator": "BooleanLiteral",
+          "replacement": "true",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 370,
+          "mutator": "ArrayDeclaration",
+          "replacement": "[]",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 370,
+          "mutator": "ObjectLiteral",
+          "replacement": "{}",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 370,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
           "line": 370,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 371,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 371,
           "mutator": "BooleanLiteral",
           "replacement": "true",
           "status": "NoCoverage"
         },
         {
-          "line": 371,
-          "mutator": "ArrayDeclaration",
-          "replacement": "[]",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 371,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 371,
+          "line": 370,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 371,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 371,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 375,
+          "line": 374,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "NoCoverage"
         },
         {
-          "line": 378,
+          "line": 377,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 382,
+          "line": 381,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 388,
+          "line": 387,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "NoCoverage"
         },
         {
-          "line": 393,
+          "line": 392,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 394,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
@@ -3016,7 +2020,13 @@
           "status": "NoCoverage"
         },
         {
-          "line": 396,
+          "line": 408,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "NoCoverage"
+        },
+        {
+          "line": 408,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
@@ -3058,13 +2068,7 @@
           "status": "NoCoverage"
         },
         {
-          "line": 412,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 412,
+          "line": 430,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
@@ -3076,55 +2080,49 @@
           "status": "NoCoverage"
         },
         {
-          "line": 432,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 435,
+          "line": 434,
           "mutator": "StringLiteral",
           "replacement": "``",
           "status": "NoCoverage"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "NoCoverage"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "NoCoverage"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "EqualityOperator",
           "replacement": "Date.parse(link.expires_at) < now.getTime()",
           "status": "NoCoverage"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "EqualityOperator",
           "replacement": "Date.parse(link.expires_at) > now.getTime()",
           "status": "NoCoverage"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 440,
+          "line": 439,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
         },
         {
-          "line": 451,
+          "line": 450,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "NoCoverage"
@@ -3173,14 +2171,14 @@
         },
         {
           "line": 128,
-          "mutator": "LogicalOperator",
-          "replacement": "(!input || typeof input !== \"object\") && Array.isArray(input)",
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
           "status": "Survived"
         },
         {
           "line": 128,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
+          "mutator": "LogicalOperator",
+          "replacement": "(!input || typeof input !== \"object\") && Array.isArray(input)",
           "status": "Survived"
         },
         {
@@ -3203,14 +2201,14 @@
         },
         {
           "line": 143,
-          "mutator": "LogicalOperator",
-          "replacement": "!input && typeof input !== \"object\"",
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
           "status": "Survived"
         },
         {
           "line": 143,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
+          "mutator": "LogicalOperator",
+          "replacement": "!input && typeof input !== \"object\"",
           "status": "Survived"
         },
         {
@@ -3227,14 +2225,14 @@
         },
         {
           "line": 146,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
+          "mutator": "LogicalOperator",
+          "replacement": "!input.agent && typeof input.agent !== \"object\"",
           "status": "Survived"
         },
         {
           "line": 146,
-          "mutator": "LogicalOperator",
-          "replacement": "!input.agent && typeof input.agent !== \"object\"",
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -3305,14 +2303,14 @@
         },
         {
           "line": 179,
-          "mutator": "LogicalOperator",
-          "replacement": "(!b || b.version !== 1 || b.issuer !== SELF_ISSUER || typeof b.credential_id !== \"string\") && !ID.test(b.credential_id)",
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
           "status": "Survived"
         },
         {
           "line": 179,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
+          "mutator": "LogicalOperator",
+          "replacement": "(!b || b.version !== 1 || b.issuer !== SELF_ISSUER || typeof b.credential_id !== \"string\") && !ID.test(b.credential_id)",
           "status": "Survived"
         },
         {
@@ -3383,14 +2381,14 @@
         },
         {
           "line": 182,
-          "mutator": "OptionalChaining",
-          "replacement": "b.principal.kind",
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
           "status": "Survived"
         },
         {
           "line": 182,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
+          "mutator": "OptionalChaining",
+          "replacement": "b.principal.kind",
           "status": "Survived"
         },
         {
@@ -3484,13 +2482,19 @@
           "status": "Survived"
         },
         {
-          "line": 238,
+          "line": 223,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 237,
           "mutator": "CallExpression",
           "replacement": ";",
           "status": "Survived"
         },
         {
-          "line": 240,
+          "line": 239,
           "mutator": "UpdateOperator",
           "replacement": "added--",
           "status": "Survived"
@@ -3502,369 +2506,387 @@
           "status": "Survived"
         },
         {
-          "line": 226,
+          "line": 225,
           "mutator": "MethodExpression",
           "replacement": "signed.certificates ?? []",
           "status": "Survived"
         },
         {
-          "line": 227,
+          "line": 226,
           "mutator": "BooleanLiteral",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 244,
+          "line": 243,
           "mutator": "BooleanLiteral",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 242,
+          "line": 241,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 242,
+          "line": 241,
           "mutator": "Regex",
           "replacement": "/\\s/g",
           "status": "Survived"
         },
         {
-          "line": 253,
+          "line": 252,
           "mutator": "MethodExpression",
           "replacement": "/(?:^|,\\s*)CN=([^,]+)/.exec(subject)?.[1]",
           "status": "Survived"
         },
         {
-          "line": 242,
+          "line": 241,
           "mutator": "StringLiteral",
           "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
-          "line": 253,
+          "line": 252,
           "mutator": "OptionalChaining",
           "replacement": "/(?:^|,\\s*)CN=([^,]+)/.exec(subject)?.[1].trim",
           "status": "Survived"
         },
         {
-          "line": 253,
+          "line": 252,
           "mutator": "OptionalChaining",
           "replacement": "/(?:^|,\\s*)CN=([^,]+)/.exec(subject)[1]",
           "status": "Survived"
         },
         {
-          "line": 253,
+          "line": 252,
+          "mutator": "Regex",
+          "replacement": "/(?:^|,\\s)CN=([^,]+)/",
+          "status": "Survived"
+        },
+        {
+          "line": 252,
           "mutator": "Regex",
           "replacement": "/(?:^|,\\S*)CN=([^,]+)/",
           "status": "Survived"
         },
         {
           "line": 253,
-          "mutator": "Regex",
-          "replacement": "/(?:^|,\\s)CN=([^,]+)/",
-          "status": "Survived"
-        },
-        {
-          "line": 254,
           "mutator": "MethodExpression",
           "replacement": "cn.replace(/:[0-9A-Za-z]{12}\\d{2}\\s*$/, \"\")",
           "status": "Survived"
         },
         {
-          "line": 254,
+          "line": 253,
           "mutator": "Regex",
           "replacement": "/:[0-9A-Za-z]{12}\\d{2}\\s*/",
           "status": "Survived"
         },
         {
-          "line": 254,
+          "line": 253,
           "mutator": "Regex",
           "replacement": "/:[0-9A-Za-z]{12}\\d{2}\\S*$/",
           "status": "Survived"
         },
         {
-          "line": 269,
+          "line": 268,
           "mutator": "OptionalChaining",
           "replacement": "opts.now",
           "status": "Survived"
         },
         {
-          "line": 269,
+          "line": 268,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 270,
+          "line": 269,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 270,
+          "line": 269,
           "mutator": "LogicalOperator",
           "replacement": "!Array.isArray(opts.anchors) && !opts.anchors.length",
           "status": "Survived"
         },
         {
-          "line": 271,
+          "line": 270,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 271,
+          "line": 270,
           "mutator": "LogicalOperator",
           "replacement": "typeof signature !== \"string\" && !signature.trim()",
           "status": "Survived"
         },
         {
-          "line": 271,
+          "line": 270,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 271,
+          "line": 270,
           "mutator": "MethodExpression",
           "replacement": "signature",
           "status": "Survived"
         },
         {
-          "line": 272,
+          "line": 271,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 277,
+          "line": 276,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 324,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
           "line": 325,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 326,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 326,
+          "line": 325,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 326,
+          "line": 325,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 326,
+          "line": 325,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 356,
+          "line": 355,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 354,
+          "line": 353,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 356,
+          "line": 355,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 369,
           "mutator": "LogicalOperator",
           "replacement": "(!c || typeof c !== \"object\" || !c.agent || !c.principal || !c.authorized_by) && !c.mandate",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 370,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 370,
+          "line": 369,
           "mutator": "LogicalOperator",
           "replacement": "(!c || typeof c !== \"object\" || !c.agent || !c.principal) && !c.authorized_by",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "LogicalOperator",
           "replacement": "(!c || typeof c !== \"object\" || !c.agent) && !c.principal",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "LogicalOperator",
           "replacement": "(!c || typeof c !== \"object\") && !c.agent",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 369,
           "mutator": "LogicalOperator",
           "replacement": "!c && typeof c !== \"object\"",
           "status": "Survived"
         },
         {
-          "line": 370,
+          "line": 369,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 370,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 377,
+          "line": 376,
           "mutator": "StringLiteral",
           "replacement": "``",
           "status": "Survived"
         },
         {
-          "line": 375,
+          "line": 374,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 375,
+          "line": 378,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 374,
           "mutator": "OptionalChaining",
           "replacement": "p.proof.text",
           "status": "Survived"
         },
         {
-          "line": 379,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 378,
+          "line": 377,
           "mutator": "ConditionalExpression",
           "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 383,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 384,
-          "mutator": "CallExpression",
-          "replacement": ";",
-          "status": "Survived"
-        },
-        {
-          "line": 381,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 380,
-          "mutator": "CallExpression",
-          "replacement": ";",
           "status": "Survived"
         },
         {
           "line": 382,
+          "mutator": "BlockStatement",
+          "replacement": "{}",
+          "status": "Survived"
+        },
+        {
+          "line": 383,
+          "mutator": "CallExpression",
+          "replacement": ";",
+          "status": "Survived"
+        },
+        {
+          "line": 379,
+          "mutator": "CallExpression",
+          "replacement": ";",
+          "status": "Survived"
+        },
+        {
+          "line": 380,
+          "mutator": "BlockStatement",
+          "replacement": "{}",
+          "status": "Survived"
+        },
+        {
+          "line": 381,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 386,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 394,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 386,
+          "line": 385,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
           "line": 393,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 385,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 392,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 395,
+          "line": 394,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 394,
           "mutator": "LogicalOperator",
           "replacement": "(!Number.isFinite(issued) || !Number.isFinite(expires)) && issued >= expires",
           "status": "Survived"
         },
         {
-          "line": 395,
+          "line": 394,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 395,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 395,
+          "line": 394,
           "mutator": "LogicalOperator",
           "replacement": "!Number.isFinite(issued) && !Number.isFinite(expires)",
+          "status": "Survived"
+        },
+        {
+          "line": 396,
+          "mutator": "StringLiteral",
+          "replacement": "``",
+          "status": "Survived"
+        },
+        {
+          "line": 394,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 394,
+          "mutator": "EqualityOperator",
+          "replacement": "issued > expires",
           "status": "Survived"
         },
         {
@@ -3880,9 +2902,111 @@
           "status": "Survived"
         },
         {
-          "line": 395,
-          "mutator": "EqualityOperator",
-          "replacement": "issued > expires",
+          "line": 398,
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "LogicalOperator",
+          "replacement": "(!issued?.credential || !issued.proof) && typeof issued.proof.cms !== \"string\"",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "LogicalOperator",
+          "replacement": "!issued?.credential && !issued.proof",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "OptionalChaining",
+          "replacement": "issued.credential",
+          "status": "Survived"
+        },
+        {
+          "line": 408,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 409,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 409,
+          "mutator": "LogicalOperator",
+          "replacement": "typeof token !== \"string\" && !token.trim()",
+          "status": "Survived"
+        },
+        {
+          "line": 409,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 409,
+          "mutator": "MethodExpression",
+          "replacement": "token",
+          "status": "Survived"
+        },
+        {
+          "line": 410,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 410,
+          "mutator": "LogicalOperator",
+          "replacement": "!(opts?.now instanceof Date) && Number.isNaN(opts.now.getTime())",
+          "status": "Survived"
+        },
+        {
+          "line": 410,
+          "mutator": "OptionalChaining",
+          "replacement": "opts.now",
+          "status": "Survived"
+        },
+        {
+          "line": 411,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 411,
+          "mutator": "LogicalOperator",
+          "replacement": "!Array.isArray(opts.anchors) && !opts.anchors.length",
+          "status": "Survived"
+        },
+        {
+          "line": 413,
+          "mutator": "Regex",
+          "replacement": "/\\s/g",
+          "status": "Survived"
+        },
+        {
+          "line": 413,
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
@@ -3892,217 +3016,97 @@
           "status": "Survived"
         },
         {
-          "line": 396,
+          "line": 430,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 399,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "LogicalOperator",
-          "replacement": "(!issued?.credential || !issued.proof) && typeof issued.proof.cms !== \"string\"",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "LogicalOperator",
-          "replacement": "!issued?.credential && !issued.proof",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "OptionalChaining",
-          "replacement": "issued.credential",
-          "status": "Survived"
-        },
-        {
-          "line": 409,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 410,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 410,
-          "mutator": "LogicalOperator",
-          "replacement": "typeof token !== \"string\" && !token.trim()",
-          "status": "Survived"
-        },
-        {
-          "line": 410,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 410,
-          "mutator": "MethodExpression",
-          "replacement": "token",
-          "status": "Survived"
-        },
-        {
-          "line": 411,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 411,
-          "mutator": "LogicalOperator",
-          "replacement": "!(opts?.now instanceof Date) && Number.isNaN(opts.now.getTime())",
-          "status": "Survived"
-        },
-        {
-          "line": 411,
-          "mutator": "OptionalChaining",
-          "replacement": "opts.now",
-          "status": "Survived"
-        },
-        {
-          "line": 399,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 412,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 412,
-          "mutator": "LogicalOperator",
-          "replacement": "!Array.isArray(opts.anchors) && !opts.anchors.length",
-          "status": "Survived"
-        },
-        {
-          "line": 414,
-          "mutator": "Regex",
-          "replacement": "/\\s/g",
-          "status": "Survived"
-        },
-        {
-          "line": 414,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
-          "status": "Survived"
-        },
-        {
-          "line": 431,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 431,
+          "line": 430,
           "mutator": "OptionalChaining",
           "replacement": "parent.credential",
           "status": "Survived"
         },
         {
-          "line": 432,
+          "line": 431,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 432,
+          "line": 431,
           "mutator": "LogicalOperator",
           "replacement": "!child && typeof child !== \"object\"",
           "status": "Survived"
         },
         {
-          "line": 432,
+          "line": 431,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 435,
+          "line": 434,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
-          "line": 435,
+          "line": 434,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 435,
+          "line": 434,
           "mutator": "EqualityOperator",
           "replacement": "credential.status === undefined",
           "status": "Survived"
         },
         {
-          "line": 437,
+          "line": 436,
           "mutator": "EqualityOperator",
           "replacement": "end < now.getTime()",
           "status": "Survived"
         },
         {
-          "line": 439,
+          "line": 438,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 438,
+          "line": 437,
           "mutator": "ArrayDeclaration",
           "replacement": "[\"Stryker was here\"]",
           "status": "Survived"
         },
         {
-          "line": 440,
+          "line": 439,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 449,
+          "mutator": "CallExpression",
+          "replacement": ";",
+          "status": "Survived"
+        },
+        {
+          "line": 450,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
         },
         {
           "line": 450,
-          "mutator": "CallExpression",
-          "replacement": ";",
-          "status": "Survived"
-        },
-        {
-          "line": 451,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 451,
           "mutator": "LogicalOperator",
           "replacement": "typeof signature !== \"string\" && !signature",
           "status": "Survived"
         },
         {
-          "line": 451,
+          "line": 450,
           "mutator": "ConditionalExpression",
           "replacement": "false",
           "status": "Survived"
@@ -4114,7 +3118,7 @@
           "status": "Survived"
         }
       ],
-      "score": 66.5
+      "score": 66.9
     },
     "src/mandate.ts": {
       "batch": "mandate",
@@ -4698,10 +3702,10 @@
     },
     "src/principal-proof.ts": {
       "batch": "issuance",
-      "Killed": 159,
+      "Killed": 239,
       "Timeout": 0,
-      "Survived": 90,
-      "NoCoverage": 6,
+      "Survived": 14,
+      "NoCoverage": 2,
       "other": 0,
       "survived": [
         {
@@ -4717,273 +3721,9 @@
           "status": "NoCoverage"
         },
         {
-          "line": 183,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 183,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 187,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 187,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "NoCoverage"
-        },
-        {
-          "line": 91,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 91,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 82,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 92,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 92,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 94,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 94,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 94,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 94,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 97,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 99,
-          "mutator": "ObjectLiteral",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 97,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 99,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 115,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 115,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 115,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 114,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 118,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 114,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 119,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 119,
-          "mutator": "BooleanLiteral",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 119,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 118,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 118,
-          "mutator": "LogicalOperator",
-          "replacement": "!(p.now instanceof Date) && Number.isNaN(p.now.getTime())",
-          "status": "Survived"
-        },
-        {
           "line": 125,
           "mutator": "OptionalChaining",
           "replacement": "c.authorized_by.method",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "LogicalOperator",
-          "replacement": "signer.error && `${person || representative ? \"e-CPF\" : \"e-CNPJ\"} signature over the text verifies up to the ICP-Brasil anchors`",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "LogicalOperator",
-          "replacement": "person && representative",
-          "status": "Survived"
-        },
-        {
-          "line": 129,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 136,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 138,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "EqualityOperator",
-          "replacement": "agent !== expectedAgent",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 143,
-          "mutator": "LogicalOperator",
-          "replacement": "agent && \"(none)\"",
           "status": "Survived"
         },
         {
@@ -5011,114 +3751,6 @@
           "status": "Survived"
         },
         {
-          "line": 143,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 148,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "LogicalOperator",
-          "replacement": "cnpj && \"(none)\"",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "EqualityOperator",
-          "replacement": "cnpj !== expected",
-          "status": "Survived"
-        },
-        {
-          "line": 151,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "EqualityOperator",
-          "replacement": "issuer !== c.issuer",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "LogicalOperator",
-          "replacement": "issuer && \"(none)\"",
-          "status": "Survived"
-        },
-        {
-          "line": 155,
-          "mutator": "StringLiteral",
-          "replacement": "``",
-          "status": "Survived"
-        },
-        {
           "line": 158,
           "mutator": "ArrowFunction",
           "replacement": "() => undefined",
@@ -5128,54 +3760,6 @@
           "line": 160,
           "mutator": "ConditionalExpression",
           "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 160,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 160,
-          "mutator": "BooleanLiteral",
-          "replacement": "recorded",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "EqualityOperator",
-          "replacement": "signed !== null",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 161,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
           "status": "Survived"
         },
         {
@@ -5191,57 +3775,15 @@
           "status": "Survived"
         },
         {
-          "line": 179,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
-          "status": "Survived"
-        },
-        {
           "line": 180,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
           "status": "Survived"
         },
         {
-          "line": 178,
-          "mutator": "MethodExpression",
-          "replacement": "value",
-          "status": "Survived"
-        },
-        {
           "line": 183,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 183,
-          "mutator": "LogicalOperator",
-          "replacement": "(!o || typeof o.text !== \"string\") && typeof o.cms !== \"string\"",
-          "status": "Survived"
-        },
-        {
-          "line": 183,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 183,
-          "mutator": "LogicalOperator",
-          "replacement": "!o && typeof o.text !== \"string\"",
-          "status": "Survived"
-        },
-        {
-          "line": 183,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 183,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
           "status": "Survived"
         },
         {
@@ -5258,36 +3800,18 @@
         },
         {
           "line": 187,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 187,
-          "mutator": "LogicalOperator",
-          "replacement": "!Array.isArray(o.cosignatures) && !o.cosignatures.every(c => typeof c === \"string\")",
-          "status": "Survived"
-        },
-        {
-          "line": 187,
-          "mutator": "MethodExpression",
-          "replacement": "o.cosignatures.some(c => typeof c === \"string\")",
-          "status": "Survived"
-        },
-        {
-          "line": 187,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
+          "mutator": "StringLiteral",
+          "replacement": "\"\"",
           "status": "Survived"
         }
       ],
-      "score": 62.4
+      "score": 93.7
     },
     "src/revocation.ts": {
       "batch": "pki",
-      "Killed": 207,
+      "Killed": 216,
       "Timeout": 0,
-      "Survived": 39,
+      "Survived": 30,
       "NoCoverage": 4,
       "other": 0,
       "survived": [
@@ -5322,12 +3846,6 @@
           "status": "Survived"
         },
         {
-          "line": 25,
-          "mutator": "Regex",
-          "replacement": "/https?:\\/\\//i",
-          "status": "Survived"
-        },
-        {
           "line": 57,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
@@ -5336,7 +3854,7 @@
         {
           "line": 63,
           "mutator": "Regex",
-          "replacement": "/-----[^-]+-----|\\s/g",
+          "replacement": "/-----[^-]-----|\\s+/g",
           "status": "Survived"
         },
         {
@@ -5348,7 +3866,13 @@
         {
           "line": 63,
           "mutator": "Regex",
-          "replacement": "/-----[^-]-----|\\s+/g",
+          "replacement": "/-----[^-]+-----|\\s/g",
+          "status": "Survived"
+        },
+        {
+          "line": 63,
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
@@ -5367,18 +3891,6 @@
           "line": 71,
           "mutator": "StringLiteral",
           "replacement": "``",
-          "status": "Survived"
-        },
-        {
-          "line": 63,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
-          "status": "Survived"
-        },
-        {
-          "line": 75,
-          "mutator": "EqualityOperator",
-          "replacement": "crl.nextUpdate <= now",
           "status": "Survived"
         },
         {
@@ -5430,18 +3942,6 @@
           "status": "Survived"
         },
         {
-          "line": 172,
-          "mutator": "LogicalOperator",
-          "replacement": "!p && typeof p !== \"object\"",
-          "status": "Survived"
-        },
-        {
-          "line": 172,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
           "line": 173,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
@@ -5451,18 +3951,6 @@
           "line": 174,
           "mutator": "StringLiteral",
           "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "LogicalOperator",
-          "replacement": "!p.by_reason && typeof p.by_reason !== \"object\"",
-          "status": "Survived"
-        },
-        {
-          "line": 174,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -5484,39 +3972,21 @@
           "status": "Survived"
         },
         {
-          "line": 177,
-          "mutator": "StringLiteral",
-          "replacement": "\"\"",
-          "status": "Survived"
-        },
-        {
           "line": 182,
           "mutator": "ConditionalExpression",
           "replacement": "true",
           "status": "Survived"
         },
         {
-          "line": 196,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
-          "status": "Survived"
-        },
-        {
-          "line": 196,
+          "line": 199,
           "mutator": "LogicalOperator",
-          "replacement": "r.reason || (CRL_REASONS as readonly string[]).includes(r.reason)",
+          "replacement": "!authorizedAt && Number.isNaN(Date.parse(authorizedAt))",
           "status": "Survived"
         },
         {
           "line": 199,
           "mutator": "ConditionalExpression",
           "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 199,
-          "mutator": "LogicalOperator",
-          "replacement": "!authorizedAt && Number.isNaN(Date.parse(authorizedAt))",
           "status": "Survived"
         },
         {
@@ -5550,13 +4020,13 @@
           "status": "Survived"
         }
       ],
-      "score": 82.8
+      "score": 86.4
     },
     "src/timestamp.ts": {
       "batch": "pki",
-      "Killed": 168,
+      "Killed": 167,
       "Timeout": 0,
-      "Survived": 63,
+      "Survived": 64,
       "NoCoverage": 13,
       "other": 0,
       "survived": [
@@ -5639,9 +4109,9 @@
           "status": "NoCoverage"
         },
         {
-          "line": 36,
-          "mutator": "BlockStatement",
-          "replacement": "{}",
+          "line": 38,
+          "mutator": "CallExpression",
+          "replacement": ";",
           "status": "Survived"
         },
         {
@@ -5651,9 +4121,9 @@
           "status": "Survived"
         },
         {
-          "line": 38,
-          "mutator": "CallExpression",
-          "replacement": ";",
+          "line": 36,
+          "mutator": "BlockStatement",
+          "replacement": "{}",
           "status": "Survived"
         },
         {
@@ -5682,20 +4152,26 @@
         },
         {
           "line": 42,
-          "mutator": "Regex",
-          "replacement": "/\\s/g",
+          "mutator": "StringLiteral",
+          "replacement": "\"Stryker was here!\"",
           "status": "Survived"
         },
         {
           "line": 42,
-          "mutator": "StringLiteral",
-          "replacement": "\"Stryker was here!\"",
+          "mutator": "Regex",
+          "replacement": "/\\s/g",
           "status": "Survived"
         },
         {
           "line": 49,
           "mutator": "ConditionalExpression",
           "replacement": "true",
+          "status": "Survived"
+        },
+        {
+          "line": 49,
+          "mutator": "MethodExpression",
+          "replacement": "a.some((x, i) => x === b[i])",
           "status": "Survived"
         },
         {
@@ -5742,26 +4218,26 @@
         },
         {
           "line": 108,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 108,
           "mutator": "LogicalOperator",
           "replacement": "(!hash || !si.signedAttrs) && !(digestAttr instanceof asn1js.OctetString)",
           "status": "Survived"
         },
         {
           "line": 108,
+          "mutator": "ConditionalExpression",
+          "replacement": "false",
+          "status": "Survived"
+        },
+        {
+          "line": 108,
           "mutator": "LogicalOperator",
           "replacement": "!hash && !si.signedAttrs",
-          "status": "Survived"
-        },
-        {
-          "line": 108,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
-          "status": "Survived"
-        },
-        {
-          "line": 108,
-          "mutator": "ConditionalExpression",
-          "replacement": "false",
           "status": "Survived"
         },
         {
@@ -5904,26 +4380,26 @@
         },
         {
           "line": 177,
-          "mutator": "ArrayDeclaration",
-          "replacement": "[]",
-          "status": "Survived"
-        },
-        {
-          "line": 177,
           "mutator": "LogicalOperator",
           "replacement": "[...certs, ...trusted].map(k => new X509Certificate(k.toSchema().toBER(false))).find(k => k.subject === x.issuer) && null",
           "status": "Survived"
         },
         {
           "line": 177,
-          "mutator": "ConditionalExpression",
-          "replacement": "true",
+          "mutator": "ArrayDeclaration",
+          "replacement": "[]",
           "status": "Survived"
         },
         {
           "line": 177,
           "mutator": "ArrowFunction",
           "replacement": "() => undefined",
+          "status": "Survived"
+        },
+        {
+          "line": 177,
+          "mutator": "ConditionalExpression",
+          "replacement": "true",
           "status": "Survived"
         },
         {
@@ -6017,7 +4493,7 @@
           "status": "Survived"
         }
       ],
-      "score": 68.9
+      "score": 68.4
     }
   }
 }
