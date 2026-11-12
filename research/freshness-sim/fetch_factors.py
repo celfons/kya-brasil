@@ -13,7 +13,10 @@ every factor the paper uses has a stated origin:
   ac_relative_hazard_max for each in-force end-user list with at least MIN_ENTRIES entries, its share of the new
                          entries seen by the collector / its share of the stock of entries; the maximum over lists.
                          A proxy for how much the rate of one AC exceeds the average (no per-AC denominator exists:
-                         the ITI holds no per-AC counts), labelled as such.
+                         the ITI holds no per-AC counts), labelled as such. Only lists watched for about as long as
+                         the longest-watched one are compared (window of at least WINDOW_SHARE of the longest):
+                         a list that entered the collection later saw fewer hours, and on the test cut of 7 Nov
+                         2026 only a weekend, so its few new entries would inflate the share of the others.
 
 factor_max is the largest of the three, rounded to one decimal; sensitivity.py adds it to its grid, and the paper
 cites it as the measured bound of the sensitivity range.
@@ -29,6 +32,7 @@ DATA = os.path.join(HERE, "data")
 sys.path.insert(0, HERE)
 
 MIN_ENTRIES = 1000
+WINDOW_SHARE = 0.9
 GRID = (1, 3, 10, 30, 100)
 
 
@@ -47,7 +51,10 @@ def main():
 
     flow_over_stock = flow["lambda_flow_per_year"] / lam["per_year"]
 
-    per = {k: v for k, v in flow["per_source"].items() if v.get("in_force") and v.get("entries", 0) >= MIN_ENTRIES and v.get("new_entries") is not None}
+    longest = max((v.get("window_h") or 0.0) for v in flow["per_source"].values() if v.get("in_force"))
+    per = {k: v for k, v in flow["per_source"].items()
+           if v.get("in_force") and v.get("entries", 0) >= MIN_ENTRIES and v.get("new_entries") is not None
+           and (v.get("window_h") or 0.0) >= WINDOW_SHARE * longest}
     stock_total = sum(v["entries"] for v in per.values())
     new_total = sum(v["new_entries"] for v in per.values())
     hazards = {}
@@ -68,8 +75,9 @@ def main():
         "flow_over_stock": round(flow_over_stock, 3), "lambda_stock_per_year": lam["per_year"], "lambda_flow_per_year": flow["lambda_flow_per_year"],
         "ac_relative_hazard_max": round(ac_relative_hazard_max, 3) if ac_relative_hazard_max is not None else None,
         "ac_relative_hazard_top": hazards.get(top), "ac_relative_hazards": hazards, "min_entries": MIN_ENTRIES,
+        "window_share": WINDOW_SHARE, "longest_window_h": longest,
         "factor_max": factor_max, "multipliers": multipliers,
-        "note": "ac_relative_hazard is a proxy (share of new entries over share of stock); the ITI keeps no per-AC active counts",
+        "note": "ac_relative_hazard is a proxy (share of new entries over share of stock, among lists watched for a comparable time); the ITI keeps no per-AC active counts",
     }
     with open(os.path.join(DATA, "factors.json"), "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)

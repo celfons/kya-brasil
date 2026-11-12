@@ -95,8 +95,12 @@ the window with half and with twice that chance.
 **Sensitivity factors from the data.** `fetch_factors.py` writes `data/factors.json` with three multiples of the
 measured rate taken from the collection itself: the peak month over the mean month, the flow rate over the stock
 rate, and the highest relative hazard of one AC (its share of new entries over its share of the stock, a proxy
-since the ITI keeps no per-AC counts). `sensitivity.py` adds the largest of them to its grid (1, 3, 10, 30, 100),
-so the paper can cite the observed bound and present the rest as a stress test. On 7 Nov 2026: 1.17, 1.17 and 2.8.
+since the ITI keeps no per-AC counts). The hazard compares only lists watched for about as long as the longest-watched
+one: a list that entered the collection later saw fewer hours, and its few new entries would inflate the share of
+the others. `sensitivity.py` adds the largest of the three to its grid (1, 3, 10, 30, 100), so the paper can cite the
+observed bound and present the rest as a stress test. On the cut of 7 Nov 2026: 1.14, 0.55 and 2.5. Before the
+windows were compared, the third was 4.7, because 81 of the 87 lists in force had been watched only from Friday
+night to Saturday.
 
 **Sensitivity.** `results.json` also holds the three main policies under true rates of 1e-6 and 1e-4 per hour,
 with the verifier still assuming 1e-5. Loss scales roughly with the true rate, and the ranking of the policies

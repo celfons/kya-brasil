@@ -21,31 +21,31 @@
  "flow_over_stock": 0.552,
  "lambda_stock_per_year": 0.007099335286181302,
  "lambda_flow_per_year": 0.003919482940325147,
- "ac_relative_hazard_max": 4.659,
+ "ac_relative_hazard_max": 2.496,
  "ac_relative_hazard_top": {
   "ac": "AC Certisign RFB G5",
   "entries": 7616,
   "new_entries": 48,
-  "relative_hazard": 4.658759943146398
+  "relative_hazard": 2.495695336958313
  },
  "ac_relative_hazards": {
   "uf-ac-soluti-multipla-v5": {
    "ac": "AC SOLUTI Multipla v5",
    "entries": 33863,
    "new_entries": 149,
-   "relative_hazard": 3.252496729052507
+   "relative_hazard": 1.7423608469266494
   },
   "uf-ac-certisign-rfb-g5": {
    "ac": "AC Certisign RFB G5",
    "entries": 7616,
    "new_entries": 48,
-   "relative_hazard": 4.658759943146398
+   "relative_hazard": 2.495695336958313
   },
   "uf-ac-serpro-rfb-v5": {
    "ac": "Autoridade Certificadora SERPRORFBv5",
    "entries": 77424,
    "new_entries": 108,
-   "relative_hazard": 1.0311080593324637
+   "relative_hazard": 0.5523640640385107
   },
   "uf-ac-serasa-rfb-v5": {
    "ac": "AC Serasa RFB v5",
@@ -53,100 +53,24 @@
    "new_entries": 0,
    "relative_hazard": 0.0
   },
-  "uf-ac-valid-rfb-v5": {
-   "ac": "AC VALID RFB v5 (o endereço publicado, ccd.acvalid.com.br, não resolve; este é o do repositório da Valid)",
-   "entries": 26107,
-   "new_entries": 1,
-   "relative_hazard": 0.028313858772713394
-  },
   "uf-ac-certisign-multipla-g7": {
    "ac": "AC Certisign Multipla G7",
    "entries": 1214,
    "new_entries": 1,
-   "relative_hazard": 0.6088879003123794
-  },
-  "uf-ac-alternative": {
-   "ac": "Autoridade Certificadora ALTERNATIVE",
-   "entries": 2209,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-digital-certy": {
-   "ac": "Autoridade Certificadora DIGITAL CERTY",
-   "entries": 1067,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-sdi": {
-   "ac": "Autoridade Certificadora SDI",
-   "entries": 1292,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-serpro-acf-v5": {
-   "ac": "Autoridade Certificadora do SERPRO Final v5 (SERPRO ACF)",
-   "entries": 3468,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-oab-g3": {
-   "ac": "AC OAB G3",
-   "entries": 6733,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-soluti-rfb-v5": {
-   "ac": "AC SOLUTI RFB V5",
-   "entries": 1757,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-soluti-jus-v5": {
-   "ac": "AC SOLUTI-JUS v5",
-   "entries": 1514,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-safeweb-rfb-v5": {
-   "ac": "AC SAFEWEB RFB v5",
-   "entries": 41519,
-   "new_entries": 29,
-   "relative_hazard": 0.5163059663864165
-  },
-  "uf-ac-syngularid-multipla": {
-   "ac": "AC SyngularID Multipla",
-   "entries": 34167,
-   "new_entries": 1,
-   "relative_hazard": 0.021634615593386263
-  },
-  "uf-ac-soluti-multipla-v5-g2": {
-   "ac": "AC SOLUTI Multipla v5 G2",
-   "entries": 4343,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-online-rfb-v5": {
-   "ac": "AC ONLINE RFB v5",
-   "entries": 1432,
-   "new_entries": 0,
-   "relative_hazard": 0.0
-  },
-  "uf-ac-digitalsign-rfb-g3": {
-   "ac": "AC DIGITALSIGN RFB G3",
-   "entries": 2328,
-   "new_entries": 0,
-   "relative_hazard": 0.0
+   "relative_hazard": 0.3261809391521573
   }
  },
  "min_entries": 1000,
- "factor_max": 4.7,
+ "window_share": 0.9,
+ "longest_window_h": 66.88,
+ "factor_max": 2.5,
  "multipliers": [
   1,
+  2.5,
   3,
-  4.7,
   10,
   30,
   100
  ],
- "note": "ac_relative_hazard is a proxy (share of new entries over share of stock); the ITI keeps no per-AC active counts"
+ "note": "ac_relative_hazard is a proxy (share of new entries over share of stock, among lists watched for a comparable time); the ITI keeps no per-AC active counts"
 }
