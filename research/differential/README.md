@@ -28,7 +28,7 @@ version of OpenSSL.
 ## What the runs of 12 November 2026 found
 
 Cut of 7 November 2026, OpenSSL 3.0.13. The first run was on core 0.22.0. The numbers below are of that run, and
-`results/` holds the second, on core 0.22.1, which differs only in the CMS.
+`results/` holds the latest, on core 0.22.2, which differs from the first only in the CMS.
 
 - **Entries.** The 100 lists and their 340 588 entries are read the same by both, the 53 398 reasons included.
   Two Serpro lists carry 12 negative serial numbers, which RFC 5280 forbids. OpenSSL prints them as a minus sign
