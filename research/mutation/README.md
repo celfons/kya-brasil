@@ -34,10 +34,15 @@ first run: the rules were right and untested at the edge.
 |---|---:|---:|
 | `src/mandate.ts` | 67.2% | 90.3% |
 | `src/delegation.ts` | 66.4% | 93.2% |
-| All fifteen | 69.4% | 74.6% |
+| `src/freshness.ts` | 74.7% | 95.4% |
+| `src/attestation.ts` | 75.7% | 94.7% |
+| `src/cnpj.ts` | 64.7% | 94.1% |
+| All fifteen | 69.4% | 78.1% |
 
-The other thirteen files are as measured on core 0.22.0. `results/` holds the batches of the mandate and
-delegation after the new tests and the other batches before them.
+The same was then done for the freshness policy (`freshness-boundaries.test.ts`), for the CNPJ, which had no test
+of its own (`cnpj.test.ts`), and for the CPF digits, the surrogates of the canonical JSON and the reasons a signed
+answer gives (`identity-boundaries.test.ts`). The other ten files are as measured on core 0.22.0: `results/` holds
+each batch as last run, some after the new tests and some before them.
 
 ## What this does not show
 
