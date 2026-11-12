@@ -15,7 +15,8 @@ import { OID_ICP_CNPJ, OID_ICP_PERSON, OID_ICP_RESPONSIBLE, responsibleCpfFromCe
 import { type MandateInput, REPRESENTATIVE_LINE, assembleCredential, buildMandate, mandateSigningInput, verifySelfIssuedCredential } from "./issuance.js";
 import { REPRESENTATIVE_METHOD } from "./types.js";
 import { addCosignature, verifyCompanyWill } from "./cosign.js";
-import { decodePrincipalProofHeader, encodePrincipalProofHeader } from "./principal-proof.js";
+import { type PrincipalProof, decodePrincipalProofHeader, encodePrincipalProofHeader, verifyPrincipalProof } from "./principal-proof.js";
+import type { Credential } from "./types.js";
 
 x509.cryptoProvider.set(globalThis.crypto as Crypto);
 const alg = { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256", publicExponent: new Uint8Array([1, 0, 1]), modulusLength: 2048 };
@@ -330,4 +331,244 @@ describe("vectors from representative.als: company mandate signed by one certifi
       if (v.expected.reason === "other-text" || v.expected.reason === "seal") expect(failing(r)).toContain("signature"); // refused before the list is even consulted
     });
   }
+});
+
+// Mutation testing (research/mutation) showed that each check of the principal's proof could be weakened without
+// any test failing: the tests above ask whether the whole verification passes, not which check refuses and why.
+describe("the principal's proof, one check at a time", () => {
+  const SELF = "urn:kya-brasil:self";
+  const verify = (credential: Credential, proof: PrincipalProof, anchors: string[], extra: object = {}) => verifyPrincipalProof({ credential, proof, anchors, now: NOW, ...extra });
+  const detailOf = (r: { checks: { rule: string; detail: string }[] }, rule: string) => r.checks.find((c) => c.rule === rule)?.detail;
+
+  it("reports every check of an e-CNPJ proof, with what it found", async () => {
+    const { issued, anchors } = await k();
+    const r = await verify(issued.credential, issued.proof, anchors);
+    expect(r.ok).toBe(true);
+    expect(r.checks.map((c) => [c.rule, c.ok])).toEqual([["signature", true], ["certificate", true], ["agent", true], ["principal", true], ["issuer", true], ["mandate", true]]);
+    expect(detailOf(r, "signature")).toBe("e-CNPJ signature over the text verifies up to the ICP-Brasil anchors");
+    expect(detailOf(r, "certificate")).toBe("signed with the certificate the credential records");
+    expect(detailOf(r, "agent")).toBe(`text names the credential's agent evm:${AGENT.address}`);
+    expect(detailOf(r, "principal")).toBe(`text names CNPJ ${CNPJ}`);
+    expect(detailOf(r, "issuer")).toBe(`text names issuer ${SELF}`);
+    expect(detailOf(r, "mandate")).toBe("text commits to the credential's mandate");
+    expect(r.revocation).toMatchObject({ serial_number: "2", crl_urls: [] });
+    expect(r.revocation?.issuer_certificate).toBeTruthy();
+    expect(r).not.toHaveProperty("timestamp");
+  });
+
+  it("reports the representative's check between the signature and the certificate", async () => {
+    const { issued, anchors } = await rk();
+    const r = await verify(issued.credential, issued.proof, anchors, { representatives: () => [Number(REP)] });
+    expect(r.ok).toBe(true);
+    expect(r.checks.map((c) => c.rule)).toEqual(["signature", "representative", "certificate", "agent", "principal", "issuer", "mandate"]);
+    expect(detailOf(r, "signature")).toBe("e-CPF signature over the text verifies up to the ICP-Brasil anchors");
+    expect(detailOf(r, "representative")).toBe(`the signer is a legal representative of CNPJ ${CNPJ} in the verifier's list`);
+    const notListed = await verify(issued.credential, issued.proof, anchors, { representatives: () => [OTHER] });
+    expect(failing(notListed)).toEqual(["representative"]);
+    expect(detailOf(notListed, "representative")).toBe(`the signer is not a legal representative of CNPJ ${CNPJ} in the verifier's list`);
+    const down = await verify(issued.credential, issued.proof, anchors, { representatives: async () => { throw new Error("registry down"); } });
+    expect(detailOf(down, "representative")).toBe("the list of representatives is unavailable: registry down");
+    for (const notAFunction of [undefined, [REP], REP, {}]) {
+      const none = await verify(issued.credential, issued.proof, anchors, { representatives: notAFunction });
+      expect(failing(none)).toEqual(["representative"]);
+      expect(detailOf(none, "representative")).toBe("a company credential signed by a legal representative needs the verifier's list of representatives (representatives(cnpj)); none was given");
+    }
+  });
+
+  it("refuses a proof without text and CMS, and a clock that is not a date, before anything else", async () => {
+    const { issued, anchors } = await k();
+    for (const proof of [null, undefined, {}, { text: issued.proof.text }, { cms: issued.proof.cms }, { text: 5, cms: issued.proof.cms }, { text: issued.proof.text, cms: 5 }]) {
+      expect(await verify(issued.credential, proof as never, anchors)).toEqual({ ok: false, checks: [{ rule: "signature", ok: false, detail: "proof must carry the signed text and the CMS" }], revocation: null });
+    }
+    for (const now of [new Date("x"), "2026-11-04T12:00:00Z", NOW.getTime(), undefined]) {
+      expect(await verifyPrincipalProof({ credential: issued.credential, proof: issued.proof, anchors, now: now as never })).toEqual({ ok: false, checks: [{ rule: "signature", ok: false, detail: "the verifier's clock is not a valid date" }], revocation: null });
+    }
+  });
+
+  it("names the one check that fails when one field of the credential is changed", async () => {
+    const { issued, anchors } = await rk();
+    const c = issued.credential;
+    const list = { representatives: () => [REP] };
+    const changed = async (over: Partial<Credential>) => verify({ ...c, ...over } as Credential, issued.proof, anchors, list);
+
+    const agent = await changed({ agent: { kind: "evm", id: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" } });
+    expect(failing(agent)).toEqual(["agent"]);
+    expect(detailOf(agent, "agent")).toBe(`text names agent evm:${AGENT.address}, the credential evm:0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC`);
+
+    const principal = await changed({ principal: { ...(c.principal as object), cnpj: "33000167000101" } as Credential["principal"] });
+    expect(failing(principal)).toEqual(["principal"]);
+    expect(detailOf(principal, "principal")).toBe(`text names CNPJ ${CNPJ}, the credential 33000167000101`);
+
+    const issuer = await changed({ issuer: "https://issuer.example" });
+    expect(failing(issuer)).toEqual(["issuer"]);
+    expect(detailOf(issuer, "issuer")).toBe(`text names issuer ${SELF}, the credential https://issuer.example`);
+
+    const certificate = await changed({ authorized_by: { ...c.authorized_by, certificate_sha256: "00".repeat(32) } });
+    expect(failing(certificate)).toEqual(["certificate"]);
+    expect(detailOf(certificate, "certificate")).toBe("signed with another certificate than the one the credential records");
+
+    const mandate = await changed({ mandate: { ...c.mandate, max_per_day: { amount: 5000, currency: "BRL" } } });
+    expect(failing(mandate)).toEqual(["mandate"]);
+    expect(detailOf(mandate, "mandate")).toBe("text commits to another mandate than the credential's");
+    // The hash the credential records must be the signed one; a credential that records none is judged by the text.
+    expect(failing(await changed({ authorized_by: { ...c.authorized_by, mandate_sha256: "00".repeat(32) } }))).toEqual(["mandate"]);
+    expect((await changed({ authorized_by: { ...c.authorized_by, mandate_sha256: undefined } })).ok).toBe(true);
+    // A mandate that is not JSON data commits to nothing.
+    expect(failing(await changed({ mandate: { ...c.mandate, note: Number.NaN } as Credential["mandate"] }))).toEqual(["mandate"]);
+  });
+
+  it("reads each line of the signed text once: a missing or repeated line is not a statement", async () => {
+    const { issued, anchors, company, root } = await k();
+    const signed = async (text: string) => ({ text, cms: await signerOf(company, root).sign(text) });
+    const bare = await verify(issued.credential, await signed(`KYA Brasil: prove this agent key acts for a company\nissuer: ${SELF}`), anchors);
+    expect(failing(bare)).toEqual(["agent", "principal", "mandate"]);
+    expect(detailOf(bare, "agent")).toBe(`text names agent (none), the credential evm:${AGENT.address}`);
+    expect(detailOf(bare, "principal")).toBe(`text names CNPJ (none), the credential ${CNPJ}`);
+    expect(detailOf(bare, "mandate")).toBe("text carries no mandate hash (signed before D-33)");
+    const noIssuer = await verify(issued.credential, await signed(issued.proof.text.replace(`issuer: ${SELF}\n`, "")), anchors);
+    expect(failing(noIssuer)).toEqual(["issuer"]);
+    expect(detailOf(noIssuer, "issuer")).toBe(`text names issuer (none), the credential ${SELF}`);
+    for (const line of ["agent", "cnpj", "issuer", "mandate-sha256"]) {
+      const original = issued.proof.text.split("\n").find((l) => l.startsWith(`${line}: `)) as string;
+      const twice = await verify(issued.credential, await signed(`${issued.proof.text}\n${original}`), anchors);
+      expect(failing(twice), line).toEqual([line === "cnpj" ? "principal" : line === "mandate-sha256" ? "mandate" : line]);
+    }
+    // A key that only begins like the line's is another line.
+    const other = await verify(issued.credential, await signed(issued.proof.text.replace("agent: ", "agent:")), anchors);
+    expect(failing(other)).toEqual(["agent"]);
+  });
+
+  it("reports a signature that does not verify, and then has no certificate to compare", async () => {
+    const { issued, anchors } = await rk();
+    const bad = await verify(issued.credential, { text: issued.proof.text, cms: "AAAA" }, anchors, { representatives: () => [REP] });
+    expect(bad.ok).toBe(false);
+    expect(bad.revocation).toBeNull();
+    expect(bad.checks.map((c) => c.rule)).toEqual(["signature", "representative", "agent", "principal", "issuer", "mandate"]);
+    expect(failing(bad)).toEqual(["signature", "representative"]);
+    expect(detailOf(bad, "signature")).toMatch(/^signature is not a CMS SignedData: /);
+    expect(detailOf(bad, "representative")).toBe("the signer could not be identified");
+    const otherText = await verify(issued.credential, { text: `${issued.proof.text} `, cms: issued.proof.cms }, anchors, { representatives: () => [REP] });
+    expect(failing(otherText)).toContain("signature");
+  });
+
+  it("carries a proof in a header, and refuses a header that is not one", () => {
+    const base = { text: "a\nb", cms: "AAAA" };
+    for (const proof of [base, { ...base, cosignatures: ["BBBB", "CCCC"] }, { ...base, timestamp: "DDDD" }, { ...base, cosignatures: ["BBBB"], timestamp: "DDDD" }]) {
+      expect(decodePrincipalProofHeader(` ${encodePrincipalProofHeader(proof)}\n`)).toEqual(proof);
+    }
+    // An empty list and an empty token are left out.
+    expect(decodePrincipalProofHeader(encodePrincipalProofHeader({ ...base, cosignatures: [], timestamp: "" }))).toEqual(base);
+    const header = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
+    for (const notJson of ["%%%", "", Buffer.from("not json").toString("base64url")]) expect(() => decodePrincipalProofHeader(notJson)).toThrow("KYA-Principal-Proof is not base64url JSON");
+    for (const o of [null, 5, {}, { text: "a" }, { cms: "AAAA" }, { text: 5, cms: "AAAA" }, { text: "a", cms: 5 }]) expect(() => decodePrincipalProofHeader(header(o))).toThrow("KYA-Principal-Proof must carry text and cms");
+    for (const timestamp of [5, null, ["DDDD"]]) expect(() => decodePrincipalProofHeader(header({ ...base, timestamp }))).toThrow("KYA-Principal-Proof timestamp must be a base64 time-stamp token");
+    for (const cosignatures of ["BBBB", 5, null, ["BBBB", 5], [null]]) expect(() => decodePrincipalProofHeader(header({ ...base, cosignatures }))).toThrow("KYA-Principal-Proof cosignatures must be a list of base64 CMS");
+  });
+});
+
+// Mutation testing (research/mutation) showed that the refusals and the counts of the co-signature could be
+// changed without any test failing: the tests above check the code of a refusal, not what it says nor what it counts.
+describe("co-signature at the edge of each rule", () => {
+  it("requires each input of addCosignature, and says which one is missing", async () => {
+    const { root, rep, anchors, text, issued } = await k();
+    const cms = await signerOf(rep, root).sign(text);
+    const add = (i: unknown, c: unknown = cms, chain: unknown = [], opts: unknown = { anchors, now: NOW }) => addCosignature(i as never, c as never, chain as never, opts as never);
+    for (const i of [null, undefined, {}, { credential: issued.credential }, { proof: issued.proof }, { credential: issued.credential, proof: { cms: "AAAA" } }]) await expect(add(i)).rejects.toThrow("issued: { credential, proof } from assembleCredential is required");
+    await expect(add({ ...issued, credential: { ...issued.credential, issuer: "https://issuer.example" } })).rejects.toThrow("only a self-issued credential (urn:kya-brasil:self) takes co-signatures");
+    await expect(add({ ...issued, credential: { ...issued.credential, principal: undefined } })).rejects.toThrow("only a company credential takes co-signatures of its legal representatives");
+    for (const now of [undefined, new Date("x"), "2026-11-04T12:00:00Z", NOW.getTime()]) await expect(add(issued, cms, [], { anchors, now })).rejects.toThrow("opts.now must be a valid Date (the clock is the caller's)");
+    await expect(add(issued, cms, [], null)).rejects.toThrow("opts.now must be a valid Date");
+    for (const a of [undefined, [], "anchor", {}]) await expect(add(issued, cms, [], { anchors: a, now: NOW })).rejects.toThrow("opts.anchors: the ICP-Brasil trust anchors are required");
+    for (const c of [null, 5, "", "  \n"]) await expect(add(issued, c)).rejects.toThrow("cms: the co-signature (base64 DER) is required");
+    for (const chain of [null, "chain", {}]) await expect(add(issued, cms, chain)).rejects.toThrow("certChain must be an array; [] when the CMS already carries it");
+    for (const p of [add(null), add(issued, "")]) await expect(p).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  });
+
+  it("records the co-signer's certificate by hash, with the caller's clock, after the ones already there", async () => {
+    const { root, rep, other, anchors, text, issued } = await k();
+    const one = await addCosignature(issued, await signerOf(other, root).sign(text), [], { anchors, now: NOW });
+    const two = await addCosignature(one, await signerOf(rep, root).sign(text), [], { anchors, now: new Date("2026-11-05T08:00:00Z") });
+    expect(two.credential.cosignatures).toHaveLength(2);
+    expect(two.credential.cosignatures?.[0]).toEqual(one.credential.cosignatures?.[0]);
+    expect(two.credential.cosignatures?.[1]).toEqual({ method: "icp-brasil-e-cpf", certificate_sha256: expect.stringMatching(/^[0-9a-f]{64}$/), issuer: root.cert.subject, signed_at: "2026-11-05T08:00:00.000Z", not_after: rep.cert.notAfter.toISOString() });
+    expect(two.proof.cosignatures).toHaveLength(2);
+    expect(two.proof.cosignatures?.[0]).toBe(one.proof.cosignatures?.[0]);
+    expect(two.proof.text).toBe(issued.proof.text);
+    expect(issued.credential.cosignatures).toBeUndefined();
+    expect(one.credential.cosignatures).toHaveLength(1);
+  });
+
+  it("requires a whole number of co-signers and a source of representatives", async () => {
+    const { anchors, issued } = await k();
+    for (const minCosigners of [0, -1, 1.5, "2", Number.NaN]) await expect(verifyCompanyWill(issued, { anchors, now: NOW, representatives: reps, minCosigners: minCosigners as number })).rejects.toThrow("minCosigners must be an integer >= 1");
+    for (const representatives of [[REP], REP, {}, null]) await expect(verifyCompanyWill(issued, { anchors, now: NOW, representatives: representatives as never })).rejects.toThrow("representatives must be (cnpj) => CPFs of the company's legal representatives");
+    for (const opts of [{ anchors, now: NOW }, { anchors, now: NOW, acceptCertificateResponsible: "yes" }, { anchors, now: NOW, acceptCertificateResponsible: false }]) await expect(verifyCompanyWill(issued, opts as never)).rejects.toThrow("a source of legal representatives is required");
+    expect(await verifyCompanyWill({ ...issued, credential: { ...issued.credential, principal: undefined } } as never, { anchors, now: NOW, representatives: reps })).toEqual({ ok: false, code: "COMPANY_SIGNATURE_INVALID", detail: "not a company credential", representatives_counted: 0, cosigners: [] });
+    expect(await verifyCompanyWill(null as never, { anchors, now: NOW, representatives: reps })).toMatchObject({ ok: false, code: "COMPANY_SIGNATURE_INVALID", detail: "not a company credential" });
+  });
+
+  it("says what it counted, and what each co-signer is", async () => {
+    const { root, rep, other, anchors, text, issued } = await k();
+    const none = await verifyCompanyWill(issued, { anchors, now: NOW, representatives: reps });
+    expect(none).toEqual({ ok: false, code: "NO_COSIGNATURE", detail: "the credential carries no co-signature by a legal representative (e-CPF)", representatives_counted: 0, cosigners: [] });
+
+    const byOther = await addCosignature(issued, await signerOf(other, root).sign(text), [], { anchors, now: NOW });
+    const notRep = await verifyCompanyWill(byOther, { anchors, now: NOW, representatives: reps });
+    expect(notRep).toMatchObject({ ok: false, code: "COSIGNER_NOT_REPRESENTATIVE", detail: `no co-signer is a legal representative of CNPJ ${CNPJ}`, representatives_counted: 0 });
+    expect(notRep.cosigners).toEqual([{ certificate_sha256: byOther.credential.cosignatures?.[0]?.certificate_sha256, ok: false, representative: false, code: "COSIGNER_NOT_REPRESENTATIVE", detail: `the co-signer is not a legal representative of CNPJ ${CNPJ}`, revocation: expect.objectContaining({ serial_number: "4" }) }]);
+
+    const both = await addCosignature(byOther, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
+    const one = await verifyCompanyWill(both, { anchors, now: NOW, representatives: (() => [Number(REP)]) as never });
+    expect(one).toMatchObject({ ok: true, detail: "1 legal representative(s) co-signed", representatives_counted: 1 });
+    expect(one.cosigners.map((c) => [c.ok, c.representative, c.basis, c.code, c.detail])).toEqual([
+      [false, false, undefined, "COSIGNER_NOT_REPRESENTATIVE", `the co-signer is not a legal representative of CNPJ ${CNPJ}`],
+      [true, true, "representatives", undefined, "valid co-signature by a legal representative"]
+    ]);
+    const short = await verifyCompanyWill(both, { anchors, now: NOW, representatives: reps, minCosigners: 2 });
+    expect(short).toMatchObject({ ok: false, code: "INSUFFICIENT_COSIGNERS", detail: "1 of 2 required legal representatives co-signed", representatives_counted: 1 });
+    expect(short.cosigners).toHaveLength(2);
+    expect(await verifyCompanyWill(both, { anchors, now: NOW, representatives: () => [REP, OTHER], minCosigners: 2 })).toMatchObject({ ok: true, detail: "2 legal representative(s) co-signed", representatives_counted: 2 });
+    await expect(verifyCompanyWill(both, { anchors, now: NOW, representatives: () => [REP, OTHER], minCosigners: 3 })).resolves.toMatchObject({ code: "INSUFFICIENT_COSIGNERS", detail: "2 of 3 required legal representatives co-signed" });
+  });
+
+  it("counts a person once, whatever the number of certificates they co-sign with", async () => {
+    const { root, rep, anchors, text, issued } = await k();
+    const second = await leaf(root, { cpf: REP }, "07");
+    const one = await addCosignature(issued, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
+    const two = await addCosignature(one, await signerOf(second, root).sign(text), [], { anchors, now: NOW });
+    expect(two.credential.cosignatures).toHaveLength(2);
+    expect(await verifyCompanyWill(two, { anchors, now: NOW, representatives: reps })).toMatchObject({ ok: true, representatives_counted: 1 });
+    expect(await verifyCompanyWill(two, { anchors, now: NOW, representatives: reps, minCosigners: 2 })).toMatchObject({ ok: false, code: "INSUFFICIENT_COSIGNERS", representatives_counted: 1 });
+  });
+
+  it("refuses any mismatch between the co-signatures the credential records and the ones the proof carries", async () => {
+    const { root, rep, other, anchors, text, issued } = await k();
+    const cs = await addCosignature(issued, await signerOf(rep, root).sign(text), [], { anchors, now: NOW });
+    const hash = cs.credential.cosignatures?.[0]?.certificate_sha256;
+    // Carried by the proof and not recorded by the credential.
+    const unrecorded = await verifyCompanyWill({ credential: issued.credential, proof: cs.proof }, { anchors, now: NOW, representatives: reps });
+    expect(unrecorded).toMatchObject({ ok: false, code: "COSIGNATURE_NOT_RECORDED", detail: "the credential does not record this co-signer's certificate", representatives_counted: 0 });
+    expect(unrecorded.cosigners).toEqual([{ certificate_sha256: hash, ok: false, representative: false, code: "COSIGNATURE_NOT_RECORDED", detail: "the credential does not record this co-signer's certificate", revocation: expect.objectContaining({ serial_number: "3" }) }]);
+    // Recorded by the credential and not carried by the proof.
+    const uncarried = await verifyCompanyWill({ credential: cs.credential, proof: issued.proof }, { anchors, now: NOW, representatives: reps });
+    expect(uncarried).toMatchObject({ ok: false, code: "COSIGNATURE_NOT_RECORDED", detail: "the credential records a co-signature the proof does not carry (or it did not verify)" });
+    expect(uncarried.cosigners).toEqual([{ certificate_sha256: hash, ok: false, representative: false, code: "COSIGNATURE_NOT_RECORDED", detail: "the credential records a co-signature the proof does not carry (or it did not verify)", revocation: null }]);
+    // A valid co-signature next to a broken one is still a refusal, and the valid one is still counted.
+    const extra = { credential: cs.credential, proof: { ...cs.proof, cosignatures: [...(cs.proof.cosignatures ?? []), await signerOf(other, root).sign(text)] } };
+    expect(await verifyCompanyWill(extra, { anchors, now: NOW, representatives: reps })).toMatchObject({ ok: false, code: "COSIGNATURE_NOT_RECORDED", representatives_counted: 1 });
+    const garbage = { credential: cs.credential, proof: { ...cs.proof, cosignatures: ["AAAA"] } };
+    const bad = await verifyCompanyWill(garbage, { anchors, now: NOW, representatives: reps });
+    expect(bad).toMatchObject({ ok: false, code: "COSIGNATURE_TEXT_MISMATCH" });
+    expect(bad.cosigners[0]).toMatchObject({ certificate_sha256: null, ok: false, representative: false, code: "COSIGNATURE_TEXT_MISMATCH", revocation: null });
+    expect(bad.cosigners[1]).toMatchObject({ certificate_sha256: hash, code: "COSIGNATURE_NOT_RECORDED" });
+  });
+
+  it("a representative's credential says how many signed, and needs the list", async () => {
+    const { issued, anchors } = await rk();
+    expect(await verifyCompanyWill(issued, { anchors, now: NOW, representatives: reps })).toEqual({ ok: true, detail: "1 legal representative(s) signed", representatives_counted: 1, cosigners: [] });
+    expect(await verifyCompanyWill(issued, { anchors, now: NOW, acceptCertificateResponsible: true })).toEqual({ ok: false, code: "COMPANY_SIGNATURE_INVALID", detail: "a company credential signed by a legal representative needs representatives(cnpj): there is no e-CNPJ to name a person responsible", representatives_counted: 0, cosigners: [] });
+    const notListed = await verifyCompanyWill(issued, { anchors, now: NOW, representatives: () => [OTHER] });
+    expect(notListed).toMatchObject({ ok: false, code: "COMPANY_SIGNATURE_INVALID", representatives_counted: 0, cosigners: [] });
+    expect(notListed.detail).toBe(`representative: the signer is not a legal representative of CNPJ ${CNPJ} in the verifier's list`);
+  });
 });
