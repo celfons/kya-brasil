@@ -6,7 +6,7 @@
 //   3. the CMS signature of the self-issued vector, and mutants of it: the core must not accept what OpenSSL refuses.
 // Usage: tsx compare.mjs   (writes results/results.json and results/RESULTS.md)
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,8 +23,14 @@ const MUTANTS_PER_CRL = 200;
 const OPENSSL_MAX_BYTES = 300_000; // mutants of larger lists are read only by the core, to keep the run short
 const CMS_MUTANTS = 2000;
 const iso = (d) => (d ? d.toISOString().replace(".000Z", "Z") : null);
-// Child processes (openssl, git) are found only in the system directories, whatever PATH the caller has.
-const CHILD = { encoding: "utf8", env: { PATH: "/usr/local/bin:/usr/bin:/bin" } };
+// openssl and git are taken from the system directories, by full path, whatever PATH the caller has.
+function systemBinary(name) {
+  const found = ["/usr/bin", "/usr/local/bin", "/bin", "/opt/homebrew/bin"].map((dir) => join(dir, name)).find((path) => existsSync(path));
+  if (!found) throw new Error(`${name} not found in the system directories`);
+  return found;
+}
+const OPENSSL_BIN = systemBinary("openssl");
+const CHILD = { encoding: "utf8" };
 
 /** mulberry32: a small seeded generator, so the mutants are the same on every run. */
 function prng(seed) {
@@ -106,7 +112,7 @@ function opensslDate(s) {
 function opensslReads(bytes) {
   const path = join(TMP, "mutant.crl");
   writeFileSync(path, bytes);
-  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-noout", "-lastupdate", "-nextupdate"], CHILD);
+  const r = spawnSync(OPENSSL_BIN, ["crl", "-inform", "DER", "-in", path, "-noout", "-lastupdate", "-nextupdate"], CHILD);
   if (r.status !== 0) return { ok: false };
   const last = /lastUpdate=(.*)/.exec(r.stdout)?.[1];
   const next = /nextUpdate=(.*)/.exec(r.stdout)?.[1];
@@ -130,7 +136,7 @@ async function issuerOf(der) {
 function opensslVerifiesCrl(bytes, issuerPath) {
   const path = join(TMP, "mutant.crl");
   writeFileSync(path, bytes);
-  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-CAfile", issuerPath, "-noout"], CHILD);
+  const r = spawnSync(OPENSSL_BIN, ["crl", "-inform", "DER", "-in", path, "-CAfile", issuerPath, "-noout"], CHILD);
   return r.status === 0 && /verify OK/.test(r.stderr);
 }
 
@@ -216,7 +222,7 @@ function opensslVerifies(cms, text, caPath, at) {
   const content = join(TMP, "content");
   writeFileSync(p7, cms);
   writeFileSync(content, text);
-  const r = spawnSync("openssl", ["cms", "-verify", "-binary", "-inform", "DER", "-in", p7, "-content", content, "-CAfile", caPath, "-attime", String(at), "-purpose", "any", "-out", "/dev/null"], CHILD);
+  const r = spawnSync(OPENSSL_BIN, ["cms", "-verify", "-binary", "-inform", "DER", "-in", p7, "-content", content, "-CAfile", caPath, "-attime", String(at), "-purpose", "any", "-out", "/dev/null"], CHILD);
   return r.status === 0;
 }
 
@@ -256,7 +262,7 @@ const cms = await compareCms();
 rmSync(TMP, { recursive: true, force: true });
 
 const core = JSON.parse(readFileSync(join(HERE, "..", "..", "packages", "core", "package.json"), "utf8")).version;
-const commit = execFileSync("git", ["rev-parse", "HEAD"], { ...CHILD, cwd: HERE }).trim();
+const commit = execFileSync(systemBinary("git"), ["rev-parse", "HEAD"], { ...CHILD, cwd: HERE }).trim();
 const results = {
   cut: measured.generated_at,
   core_version: core,

@@ -1,6 +1,6 @@
 # Mutation testing of @kya-brasil/core
 
-@kya-brasil/core 0.22.1 (commit 8c7eed33d09d), Stryker 10.1.1, the library's own tests and vectors.
+@kya-brasil/core 0.22.1 (commit bec0c7f5f6af), Stryker 10.1.1, the library's own tests and vectors.
 The score is the share of mutants a test detected (killed or timed out) among those that could be detected.
 
 | File | Mutants | Killed | Timed out | Survived | No test reaches it | Score (%) |
