@@ -26,7 +26,7 @@ import { challengeText, normalizeAgentKey } from "./challenge.js";
 import { isValidCnpj, normalizeCnpj } from "./cnpj.js";
 import { buildCredential, buildPersonCredential, buildRepresentativeCredential, effectiveStatus, mandateSha256 } from "./credential.js";
 import { type Delegation, type DelegationAnchor, prepareDelegation, verifyDelegationChain } from "./delegation.js";
-import { verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
+import { signedDataOf, verifyIcpPersonSignature, verifyIcpSignature } from "./icp-brasil.js";
 import { validateMandate } from "./mandate.js";
 import { personChallengeText } from "./person.js";
 import { type PrincipalProof, type PrincipalProofCheck, type Representatives, verifyPrincipalProof } from "./principal-proof.js";
@@ -218,8 +218,7 @@ export function withCertificates(cmsBase64: string, certChain: (Uint8Array | str
   let ci: pkijs.ContentInfo;
   let signed: pkijs.SignedData;
   try {
-    ci = pkijs.ContentInfo.fromBER(toArrayBuffer(unb64(cmsBase64)));
-    signed = new pkijs.SignedData({ schema: ci.content });
+    ({ contentInfo: ci, signed } = signedDataOf(unb64(cmsBase64)));
   } catch (e) {
     throw new KyaError("CHALLENGE_FAILED", `signature is not a CMS SignedData: ${(e as Error).message}`);
   }

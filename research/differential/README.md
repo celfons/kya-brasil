@@ -60,8 +60,10 @@ asn1js, which decode the CMS, are lenient there:
 
 The consequence is that one signature has more than one accepted encoding. Nothing in the library uses the bytes
 of the CMS as an identifier of the signature, and whoever does should hash the signed text and the certificate,
-which the library returns. Refusing these encodings in the library is a decision still open: a strict DER check
-would also refuse CMS files that real signers write in BER.
+which the library returns.
+
+Since core 0.22.1 the library refuses the first row: the outer content type must say SignedData. The other rows
+are left as they are, because a strict DER check would also refuse CMS files that real signers write in BER.
 
 ## What this does not show
 
