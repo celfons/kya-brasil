@@ -1,7 +1,7 @@
 {
   "cut": "2026-11-07T21:24:36.190Z",
   "core_version": "0.22.1",
-  "commit": "1c44c6f1fdd24b42e2d045a240c2b3a78f2980b8",
+  "commit": "8c7eed33d09dd872cf5f6dc49af9aa53b2cf1897",
   "openssl": "OpenSSL 3.0.13 30 Jan 2024 (Library: OpenSSL 3.0.13 30 Jan 2024)",
   "seed": 20261112,
   "entries": {
@@ -822,7 +822,7 @@
       "core_parsed": 11198,
       "core_refused": 8802,
       "core_other_error": 0,
-      "slowest_ms": 178,
+      "slowest_ms": 192,
       "compared_with_openssl": 18200,
       "both_accept": 8096,
       "both_refuse": 6404,

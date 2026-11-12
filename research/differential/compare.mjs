@@ -23,6 +23,8 @@ const MUTANTS_PER_CRL = 200;
 const OPENSSL_MAX_BYTES = 300_000; // mutants of larger lists are read only by the core, to keep the run short
 const CMS_MUTANTS = 2000;
 const iso = (d) => (d ? d.toISOString().replace(".000Z", "Z") : null);
+// Child processes (openssl, git) are found only in the system directories, whatever PATH the caller has.
+const CHILD = { encoding: "utf8", env: { PATH: "/usr/local/bin:/usr/bin:/bin" } };
 
 /** mulberry32: a small seeded generator, so the mutants are the same on every run. */
 function prng(seed) {
@@ -104,7 +106,7 @@ function opensslDate(s) {
 function opensslReads(bytes) {
   const path = join(TMP, "mutant.crl");
   writeFileSync(path, bytes);
-  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-noout", "-lastupdate", "-nextupdate"], { encoding: "utf8" });
+  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-noout", "-lastupdate", "-nextupdate"], CHILD);
   if (r.status !== 0) return { ok: false };
   const last = /lastUpdate=(.*)/.exec(r.stdout)?.[1];
   const next = /nextUpdate=(.*)/.exec(r.stdout)?.[1];
@@ -128,8 +130,32 @@ async function issuerOf(der) {
 function opensslVerifiesCrl(bytes, issuerPath) {
   const path = join(TMP, "mutant.crl");
   writeFileSync(path, bytes);
-  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-CAfile", issuerPath, "-noout"], { encoding: "utf8" });
+  const r = spawnSync("openssl", ["crl", "-inform", "DER", "-in", path, "-CAfile", issuerPath, "-noout"], CHILD);
   return r.status === 0 && /verify OK/.test(r.stderr);
+}
+
+/** Which of the four outcomes two yes/no answers give: the name of the counter, and whether they disagree. */
+function outcome(core, openssl, names) {
+  if (core && openssl) return names[0];
+  if (!core && !openssl) return names[1];
+  return core ? names[2] : names[3];
+}
+
+/** Counts how the core read one mutant. */
+function countReading(tally, c) {
+  tally.mutants++;
+  tally.slowest_ms = Math.max(tally.slowest_ms, Math.round(c.ms));
+  if (c.ok) return "core_parsed";
+  return c.refused ? "core_refused" : "core_other_error";
+}
+
+/** The AC certificate that verifies `der`, written to `issuerPath`, when the list is small and OpenSSL agrees. */
+async function issuerFor(der, issuerPath) {
+  if (der.length > OPENSSL_MAX_BYTES) return null;
+  const issuer = await issuerOf(der);
+  if (!issuer) return null;
+  writeFileSync(issuerPath, issuer + "\n");
+  return opensslVerifiesCrl(der, issuerPath) ? issuer : null;
 }
 
 async function mutateCrls(names) {
@@ -138,43 +164,39 @@ async function mutateCrls(names) {
   const signature = { lists: 0, mutants: 0, both_verify: 0, both_refuse: 0, only_core_verifies: 0, only_openssl_verifies: 0 };
   const examples = { core_other_error: [], only_core_accepts: [], only_openssl_accepts: [], dates_differ: [], only_core_verifies: [], only_openssl_verifies: [] };
   const issuerPath = join(TMP, "issuer.pem");
-  const note = (k, v) => { if (examples[k].length < 10) examples[k].push(v); };
+  const note = (k, v) => {
+    if (examples[k] && examples[k].length < 10) examples[k].push(v);
+  };
+  const one = async (name, der, serials, issuer, i) => {
+    const m = mutate(der, rnd);
+    const at = { source: name, mutant: i, kind: m.kind };
+    const c = coreReads(m.bytes, serials);
+    const read = countReading(tally, c);
+    tally[read]++;
+    if (read === "core_other_error") note(read, { ...at, error: c.error });
+    if (der.length > OPENSSL_MAX_BYTES) return;
+    const o = opensslReads(m.bytes);
+    tally.compared_with_openssl++;
+    const accepted = outcome(c.ok, o.ok, ["both_accept", "both_refuse", "only_core_accepts", "only_openssl_accepts"]);
+    tally[accepted]++;
+    note(accepted, { ...at, error: c.error });
+    if (accepted === "both_accept" && (c.this_update !== o.this_update || c.next_update !== o.next_update)) {
+      tally.dates_differ++;
+      note("dates_differ", { ...at, core: [c.this_update, c.next_update], openssl: [o.this_update, o.next_update] });
+    }
+    if (!issuer) return;
+    // The signature is compared only where the AC's certificate is among the anchors and both verify the original.
+    const verified = outcome(await coreVerifiesCrl(m.bytes, issuer), opensslVerifiesCrl(m.bytes, issuerPath), ["both_verify", "both_refuse", "only_core_verifies", "only_openssl_verifies"]);
+    signature.mutants++;
+    signature[verified]++;
+    note(verified, at);
+  };
   for (const name of names) {
     const der = readFileSync(join(CRL, name + ".crl"));
     const serials = JSON.parse(readFileSync(join(OPENSSL, name + ".json"), "utf8")).entries.slice(0, 50).map((e) => derSerial(e[0]));
-    // The signature is compared only where the AC's certificate is among the anchors and both verify the original.
-    let issuer = der.length > OPENSSL_MAX_BYTES ? null : await issuerOf(der);
-    if (issuer) {
-      writeFileSync(issuerPath, issuer + "\n");
-      if (opensslVerifiesCrl(der, issuerPath)) signature.lists++;
-      else issuer = null;
-    }
-    for (let i = 0; i < MUTANTS_PER_CRL; i++) {
-      const m = mutate(der, rnd);
-      const c = coreReads(m.bytes, serials);
-      tally.mutants++;
-      tally.slowest_ms = Math.max(tally.slowest_ms, Math.round(c.ms));
-      if (c.ok) tally.core_parsed++;
-      else if (c.refused) tally.core_refused++;
-      else { tally.core_other_error++; note("core_other_error", { source: name, mutant: i, kind: m.kind, error: c.error }); }
-      if (der.length > OPENSSL_MAX_BYTES) continue;
-      const o = opensslReads(m.bytes);
-      tally.compared_with_openssl++;
-      if (c.ok && o.ok) {
-        tally.both_accept++;
-        if (c.this_update !== o.this_update || c.next_update !== o.next_update) { tally.dates_differ++; note("dates_differ", { source: name, mutant: i, kind: m.kind, core: [c.this_update, c.next_update], openssl: [o.this_update, o.next_update] }); }
-      } else if (!c.ok && !o.ok) tally.both_refuse++;
-      else if (c.ok) { tally.only_core_accepts++; note("only_core_accepts", { source: name, mutant: i, kind: m.kind }); }
-      else { tally.only_openssl_accepts++; note("only_openssl_accepts", { source: name, mutant: i, kind: m.kind, error: c.error }); }
-      if (!issuer) continue;
-      const cv = await coreVerifiesCrl(m.bytes, issuer);
-      const ov = opensslVerifiesCrl(m.bytes, issuerPath);
-      signature.mutants++;
-      if (cv && ov) signature.both_verify++;
-      else if (!cv && !ov) signature.both_refuse++;
-      else if (cv) { signature.only_core_verifies++; note("only_core_verifies", { source: name, mutant: i, kind: m.kind }); }
-      else { signature.only_openssl_verifies++; note("only_openssl_verifies", { source: name, mutant: i, kind: m.kind }); }
-    }
+    const issuer = await issuerFor(der, issuerPath);
+    if (issuer) signature.lists++;
+    for (let i = 0; i < MUTANTS_PER_CRL; i++) await one(name, der, serials, issuer, i);
   }
   return { tally, signature, examples };
 }
@@ -194,7 +216,7 @@ function opensslVerifies(cms, text, caPath, at) {
   const content = join(TMP, "content");
   writeFileSync(p7, cms);
   writeFileSync(content, text);
-  const r = spawnSync("openssl", ["cms", "-verify", "-binary", "-inform", "DER", "-in", p7, "-content", content, "-CAfile", caPath, "-attime", String(at), "-purpose", "any", "-out", "/dev/null"], { encoding: "utf8" });
+  const r = spawnSync("openssl", ["cms", "-verify", "-binary", "-inform", "DER", "-in", p7, "-content", content, "-CAfile", caPath, "-attime", String(at), "-purpose", "any", "-out", "/dev/null"], CHILD);
   return r.status === 0;
 }
 
@@ -234,7 +256,7 @@ const cms = await compareCms();
 rmSync(TMP, { recursive: true, force: true });
 
 const core = JSON.parse(readFileSync(join(HERE, "..", "..", "packages", "core", "package.json"), "utf8")).version;
-const commit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: HERE, encoding: "utf8" }).trim();
+const commit = execFileSync("git", ["rev-parse", "HEAD"], { ...CHILD, cwd: HERE }).trim();
 const results = {
   cut: measured.generated_at,
   core_version: core,

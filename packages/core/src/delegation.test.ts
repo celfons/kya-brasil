@@ -175,7 +175,7 @@ describe("delegation at the edge of each rule", () => {
       return { ...base, note: "x".repeat(n - JSON.stringify(validateMandate(base)).length) };
     };
     expect(DELEGATED_MANDATE_MAX_BYTES).toBe(2048);
-    expect(JSON.stringify((await prepare(600, sized(2048))).delegation.mandate).length).toBe(2048);
+    expect(JSON.stringify((await prepare(600, sized(2048))).delegation.mandate)).toHaveLength(2048);
     await expect(prepare(600, sized(2049))).rejects.toThrow("delegated mandate larger than 2048 bytes");
     // The first link names no parent, and the text says so.
     const { text, delegation } = await prepare(600);

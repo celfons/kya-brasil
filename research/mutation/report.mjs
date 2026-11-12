@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATA = join(HERE, "data");
-const batches = readdirSync(DATA).filter((n) => /^mutation-[a-z]+\.json$/.test(n)).sort();
+const batches = readdirSync(DATA).filter((n) => /^mutation-[a-z]+\.json$/.test(n)).sort((a, b) => a.localeCompare(b));
 if (batches.length !== 5) throw new Error(`expected the five batches in data/, found ${batches.join(", ") || "none"}`);
 
 const files = {};
@@ -34,12 +34,12 @@ const sum = { Killed: total("Killed"), Timeout: total("Timeout"), Survived: tota
 const require_ = (p) => JSON.parse(readFileSync(p, "utf8"));
 const results = {
   core_version: require_(join(HERE, "..", "..", "packages", "core", "package.json")).version,
-  commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: HERE, encoding: "utf8" }).trim(),
+  commit: execFileSync("git", ["rev-parse", "HEAD"], { cwd: HERE, encoding: "utf8", env: { PATH: "/usr/local/bin:/usr/bin:/bin" } }).trim(),
   stryker: require_(join(HERE, "node_modules", "@stryker-mutator", "core", "package.json")).version,
   mutants: sum.Killed + sum.Timeout + sum.Survived + sum.NoCoverage,
   ...sum,
   score: score(sum),
-  files: Object.fromEntries(Object.entries(files).sort().map(([p, f]) => [p, { ...f, score: score(f) }]))
+  files: Object.fromEntries(Object.entries(files).sort(([a], [b]) => a.localeCompare(b)).map(([p, f]) => [p, { ...f, score: score(f) }]))
 };
 mkdirSync(join(HERE, "results"), { recursive: true });
 writeFileSync(join(HERE, "results", "results.json"), JSON.stringify(results, null, 2) + "\n");

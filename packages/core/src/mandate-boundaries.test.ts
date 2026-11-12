@@ -25,7 +25,7 @@ describe("validateMandate: what it refuses and the last value it accepts", () =>
       const empty = JSON.stringify({ note: "" }).length;
       return { note: "x".repeat(n - empty) };
     };
-    expect(JSON.stringify(sized(8192)).length).toBe(8192);
+    expect(JSON.stringify(sized(8192))).toHaveLength(8192);
     expect(() => validateMandate(sized(8192))).not.toThrow();
     refuses(sized(8193), "larger than 8192 bytes");
   });
